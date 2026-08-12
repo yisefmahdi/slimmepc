@@ -228,13 +228,6 @@ class ContentBlockSeeder extends Seeder
         $design = [
             'meta_title' => 'Slimme-PC — Computerreparatie & IT-service in Apeldoorn',
             'meta_description' => 'Van diagnose tot reparatie: Slimme-PC is jouw betrouwbare partner voor computerreparatie, laptopreparatie, data recovery en IT-service in Apeldoorn.',
-            'brand_primary' => '#2563eb',
-            'brand_primary_dark' => '#1d4ed8',
-            'brand_accent' => '#84cc16',
-            'brand_heading' => '#020617',
-            'gradient_from' => '#1d4ed8',
-            'gradient_to' => '#3b82f6',
-            'font_family' => 'Figtree',
         ];
 
         ContentMeta::updateOrCreate(

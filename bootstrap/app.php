@@ -19,6 +19,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => EnsureUserIsAdmin::class,
         ]);
+
+        $middleware->validateCsrfTokens(except: [
+            'login/',
+            'register/',
+            'logout/',
+       ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

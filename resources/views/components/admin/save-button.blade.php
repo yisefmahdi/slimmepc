@@ -1,6 +1,6 @@
 @props(['label' => 'Opslaan'])
 
-<button type="submit" {{ $attributes->merge(['class' => 'inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#075be8] to-[#064bd7] px-8 py-2.5 text-sm font-bold text-white shadow-sm transition hover:opacity-90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:cursor-not-allowed disabled:opacity-60 min-w-[200px] p-4']) }}>
+<button type="submit" {{ $attributes->merge(['class' => 'inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#075be8] to-[#064bd7] px-8 py-2.5 text-sm font-bold text-white shadow-sm transition hover:opacity-90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:cursor-not-allowed disabled:opacity-60 min-w-[200px] p-2']) }}>
     <svg class="btn-icon h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
     </svg>

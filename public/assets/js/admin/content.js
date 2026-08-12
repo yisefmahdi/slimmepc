@@ -118,7 +118,13 @@
 
                     var wrapper = document.createElement('div');
                     wrapper.innerHTML = html.trim();
-                    rowsContainer.appendChild(wrapper.firstChild);
+                    var newRow = wrapper.firstChild;
+                    var numSpan = newRow.querySelector('[data-row-number]');
+                    if (numSpan) {
+                        var numVal = index + 1;
+                        numSpan.textContent = numVal < 10 ? '0' + numVal : numVal;
+                    }
+                    rowsContainer.appendChild(newRow);
                 }
 
                 var removeBtn = e.target.closest('[data-remove-row]');

@@ -271,22 +271,7 @@
                         lg:flex
                     ">
                     <i data-lucide="user-round" class="h-5 w-5"></i>
-                    <span>Inloggen</span>
-                </a>
-
-                <a href="{{ route('register') }}" class="
-                        hidden h-11 items-center gap-2
-                        rounded-xl bg-white/10
-                        px-4 py-3
-                        text-sm font-extrabold
-                        text-white
-                        ring-1 ring-white/20
-                        transition
-                        hover:bg-white/15
-                        lg:flex
-                    ">
-                    <i data-lucide="user-plus" class="h-5 w-5"></i>
-                    <span>Aanmelden</span>
+                    <span>Account</span>
                 </a>
             @endguest
 
@@ -485,7 +470,7 @@
                         font-semibold text-slate-700
                     ">
                     <i data-lucide="user-round" class="h-5 w-5"></i>
-                    Inloggen
+                    Account
                 </a>
             @endguest
 

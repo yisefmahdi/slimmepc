@@ -19,12 +19,22 @@ Route::prefix('admin')
         Route::prefix('content')
             ->name('content.')
             ->group(function () {
-                Route::get('/', [ContentController::class, 'index'])
-                    ->name('index');
+                // Redirect /admin/content to design editor
+                Route::get('/', function () {
+                    return redirect()->route('admin.content.design.edit');
+                })->name('index');
 
+                // Design / SEO Settings
+                Route::get('/design', [ContentController::class, 'editDesign'])
+                    ->name('design.edit');
                 Route::post('/design', [ContentController::class, 'updateDesign'])
                     ->name('design');
 
+                // Section editors (Header, Hero, Why)
+                Route::get('/{page}/section/{section}', [ContentController::class, 'editSection'])
+                    ->whereAlpha('page')
+                    ->whereAlpha('section')
+                    ->name('section.edit');
                 Route::post('/{page}/section/{section}', [ContentController::class, 'updateSection'])
                     ->whereAlpha('page')
                     ->whereAlpha('section')

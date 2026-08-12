@@ -14,27 +14,39 @@ use Illuminate\View\View;
 class ContentController extends Controller
 {
     /**
-     * Show the CMS editor: one page at a time, accordion per section.
+     * Show the CMS design (SEO) editor as a separate page.
      */
-    public function index(Request $request): View
+    public function editDesign(): View
+    {
+        $design = Cms::design();
+        $designGroups = config('cms.design');
+
+        return view('admin.content.design', [
+            'title' => 'Home-page - Ontwerp & SEO',
+            'design' => $design,
+            'designGroups' => $designGroups,
+        ]);
+    }
+
+    /**
+     * Show a single section of a page as a separate page.
+     */
+    public function editSection(string $page, string $section): View
     {
         $pages = config('cms.pages');
-        $page = $request->query('page', 'home');
 
-        if (! array_key_exists($page, $pages)) {
+        if (! array_key_exists($page, $pages) || ! array_key_exists($section, $pages[$page]['sections'])) {
             abort(404);
         }
 
-        $design = Cms::design();
-        $designGroups = config('cms.design');
+        $sectionConfig = $pages[$page]['sections'][$section];
         $content = Cms::page($page);
 
-        return view('admin.content.index', [
-            'title' => 'Website inhoud',
-            'pages' => $pages,
+        return view('admin.content.section', [
+            'title' => 'Home-page - ' . $sectionConfig['label'],
             'page' => $page,
-            'design' => $design,
-            'designGroups' => $designGroups,
+            'sectionKey' => $section,
+            'section' => $sectionConfig,
             'content' => $content,
         ]);
     }

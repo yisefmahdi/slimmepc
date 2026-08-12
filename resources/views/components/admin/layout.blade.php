@@ -114,7 +114,7 @@
             </div>
 
             {{-- Nav --}}
-            <nav class="flex-1 space-y-1 overflow-y-auto px-4 py-6">
+            <nav class="flex-1 space-y-1.5 overflow-y-auto px-4 py-6">
                 <p class="mb-3 px-4 text-[11px] font-bold uppercase tracking-widest text-slate-500">Overzicht</p>
 
                 <x-admin.sidebar-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
@@ -123,61 +123,295 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12 11.204 3.045a1.13 1.13 0 0 1 1.592 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75" />
                         </svg>
                     </x-slot>
-                    Dashboard
+                    🧭 Dashboard
                 </x-admin.sidebar-link>
 
                 <p class="mb-3 mt-8 px-4 text-[11px] font-bold uppercase tracking-widest text-slate-500">Beheer</p>
 
-                <x-admin.sidebar-link :href="route('admin.klanten.index')" :active="request()->routeIs('admin.klanten.*')">
-                    <x-slot name="icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                {{-- 1. Home-page Dropdown (Split CMS) --}}
+                <div x-data="{ open: {{ request()->routeIs('admin.content.*') ? 'true' : 'false' }} }">
+                    <button type="button" @click="open = !open" 
+                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
+                            style="color: rgba(203,213,225,0.85)">
+                        <span class="flex items-center gap-3">
+                            <span>🏠 Home-page</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" 
+                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
                         </svg>
-                    </x-slot>
-                    Klanten
-                </x-admin.sidebar-link>
+                    </button>
+                    <div x-show="open" x-cloak x-transition class="pl-11 pr-2 py-1 space-y-1.5 text-xs">
+                        <a href="{{ route('admin.content.design.edit') }}" 
+                           class="block py-1.5 hover:text-white transition {{ request()->routeIs('admin.content.design.edit') ? 'text-white font-bold' : 'text-slate-400' }}">
+                            Ontwerp &amp; SEO
+                        </a>
+                        <a href="{{ route('admin.content.section.edit', ['page' => 'home', 'section' => 'header']) }}" 
+                           class="block py-1.5 hover:text-white transition {{ request()->routeIs('admin.content.section.edit') && request()->route('section') === 'header' ? 'text-white font-bold' : 'text-slate-400' }}">
+                            Header
+                        </a>
+                        <a href="{{ route('admin.content.section.edit', ['page' => 'home', 'section' => 'hero']) }}" 
+                           class="block py-1.5 hover:text-white transition {{ request()->routeIs('admin.content.section.edit') && request()->route('section') === 'hero' ? 'text-white font-bold' : 'text-slate-400' }}">
+                            Hero
+                        </a>
+                        <a href="{{ route('admin.content.section.edit', ['page' => 'home', 'section' => 'why']) }}" 
+                           class="block py-1.5 hover:text-white transition {{ request()->routeIs('admin.content.section.edit') && request()->route('section') === 'why' ? 'text-white font-bold' : 'text-slate-400' }}">
+                            Waarom voor ons kiezen
+                        </a>
+                        <span class="block py-1.5 text-slate-500 cursor-not-allowed">
+                            Services <small class="text-[10px] font-normal italic opacity-60">(Binnenkort)</small>
+                        </span>
+                        <span class="block py-1.5 text-slate-500 cursor-not-allowed">
+                            Webshop <small class="text-[10px] font-normal italic opacity-60">(Binnenkort)</small>
+                        </span>
+                        <span class="block py-1.5 text-slate-500 cursor-not-allowed">
+                            Footer <small class="text-[10px] font-normal italic opacity-60">(Binnenkort)</small>
+                        </span>
+                    </div>
+                </div>
 
-                <x-admin.sidebar-link :href="route('admin.content.index')" :active="request()->routeIs('admin.content.*')">
-                    <x-slot name="icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM12 12h.007v.008H12V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 18h.007v.008H3.75V18Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                {{-- 2. Diensten Dropdown --}}
+                <div x-data="{ open: false }">
+                    <button type="button" @click="open = !open" 
+                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
+                            style="color: rgba(203,213,225,0.85)">
+                        <span class="flex items-center gap-3">
+                            <span>🛠️ Diensten</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" 
+                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
                         </svg>
-                    </x-slot>
-                    Website inhoud
-                </x-admin.sidebar-link>
+                    </button>
+                    <div x-show="open" x-cloak x-transition class="pl-11 pr-2 py-1 space-y-1.5 text-xs text-slate-500">
+                        <span class="block py-1.5 cursor-not-allowed">Hardware-afspraak <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
+                        <span class="block py-1.5 cursor-not-allowed">Hardware afdeling <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
+                        <span class="block py-1.5 cursor-not-allowed">Software-afdeling <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
+                        <span class="block py-1.5 cursor-not-allowed">Dataherstelen-afdeeling <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
+                        <span class="block py-1.5 cursor-not-allowed">Website-afdeling <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
+                        <span class="block py-1.5 cursor-not-allowed">Netwerk-afdeling <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
+                        <span class="block py-1.5 cursor-not-allowed">Pcbouwen-afdeling <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
+                    </div>
+                </div>
 
-                <a href="#" class="group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white" style="color: rgba(203,213,225,0.85)" title="Binnenkort beschikbaar">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 6h.008v.008H6.75V21Z" />
+                {{-- 3. Pages Dropdown --}}
+                <div x-data="{ open: false }">
+                    <button type="button" @click="open = !open" 
+                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
+                            style="color: rgba(203,213,225,0.85)">
+                        <span class="flex items-center gap-3">
+                            <span>📄 Pages</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" 
+                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
                         </svg>
-                        Bestellingen
-                    <span class="ms-auto rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold text-slate-400">Binnenkort</span>
-                </a>
+                    </button>
+                    <div x-show="open" x-cloak x-transition class="pl-11 pr-2 py-1 space-y-1.5 text-xs text-slate-500">
+                        <span class="block py-1.5 cursor-not-allowed">Hardware-photos <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
+                    </div>
+                </div>
 
-                <a href="#" class="group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white" style="color: rgba(203,213,225,0.85)" title="Binnenkort beschikbaar">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085" />
-                    </svg>
-                    Reparaties
-                    <span class="ms-auto rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold text-slate-400">Binnenkort</span>
-                </a>
+                {{-- 4. Webshop Dropdown --}}
+                <div x-data="{ open: false }">
+                    <button type="button" @click="open = !open" 
+                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
+                            style="color: rgba(203,213,225,0.85)">
+                        <span class="flex items-center gap-3">
+                            <span>🛒 Webshop</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" 
+                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+                    <div x-show="open" x-cloak x-transition class="pl-11 pr-2 py-1 space-y-1.5 text-xs text-slate-500">
+                        <span class="block py-1.5 cursor-not-allowed">Category-producten <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
+                        <span class="block py-1.5 cursor-not-allowed">Producten <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
+                        <span class="block py-1.5 cursor-not-allowed">SliderImage <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
+                        <span class="block py-1.5 cursor-not-allowed">Licentiecodes <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
+                    </div>
+                </div>
 
-                <a href="#" class="group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white" style="color: rgba(203,213,225,0.85)" title="Binnenkort beschikbaar">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
-                    </svg>
-                    Producten
-                    <span class="ms-auto rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold text-slate-400">Binnenkort</span>
-                </a>
+                {{-- 5. Website-aanvragen Link --}}
+                <span class="group flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-slate-500 cursor-not-allowed">
+                    <span>🌐 Website-aanvragen</span>
+                    <span class="rounded-full bg-white/5 px-2 py-0.5 text-[9px] font-bold text-slate-500">Binnenkort</span>
+                </span>
 
-                <a href="#" class="group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white" style="color: rgba(203,213,225,0.85)" title="Binnenkort beschikbaar">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.56.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.893.149c-.425.07-.765.383-.93.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.397.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.273-.806.108-1.204-.165-.397-.505-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                    </svg>
-                    Instellingen
-                    <span class="ms-auto rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold text-slate-400">Binnenkort</span>
-                </a>
+                {{-- 6. Contact-klanten Link --}}
+                <span class="group flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-slate-500 cursor-not-allowed">
+                    <span>📬 Contact-klanten</span>
+                    <span class="rounded-full bg-white/5 px-2 py-0.5 text-[9px] font-bold text-slate-500">Binnenkort</span>
+                </span>
+
+                {{-- 7. Bestellings Dropdown --}}
+                <div x-data="{ open: false }">
+                    <button type="button" @click="open = !open" 
+                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
+                            style="color: rgba(203,213,225,0.85)">
+                        <span class="flex items-center gap-3">
+                            <span>📝 Bestellings</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" 
+                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+                    <div x-show="open" x-cloak x-transition class="pl-11 pr-2 py-1 space-y-1.5 text-xs text-slate-500">
+                        <span class="block py-1.5 cursor-not-allowed">Bestellings <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
+                        <span class="block py-1.5 cursor-not-allowed">Facturen <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
+                    </div>
+                </div>
+
+                {{-- 8. Afspraken Dropdown --}}
+                <div x-data="{ open: false }">
+                    <button type="button" @click="open = !open" 
+                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
+                            style="color: rgba(203,213,225,0.85)">
+                        <span class="flex items-center gap-3">
+                            <span>📅 Afspraken</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" 
+                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+                    <div x-show="open" x-cloak x-transition class="pl-11 pr-2 py-1 space-y-1.5 text-xs text-slate-500">
+                        <span class="block py-1.5 cursor-not-allowed">Algemeen afspraken <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
+                        <span class="block py-1.5 cursor-not-allowed">Facturen van afspraken <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
+                    </div>
+                </div>
+
+                {{-- 9. Abonnement Dropdown --}}
+                <div x-data="{ open: false }">
+                    <button type="button" @click="open = !open" 
+                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
+                            style="color: rgba(203,213,225,0.85)">
+                        <span class="flex items-center gap-3">
+                            <span>📄 Abonnement</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" 
+                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+                    <div x-show="open" x-cloak x-transition class="pl-11 pr-2 py-1 space-y-1.5 text-xs text-slate-500">
+                        <span class="block py-1.5 cursor-not-allowed">Klanten-lijst <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
+                        <span class="block py-1.5 cursor-not-allowed">Abonnement-beheren <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
+                    </div>
+                </div>
+
+                {{-- 10. Prijs-instellingen Dropdown --}}
+                <div x-data="{ open: false }">
+                    <button type="button" @click="open = !open" 
+                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
+                            style="color: rgba(203,213,225,0.85)">
+                        <span class="flex items-center gap-3">
+                            <span>🧰 Prijs-instellingen</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" 
+                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+                    <div x-show="open" x-cloak x-transition class="pl-11 pr-2 py-1 space-y-1.5 text-xs text-slate-500">
+                        <span class="block py-1.5 cursor-not-allowed">Prijs-beheren <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
+                    </div>
+                </div>
+
+                {{-- 11. Users-beheren Dropdown (Active: Klanten) --}}
+                <div x-data="{ open: {{ request()->routeIs('admin.klanten.*') ? 'true' : 'false' }} }">
+                    <button type="button" @click="open = !open" 
+                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
+                            style="color: rgba(203,213,225,0.85)">
+                        <span class="flex items-center gap-3">
+                            <span>👥 Users-beheren</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" 
+                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+                    <div x-show="open" x-cloak x-transition class="pl-11 pr-2 py-1 space-y-1.5 text-xs">
+                        <a href="{{ route('admin.klanten.index') }}" 
+                           class="block py-1.5 hover:text-white transition {{ request()->routeIs('admin.klanten.*') ? 'text-white font-bold' : 'text-slate-400' }}">
+                            Klanten
+                        </a>
+                        <span class="block py-1.5 text-slate-500 cursor-not-allowed">
+                            Send Emails <small class="text-[10px] font-normal italic opacity-60">(Binnenkort)</small>
+                        </span>
+                        <span class="block py-1.5 text-slate-500 cursor-not-allowed">
+                            Klantenlijst <small class="text-[10px] font-normal italic opacity-60">(Binnenkort)</small>
+                        </span>
+                        <span class="block py-1.5 text-slate-500 cursor-not-allowed">
+                            Popup Melding <small class="text-[10px] font-normal italic opacity-60">(Binnenkort)</small>
+                        </span>
+                        <span class="block py-1.5 text-slate-500 cursor-not-allowed">
+                            Algemene Voorwaarden <small class="text-[10px] font-normal italic opacity-60">(Binnenkort)</small>
+                        </span>
+                        <span class="block py-1.5 text-slate-500 cursor-not-allowed">
+                            Privacybeleid <small class="text-[10px] font-normal italic opacity-60">(Binnenkort)</small>
+                        </span>
+                    </div>
+                </div>
+
+                {{-- 12. Manual Invoices Dropdown --}}
+                <div x-data="{ open: false }">
+                    <button type="button" @click="open = !open" 
+                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
+                            style="color: rgba(203,213,225,0.85)">
+                        <span class="flex items-center gap-3">
+                            <span>📄 Manual-invoices</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" 
+                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+                    <div x-show="open" x-cloak x-transition class="pl-11 pr-2 py-1 space-y-1.5 text-xs text-slate-500">
+                        <span class="block py-1.5 cursor-not-allowed">Hardware <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
+                        <span class="block py-1.5 cursor-not-allowed">Bevestging-mail <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
+                    </div>
+                </div>
+
+                {{-- 13. Live Chat Dropdown --}}
+                <div x-data="{ open: false }">
+                    <button type="button" @click="open = !open" 
+                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
+                            style="color: rgba(203,213,225,0.85)">
+                        <span class="flex items-center gap-3">
+                            <span>💬 Live-chat</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" 
+                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+                    <div x-show="open" x-cloak x-transition class="pl-11 pr-2 py-1 space-y-1.5 text-xs text-slate-500">
+                        <span class="block py-1.5 cursor-not-allowed">Vragen-antwoorden <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
+                        <span class="block py-1.5 cursor-not-allowed">Inbox-Live <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
+                    </div>
+                </div>
+
+                {{-- 14. Database site Dropdown --}}
+                <div x-data="{ open: false }">
+                    <button type="button" @click="open = !open" 
+                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
+                            style="color: rgba(203,213,225,0.85)">
+                        <span class="flex items-center gap-3">
+                            <span>💾 Database site</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" 
+                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+                    <div x-show="open" x-cloak x-transition class="pl-11 pr-2 py-1 space-y-1.5 text-xs text-slate-500">
+                        <span class="block py-1.5 cursor-not-allowed">Backup-maken <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
+                    </div>
+                </div>
+            </nav>
             </nav>
 
             {{-- Sidebar footer --}}

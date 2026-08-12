@@ -82,6 +82,8 @@ return [
 
     /*
     | Design / site settings — stored as JSON in content_meta (meta_key 'design')
+    | Brand colors and the font are FIXED in code (resources/views/landing/layouts/app.blade.php
+    | + resources/css/landing.css) and are intentionally NOT editable here.
     */
     'design' => [
         'site' => [
@@ -89,34 +91,6 @@ return [
             'fields' => [
                 ['key' => 'meta_title', 'label' => 'Pagina titel (SEO)', 'type' => 'text'],
                 ['key' => 'meta_description', 'label' => 'Meta beschrijving (SEO)', 'type' => 'textarea'],
-            ],
-        ],
-        'colors' => [
-            'label' => 'Kleuren',
-            'fields' => [
-                ['key' => 'brand_primary', 'label' => 'Primaire kleur', 'type' => 'color'],
-                ['key' => 'brand_primary_dark', 'label' => 'Primaire kleur (donker)', 'type' => 'color'],
-                ['key' => 'brand_accent', 'label' => 'Accentkleur (groen/lime)', 'type' => 'color'],
-                ['key' => 'brand_heading', 'label' => 'Koptekst kleur', 'type' => 'color'],
-                ['key' => 'gradient_from', 'label' => 'Gradient start', 'type' => 'color'],
-                ['key' => 'gradient_to', 'label' => 'Gradient einde', 'type' => 'color'],
-            ],
-        ],
-        'typography' => [
-            'label' => 'Lettertype',
-            'fields' => [
-                [
-                    'key' => 'font_family',
-                    'label' => 'Lettertype',
-                    'type' => 'select',
-                    'options' => [
-                        'Figtree' => 'Figtree',
-                        'Inter' => 'Inter',
-                        'Poppins' => 'Poppins',
-                        'Roboto' => 'Roboto',
-                        'Merriweather' => 'Merriweather',
-                    ],
-                ],
             ],
         ],
     ],
