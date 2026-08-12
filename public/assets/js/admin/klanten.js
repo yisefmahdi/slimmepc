@@ -61,7 +61,7 @@ function initial(name) {
 /* ---------- data loading ---------- */
 async function load() {
     try {
-        const { data } = await axios.get('/admin/klanten/data', {
+        const { data } = await axios.get('/admin/users/data', {
             params: {
                 search: state.search,
                 role: state.role,
@@ -278,7 +278,7 @@ function openCreateModal() {
 
 async function openEditModal(id) {
     try {
-        const { data } = await axios.get(`/admin/klanten/${id}`);
+        const { data } = await axios.get(`/admin/users/${id}`);
         const k = data.klant;
 
         state.editingId = id;
@@ -309,7 +309,7 @@ async function openEditModal(id) {
 
 async function openDetailsModal(id) {
     try {
-        const { data } = await axios.get(`/admin/klanten/${id}`);
+        const { data } = await axios.get(`/admin/users/${id}`);
         const k = data.klant;
         state.detailsId = id;
 
@@ -373,7 +373,7 @@ async function confirmDelete() {
         .html('<span class="spinner spinner-sm mr-2"></span>Bezig...');
 
     try {
-        await axios.delete(`/admin/klanten/${state.deletingId}`);
+        await axios.delete(`/admin/users/${state.deletingId}`);
         window.SlimmePC.toast.success('Klant succesvol verwijderd.');
         window.SlimmePC.modal.close('klantDeleteModal');
         state.deletingId = null;
@@ -388,7 +388,7 @@ async function confirmDelete() {
 
 async function toggleBlock(id, isBlocked) {
     try {
-        const { data } = await axios.post(`/admin/klanten/${id}/toggle-block`);
+        const { data } = await axios.post(`/admin/users/${id}/toggle-block`);
         window.SlimmePC.toast.success(data.message);
         await load();
     } catch (error) {
@@ -401,7 +401,7 @@ async function changeRole(id, role) {
     const previous = $select.data('previous-role');
 
     try {
-        const { data } = await axios.post(`/admin/klanten/${id}/role`, { role });
+        const { data } = await axios.post(`/admin/users/${id}/role`, { role });
         window.SlimmePC.toast.success(data.message);
         await load();
     } catch (error) {
@@ -417,7 +417,7 @@ async function saveKlant() {
     setSaveLoading(true);
 
     const editing = Boolean(state.editingId);
-    const url = editing ? `/admin/klanten/${state.editingId}` : '/admin/klanten';
+    const url = editing ? `/admin/users/${state.editingId}` : '/admin/users';
     const method = editing ? 'put' : 'post';
 
     const payload = {

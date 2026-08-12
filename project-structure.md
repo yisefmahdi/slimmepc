@@ -27,7 +27,7 @@ slimmepc/
 │   │   │   │   ├── AdminController.php   # dashboard() → admin.dashboard view with stats
 │   │   │   │   ├── ContentController.php # CMS: index (editor per page), updateSection (save one section),
 │   │   │   │   │                         #   updateDesign (design settings JSON) + image upload per block
-│   │   │   │   └── KlantController.php   # Klantenbeheer CRUD (JSON)
+│   │   │   │   └── KlantController.php   # Users-beheren CRUD (JSON) — served under /admin/users (admin.users.*)
 │   │   │   ├── Auth/          # Breeze: AuthenticatedSession (role-based redirect), ConfirmablePassword,
 │   │   │   │                  #   EmailVerificationNotification, EmailVerificationPrompt,
 │   │   │   │                  #   NewPassword, Password, PasswordResetLink, RegisteredUser, VerifyEmail
@@ -80,7 +80,7 @@ slimmepc/
 │       │   ├── design.js            # global JS: theme, loading states, password toggle, toasts, modals, confirm, axios defaults
 │       │   ├── landing.js           # landing page JS: lucide icons, mobile drawer, search overlay, accordion, process orbit, shop carousel
 │       │   ├── admin/
-│   │   │   ├── klanten.js       # Klanten CRUD (axios, no page refresh)
+│   │   │   ├── klanten.js       # Users CRUD (axios, no page refresh) — endpoints target /admin/users
 │   │   │   ├── content.js       # CMS editor: section forms (axios, no reload on save), json row add/remove, color sync, file preview
 │   │   │   └── loader.js        # admin page-navigation loader: intercepts internal links/forms (sessionStorage flag adminPageNav)
 │       │   └── vendor/
@@ -107,11 +107,11 @@ slimmepc/
 │       ├── auth/             # redesigned (Dutch): login, register, forgot-password, reset-password, confirm-password, verify-email
 │       ├── admin/
 │       │   ├── content/
-│       │   │   ├── index.blade.php    # CMS editor: page tabs, "Ontwerp instellingen" accordion (design form),
-│       │   │   │                      #   per-section accordions with forms (text/textarea/image/file/json rows)
+│       │   │   ├── design.blade.php   # Home-page → "Ontwerp & SEO" page: SEO meta + colors + font (design form, JSON save)
+│       │   │   ├── section.blade.php  # Home-page → single section editor (header/hero/why): per-field forms, location badge, json rows
 │       │   │   └── partials/
 │       │   │       └── json-row.blade.php  # repeatable item row for type=json blocks (index param, __INDEX__ for templates)
-│       │   ├── klanten/index.blade.php # Klantenbeheer (AJAX table + modals)
+│       │   ├── klanten/index.blade.php # Users-beheren (AJAX table + modals) — route admin.users.index
 │       │   └── dashboard.blade.php     # admin dashboard (Dutch, responsive)
 │       ├── components/       # design-system blade components (see section 11)
 │       │   └── admin/        # admin-only components: layout, sidebar-link, stat-card, card, modal
@@ -211,9 +211,9 @@ slimmepc/
 | 7 | Verify email | `/verify-email` | Redesigned: resend button + logout link, green auto-dismiss alert |
 | 8 | ~~Dashboard~~ (removed) | — | **Deleted entirely** (2026-08-12): `resources/views/dashboard.blade.php` + the `/dashboard` route are gone. After login/register/email-verify/password-confirm the user lands on the **home page** (`route('home')`). Logged-in users manage their account at `/profile` (link from the header dropdown "Mijn account" + mobile tile) |
 | 9 | Profile | `/profile` | Auth only. Edit/update/delete profile via `ProfileController` (still Breeze styling). This is now the only logged-in user page besides the landing — "Mijn account" dropdown item + mobile name tile link here |
-| 10 | Admin dashboard | `/admin` | Auth + verified + admin role only. Independent admin panel: dark sidebar (logo, nav: Dashboard + Website inhoud + Klanten (real) + placeholders Bestellingen/Reparaties/Producten/Instellingen), sticky topbar (title, theme toggle, user dropdown), stat cards (Klanten/Techniciens/Bestellingen/Reparaties), welcome banner, recent orders empty state, quick actions, system status. Fully responsive (sidebar → mobile drawer + overlay) |
-| 11 | Klantenbeheer | `/admin/klanten` | Admin CRUD for customers/technicians/admins. AJAX table (search, role filter, per-page, pagination), stats chips (users/technicians/admins), create/edit modal (auto klantnummer KL-YY-XXXX + auto password generation), details modal, delete confirm modal, inline role select + block/unblock toggle. All Dutch, no page refresh (axios + jQuery, `public/assets/js/admin/klanten.js`) |
-| 12 | Website inhoud (CMS) | `/admin/content?page=home` | Admin CMS editor. Page tabs, "Ontwerp instellingen" accordion (SEO meta, 6 color pickers + hex sync, font select — saved as JSON in `content_meta`), then one accordion per editable section: **Header** (logo image upload + logo text + tagline), **Hero** (badge, 3 title lines, description, 2 images with real file upload + live preview) and **Waarom voor ons kiezen** (badge, title prefix/highlight, description, hub icon/title/subtitle, **Voordelen** 6 json cards, **Statistieken** 4 json cards). JSON repeaters render 2 cards per row when the block defines `'columns' => 2` (stats). Each section has its own save button (axios POST → JSON, **no page refresh — shows "Opgeslagen!" only**). Saving calls `Cms::bust()` → instant frontend update |
+| 10 | Admin dashboard | `/admin` | Auth + verified + admin role only. Independent admin panel: dark sidebar (logo, nav: Dashboard + **Home-page** dropdown (split CMS) + **Users-beheren** dropdown (renamed from Klanten) + placeholders). Sidebar fully redesigned with **Heroicons SVG** (no emojis), elegant dropdown styling (left brand border, active = white/10 bg + bold + shadow), and a 2-column "Binnenkort" section list that mirrors the old sidebar. Sticky topbar (title, theme toggle, user dropdown), stat cards (Klanten/Techniciens/Bestellingen/Reparaties), welcome banner, recent orders empty state, quick actions, system status. Fully responsive (sidebar → mobile drawer + overlay) |
+| 11 | Users-beheren | `/admin/users` | Admin CRUD for customers/technicians/admins (controller still named `KlantController`). AJAX table (search, role filter, per-page, pagination), stats chips (users/technicians/admins), create/edit modal (auto klantnummer KL-YY-XXXX + auto password generation), details modal, delete confirm modal, inline role select + block/unblock toggle. All Dutch, no page refresh (axios + jQuery, `public/assets/js/admin/klanten.js` — endpoints target `/admin/users`). Route names `admin.users.*` (renamed from `admin.klanten.*`) |
+| 12 | Home-page (CMS) | `/admin/content/design` (Ontwerp & SEO) + `/admin/content/home/section/{header\|hero\|why}` | Admin CMS editor **split into separate pages** (no more single accordion page). The sidebar "Home-page" dropdown links to: **Ontwerp & SEO** (`design.blade.php` — SEO meta, 6 color pickers + hex sync, font select, saved as JSON in `content_meta`), **Header** (`section.blade.php` — logo image upload + logo text + tagline), **Hero** (badge, 3 title lines, description, 2 images with real file upload + live preview) and **Waarom voor ons kiezen** (badge, title prefix/highlight, description, hub icon/title/subtitle, **Voordelen** 6 json cards, **Statistieken** 4 json cards). Each page has a header card explaining what it controls + where it appears on the site (location badge). JSON repeaters render 2 cards per row when the block defines `'columns' => 2` (stats). Each page has its own save button (axios POST → JSON, **no page refresh — shows "Opgeslagen!" only**). The old top quick-nav tabs (Home-page secties / Live website bekijken) were **removed**. Saving calls `Cms::bust()` → instant frontend update |
 
 ## 8. Complete Routes
 
@@ -230,17 +230,19 @@ slimmepc/
 |--------|-----|--------------|------------------|
 | GET | `/admin` | `Admin\AdminController@dashboard` → `admin.dashboard` | auth, verified, admin |
 | GET | `/admin/dashboard` | `Admin\AdminController@dashboard` → `admin.dashboard.alias` | auth, verified, admin |
-| GET | `/admin/content` | `Admin\ContentController@index` → `admin.content.index` (CMS editor, ?page=home) | auth, verified, admin |
+| GET | `/admin/content` | redirects to `admin.content.design.edit` | auth, verified, admin |
+| GET | `/admin/content/design` | `Admin\ContentController@editDesign` → `admin.content.design.edit` (Ontwerp & SEO page) | auth, verified, admin |
 | POST | `/admin/content/design` | `Admin\ContentController@updateDesign` → `admin.content.design` (JSON, saves design groups) | auth, verified, admin |
+| GET | `/admin/content/{page}/section/{section}` | `Admin\ContentController@editSection` → `admin.content.section.edit` (separate section page; `{page}`/`{section}` alpha-only) | auth, verified, admin |
 | POST | `/admin/content/{page}/section/{section}` | `Admin\ContentController@updateSection` → `admin.content.section` (JSON, saves one section + image uploads) | auth, verified, admin |
-| GET | `/admin/klanten` | `Admin\KlantController@index` → `admin.klanten.index` | auth, verified, admin |
-| POST | `/admin/klanten` | `Admin\KlantController@store` → `admin.klanten.store` (JSON, 201) | auth, verified, admin |
-| GET | `/admin/klanten/data` | `Admin\KlantController@data` → `admin.klanten.data` (JSON: items + pagination + counts) | auth, verified, admin |
-| GET | `/admin/klanten/{klant}` | `Admin\KlantController@show` → `admin.klanten.show` (JSON) | auth, verified, admin |
-| PUT | `/admin/klanten/{klant}` | `Admin\KlantController@update` → `admin.klanten.update` (JSON) | auth, verified, admin |
-| DELETE | `/admin/klanten/{klant}` | `Admin\KlantController@destroy` → `admin.klanten.destroy` (JSON; blocks self-delete 422) | auth, verified, admin |
-| POST | `/admin/klanten/{klant}/role` | `Admin\KlantController@updateRole` → `admin.klanten.role` (JSON; blocks self-role-change 422) | auth, verified, admin |
-| POST | `/admin/klanten/{klant}/toggle-block` | `Admin\KlantController@toggleBlock` → `admin.klanten.toggle-block` (JSON; blocks self + admins 422) | auth, verified, admin |
+| GET | `/admin/users` | `Admin\KlantController@index` → `admin.users.index` | auth, verified, admin |
+| POST | `/admin/users` | `Admin\KlantController@store` → `admin.users.store` (JSON, 201) | auth, verified, admin |
+| GET | `/admin/users/data` | `Admin\KlantController@data` → `admin.users.data` (JSON: items + pagination + counts) | auth, verified, admin |
+| GET | `/admin/users/{klant}` | `Admin\KlantController@show` → `admin.users.show` (JSON) | auth, verified, admin |
+| PUT | `/admin/users/{klant}` | `Admin\KlantController@update` → `admin.users.update` (JSON) | admin.users.update |
+| DELETE | `/admin/users/{klant}` | `Admin\KlantController@destroy` → `admin.users.destroy` (JSON; blocks self-delete 422) | auth, verified, admin |
+| POST | `/admin/users/{klant}/role` | `Admin\KlantController@updateRole` → `admin.users.role` (JSON; blocks self-role-change 422) | auth, verified, admin |
+| POST | `/admin/users/{klant}/toggle-block` | `Admin\KlantController@toggleBlock` → `admin.users.toggle-block` (JSON; blocks self + admins 422) | auth, verified, admin |
 
 ### auth.php
 | Method | URI | Name/Handler | Middleware/Auth |
@@ -366,8 +368,8 @@ ContentBlock / ContentMeta ──→ standalone CMS tables (no FKs)
 | Controller/Module | Main Methods | Purpose |
 |---------------------|---------------|---------|
 | Admin\AdminController | dashboard | Admin dashboard view with stats (customer/technician counts from DB, orders/repairs placeholders) |
-| Admin\ContentController | index, updateSection, updateDesign | CMS editor. `index` passes pages schema + design groups + current page content to the editor view. `updateSection` validates against `config/cms.php`, upserts blocks (json blocks normalized + boolean cast), handles image uploads (`blocks.{key}_file` → `public/assets/img/landing` with hashName), then `Cms::bust()`. `updateDesign` stores design groups as JSON in `content_meta` (rejects `_hex` twin inputs) + busts cache |
-| Admin\KlantController | index, data, store, show, update, destroy, updateRole, toggleBlock | Klantenbeheer CRUD. `data` = search/role-filtered paginated JSON (+ role counts). `store` auto-generates klantnummer (KL-YY-XXXX) + password (`Str::password(10)`), returns `generated_password`. Guards: no self-delete, no self-role-change, no self-block, no blocking admins (all 422 JSON) |
+| Admin\ContentController | editDesign, editSection, updateSection, updateDesign | CMS editor (split pages). `editDesign` passes design groups + current design to `design.blade.php` (Ontwerp & SEO page). `editSection` validates `{page}`/`{section}` against `config/cms.php`, passes section schema + content to `section.blade.php`. `updateSection` validates against `config/cms.php`, upserts blocks (json blocks normalized + boolean cast), handles image uploads (`blocks.{key}_file` → `public/assets/img/landing` with hashName), then `Cms::bust()`. `updateDesign` stores design groups as JSON in `content_meta` (rejects `_hex` twin inputs) + busts cache |
+| Admin\KlantController | index, data, store, show, update, destroy, updateRole, toggleBlock | Users-beheren CRUD (routes under `admin.users.*`, URL `/admin/users`; controller class name unchanged). `data` = search/role-filtered paginated JSON (+ role counts). `store` auto-generates klantnummer (KL-YY-XXXX) + password (`Str::password(10)`), returns `generated_password`. Guards: no self-delete, no self-role-change, no self-block, no blocking admins (all 422 JSON) |
 | PageController | home | Landing page: **full-page HTML cache** — serves `cms.page.html.home.{version}` directly when cached (zero DB/Blade work); on miss renders `Cms::page('home')` + flat `Cms::design()` → `landing.home` and stores the HTML for 1 month. **Auth-aware**: `Auth::check()` bypasses the cache entirely (fresh render for the personalized header) and the result is never written into the shared guest cache |
 | ProfileController | edit, update, destroy | Update/delete the authenticated user's profile |
 | Auth\AuthenticatedSessionController | create, store, destroy | Login/logout — `store` redirects admins to `admin.dashboard`, **everyone else to `home`** (the old `/dashboard` destination was removed) |
@@ -416,7 +418,7 @@ ContentBlock / ContentMeta ──→ standalone CMS tables (no FKs)
 | File | Purpose |
 |------|---------|
 | `design.js` | Global SlimmePC lib: theme (localStorage + system pref), loading states (spinner + disabled), password toggle, auto-dismiss alerts, `SlimmePC.modal` (open/close/overlay/Escape), `SlimmePC.toast` (success/error), `SlimmePC.confirm` (dynamic confirm dialog), axios defaults (CSRF + X-Requested-With) |
-| `admin/klanten.js` | Klantenbeheer: load/render table (search debounced, role filter, per-page, pagination), create/edit modal (PUT/POST, field errors inline), details modal, delete confirm, block/unblock, inline role change with confirm. Auto-inits only when `#klantTableBody` exists |
+| `admin/klanten.js` | Users-beheren: load/render table (search debounced, role filter, per-page, pagination), create/edit modal (PUT/POST, field errors inline), details modal, delete confirm, block/unblock, inline role change with confirm. Endpoints target `/admin/users`. Auto-inits only when `#klantTableBody` exists |
 | `admin/content.js` | CMS editor: submit each section form via axios (FormData, **no page refresh — the old `window.location.reload()` was removed**), add/remove json rows (replaces `__INDEX__`), color picker ↔ hex sync, live image preview via FileReader, per-form success/error status text |
 | `landing.js` | Landing page: lucide icons, mobile drawer + overlay, search overlay, accordions, Escape/resize handling, process orbit pause on hover, shop carousel (responsive perPage + dots) |
 | `admin/loader.js` | Page-navigation loader for the whole admin: intercepts internal link clicks + native form submits (skips AJAX forms via `defaultPrevented`), stores `sessionStorage.adminPageNav`; the arriving page's inline script reads the flag, shows `#admin-loader` and fades it out on `load` (6s safety) |
@@ -447,7 +449,7 @@ Logo (site-wide): landing header/footer, favicon, auth `<x-logo>`, logged-in nav
   3. Views under `resources/views/admin/<module>/` reusing `x-admin.layout`, `x-admin.card`, `x-admin.stat-card`
   4. DB migrations + models + relationships (documented in section 9/10 when added)
   5. Wire real stats into `AdminController@dashboard`
-- **Current status:** Klanten DONE. CMS ("Website inhoud") DONE v2 (header + hero + why full + design settings; JSON repeaters with 2-col layout; save without refresh). Next: Bestellingen (orders) or Reparaties, or extend the CMS to services/shop/footer sections.
+- **Current status:** Users-beheren DONE (renamed from Klanten). CMS ("Home-page") DONE v3 (split into separate pages: design + section editors; JSON repeaters with 2-col layout; save without refresh). Next: Bestellingen (orders) or Reparaties, or extend the CMS to services/shop/footer sections.
 
 ### Plan: Landing page CMS (DONE v1)
 - **Goal:** Convert `step-1/home.html` to Blade + DB-driven content with admin editing.
@@ -487,3 +489,6 @@ Logo (site-wide): landing header/footer, favicon, auth `<x-logo>`, logged-in nav
 - [2026-08-12] — **User-facing Dashboard removed completely**: deleted `resources/views/dashboard.blade.php` + the `/dashboard` route; `GET /` now named `home`. All post-auth redirects (login, register, email verification prompt/notification/verify, confirm-password, `RedirectIfAuthenticated` fallback) now land on `home`. Header dropdown/mobile tile "Mijn account" → `/profile`. `layouts/navigation.blade.php` logo + nav links → home; `welcome.blade.php` link → `/`. Tests updated (`route('dashboard')` → `route('home')` in AuthenticationTest/RegistrationTest/EmailVerificationTest). Only `admin.dashboard` remains. Verified: 18 auth tests pass, no `route('dashboard')` references left in app code.
 - [2026-08-12] — **Landing responsiveness on small screens**: root causes of horizontal overflow fixed — (1) `html, body { overflow-x: clip }` safety net in `resources/css/landing.css`; (2) shop CTA row (`Bekijk All!` + "Meer dan 500 producten online!") was a single flex line wider than the viewport → stacks on mobile (`flex-col sm:flex-row`, full-width button); (3) badges are `inline-flex` pills whose long text ("Slimme-PC Webshop", hero badge) couldn't wrap → `flex-wrap max-w-full text-center` on mobile, back to inline-flex at `sm:`; (4) hero h1 38px→`clamp(1.7rem,8vw,3rem)` (drops the odd `xl:text-[40px]` shrink); (5) shop product cards `flex: 0 0 88%` → `100%` on mobile (card fully inside the screen, next card hidden until swipe); (6) header shortened 96px→72px with 52px logo; (7) `min-w-0` on the shop grid's product column. Rebuilt via `npm run css:landing`.
 - [2026-08-12] — **Admin CMS content editor redesigned**: overhauled `/admin/content` layout for visual organization — (1) added top workflow helper strip ("Zo werkt het"); (2) numbered section accordions (`01`, `02`, `03`...) with section-specific gradient icons; (3) 2-column responsive grid layout for form fields (`sm:grid-cols-2`); (4) card-styled JSON repeaters (`json-row.blade.php`) with numbered badges (`#01`, `#02`...) and trash icons; (5) updated `public/assets/js/admin/content.js` to auto-number newly appended JSON rows. All JavaScript data attributes and submit hooks preserved.
+- [2026-08-12] — **CMS editor split into separate pages** (replaces the single accordion page): removed `resources/views/admin/content/index.blade.php`; added `design.blade.php` (Ontwerp & SEO — SEO meta + 6 color pickers + font select) and `section.blade.php` (one section per page: header/hero/why, with a location badge + per-field guidance). New routes in `routes/admin.php`: `GET /admin/content` → redirect to `admin.content.design.edit`; `GET/POST /admin/content/design` (`editDesign`/`updateDesign`); `GET/POST /admin/content/{page}/section/{section}` (`editSection`/`updateSection`, alpha-only params, `whereAlpha`). Sidebar "Website inhoud" renamed to **"Home-page"** and made a dropdown listing Ontwerp & SEO, Header, Hero, Waarom voor ons (each links to its page). Removed the top quick-nav tabs (Home-page secties / Live website bekijken) from both editor pages for a cleaner look.
+- [2026-08-12] — **Admin sidebar fully redesigned**: replaced all emoji icons in `components/admin/layout.blade.php` with **Heroicons SVG** (inline, `text-blue-400` accent), kept the same 12-group structure (Dashboard, Home-page, Diensten, Pages, Webshop, Website-aanvragen, Contact-klanten, Bestellings, Afspraken, Abonnement, Prijs-instellingen, Users-beheren, Manual Invoices) but improved the dropdown styling — left brand-colored border (`border-blue-500/40`), indented sub-items, and active sub-link = `bg-white/10 text-white font-bold shadow-sm`. Both real modules (Home-page, Users-beheren) now open as elegant dropdowns matching the Binnenkort placeholder styling.
+- [2026-08-12] — **Klanten renamed to Users** in the router: `routes/admin.php` prefix `klanten` → `users` and name `klanten.` → `users.` (URL is now `/admin/users`, route names `admin.users.*`). Sidebar dropdown label "Klanten" → "Users"; `public/assets/js/admin/klanten.js` endpoints updated from `/admin/klanten` to `/admin/users`. Controller class `KlantController` and view `admin/klanten/index.blade.php` kept as-is. Verified with `php artisan route:list` (8 `admin.users.*` routes registered).

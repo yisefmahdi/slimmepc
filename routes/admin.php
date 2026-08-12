@@ -41,9 +41,9 @@ Route::prefix('admin')
                     ->name('section');
             });
 
-        // Klanten (customers) management
-        Route::prefix('klanten')
-            ->name('klanten.')
+        // Users management (formerly klanten)
+        Route::prefix('users')
+            ->name('users.')
             ->group(function () {
                 Route::get('/', [KlantController::class, 'index'])
                     ->name('index');
