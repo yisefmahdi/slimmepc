@@ -1719,3 +1719,4 @@ transition: none !important;
 .bg-brand-gradient-btn:hover {
     background-image: linear-gradient(to right, var(--brand-primary), var(--brand-gradient-to));
 }
+

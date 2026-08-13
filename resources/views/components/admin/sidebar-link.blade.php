@@ -17,3 +17,4 @@ $color = $active ? '#ffffff' : 'rgba(203,213,225,0.85)';
         <span class="ms-auto rounded-full bg-white/20 px-2 py-0.5 text-xs font-bold text-white">{{ $badge }}</span>
     @endif
 </a>
+

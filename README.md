@@ -195,3 +195,4 @@ Open-source, built on [Laravel](https://laravel.com) (MIT). Add your own `LICENS
 ## 📧 Contact
 
 Slimme-PC — computer shop & repair services (UI language: Dutch 🇳🇱)
+

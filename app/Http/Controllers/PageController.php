@@ -38,3 +38,4 @@ class PageController extends Controller
         return response($html)->header('Content-Type', 'text/html; charset=UTF-8');
     }
 }
+

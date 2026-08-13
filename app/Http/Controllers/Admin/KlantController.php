@@ -217,3 +217,4 @@ class KlantController extends Controller
         return $candidate;
     }
 }
+

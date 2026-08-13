@@ -45,3 +45,4 @@
         </div>
     </x-auth-card>
 </x-guest-layout>
+

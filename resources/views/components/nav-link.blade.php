@@ -10,3 +10,4 @@ $textColor = ($active ?? false) ? 'color: var(--c-heading)' : 'color: var(--c-mu
 <a {{ $attributes->merge(['class' => $classes]) }} style="{{ $textColor }}">
     {{ $slot }}
 </a>
+

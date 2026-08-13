@@ -28,3 +28,4 @@
         {{ $slot }}
     </body>
 </html>
+

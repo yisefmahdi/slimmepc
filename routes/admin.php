@@ -70,3 +70,4 @@ Route::prefix('admin')
                     ->name('role');
             });
     });
+

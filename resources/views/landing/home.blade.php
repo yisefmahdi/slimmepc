@@ -13,3 +13,4 @@
     @include('landing.partials.footer')
     @include('landing.partials.floating')
 @endsection
+

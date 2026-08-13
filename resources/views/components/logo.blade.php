@@ -8,3 +8,4 @@
         style="width: {{ is_numeric($size) ? $size : 100 }}px"
     >
 </a>
+

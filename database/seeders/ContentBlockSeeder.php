@@ -243,3 +243,4 @@ class ContentBlockSeeder extends Seeder
         Cms::bust();
     }
 }
+

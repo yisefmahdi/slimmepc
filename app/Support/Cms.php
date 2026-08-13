@@ -100,3 +100,4 @@ class Cms
         Cache::put('cms.version', $meta->meta_value, now()->addMonth());
     }
 }
+

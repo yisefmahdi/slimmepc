@@ -26,3 +26,4 @@
     <p class="mt-4 text-sm font-medium" style="color: var(--c-muted)">{{ $label }}</p>
     <p class="mt-1 text-2xl font-extrabold tracking-tight" style="color: var(--c-heading)">{{ $value }}</p>
 </div>
+

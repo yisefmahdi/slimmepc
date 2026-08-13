@@ -568,3 +568,4 @@ $(function () {
     // Delete confirm
     $('#klantDeleteConfirmBtn').on('click', confirmDelete);
 });
+
