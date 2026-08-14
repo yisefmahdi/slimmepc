@@ -31,13 +31,12 @@
         </style>
 
         {{-- Scripts / Styles --}}
-        <link rel="stylesheet" href="{{ asset('assets/css/app.css') }}">
-
+<link rel="stylesheet" href="{{ asset('assets/css/app.css') }}?v={{ filemtime(public_path('assets/css/app.css')) }}">
         <script src="{{ asset('assets/js/vendor/jquery.min.js') }}"></script>
         <script src="{{ asset('assets/js/vendor/axios.min.js') }}"></script>
         <script src="{{ asset('assets/js/vendor/alpine.min.js') }}"></script>
-        <script src="{{ asset('assets/js/design.js') }}"></script>
-        <script src="{{ asset('assets/js/admin/klanten.js') }}"></script>
+        <script src="{{ asset('assets/js/design.js') }}?v={{ filemtime(public_path('assets/js/design.js')) }}"></script>
+        <script src="{{ asset('assets/js/admin/klanten.js') }}?v={{ filemtime(public_path('assets/js/admin/klanten.js')) }}"></script>
         <script src="{{ asset('assets/js/admin/content.js') }}?v={{ filemtime(public_path('assets/js/admin/content.js')) }}"></script>
         <script src="{{ asset('assets/js/admin/loader.js') }}?v={{ filemtime(public_path('assets/js/admin/loader.js')) }}"></script>
     </head>

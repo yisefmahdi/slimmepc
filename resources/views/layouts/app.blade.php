@@ -12,11 +12,11 @@
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800&display=swap" rel="stylesheet" />
 
         <!-- Scripts -->
-        <link rel="stylesheet" href="{{ asset('assets/css/app.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/css/app.css') }}?v={{ filemtime(public_path('assets/css/app.css')) }}">
 
         <script src="{{ asset('assets/js/vendor/jquery.min.js') }}"></script>
         <script src="{{ asset('assets/js/vendor/alpine.min.js') }}"></script>
-        <script src="{{ asset('assets/js/design.js') }}"></script>
+        <script src="{{ asset('assets/js/design.js') }}?v={{ filemtime(public_path('assets/js/design.js')) }}"></script>
     </head>
     <body class="font-sans antialiased" style="background-color: var(--c-page)">
         <div class="min-h-screen">
