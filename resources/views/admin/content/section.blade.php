@@ -16,6 +16,11 @@
                 'desc' => 'Beheer de voordelenkaarten rondom de centrale hub en de statistieken onderaan deze sectie.',
                 'location' => 'Tweede sectie op de homepage'
             ],
+            'services' => [
+                'title' => 'Onze diensten bewerken',
+                'desc' => 'Bewerk de 8 servicekaarten van de homepage. Elke service kan via de schakelaar worden verborgen van de homepage (zonder hem te verwijderen).',
+                'location' => 'Derde sectie op de homepage'
+            ],
         ];
 
         $currentInfo = $sectionInfos[$sectionKey] ?? [
@@ -48,21 +53,21 @@
     {{-- Main Form Card --}}
     <div class="overflow-hidden rounded-2xl border shadow-sm"
          style="background-color: var(--c-card); border-color: rgba(148,163,184,.25)">
-        <div class="bg-blue-50/50 px-6 py-4 border-b dark:bg-slate-800/40 flex items-center justify-between" style="border-color: rgba(148,163,184,.15)">
+        <div class="bg-blue-50/50 px-4 py-4 border-b dark:bg-slate-800/40 flex items-center justify-between sm:px-6" style="border-color: rgba(148,163,184,.15)">
             <span class="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">Inhoud &amp; Mediavelden ({{ count($section['blocks']) }} velden)</span>
             <span class="text-xs text-slate-500 italic">Wijzigingen worden direct opgeslagen</span>
         </div>
-        <div class="px-6 py-6">
+        <div class="px-4 py-5 sm:px-6 sm:py-6">
             <form class="section-form space-y-6"
                   data-url="{{ route('admin.content.section', ['page' => $page, 'section' => $sectionKey]) }}">
 
-                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6">
                     @foreach ($section['blocks'] as $blockKey => $block)
                         @php $blockValue = $content[$sectionKey][$blockKey] ?? null; @endphp
 
                         @if (($block['type'] ?? 'text') === 'json')
                             {{-- Repeatable items --}}
-                            <div class="sm:col-span-2 rounded-2xl border p-5 sm:p-6 bg-slate-50/50 dark:bg-slate-800/20" data-json-block style="border-color: rgba(148,163,184,.25)">
+                            <div class="sm:col-span-2 rounded-2xl border p-4 bg-slate-50/50 dark:bg-slate-800/20 sm:p-6" data-json-block data-block-key="{{ $blockKey }}" style="border-color: rgba(148,163,184,.25)">
                                 <div class="mb-5 flex items-center justify-between gap-3">
                                     <div>
                                         <span class="flex items-center gap-2 text-sm font-bold uppercase tracking-wider" style="color: var(--c-heading)">
@@ -71,8 +76,15 @@
                                             </svg>
                                             {{ $block['label'] }}
                                         </span>
-                                        <span class="text-xs" style="color: var(--c-muted)">Beheer hier de herhalende items (voeg toe of verwijder naar wens)</span>
+                                        <span class="text-xs" style="color: var(--c-muted)">
+                                            @if (!empty($block['fixed']))
+                                                Bewerk hier de vaste items (toevoegen of verwijderen is niet mogelijk)
+                                            @else
+                                                Beheer hier de herhalende items (voeg toe of verwijder naar wens)
+                                            @endif
+                                        </span>
                                     </div>
+                                    @if (empty($block['fixed']))
                                     <button type="button" data-add-row
                                             class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-blue-700">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4">
@@ -80,6 +92,7 @@
                                         </svg>
                                         Item toevoegen
                                     </button>
+                                    @endif
                                 </div>
 
                                 <div class="json-rows {{ !empty($block['columns']) && (int) $block['columns'] > 1 ? 'grid gap-4 sm:grid-cols-2' : 'space-y-4' }}">
@@ -155,7 +168,7 @@
                 </div>
 
                 {{-- Action Footer --}}
-                <div class="-mx-6 -mb-6 mt-8 flex items-center justify-between border-t px-6 py-4 bg-slate-50 dark:bg-slate-800/30 rounded-b-2xl"
+                <div class="-mx-4 -mb-5 mt-8 flex items-center justify-between border-t px-4 py-4 bg-slate-50 dark:bg-slate-800/30 rounded-b-2xl sm:-mx-6 sm:-mb-6 sm:px-6"
                      style="border-color: rgba(148, 163, 184, 0.15)">
                     <span class="form-status text-xs font-bold"></span>
                     <x-admin.save-button :label="$section['label'] . ' opslaan'" />

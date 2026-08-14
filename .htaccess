@@ -1,0 +1,44 @@
+# ✅ تعطيل HTTP/2 لحل مشكلة رفع الملفات الكبيرة
+<IfModule mod_http2.c>
+    Protocols h2c http/1.1
+</IfModule>
+
+# ✅ زيادة حدود رفع الملفات
+php_value upload_max_filesize 500M
+php_value post_max_size 600M
+php_value memory_limit 1024M
+php_value max_execution_time 1200
+php_value max_input_time 1200
+
+# ─── CORS & أمان ───
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
+Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # ✅ توجيه HTTP إلى HTTPS
+    RewriteCond %{HTTPS} !=on
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301,NE]
+
+    # ✅ تمرير الطلبات إلى مجلد public (مع الحفاظ على الملفات الثابتة)
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+
+    # ✅ إذا لم يوجد الملف أو المجلد داخل public، وجه إلى index.php
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ public/index.php [L]
+
+    # ✅ إرسال Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+</IfModule>
+
+# ─── التخزين المؤقت للملفات الثابتة ───
+<IfModule mod_headers.c>
+    <FilesMatch "\.(css|js)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+</IfModule>

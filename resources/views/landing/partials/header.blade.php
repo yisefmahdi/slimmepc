@@ -1,3 +1,9 @@
+@php
+    $navLinks = $c['header']['nav_links'] ?? [];
+    $navBefore = array_slice($navLinks, 0, 2);
+    $navAfter  = array_slice($navLinks, 2);
+@endphp
+
 <header id="navbar" class="
         sticky top-0 z-50
         border-b border-white/10
@@ -52,7 +58,7 @@
                 xl:flex
             " aria-label="Hoofdnavigatie">
 
-            @foreach ($c['header']['nav_links'] ?? [] as $link)
+            @foreach ($navBefore as $link)
                 <a href="{{ $link['url'] ?? '#' }}" class="
                         group relative flex min-w-[82px]
                         flex-col items-center justify-center
@@ -200,6 +206,30 @@
                     </div>
                 </div>
             </div>
+
+            @foreach ($navAfter as $link)
+                <a href="{{ $link['url'] ?? '#' }}" class="
+                        group relative flex min-w-[82px]
+                        flex-col items-center justify-center
+                        gap-1 rounded-2xl px-3 py-3
+                        {{ !empty($link['active']) ? 'bg-white/10 text-white ring-1 ring-white/10' : 'text-blue-50 hover:bg-white/10 hover:text-white' }}
+                        transition
+                    ">
+                    <i data-lucide="{{ $link['icon'] ?? 'circle' }}" class="h-5 w-5"></i>
+
+                    <span class="text-xs font-semibold">
+                        {{ $link['label'] ?? '' }}
+                    </span>
+
+                    @if (!empty($link['active']))
+                        <span class="
+                            absolute -bottom-[1px]
+                            h-[3px] w-8
+                            rounded-full bg-blue-300
+                        "></span>
+                    @endif
+                </a>
+            @endforeach
         </nav>
 
         <!-- Right Actions -->
@@ -397,7 +427,7 @@
         </a>
 
         <nav class="space-y-1">
-            @foreach ($c['header']['nav_links'] ?? [] as $link)
+            @foreach ($navBefore as $link)
                 <a href="{{ $link['url'] ?? '#' }}" class="
                         flex items-center gap-3
                         rounded-xl px-4 py-3
@@ -455,6 +485,17 @@
                     </a>
                 @endforeach
             </div>
+
+            @foreach ($navAfter as $link)
+                <a href="{{ $link['url'] ?? '#' }}" class="
+                        flex items-center gap-3
+                        rounded-xl px-4 py-3
+                        {{ !empty($link['active']) ? 'bg-brand-50 font-semibold text-brand-800' : 'font-medium text-slate-700 hover:bg-slate-100' }}
+                    ">
+                    <i data-lucide="{{ $link['icon'] ?? 'circle' }}" class="h-5 w-5"></i>
+                    {{ $link['label'] ?? '' }}
+                </a>
+            @endforeach
         </nav>
 
         <div class="

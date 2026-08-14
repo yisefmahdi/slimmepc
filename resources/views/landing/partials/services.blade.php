@@ -120,6 +120,7 @@
                 xl:grid-cols-4
             ">
             @foreach ($c['services']['services'] ?? [] as $service)
+                @continue(!empty($service['hidden']))
                 <a href="{{ $service['link'] ?? '#' }}" class="service-showcase group">
                     <div class="service-visual">
                         <div class="service-platform"></div>

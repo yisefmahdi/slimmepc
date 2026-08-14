@@ -76,6 +76,31 @@ return [
                         ],
                     ],
                 ],
+
+                'services' => [
+                    'label' => 'Services (Onze diensten)',
+                    'blocks' => [
+                        'badge' => ['label' => 'Badge (boven de titel)', 'type' => 'text'],
+                        'title_prefix' => ['label' => 'Titel (voor highlight)', 'type' => 'text'],
+                        'title_highlight' => ['label' => 'Titel (gradient deel)', 'type' => 'text'],
+                        'title_suffix' => ['label' => 'Titel (na highlight)', 'type' => 'text'],
+                        'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+                        'services' => [
+                            'label' => 'Diensten (8 kaarten)',
+                            'type' => 'json',
+                            'columns' => 2,
+                            'fixed' => true,
+                            'fields' => [
+                                ['key' => 'image', 'label' => 'Afbeelding (kaart op de homepage)', 'type' => 'image'],
+                                ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                                ['key' => 'icon', 'label' => 'Pictogram (lucide naam)', 'type' => 'text'],
+                                ['key' => 'description', 'label' => 'Beschrijving', 'type' => 'textarea'],
+                                ['key' => 'link', 'label' => 'Link (bijv. /pc.html)', 'type' => 'text', 'hidden' => true],
+                                ['key' => 'hidden', 'label' => 'Verberg van de homepage', 'type' => 'boolean'],
+                            ],
+                        ],
+                    ],
+                ],
             ],
         ],
     ],

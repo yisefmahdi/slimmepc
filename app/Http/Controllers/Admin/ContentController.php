@@ -77,7 +77,7 @@ class ContentController extends Controller
                 $stringValue = null;
 
                 if ($blockSchema['type'] === 'json') {
-                    $jsonValue = $this->normalizeJson($value, $blockSchema);
+                    $jsonValue = $this->normalizeJson($request, $key, $value, $blockSchema);
                 } else {
                     $file = $request->file("blocks.{$key}_file");
 
@@ -147,7 +147,7 @@ class ContentController extends Controller
      * Turn posted json input into a clean list of items, keeping only
      * configured fields and casting boolean fields.
      */
-    private function normalizeJson(mixed $value, array $blockSchema): array
+    private function normalizeJson(Request $request, string $blockKey, mixed $value, array $blockSchema): array
     {
         if (! is_array($value)) {
             return [];
@@ -156,7 +156,7 @@ class ContentController extends Controller
         $fields = $blockSchema['fields'] ?? [];
         $items = [];
 
-        foreach (array_values($value) as $item) {
+        foreach ($value as $index => $item) {
             if (! is_array($item)) {
                 continue;
             }
@@ -172,9 +172,30 @@ class ContentController extends Controller
                     continue;
                 }
 
-                $clean[$fieldKey] = $fieldType === 'boolean'
-                    ? filter_var($item[$fieldKey], FILTER_VALIDATE_BOOLEAN)
-                    : (string) $item[$fieldKey];
+                if ($fieldType === 'boolean') {
+                    $clean[$fieldKey] = filter_var($item[$fieldKey], FILTER_VALIDATE_BOOLEAN);
+                    continue;
+                }
+
+                if ($fieldType === 'image') {
+                    $file = $request->file("blocks.{$blockKey}.{$index}.{$fieldKey}_file");
+
+                    if ($file) {
+                        $request->validate([
+                            "blocks.{$blockKey}.{$index}.{$fieldKey}_file" => ['image', 'mimes:jpeg,png,webp', 'max:5120'],
+                        ], [], ["blocks.{$blockKey}.{$index}.{$fieldKey}_file" => 'afbeelding']);
+
+                        $name = $file->hashName();
+                        $file->move(public_path('assets/img/landing'), $name);
+                        $clean[$fieldKey] = $name;
+                        continue;
+                    }
+
+                    $clean[$fieldKey] = (string) $item[$fieldKey];
+                    continue;
+                }
+
+                $clean[$fieldKey] = (string) $item[$fieldKey];
             }
 
             $items[] = $clean;

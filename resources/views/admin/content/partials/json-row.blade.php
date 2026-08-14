@@ -10,6 +10,7 @@
             Item
         </span>
 
+        @if (empty($block['fixed']))
         <button type="button" data-remove-row
                 class="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-bold text-red-500 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-3.5 w-3.5">
@@ -17,6 +18,29 @@
             </svg>
             Verwijderen
         </button>
+        @else
+        @php
+            $boolField = null;
+            foreach ($block['fields'] ?? [] as $f) {
+                if (($f['type'] ?? 'text') === 'boolean') { $boolField = $f; break; }
+            }
+        @endphp
+        @if ($boolField)
+        <label class="inline-flex cursor-pointer items-center gap-2 rounded-lg border px-2.5 py-1 transition hover:bg-slate-50 dark:hover:bg-slate-800/40"
+               style="border-color: rgba(148,163,184,.25)">
+            <span class="text-xs font-bold" style="color: var(--c-heading)">{{ $boolField['label'] }}</span>
+            <input type="hidden" name="blocks[{{ $blockKey }}][{{ $index }}][{{ $boolField['key'] }}]" value="0">
+            <input type="checkbox" name="blocks[{{ $blockKey }}][{{ $index }}][{{ $boolField['key'] }}]" value="1"
+                   @checked(filter_var($item[$boolField['key']] ?? '', FILTER_VALIDATE_BOOLEAN))
+                   class="peer sr-only">
+            <span class="relative h-6 w-11 shrink-0 rounded-full bg-slate-300 transition-colors duration-200 peer-checked:bg-green-500 after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow-md after:transition-transform after:duration-200 peer-checked:after:translate-x-5"></span>
+        </label>
+        @else
+        <span class="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-300">
+            Vast item
+        </span>
+        @endif
+        @endif
     </div>
 
     {{-- Fields grid --}}
@@ -24,9 +48,14 @@
         @foreach ($block['fields'] as $field)
             @php 
                 $value = $item[$field['key']] ?? '';
-                $isFull = ($field['type'] ?? 'text') === 'textarea';
+                $isFull = in_array($field['type'] ?? 'text', ['textarea', 'boolean', 'image']);
             @endphp
 
+            @if (!empty($field['hidden']))
+                <input type="hidden" name="blocks[{{ $blockKey }}][{{ $index }}][{{ $field['key'] }}]" value="{{ $value }}">
+            @elseif (!empty($block['fixed']) && ($field['type'] ?? 'text') === 'boolean')
+                {{-- Toggle rendered in the row header (see Vast item / Verberg area) --}}
+            @else
             <div class="{{ $isFull ? 'sm:col-span-2' : '' }}">
                 <label class="mb-1 block text-[11px] font-semibold" style="color: var(--c-muted)">
                     {{ $field['label'] }}
@@ -37,20 +66,41 @@
                               class="w-full rounded-xl border px-3 py-1.5 text-sm outline-none transition focus:ring-2 focus:ring-blue-500/40"
                               style="background-color: var(--c-input, rgba(0,0,0,.03)); border-color: rgba(148,163,184,.3); color: var(--c-heading)">{{ $value }}</textarea>
                 @elseif (($field['type'] ?? 'text') === 'boolean')
-                    <label class="flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-1.5"
+                    <label class="inline-flex cursor-pointer items-center rounded-xl border px-4 py-3 transition hover:bg-slate-50 dark:hover:bg-slate-800/40"
                            style="border-color: rgba(148,163,184,.3)">
                         <input type="hidden" name="blocks[{{ $blockKey }}][{{ $index }}][{{ $field['key'] }}]" value="0">
                         <input type="checkbox" name="blocks[{{ $blockKey }}][{{ $index }}][{{ $field['key'] }}]" value="1"
                                @checked(filter_var($value, FILTER_VALIDATE_BOOLEAN))
-                               class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
-                        <span class="text-sm font-medium" style="color: var(--c-heading)">Ja</span>
+                               class="peer sr-only">
+                        <span class="relative h-6 w-11 shrink-0 rounded-full bg-slate-300 transition-colors duration-200 peer-checked:bg-green-500 after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow-md after:transition-transform after:duration-200 peer-checked:after:translate-x-5"></span>
                     </label>
+                @elseif (($field['type'] ?? 'text') === 'image')
+                    <div class="flex flex-wrap items-center gap-4 rounded-xl border p-4 bg-slate-50/50 dark:bg-slate-800/30" data-image-block style="border-color: rgba(148,163,184,.25)">
+                        <div class="flex items-center gap-4">
+                            <div class="relative h-20 w-28 overflow-hidden rounded-xl border bg-white dark:bg-slate-900 shadow-inner flex items-center justify-center" style="border-color: rgba(148,163,184,.3)">
+                                <img data-image-preview src="{{ $value ? asset('assets/img/landing/' . $value) : '' }}"
+                                     alt="" class="h-full w-full object-contain p-1"
+                                     style="{{ $value ? '' : 'display: none' }}">
+                                <span class="text-[10px] text-slate-400 absolute" style="{{ $value ? 'display: none' : '' }}">Geen voorbeeld</span>
+                            </div>
+                            <div class="text-xs space-y-1" style="color: var(--c-muted)">
+                                <span class="block">Ondersteund: PNG, JPG, WEBP (Max 5MB).</span>
+                            </div>
+                        </div>
+                        <div class="min-w-[240px] flex-1">
+                            <input type="hidden" name="blocks[{{ $blockKey }}][{{ $index }}][{{ $field['key'] }}]" value="{{ $value }}">
+                            <input type="file" name="blocks[{{ $blockKey }}][{{ $index }}][{{ $field['key'] }}_file]" accept="image/png,image/jpeg,image/webp"
+                                   class="block w-full cursor-pointer rounded-xl border text-sm file:mr-3 file:rounded-xl file:border-0 file:bg-blue-50 file:px-4 file:py-2.5 file:text-sm file:font-bold file:text-blue-700 hover:file:bg-blue-100"
+                                   style="border-color: rgba(148,163,184,.3); color: var(--c-muted)">
+                        </div>
+                    </div>
                 @else
                     <input type="text" name="blocks[{{ $blockKey }}][{{ $index }}][{{ $field['key'] }}]" value="{{ $value }}"
                            class="w-full rounded-xl border px-3 py-1.5 text-sm outline-none transition focus:ring-2 focus:ring-blue-500/40"
                            style="background-color: var(--c-input, rgba(0,0,0,.03)); border-color: rgba(148,163,184,.3); color: var(--c-heading)">
                 @endif
             </div>
+            @endif
         @endforeach
     </div>
 </div>

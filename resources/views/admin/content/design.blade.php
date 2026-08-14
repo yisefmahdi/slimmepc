@@ -17,12 +17,12 @@
     {{-- Main Form Card --}}
     <div class="overflow-hidden rounded-2xl border shadow-sm"
          style="background-color: var(--c-card); border-color: rgba(148,163,184,.25)">
-        <div class="bg-blue-50/50 px-6 py-4 border-b dark:bg-slate-800/40" style="border-color: rgba(148,163,184,.15)">
+        <div class="bg-blue-50/50 px-4 py-4 border-b dark:bg-slate-800/40 sm:px-6" style="border-color: rgba(148,163,184,.15)">
             <span class="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">SEO &amp; Meta Gegevens</span>
         </div>
-        <div class="px-6 py-6">
+        <div class="px-4 py-5 sm:px-6 sm:py-6">
             <form id="design-form" data-url="{{ route('admin.content.design') }}" class="space-y-6">
-                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6">
                     @foreach ($designGroups as $groupKey => $group)
                         @foreach ($group['fields'] as $field)
                             @php $value = $design[$field['key']] ?? ($field['default'] ?? ''); @endphp
@@ -49,7 +49,7 @@
                 </div>
 
                 {{-- Action Footer --}}
-                <div class="-mx-6 -mb-6 mt-8 flex items-center justify-between border-t px-6 py-4 bg-slate-50 dark:bg-slate-800/30 rounded-b-2xl"
+                <div class="-mx-4 -mb-5 mt-8 flex items-center justify-between border-t px-4 py-4 bg-slate-50 dark:bg-slate-800/30 rounded-b-2xl sm:-mx-6 sm:-mb-6 sm:px-6"
                      style="border-color: rgba(148, 163, 184, 0.15)">
                     <span class="form-status text-xs font-bold"></span>
                     <x-admin.save-button label="Wijzigingen opslaan" />

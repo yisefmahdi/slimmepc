@@ -5,41 +5,77 @@
         return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     }
 
-    function showStatus(form, message, ok) {
-        var status = form.querySelector('.form-status');
-        if (!status) return;
-        status.textContent = message;
-        status.style.color = ok ? '#10b981' : '#ef4444';
-        setTimeout(function () {
-            status.textContent = '';
-        }, 4000);
+    function toastMessage(message, ok) {
+        if (!window.SlimmePC || !window.SlimmePC.toast) return;
+        if (ok) {
+            window.SlimmePC.toast.success(message);
+        } else {
+            window.SlimmePC.toast.error(message);
+        }
     }
 
     function updateSavedImages(form, saved) {
         Object.keys(saved).forEach(function (key) {
             var val = saved[key];
-            if (typeof val !== 'string' || val.indexOf('assets/img/') !== 0) return;
 
-            var hidden = form.querySelector('input[name="blocks[' + key + ']"]');
-            if (!hidden) return;
-            hidden.value = val;
+            if (typeof val === 'string' && val.indexOf('assets/img/') === 0) {
+                var hidden = form.querySelector('input[name="blocks[' + key + ']"]');
+                if (!hidden) return;
+                hidden.value = val;
 
-            var block = hidden.closest('[data-image-block]');
-            if (!block) return;
+                var block = hidden.closest('[data-image-block]');
+                if (!block) return;
 
-            var img = block.querySelector('[data-image-preview]');
-            if (img) {
-                img.src = '/' + val;
-                img.style.display = '';
+                var img = block.querySelector('[data-image-preview]');
+                if (img) {
+                    img.src = '/' + val;
+                    img.style.display = '';
+                }
+
+                var name = block.querySelector('[data-image-name]');
+                if (name) {
+                    name.textContent = val.split('/').pop();
+                }
+
+                var fileInput = block.querySelector('input[type="file"]');
+                if (fileInput) fileInput.value = '';
             }
 
-            var name = block.querySelector('[data-image-name]');
-            if (name) {
-                name.textContent = val.split('/').pop();
-            }
+            if (Array.isArray(val)) {
+                var jsonBlock = form.querySelector('[data-json-block][data-block-key="' + key + '"]');
+                if (!jsonBlock) return;
+                var rows = jsonBlock.querySelectorAll('.json-row');
+                val.forEach(function (item, i) {
+                    var row = rows[i];
+                    if (!row || !item || typeof item !== 'object') return;
+                    Object.keys(item).forEach(function (fieldKey) {
+                        var fv = item[fieldKey];
+                        if (typeof fv !== 'string') return;
 
-            var fileInput = block.querySelector('input[type="file"]');
-            if (fileInput) fileInput.value = '';
+                        var hidden = row.querySelector('input[name="blocks[' + key + '][' + i + '][' + fieldKey + ']"]');
+                        if (!hidden) return;
+
+                        var imageBlock = hidden.closest('[data-image-block]');
+                        if (!imageBlock) return;
+
+                        hidden.value = fv;
+
+                        var img = imageBlock.querySelector('[data-image-preview]');
+                        if (img) {
+                            img.src = '/assets/img/landing/' + fv;
+                            img.style.display = '';
+                        }
+
+                        var name = imageBlock.querySelector('[data-image-name]');
+                        if (name) {
+                            name.textContent = fv;
+                        }
+
+                        var fileInput = imageBlock.querySelector('input[type="file"]');
+                        if (fileInput) fileInput.value = '';
+                    });
+                });
+            }
         });
     }
 
@@ -55,7 +91,7 @@
         for (var i = 0; i < fileInputs.length; i++) {
             var file = fileInputs[i].files && fileInputs[i].files[0];
             if (file && file.size > 5 * 1024 * 1024) {
-                showStatus(form, 'Afbeelding is te groot (maximaal 5 MB).', false);
+                toastMessage('Afbeelding is te groot (maximaal 5 MB).', false);
                 return;
             }
         }
@@ -76,7 +112,8 @@
             if (response.data && response.data.saved) {
                 updateSavedImages(form, response.data.saved);
             }
-            showStatus(form, 'Opgeslagen!', true);
+            if (status) status.textContent = '';
+            toastMessage('Opgeslagen!', true);
         }).catch(function (error) {
             var msg = 'Opslaan mislukt.';
             var data = error.response && error.response.data;
@@ -86,7 +123,8 @@
                 var firstKey = Object.keys(data.errors)[0];
                 if (firstKey) msg = data.errors[firstKey][0];
             }
-            showStatus(form, msg, false);
+            if (status) status.textContent = '';
+            toastMessage(msg, false);
         }).finally(function () {
             button.disabled = false;
             if (label) label.textContent = 'Opslaan';
