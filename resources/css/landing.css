@@ -1858,18 +1858,24 @@ html {
 }
 
 .accordion-content {
-    max-height: 0;
+    display: grid;
+    grid-template-rows: 0fr;
     overflow: hidden;
     opacity: 0;
+    padding-top: 0;
 
     transition:
-        max-height 500ms ease,
-        opacity 300ms ease,
+        grid-template-rows 400ms ease,
+        opacity 250ms ease,
         padding-top 300ms ease;
 }
 
+.accordion-content > * {
+    min-height: 0;
+}
+
 .accordion-item.open .accordion-content {
-    max-height: 1000px;
+    grid-template-rows: 1fr;
     opacity: 1;
     padding-top: 20px;
 }
