@@ -1858,26 +1858,13 @@ html {
 }
 
 .accordion-content {
-    display: grid;
-    grid-template-rows: 0fr;
-    overflow: hidden;
-    opacity: 0;
-    padding-top: 0;
-
-    transition:
-        grid-template-rows 400ms ease,
-        opacity 250ms ease,
-        padding-top 300ms ease;
-}
-
-.accordion-content > * {
-    min-height: 0;
+    display: none;
 }
 
 .accordion-item.open .accordion-content {
-    grid-template-rows: 1fr;
-    opacity: 1;
+    display: block;
     padding-top: 20px;
+    animation: contentChange 240ms ease;
 }
 
 .accordion-chevron {

@@ -111,7 +111,7 @@ return [
     'extra' => [
         'accordions' => [
             [
-                'icon' => 'file-euro',
+                'icon' => 'euro',
                 'title' => 'Algemene tarieven',
                 'accent' => 'blue',
                 'description' => 'Voorrijkosten, arbeid, diagnose en hulp op afstand.',
