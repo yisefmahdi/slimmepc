@@ -65,7 +65,7 @@
                                 <div class="absolute h-48 w-48 rounded-full bg-blue-300/25 blur-3xl"></div>
                                 <img src="{{ asset('assets/img/landing/' . $cat['image']) }}" alt="{{ $cat['title'] ?? '' }}"
                                      class="device-floating relative z-10 max-h-[260px] w-full object-contain drop-shadow-2xl"
-                                     decoding="async">
+                                     loading="lazy" decoding="async">
                             </div>
                             @endif
                         </div>
