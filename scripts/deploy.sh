@@ -11,7 +11,7 @@
 #
 set -u
 
-APP_DIR="/domains/slimmepc.kulshy.online/public_html"
+APP_DIR="/home/u439113944/domains/slimmepc.kulshy.online/public_html"
 BRANCH="main"
 REMOTE="origin"
 LOG_FILE="$APP_DIR/storage/logs/deploy.log"

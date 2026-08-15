@@ -14,7 +14,7 @@ minutes via a cron job that runs `scripts/deploy.sh` from the git checkout.
 
 - Host: `82.25.102.153`, port `65002`
 - SSH user: `u439113944`
-- App dir (git checkout): `/domains/slimmepc.kulshy.online/public_html`
+- App dir (git checkout): `/home/u439113944/domains/slimmepc.kulshy.online/public_html`
 - Branch: `main`
 - SSH alias (configured in `~/.ssh/config`): `ssh slimmepc`
 - Log: `storage/logs/deploy.log` inside the app dir
@@ -27,12 +27,12 @@ minutes via a cron job that runs `scripts/deploy.sh` from the git checkout.
 ### Automatic (default)
 1. Commit and push: `git push origin main`.
 2. Wait up to 5 minutes for the server cron.
-3. Verify: `ssh slimmepc "tail -n 20 /domains/slimmepc.kulshy.online/public_html/storage/logs/deploy.log"`
+3. Verify: `ssh slimmepc "tail -n 20 /home/u439113944/domains/slimmepc.kulshy.online/public_html/storage/logs/deploy.log"`
 
 ### Manual (immediate)
 1. `git push origin main`.
 2. Run the deploy script on the server:
-   `ssh slimmepc "cd /domains/slimmepc.kulshy.online/public_html && bash scripts/deploy.sh"`
+   `ssh slimmepc "cd /home/u439113944/domains/slimmepc.kulshy.online/public_html && bash scripts/deploy.sh"`
 3. Confirm the same tail command as above.
 
 ## What `scripts/deploy.sh` does
@@ -51,7 +51,7 @@ minutes via a cron job that runs `scripts/deploy.sh` from the git checkout.
 
 Installed with `crontab -e` on the server. Inspect with `ssh slimmepc "crontab -l"`.
 Line format (5-minute interval):
-`*/5 * * * * /bin/bash /domains/slimmepc.kulshy.online/public_html/scripts/deploy.sh >/dev/null 2>&1`
+`*/5 * * * * /bin/bash /home/u439113944/domains/slimmepc.kulshy.online/public_html/scripts/deploy.sh >/dev/null 2>&1`
 
 ## Troubleshooting
 
