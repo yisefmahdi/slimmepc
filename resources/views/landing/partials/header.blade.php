@@ -3,8 +3,9 @@
 
     $currentPath = ltrim(request()->path(), '/');
     foreach ($navLinks as &$navLink) {
+        $navLink['active'] = false;
         $navUrlPath = ltrim((string) ($navLink['url'] ?? ''), '/');
-        if ($navUrlPath !== '' && $navUrlPath === $currentPath) {
+        if ($navUrlPath === $currentPath) {
             $navLink['active'] = true;
         }
     }
