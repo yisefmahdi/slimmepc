@@ -54,7 +54,7 @@
                                 text-white
                                 shadow-lg shadow-blue-500/20
                             ">
-                            <span class="text-2xl font-black">{{ $c['footer']['brand_badge_letter'] ?? 'S' }}</span>
+                            <span class="text-2xl font-black">{{ mb_strtoupper(mb_substr($c['header']['logo_text'] ?? 'S', 0, 1)) }}</span>
                         </div>
                     @endif
 
@@ -63,7 +63,7 @@
                                 text-2xl font-extrabold
                                 text-brand-heading
                             ">
-                            {{ $c['footer']['brand_name'] ?? '' }}
+                            {{ $c['header']['logo_text'] ?? '' }}
                         </h3>
 
                         <p class="
@@ -71,7 +71,7 @@
                                 font-semibold
                                 text-brand-primary-dark
                             ">
-                            {{ $c['footer']['brand_tagline'] ?? '' }}
+                            {{ $c['header']['tagline'] ?? '' }}
                         </p>
                     </div>
                 </div>
@@ -100,10 +100,17 @@
                 </h4>
 
                 <ul class="footer-links">
-                    @foreach ($c['footer']['services_col'] ?? [] as $link)
+                    @foreach ([
+                        ['label' => 'Laptop reparatie', 'url' => '/diensten/laptop-reparatie'],
+                        ['label' => 'Computer reparatie', 'url' => '/diensten/pc-reparatie'],
+                        ['label' => 'Data recovery', 'url' => '/diensten/data-recovery'],
+                        ['label' => 'Software & Windows', 'url' => '/diensten/software-windows'],
+                        ['label' => 'Onderhoud & upgrade', 'url' => '/diensten/upgrades'],
+                        ['label' => 'Netwerk & WiFi', 'url' => '/diensten/netwerkoplossingen'],
+                    ] as $link)
                         <li>
-                            <a href="{{ $link['url'] ?? '#' }}">
-                                {{ $link['label'] ?? '' }}
+                            <a href="{{ $link['url'] }}">
+                                {{ $link['label'] }}
                             </a>
                         </li>
                     @endforeach
@@ -117,8 +124,15 @@
                 </h4>
 
                 <ul class="footer-links">
-                    @foreach ($c['footer']['shop_col'] ?? [] as $link)
-                        <li><a href="{{ $link['url'] ?? '#' }}">{{ $link['label'] ?? '' }}</a></li>
+                    @foreach ([
+                        ['label' => 'Laptops', 'url' => '/webshop'],
+                        ['label' => 'Desktops', 'url' => '/webshop'],
+                        ['label' => 'Monitoren', 'url' => '/webshop'],
+                        ['label' => 'Componenten', 'url' => '/webshop'],
+                        ['label' => 'Randapparatuur', 'url' => '/webshop'],
+                        ['label' => 'Software', 'url' => '/webshop'],
+                    ] as $link)
+                        <li><a href="{{ $link['url'] }}">{{ $link['label'] }}</a></li>
                     @endforeach
                 </ul>
             </div>
@@ -130,8 +144,14 @@
                 </h4>
 
                 <ul class="footer-links">
-                    @foreach ($c['footer']['about_col'] ?? [] as $link)
-                        <li><a href="{{ $link['url'] ?? '#' }}">{{ $link['label'] ?? '' }}</a></li>
+                    @foreach ([
+                        ['label' => 'Over Slimme-PC', 'url' => '/over-ons'],
+                        ['label' => 'Onze werkwijze', 'url' => '/over-ons'],
+                        ['label' => 'Veelgestelde vragen', 'url' => '/faq'],
+                        ['label' => 'Garantie & voorwaarden', 'url' => '/voorwaarden'],
+                        ['label' => 'Privacyverklaring', 'url' => '/privacy'],
+                    ] as $link)
+                        <li><a href="{{ $link['url'] }}">{{ $link['label'] }}</a></li>
                     @endforeach
                 </ul>
             </div>

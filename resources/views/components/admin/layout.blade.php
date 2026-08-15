@@ -39,6 +39,8 @@
         <script src="{{ asset('assets/js/admin/klanten.js') }}?v={{ filemtime(public_path('assets/js/admin/klanten.js')) }}"></script>
         <script src="{{ asset('assets/js/admin/content.js') }}?v={{ filemtime(public_path('assets/js/admin/content.js')) }}"></script>
         <script src="{{ asset('assets/js/admin/loader.js') }}?v={{ filemtime(public_path('assets/js/admin/loader.js')) }}"></script>
+        <script src="{{ asset('assets/js/vendor/lucide.min.js') }}?v={{ filemtime(public_path('assets/js/vendor/lucide.min.js')) }}"></script>
+        <script src="{{ asset('assets/js/admin/icon-picker.js') }}?v={{ filemtime(public_path('assets/js/admin/icon-picker.js')) }}"></script>
     </head>
 
     <body class="font-sans antialiased" style="background-color: var(--c-page)" x-data="{ sidebarOpen: false }">
@@ -164,12 +166,10 @@
                            class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('section') === 'services' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
                             Services
                         </a>
-                        <span class="block rounded-lg px-3 py-2 text-blue-100 cursor-not-allowed">
-                            Webshop <small class="text-[10px] font-normal italic opacity-60">(Binnenkort)</small>
-                        </span>
-                        <span class="block rounded-lg px-3 py-2 text-blue-100 cursor-not-allowed">
-                            Footer <small class="text-[10px] font-normal italic opacity-60">(Binnenkort)</small>
-                        </span>
+                        <a href="{{ route('admin.content.section.edit', ['page' => 'home', 'section' => 'footer']) }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('section') === 'footer' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Footer
+                        </a>
                     </div>
                 </div>
 

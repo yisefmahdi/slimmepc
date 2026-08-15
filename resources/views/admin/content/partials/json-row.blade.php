@@ -74,27 +74,42 @@
                                class="peer sr-only">
                         <span class="relative h-6 w-11 shrink-0 rounded-full bg-slate-300 transition-colors duration-200 peer-checked:bg-green-500 after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow-md after:transition-transform after:duration-200 peer-checked:after:translate-x-5"></span>
                     </label>
-                @elseif (($field['type'] ?? 'text') === 'image')
-                    <div class="flex flex-wrap items-center gap-4 rounded-xl border p-4 bg-slate-50/50 dark:bg-slate-800/30" data-image-block style="border-color: rgba(148,163,184,.25)">
-                        <div class="flex items-center gap-4">
-                            <div class="relative h-20 w-28 overflow-hidden rounded-xl border bg-white dark:bg-slate-900 shadow-inner flex items-center justify-center" style="border-color: rgba(148,163,184,.3)">
-                                <img data-image-preview src="{{ $value ? asset('assets/img/landing/' . $value) : '' }}"
-                                     alt="" class="h-full w-full object-contain p-1"
-                                     style="{{ $value ? '' : 'display: none' }}">
-                                <span class="text-[10px] text-slate-400 absolute" style="{{ $value ? 'display: none' : '' }}">Geen voorbeeld</span>
-                            </div>
-                            <div class="text-xs space-y-1" style="color: var(--c-muted)">
-                                <span class="block">Ondersteund: PNG, JPG, WEBP (Max 5MB).</span>
-                            </div>
-                        </div>
-                        <div class="min-w-[240px] flex-1">
-                            <input type="hidden" name="blocks[{{ $blockKey }}][{{ $index }}][{{ $field['key'] }}]" value="{{ $value }}">
-                            <input type="file" name="blocks[{{ $blockKey }}][{{ $index }}][{{ $field['key'] }}_file]" accept="image/png,image/jpeg,image/webp"
-                                   class="block w-full cursor-pointer rounded-xl border text-sm file:mr-3 file:rounded-xl file:border-0 file:bg-blue-50 file:px-4 file:py-2.5 file:text-sm file:font-bold file:text-blue-700 hover:file:bg-blue-100"
-                                   style="border-color: rgba(148,163,184,.3); color: var(--c-muted)">
-                        </div>
-                    </div>
-                @else
+@elseif (($field['type'] ?? 'text') === 'image')
+                                    <div class="flex flex-wrap items-center gap-4 rounded-xl border p-4 bg-slate-50/50 dark:bg-slate-800/30" data-image-block style="border-color: rgba(148,163,184,.25)">
+                                        <div class="flex items-center gap-4">
+                                            <div class="relative h-20 w-28 overflow-hidden rounded-xl border bg-white dark:bg-slate-900 shadow-inner flex items-center justify-center" style="border-color: rgba(148,163,184,.3)">
+                                                <img data-image-preview src="{{ $value ? asset('assets/img/landing/' . $value) : '' }}"
+                                                     alt="" class="h-full w-full object-contain p-1"
+                                                     style="{{ $value ? '' : 'display: none' }}">
+                                                <span class="text-[10px] text-slate-400 absolute" style="{{ $value ? 'display: none' : '' }}">Geen voorbeeld</span>
+                                            </div>
+                                            <div class="text-xs space-y-1" style="color: var(--c-muted)">
+                                                <span class="block">Ondersteund: PNG, JPG, WEBP (Max 5MB).</span>
+                                            </div>
+                                        </div>
+                                        <div class="min-w-[240px] flex-1">
+                                            <input type="hidden" name="blocks[{{ $blockKey }}][{{ $index }}][{{ $field['key'] }}]" value="{{ $value }}">
+                                            <input type="file" name="blocks[{{ $blockKey }}][{{ $index }}][{{ $field['key'] }}_file]" accept="image/png,image/jpeg,image/webp"
+                                                   class="block w-full cursor-pointer rounded-xl border text-sm file:mr-3 file:rounded-xl file:border-0 file:bg-blue-50 file:px-4 file:py-2.5 file:text-sm file:font-bold file:text-blue-700 hover:file:bg-blue-100"
+                                                   style="border-color: rgba(148,163,184,.3); color: var(--c-muted)">
+                                        </div>
+                                    </div>
+                                @elseif (($field['type'] ?? 'text') === 'icon')
+                                    <div class="icon-picker" data-icon-picker>
+                                        <input type="hidden" name="blocks[{{ $blockKey }}][{{ $index }}][{{ $field['key'] }}]" value="{{ $value }}">
+                                        <button type="button" class="icon-picker-trigger px-3 py-1.5">
+                                            <i data-lucide="{{ $value ?: 'circle' }}" class="icon-picker-preview h-4 w-4"></i>
+                                            <span class="icon-picker-name">{{ $value ?: 'Kies een pictogram' }}</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4 shrink-0 opacity-50">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                            </svg>
+                                        </button>
+                                        <div class="icon-picker-dropdown" hidden>
+                                            <input type="search" class="icon-picker-search" placeholder="Zoek pictogram...">
+                                            <div class="icon-picker-grid" data-icon-grid></div>
+                                        </div>
+                                    </div>
+                                @else
                     <input type="text" name="blocks[{{ $blockKey }}][{{ $index }}][{{ $field['key'] }}]" value="{{ $value }}"
                            class="w-full rounded-xl border px-3 py-1.5 text-sm outline-none transition focus:ring-2 focus:ring-blue-500/40"
                            style="background-color: var(--c-input, rgba(0,0,0,.03)); border-color: rgba(148,163,184,.3); color: var(--c-heading)">

@@ -122,6 +122,75 @@
         @apply h-5 w-5;
     }
 
+    /* ---------- Icon picker (CMS) ---------- */
+    .icon-picker {
+        @apply relative;
+    }
+
+    .icon-picker-trigger {
+        @apply flex w-full items-center gap-2.5 rounded-xl border px-4 py-3 text-sm outline-none transition focus-within:ring-2 focus-within:ring-blue-500/40;
+        border-color: var(--c-input-border);
+        background-color: var(--c-input-bg);
+        color: var(--c-heading);
+        cursor: pointer;
+    }
+
+    .icon-picker-trigger > svg {
+        @apply h-4 w-4 shrink-0;
+        color: var(--c-muted);
+    }
+
+    .icon-picker-name {
+        @apply flex-1 truncate text-left;
+    }
+
+    .icon-picker-dropdown {
+        @apply absolute left-0 right-0 z-50 flex flex-col overflow-hidden rounded-xl border shadow-xl;
+        top: calc(100% + 6px);
+        border-color: var(--c-input-border);
+        background-color: var(--c-card);
+        color: var(--c-heading);
+    }
+
+    .icon-picker-dropdown[hidden] {
+        display: none !important;
+    }
+
+    .icon-picker-dropdown-up .icon-picker-dropdown {
+        top: auto;
+        bottom: calc(100% + 6px);
+    }
+
+    .icon-picker-search {
+        @apply w-full border-b px-3 py-2 text-sm outline-none placeholder:text-slate-400;
+        border-color: var(--c-input-border);
+        background-color: transparent;
+        color: var(--c-heading);
+    }
+
+    .icon-picker-grid {
+        @apply grid max-h-[300px] grid-cols-3 gap-1 overflow-y-auto p-2 sm:grid-cols-4;
+    }
+
+    .icon-picker-option {
+        @apply flex min-w-0 flex-col items-center gap-1 rounded-lg px-1 py-2 text-[10px] leading-tight transition;
+        color: var(--c-muted);
+    }
+
+    .icon-picker-option:hover {
+        background-color: rgba(59, 130, 246, 0.1);
+        color: var(--c-heading);
+    }
+
+    .icon-picker-option span {
+        @apply w-full truncate text-center;
+    }
+
+    .icon-picker-option svg {
+        @apply h-4 w-4;
+        color: var(--c-heading);
+    }
+
     /* ---------- Input label ---------- */
     .form-label {
         @apply mb-2 block text-sm font-medium;

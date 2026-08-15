@@ -21,6 +21,11 @@
                 'desc' => 'Bewerk de 8 servicekaarten van de homepage. Elke service kan via de schakelaar worden verborgen van de homepage (zonder hem te verwijderen).',
                 'location' => 'Derde sectie op de homepage'
             ],
+            'footer' => [
+                'title' => 'Footer bewerken',
+                'desc' => 'Beheer de bedrijfstekst, socialmedia-links, kolomlinks, contactgegevens, trustbadges, copyright en betaalmethoden onderaan elke pagina.',
+                'location' => 'Onderaan elke pagina (Footer)'
+            ],
         ];
 
         $currentInfo = $sectionInfos[$sectionKey] ?? [
@@ -155,6 +160,21 @@
                                             <input type="file" name="blocks[{{ $blockKey }}_file]" accept="image/png,image/jpeg,image/webp"
                                                    class="block w-full cursor-pointer rounded-xl border text-sm file:mr-3 file:rounded-xl file:border-0 file:bg-blue-50 file:px-4 file:py-2.5 file:text-sm file:font-bold file:text-blue-700 hover:file:bg-blue-100"
                                                    style="border-color: rgba(148,163,184,.3); color: var(--c-muted)">
+                                        </div>
+                                    </div>
+                                @elseif (($block['type'] ?? 'text') === 'icon')
+                                    <div class="icon-picker" data-icon-picker>
+                                        <input type="hidden" name="blocks[{{ $blockKey }}]" value="{{ $blockValue }}">
+                                        <button type="button" class="icon-picker-trigger">
+                                            <i data-lucide="{{ $blockValue ?: 'circle' }}" class="icon-picker-preview h-4 w-4"></i>
+                                            <span class="icon-picker-name">{{ $blockValue ?: 'Kies een pictogram' }}</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4 shrink-0 opacity-50">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                            </svg>
+                                        </button>
+                                        <div class="icon-picker-dropdown" hidden>
+                                            <input type="search" class="icon-picker-search" placeholder="Zoek pictogram...">
+                                            <div class="icon-picker-grid" data-icon-grid></div>
                                         </div>
                                     </div>
                                 @else

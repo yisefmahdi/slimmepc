@@ -145,38 +145,12 @@ class ContentBlockSeeder extends Seeder
             ],
 
             'footer' => [
-                'brand_name' => 'SLIMME-PC',
-                'brand_badge_letter' => 'S',
-                'brand_tagline' => 'Reparatie • Verkoop • IT-service',
                 'brand_about' => 'De betrouwbare partner voor al je computerproblemen en IT-oplossingen. Kwaliteit, snelheid en persoonlijke service staan bij ons voorop.',
                 'social' => [
                     ['icon' => 'facebook', 'url' => '#'],
                     ['icon' => 'instagram', 'url' => '#'],
                     ['icon' => 'message-circle', 'url' => '#'],
                     ['icon' => 'youtube', 'url' => '#'],
-                ],
-                'services_col' => [
-                    ['label' => 'Laptop reparatie', 'url' => '/diensten/laptop-reparatie'],
-                    ['label' => 'Computer reparatie', 'url' => '/diensten/pc-reparatie'],
-                    ['label' => 'Data recovery', 'url' => '/diensten/data-recovery'],
-                    ['label' => 'Software & Windows', 'url' => '/diensten/software-windows'],
-                    ['label' => 'Onderhoud & upgrade', 'url' => '/diensten/upgrades'],
-                    ['label' => 'Netwerk & WiFi', 'url' => '/diensten/netwerkoplossingen'],
-                ],
-                'shop_col' => [
-                    ['label' => 'Laptops', 'url' => '/webshop'],
-                    ['label' => 'Desktops', 'url' => '/webshop'],
-                    ['label' => 'Monitoren', 'url' => '/webshop'],
-                    ['label' => 'Componenten', 'url' => '/webshop'],
-                    ['label' => 'Randapparatuur', 'url' => '/webshop'],
-                    ['label' => 'Software', 'url' => '/webshop'],
-                ],
-                'about_col' => [
-                    ['label' => 'Over Slimme-PC', 'url' => '/over-ons'],
-                    ['label' => 'Onze werkwijze', 'url' => '/over-ons'],
-                    ['label' => 'Veelgestelde vragen', 'url' => '/faq'],
-                    ['label' => 'Garantie & voorwaarden', 'url' => '/voorwaarden'],
-                    ['label' => 'Privacyverklaring', 'url' => '/privacy'],
                 ],
                 'contact' => [
                     ['icon' => 'map-pin', 'label' => 'Adres', 'value' => "Kanaalweg 33\n3526 KL Utrecht"],
