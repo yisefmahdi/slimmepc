@@ -48,13 +48,19 @@
         @foreach ($block['fields'] as $field)
             @php 
                 $value = $item[$field['key']] ?? '';
-                $isFull = in_array($field['type'] ?? 'text', ['textarea', 'boolean', 'image']);
+                $isFull = in_array($field['type'] ?? 'text', ['textarea', 'boolean', 'image', 'nested']);
             @endphp
 
             @if (!empty($field['hidden']))
                 <input type="hidden" name="blocks[{{ $blockKey }}][{{ $index }}][{{ $field['key'] }}]" value="{{ $value }}">
             @elseif (!empty($block['fixed']) && ($field['type'] ?? 'text') === 'boolean')
                 {{-- Toggle rendered in the row header (see Vast item / Verberg area) --}}
+            @elseif (($field['type'] ?? 'text') === 'nested')
+                @include('admin.content.partials.json-nested-row', [
+                    'page' => $page, 'section' => $section, 'blockKey' => $blockKey,
+                    'block' => $block, 'parentIndex' => $index, 'field' => $field,
+                    'items' => (array) ($item[$field['key']] ?? []),
+                ])
             @else
             <div class="{{ $isFull ? 'sm:col-span-2' : '' }}">
                 <label class="mb-1 block text-[11px] font-semibold" style="color: var(--c-muted)">

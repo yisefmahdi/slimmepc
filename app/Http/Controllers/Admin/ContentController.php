@@ -43,8 +43,9 @@ class ContentController extends Controller
         $content = Cms::page($page);
 
         return view('admin.content.section', [
-            'title' => 'Home-page - ' . $sectionConfig['label'],
+            'title' => $pages[$page]['label'] . ' - ' . $sectionConfig['label'],
             'page' => $page,
+            'pageLabel' => $pages[$page]['label'],
             'sectionKey' => $section,
             'section' => $sectionConfig,
             'content' => $content,
@@ -149,11 +150,19 @@ class ContentController extends Controller
      */
     private function normalizeJson(Request $request, string $blockKey, mixed $value, array $blockSchema): array
     {
+        return $this->normalizeItems($request, 'blocks.' . $blockKey, $value, $blockSchema['fields'] ?? []);
+    }
+
+    /**
+     * Recursively normalize a list of items for a json/nested block field.
+     * $namePrefix is the dot-notation input prefix (used for image uploads).
+     */
+    private function normalizeItems(Request $request, string $namePrefix, mixed $value, array $fields): array
+    {
         if (! is_array($value)) {
             return [];
         }
 
-        $fields = $blockSchema['fields'] ?? [];
         $items = [];
 
         foreach ($value as $index => $item) {
@@ -178,12 +187,12 @@ class ContentController extends Controller
                 }
 
                 if ($fieldType === 'image') {
-                    $file = $request->file("blocks.{$blockKey}.{$index}.{$fieldKey}_file");
+                    $file = $request->file("{$namePrefix}.{$index}.{$fieldKey}_file");
 
                     if ($file) {
                         $request->validate([
-                            "blocks.{$blockKey}.{$index}.{$fieldKey}_file" => ['image', 'mimes:jpeg,png,webp', 'max:5120'],
-                        ], [], ["blocks.{$blockKey}.{$index}.{$fieldKey}_file" => 'afbeelding']);
+                            "{$namePrefix}.{$index}.{$fieldKey}_file" => ['image', 'mimes:jpeg,png,webp', 'max:5120'],
+                        ], [], ["{$namePrefix}.{$index}.{$fieldKey}_file" => 'afbeelding']);
 
                         $name = $file->hashName();
                         $file->move(public_path('assets/img/landing'), $name);
@@ -192,6 +201,16 @@ class ContentController extends Controller
                     }
 
                     $clean[$fieldKey] = (string) $item[$fieldKey];
+                    continue;
+                }
+
+                if ($fieldType === 'nested') {
+                    $clean[$fieldKey] = $this->normalizeItems(
+                        $request,
+                        "{$namePrefix}.{$index}.{$fieldKey}",
+                        (array) $item[$fieldKey],
+                        $field['fields'] ?? []
+                    );
                     continue;
                 }
 

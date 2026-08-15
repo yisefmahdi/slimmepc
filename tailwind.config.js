@@ -56,6 +56,10 @@ export default {
                 'card-dark': '0 25px 80px rgba(0,0,0,0.45)',
                 'btn-glow': '0 12px 25px rgba(0,91,234,0.25)',
                 'btn-glow-hover': '0 16px 30px rgba(0,91,234,0.32)',
+                soft: '0 15px 45px rgba(30, 64, 175, 0.08)',
+                panel: '0 28px 75px rgba(30, 64, 175, 0.11)',
+                button: '0 16px 38px rgba(37, 99, 235, 0.28)',
+                image: '0 30px 55px rgba(30, 64, 175, 0.18)',
             },
 
             backgroundImage: {

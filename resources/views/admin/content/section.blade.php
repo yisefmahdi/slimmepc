@@ -1,37 +1,56 @@
 <x-admin.layout :title="$title">
     @php
         $sectionInfos = [
-            'header' => [
-                'title' => 'Header & Logo bewerken',
-                'desc' => 'Beheer hier het bedrijfslogo, de sitenaam en de tagline die bovenaan elke pagina in de navigatiebalk worden getoond.',
-                'location' => 'Zichtbaar bovenaan de website (Header)'
+            'home' => [
+                'header' => [
+                    'title' => 'Header & Logo bewerken',
+                    'desc' => 'Beheer hier het bedrijfslogo, de sitenaam en de tagline die bovenaan elke pagina in de navigatiebalk worden getoond.',
+                    'location' => 'Zichtbaar bovenaan de website (Header)'
+                ],
+                'hero' => [
+                    'title' => 'Hero (Hoofdbanner) bewerken',
+                    'desc' => 'De hoofdpagina banner van de homepage. Pas hier de pakkende titels, beschrijvingen en banner-afbeeldingen aan.',
+                    'location' => 'Bovenste grote sectie van de homepage'
+                ],
+                'why' => [
+                    'title' => 'Waarom voor ons kiezen bewerken',
+                    'desc' => 'Beheer de voordelenkaarten rondom de centrale hub en de statistieken onderaan deze sectie.',
+                    'location' => 'Tweede sectie op de homepage'
+                ],
+                'services' => [
+                    'title' => 'Onze diensten bewerken',
+                    'desc' => 'Bewerk de 8 servicekaarten van de homepage. Elke service kan via de schakelaar worden verborgen van de homepage (zonder hem te verwijderen).',
+                    'location' => 'Derde sectie op de homepage'
+                ],
+                'footer' => [
+                    'title' => 'Footer bewerken',
+                    'desc' => 'Beheer de bedrijfstekst, socialmedia-links, kolomlinks, contactgegevens, trustbadges, copyright en betaalmethoden onderaan elke pagina.',
+                    'location' => 'Onderaan elke pagina (Footer)'
+                ],
             ],
-            'hero' => [
-                'title' => 'Hero (Hoofdbanner) bewerken',
-                'desc' => 'De hoofdpagina banner van de homepage. Pas hier de pakkende titels, beschrijvingen en banner-afbeeldingen aan.',
-                'location' => 'Bovenste grote sectie van de homepage'
-            ],
-            'why' => [
-                'title' => 'Waarom voor ons kiezen bewerken',
-                'desc' => 'Beheer de voordelenkaarten rondom de centrale hub en de statistieken onderaan deze sectie.',
-                'location' => 'Tweede sectie op de homepage'
-            ],
-            'services' => [
-                'title' => 'Onze diensten bewerken',
-                'desc' => 'Bewerk de 8 servicekaarten van de homepage. Elke service kan via de schakelaar worden verborgen van de homepage (zonder hem te verwijderen).',
-                'location' => 'Derde sectie op de homepage'
-            ],
-            'footer' => [
-                'title' => 'Footer bewerken',
-                'desc' => 'Beheer de bedrijfstekst, socialmedia-links, kolomlinks, contactgegevens, trustbadges, copyright en betaalmethoden onderaan elke pagina.',
-                'location' => 'Onderaan elke pagina (Footer)'
+            'tarieven' => [
+                'hero' => [
+                    'title' => 'Hero (Tarieven) bewerken',
+                    'desc' => 'De banner bovenaan de tarievenpagina. Pas de badge, titels, beschrijving, knoppen, afbeelding en vertrouwenspunten aan.',
+                    'location' => 'Bovenste grote sectie van de tarievenpagina'
+                ],
+                'pricing' => [
+                    'title' => 'Tarieven & prijzen bewerken',
+                    'desc' => 'Beheer de categorieën (tabs) met hun eigen prijslijsten. Voeg categorieën toe, verwijder ze en bewerk de prijzen per categorie.',
+                    'location' => 'Tweede sectie van de tarievenpagina'
+                ],
+                'extra' => [
+                    'title' => 'Algemene & zakelijke tarieven bewerken',
+                    'desc' => 'Beheer de twee accordions (Algemene tarieven en Zakelijke IT-service) met hun prijzen, plus de vier trustkaarten onderaan.',
+                    'location' => 'Derde sectie van de tarievenpagina'
+                ],
             ],
         ];
 
-        $currentInfo = $sectionInfos[$sectionKey] ?? [
+        $currentInfo = $sectionInfos[$page][$sectionKey] ?? [
             'title' => $section['label'],
-            'desc' => 'Beheer de inhoud van dit onderdeel op de homepage.',
-            'location' => 'Homepage'
+            'desc' => 'Beheer de inhoud van dit onderdeel van de ' . ($pageLabel ?? $page) . ' pagina.',
+            'location' => $pageLabel ?? $page
         ];
     @endphp
 

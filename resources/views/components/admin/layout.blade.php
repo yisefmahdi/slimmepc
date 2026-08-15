@@ -130,7 +130,7 @@
                 <p class="mb-3 mt-8 px-4 text-[11px] font-bold uppercase tracking-widest text-blue-100">Beheer</p>
 
                 {{-- 1. Home-page Dropdown (Split CMS) --}}
-                <div x-data="{ open: {{ request()->routeIs('admin.content.*') ? 'true' : 'false' }} }" class="space-y-1">
+                <div x-data="{ open: {{ (request()->routeIs('admin.content.design.edit') || (request()->routeIs('admin.content.section.edit') && request()->route('page') === 'home')) ? 'true' : 'false' }} }" class="space-y-1">
                     <button type="button" @click="open = !open"
                             class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
                             style="color: rgba(255,255,255,0.95)">
@@ -151,24 +151,57 @@
                             Ontwerp &amp; SEO
                         </a>
                         <a href="{{ route('admin.content.section.edit', ['page' => 'home', 'section' => 'header']) }}"
-                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('section') === 'header' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === 'home' && request()->route('section') === 'header' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
                             Header
                         </a>
                         <a href="{{ route('admin.content.section.edit', ['page' => 'home', 'section' => 'hero']) }}"
-                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('section') === 'hero' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === 'home' && request()->route('section') === 'hero' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
                             Hero
                         </a>
                         <a href="{{ route('admin.content.section.edit', ['page' => 'home', 'section' => 'why']) }}"
-                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('section') === 'why' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === 'home' && request()->route('section') === 'why' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
                             Waarom voor ons kiezen
                         </a>
                         <a href="{{ route('admin.content.section.edit', ['page' => 'home', 'section' => 'services']) }}"
-                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('section') === 'services' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === 'home' && request()->route('section') === 'services' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
                             Services
                         </a>
                         <a href="{{ route('admin.content.section.edit', ['page' => 'home', 'section' => 'footer']) }}"
-                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('section') === 'footer' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === 'home' && request()->route('section') === 'footer' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
                             Footer
+                        </a>
+                    </div>
+                </div>
+
+                {{-- 1b. Tarieven Dropdown --}}
+                <div x-data="{ open: {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === 'tarieven' ? 'true' : 'false' }} }" class="space-y-1">
+                    <button type="button" @click="open = !open"
+                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
+                            style="color: rgba(255,255,255,0.95)">
+                        <span class="flex items-center gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5 text-blue-100">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" />
+                            </svg>
+                            <span>Tarieven</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+                    <div x-show="open" x-cloak x-transition class="border-l-2 border-white/30 ml-6 pl-4 space-y-1.5 py-1 text-xs">
+                        <a href="{{ route('admin.content.section.edit', ['page' => 'tarieven', 'section' => 'hero']) }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === 'tarieven' && request()->route('section') === 'hero' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Hero
+                        </a>
+                        <a href="{{ route('admin.content.section.edit', ['page' => 'tarieven', 'section' => 'pricing']) }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === 'tarieven' && request()->route('section') === 'pricing' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Tarieven &amp; Prijzen
+                        </a>
+                        <a href="{{ route('admin.content.section.edit', ['page' => 'tarieven', 'section' => 'extra']) }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === 'tarieven' && request()->route('section') === 'extra' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Algemene &amp; Zakelijke tarieven
                         </a>
                     </div>
                 </div>

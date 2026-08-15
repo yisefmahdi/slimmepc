@@ -149,6 +149,101 @@ return [
                 ],
             ],
         ],
+
+        'tarieven' => [
+            'label' => 'Tarieven',
+            'sections' => [
+                'hero' => [
+                    'label' => 'Hero (Tarieven zonder verrassingen)',
+                    'blocks' => [
+                        'badge' => ['label' => 'Badge (boven de titel)', 'type' => 'text'],
+                        'title_line1' => ['label' => 'Titel regel 1', 'type' => 'text'],
+                        'title_line2' => ['label' => 'Titel regel 2 (blauw)', 'type' => 'text'],
+                        'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+                        'button1_text' => ['label' => 'Knop 1 tekst', 'type' => 'text'],
+                        'button1_url' => ['label' => 'Knop 1 link (bijv. #tarieven)', 'type' => 'text'],
+                        'button2_text' => ['label' => 'Knop 2 tekst', 'type' => 'text'],
+                        'button2_url' => ['label' => 'Knop 2 link (bijv. /reparatie-aanmelden)', 'type' => 'text'],
+                        'hero_image' => ['label' => 'Afbeelding (hero)', 'type' => 'image'],
+                        'hero_image_alt' => ['label' => 'Alt tekst afbeelding', 'type' => 'text'],
+                        'trust_points' => [
+                            'label' => 'Vertrouwenspunten',
+                            'type' => 'json',
+                            'columns' => 2,
+                            'fields' => [
+                                ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                                ['key' => 'label', 'label' => 'Label', 'type' => 'text'],
+                            ],
+                        ],
+                    ],
+                ],
+
+                'pricing' => [
+                    'label' => 'Tarieven & Prijzen (apparaten)',
+                    'blocks' => [
+                        'heading' => ['label' => 'Titel', 'type' => 'text'],
+                        'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+                        'categories' => [
+                            'label' => 'Categorieën (services met prijzen)',
+                            'type' => 'json',
+                            'columns' => 2,
+                            'fields' => [
+                                ['key' => 'icon', 'label' => 'Pictogram (tab)', 'type' => 'icon'],
+                                ['key' => 'label', 'label' => 'Tab-label (bijv. Laptop & PC)', 'type' => 'text'],
+                                ['key' => 'title', 'label' => 'Titel (paneel)', 'type' => 'text'],
+                                ['key' => 'description', 'label' => 'Beschrijving', 'type' => 'textarea'],
+                                ['key' => 'image', 'label' => 'Afbeelding (paneel)', 'type' => 'image'],
+                                ['key' => 'notice', 'label' => 'Let op-tekst', 'type' => 'textarea'],
+                                ['key' => 'prices', 'label' => 'Prijzen (onderstaande regels)',
+                                 'type' => 'nested',
+                                 'fields' => [
+                                     ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                                     ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                                     ['key' => 'prefix', 'label' => 'Voorvoegsel (bijv. vanaf)', 'type' => 'text'],
+                                     ['key' => 'price', 'label' => 'Prijs (bijv. €35)', 'type' => 'text'],
+                                 ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+
+                'extra' => [
+                    'label' => 'Algemene tarieven, Zakelijke IT-service & Trust',
+                    'blocks' => [
+                        'accordions' => [
+                            'label' => 'Accordions (Algemene + Zakelijke tarieven)',
+                            'type' => 'json',
+                            'columns' => 2,
+                            'fields' => [
+                                ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                                ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                                ['key' => 'accent', 'label' => 'Accentkleur (blue of green)', 'type' => 'text'],
+                                ['key' => 'description', 'label' => 'Ondertitel', 'type' => 'text'],
+                                ['key' => 'prices', 'label' => 'Prijzen',
+                                 'type' => 'nested',
+                                 'fields' => [
+                                     ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                                     ['key' => 'description', 'label' => 'Omschrijving', 'type' => 'text'],
+                                     ['key' => 'price', 'label' => 'Prijs (bijv. €35)', 'type' => 'text'],
+                                 ],
+                                ],
+                            ],
+                        ],
+                        'trust_cards' => [
+                            'label' => 'Trustkaarten',
+                            'type' => 'json',
+                            'columns' => 2,
+                            'fields' => [
+                                ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                                ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                                ['key' => 'description', 'label' => 'Beschrijving', 'type' => 'textarea'],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ],
     ],
 
     /*

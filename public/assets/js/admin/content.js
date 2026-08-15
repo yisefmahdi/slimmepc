@@ -143,6 +143,39 @@
             });
 
             form.addEventListener('click', function (e) {
+                var nestedAddBtn = e.target.closest('[data-add-nested-row]');
+                if (nestedAddBtn) {
+                    var nestedBlock = nestedAddBtn.closest('[data-nested-block]');
+                    if (!nestedBlock) return;
+                    var nestedRows = nestedBlock.querySelector('.json-nested-rows');
+                    var nestedTemplate = nestedBlock.querySelector('[data-nested-row-template]');
+                    if (!nestedRows || !nestedTemplate) return;
+
+                    var nIndex = nestedRows.querySelectorAll('.json-nested-row').length;
+                    var nHtml = nestedTemplate.innerHTML.replace(/__NINDEX__/g, nIndex);
+
+                    var nWrapper = document.createElement('div');
+                    nWrapper.innerHTML = nHtml.trim();
+                    var newNestedRow = nWrapper.firstChild;
+                    var nNumSpan = newNestedRow.querySelector('[data-nested-row-number]');
+                    if (nNumSpan) {
+                        var nNumVal = nIndex + 1;
+                        nNumSpan.textContent = nNumVal < 10 ? '0' + nNumVal : nNumVal;
+                    }
+                    nestedRows.appendChild(newNestedRow);
+                    return;
+                }
+
+                var nestedRemoveBtn = e.target.closest('[data-remove-nested-row]');
+                if (nestedRemoveBtn) {
+                    var nestedRow = nestedRemoveBtn.closest('.json-nested-row');
+                    var nestedContainer = nestedRow ? nestedRow.parentElement : null;
+                    if (nestedContainer && nestedContainer.querySelectorAll('.json-nested-row').length > 1) {
+                        nestedRow.remove();
+                    }
+                    return;
+                }
+
                 var addBtn = e.target.closest('[data-add-row]');
                 if (addBtn) {
                     var block = addBtn.closest('[data-json-block]');

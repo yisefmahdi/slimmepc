@@ -1,5 +1,15 @@
 @php
     $navLinks = $c['header']['nav_links'] ?? [];
+
+    $currentPath = ltrim(request()->path(), '/');
+    foreach ($navLinks as &$navLink) {
+        $navUrlPath = ltrim((string) ($navLink['url'] ?? ''), '/');
+        if ($navUrlPath !== '' && $navUrlPath === $currentPath) {
+            $navLink['active'] = true;
+        }
+    }
+    unset($navLink);
+
     $navBefore = array_slice($navLinks, 0, 2);
     $navAfter  = array_slice($navLinks, 2);
 @endphp
