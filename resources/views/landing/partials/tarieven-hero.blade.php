@@ -76,7 +76,7 @@
             <div class="absolute left-1/2 top-1/2 h-[380px] w-[380px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-300/25 blur-3xl"></div>
             <div class="absolute left-1/2 top-1/2 h-[340px] w-[340px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-100/80"></div>
             <img src="{{ asset($hero['hero_image']) }}" alt="{{ $hero['hero_image_alt'] ?? 'Tarieven voor computerreparatie' }}"
-                 class="hero-floating relative z-10 max-h-[430px] w-full max-w-[570px] object-contain drop-shadow-2xl"
+                 class="hero-floating relative z-10 max-h-[430px] w-full max-w-[570px] object-contain"
                  fetchpriority="high" decoding="async">
         </div>
         @endif
