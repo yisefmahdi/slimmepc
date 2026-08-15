@@ -1,5 +1,4 @@
-<div class="json-nested-row rounded-xl border p-3.5 shadow-sm"
-     style="border-color: rgba(148,163,184,.22); background-color: var(--c-card, #ffffff)">
+<div class="json-nested-row rounded-lg bg-white px-1.5 py-2.5 dark:bg-slate-900">
     <div class="mb-2.5 flex items-center justify-between border-b pb-2" style="border-color: rgba(148,163,184,.15)">
         <span class="inline-flex items-center gap-1.5 text-xs font-bold" style="color: var(--c-heading)">
             <span class="flex h-5 min-w-5 items-center justify-center rounded-md bg-blue-100 px-1.5 text-[11px] font-black text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
@@ -16,10 +15,10 @@
         </button>
     </div>
 
-    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+    <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
         @foreach ($field['fields'] ?? [] as $subField)
             @php $subValue = $item[$subField['key']] ?? ''; @endphp
-            <div class="{{ ($subField['type'] ?? 'text') === 'textarea' ? 'sm:col-span-2' : '' }}">
+            <div class="{{ ($subField['type'] ?? 'text') === 'textarea' ? 'md:col-span-2' : '' }}">
                 <label class="mb-1 block text-[11px] font-semibold" style="color: var(--c-muted)">
                     {{ $subField['label'] }}
                 </label>

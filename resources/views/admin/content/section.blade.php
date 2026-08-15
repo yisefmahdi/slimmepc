@@ -85,7 +85,7 @@
             <form class="section-form space-y-6"
                   data-url="{{ route('admin.content.section', ['page' => $page, 'section' => $sectionKey]) }}">
 
-                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6">
+                <div class="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6">
                     @foreach ($section['blocks'] as $blockKey => $block)
                         @php $blockValue = $content[$sectionKey][$blockKey] ?? null; @endphp
 
@@ -119,7 +119,7 @@
                                     @endif
                                 </div>
 
-                                <div class="json-rows {{ !empty($block['columns']) && (int) $block['columns'] > 1 ? 'grid gap-4 sm:grid-cols-2' : 'space-y-4' }}">
+                                <div class="json-rows {{ !empty($block['columns']) && (int) $block['columns'] > 1 ? 'grid gap-4 md:grid-cols-2' : 'space-y-4' }}">
                                     @forelse ((array) $blockValue as $index => $item)
                                         @include('admin.content.partials.json-row', [
                                             'page' => $page, 'section' => $sectionKey, 'blockKey' => $blockKey,

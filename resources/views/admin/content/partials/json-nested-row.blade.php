@@ -1,6 +1,5 @@
-<div class="sm:col-span-2 rounded-xl border p-4 bg-white/60 dark:bg-slate-800/20"
-     data-nested-block data-nested-key="{{ $field['key'] }}"
-     style="border-color: rgba(59,130,246,.3)">
+<div class="md:col-span-2 rounded-xl px-1.5 py-2.5 bg-slate-50/50 dark:bg-slate-800/20"
+     data-nested-block data-nested-key="{{ $field['key'] }}">
     <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
         <span class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider" style="color: var(--c-heading)">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-4 w-4 text-blue-600">

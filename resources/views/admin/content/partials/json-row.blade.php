@@ -1,4 +1,4 @@
-<div class="json-row rounded-xl border p-4 shadow-sm transition"
+<div class="json-row rounded-xl border p-3 transition"
      style="border-color: rgba(148,163,184,.25); background-color: var(--c-card, #ffffff)">
     
     {{-- Row header --}}
@@ -44,7 +44,7 @@
     </div>
 
     {{-- Fields grid --}}
-    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+    <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
         @foreach ($block['fields'] as $field)
             @php 
                 $value = $item[$field['key']] ?? '';
@@ -62,7 +62,7 @@
                     'items' => (array) ($item[$field['key']] ?? []),
                 ])
             @else
-            <div class="{{ $isFull ? 'sm:col-span-2' : '' }}">
+            <div class="{{ $isFull ? 'md:col-span-2' : '' }}">
                 <label class="mb-1 block text-[11px] font-semibold" style="color: var(--c-muted)">
                     {{ $field['label'] }}
                 </label>
