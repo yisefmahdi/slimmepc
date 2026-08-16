@@ -29,7 +29,19 @@ class AdminContactNotification extends Mailable implements ShouldQueue
     {
         return new Envelope(
             subject: 'Nieuwe contactaanvraag van '.$this->submission->name.' – Slimme-PC',
+            replyTo: [$this->replyToAddress()],
         );
+    }
+
+    /**
+     * Same "+reply-{id}" alias as the confirmation e-mail, so an admin reply
+     * to this notification also arrives back on the thread via IMAP.
+     */
+    private function replyToAddress(): string
+    {
+        $from = config('mail.from.address', 'info@slimme-pc.nl');
+
+        return preg_replace('/@/', '+reply-'.$this->submission->id.'@', $from, 1) ?? $from;
     }
 
     /**

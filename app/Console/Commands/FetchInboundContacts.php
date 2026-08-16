@@ -56,6 +56,7 @@ class FetchInboundContacts extends Command
             $messages = $client->getFolderByPath(config('contact-inbox.mailbox'))
                 ->query()
                 ->unseen()
+                ->to('+reply-')
                 ->leaveUnread()
                 ->setFetchOrder('asc')
                 ->limit($limit)
@@ -143,16 +144,24 @@ class FetchInboundContacts extends Command
     {
         $needles = [];
 
-        foreach ($message->getTo() as $address) {
-            $needles[] = $address->mail;
+        $to = $message->getTo();
+
+        if (is_object($to) && method_exists($to, 'all')) {
+            foreach ($to->all() as $address) {
+                if (is_object($address) && isset($address->mail)) {
+                    $needles[] = $address->mail;
+                }
+            }
+        } else {
+            foreach ($to as $address) {
+                $needles[] = $address->mail;
+            }
         }
 
         $deliveredTo = $message->getHeader('Delivered-To');
 
         if (is_object($deliveredTo)) {
-            $deliveredTo = method_exists($deliveredTo, 'toString')
-                ? $deliveredTo->toString()
-                : (method_exists($deliveredTo, 'jsonSerialize') ? json_encode($deliveredTo) : null);
+            $deliveredTo = $deliveredTo->raw ?? json_encode($deliveredTo);
         }
 
         if ($deliveredTo) {
@@ -214,8 +223,18 @@ class FetchInboundContacts extends Command
      */
     private function senderOf($message): string
     {
-        foreach ($message->getFrom() as $address) {
-            return $address->personal ?: $address->mail;
+        $from = $message->getFrom();
+
+        if (is_object($from) && method_exists($from, 'first')) {
+            $address = $from->first();
+
+            if ($address) {
+                return $address->personal ?: $address->mail;
+            }
+        } else {
+            foreach ($from as $address) {
+                return $address->personal ?: $address->mail;
+            }
         }
 
         return 'onbekend';
