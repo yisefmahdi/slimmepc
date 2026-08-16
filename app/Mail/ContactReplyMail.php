@@ -31,7 +31,20 @@ class ContactReplyMail extends Mailable implements ShouldQueue
     {
         return new Envelope(
             subject: 'Re: '.$this->submission->subject.' – Slimme-PC',
+            replyTo: [$this->replyToAddress()],
         );
+    }
+
+    /**
+     * The reply-to address carries the same "+reply-{id}" alias as the
+     * confirmation e-mail, so a customer replying to this message routes
+     * back onto the dashboard thread via IMAP.
+     */
+    private function replyToAddress(): string
+    {
+        $from = config('mail.from.address', 'info@slimme-pc.nl');
+
+        return preg_replace('/@/', '+reply-'.$this->submission->id.'@', $from, 1) ?? $from;
     }
 
     /**
