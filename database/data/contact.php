@@ -32,7 +32,6 @@ return [
         'kvk' => '86906720',
         'btw' => 'NL864142560B01',
         'route_label' => 'Route bekijken',
-        'route_url' => '#locatie',
 
         'card2_title' => 'Service & support',
         'card2_icon' => 'headphones',

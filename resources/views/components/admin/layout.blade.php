@@ -7,6 +7,8 @@
 
         <title>{{ $title ?? 'Beheer' }} | {{ config('app.name', 'Slimme-PC') }}</title>
 
+        <link rel="icon" href="{{ asset(\App\Support\Cms::page('home')['header']['logo_image'] ?? 'assets/img/landing/logo.webp') }}">
+
         {{-- Fonts --}}
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800&display=swap" rel="stylesheet" />
@@ -115,7 +117,7 @@
             </div>
 
             {{-- Nav --}}
-            <nav class="flex-1 space-y-1.5 overflow-y-auto px-1 py-6">
+            <nav class="sidebar-scroll flex-1 space-y-1.5 overflow-y-auto px-1 py-6">
                 <p class="mb-3 px-4 text-[11px] font-bold uppercase tracking-widest text-blue-100">Overzicht</p>
 
                 <x-admin.sidebar-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">

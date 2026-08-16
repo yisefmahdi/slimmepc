@@ -34,7 +34,7 @@
                     </div>
 
                     @if (!empty($g['route_label']))
-                    <a href="{{ $g['route_url'] ?? '#locatie' }}"
+                    <a href="#locatie"
                        class="inline-flex items-center gap-2 font-bold text-blue-600 transition hover:text-blue-500">
                         {{ $g['route_label'] }}
                         <span aria-hidden="true">→</span>
@@ -76,6 +76,10 @@
 
                 <div class="mt-6 space-y-5 text-sm">
                     @foreach (($g['opening_hours'] ?? []) as $i => $row)
+                    @php
+                        $isClosed = !empty($row['closed'])
+                            || str_contains(mb_strtolower((string) ($row['time'] ?? '')), 'gesloten');
+                    @endphp
                     @if ($i > 0)
                     <div class="h-px bg-slate-100"></div>
                     @endif
@@ -83,10 +87,10 @@
                         <div>
                             <p class="font-bold text-slate-900">{{ $row['day'] ?? '' }}</p>
                             @if (!empty($row['note']))
-                            <p class="mt-1 text-slate-500">{{ $row['note'] }}</p>
+                            <p class="mt-1 {{ $isClosed ? 'text-slate-400' : 'text-slate-500' }}">{{ $row['note'] }}</p>
                             @endif
                         </div>
-                        <span class="shrink-0 font-bold {{ !empty($row['closed']) ? 'text-slate-400' : 'text-blue-600' }}">{{ $row['time'] ?? '' }}</span>
+                        <span class="shrink-0 font-bold {{ $isClosed ? 'text-slate-400' : 'text-blue-600' }}">{{ $row['time'] ?? '' }}</span>
                     </div>
                     @endforeach
                 </div>

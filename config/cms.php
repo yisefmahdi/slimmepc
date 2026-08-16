@@ -282,7 +282,6 @@ return [
                         'kvk' => ['label' => 'KvK-nummer', 'type' => 'text'],
                         'btw' => ['label' => 'BTW-nummer', 'type' => 'text'],
                         'route_label' => ['label' => 'Link tekst (bijv. Route bekijken)', 'type' => 'text'],
-                        'route_url' => ['label' => 'Link (bijv. #locatie)', 'type' => 'text'],
 
                         'card2_title' => ['label' => 'Kaart 2 titel (Service & support)', 'type' => 'text'],
                         'card2_icon' => ['label' => 'Kaart 2 pictogram', 'type' => 'icon'],
