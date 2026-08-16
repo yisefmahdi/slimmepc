@@ -33,8 +33,9 @@
                 @endif
             </div>
 
-            {{-- Contact form (static per design; submission is not wired yet) --}}
-            <form onsubmit="return false" class="rounded-3xl border border-blue-100 bg-white p-6 card-soft lg:p-8">
+            {{-- Contact form --}}
+            <form id="contactForm" action="{{ route('contact.submit') }}" method="POST" novalidate class="rounded-3xl border border-blue-100 bg-white p-6 card-soft lg:p-8">
+                <input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true">
                 <div class="grid gap-5 md:grid-cols-2">
                     <div>
                         <label for="contact-name" class="mb-2 block text-sm font-bold text-[#0b1f4d]">Naam *</label>
@@ -121,10 +122,10 @@
 
                 <div class="mt-6 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                     <label class="flex cursor-pointer items-start gap-3 text-xs leading-relaxed text-slate-500">
-                        <input type="checkbox" required class="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                        <input type="checkbox" name="privacy_consent" value="1" required class="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
                         <span>Ik ga akkoord met de verwerking van mijn gegevens voor het beantwoorden van mijn aanvraag.</span>
                     </label>
-                    <button type="submit"
+                    <button type="submit" id="contactFormSubmit"
                             class="inline-flex shrink-0 items-center justify-center gap-3 rounded-xl bg-blue-600 px-6 py-3.5 font-bold text-white shadow-lg shadow-blue-600/20 transition duration-300 hover:-translate-y-0.5 hover:bg-blue-500">
                         Bericht versturen
                         <span aria-hidden="true">→</span>
@@ -135,3 +136,5 @@
         </div>
     </div>
 </section>
+
+<script src="{{ asset('assets/js/contact-form.js') }}?v={{ filemtime(public_path('assets/js/contact-form.js')) }}"></script>

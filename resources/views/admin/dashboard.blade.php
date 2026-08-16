@@ -1,6 +1,6 @@
 <x-admin.layout title="Dashboard">
     {{-- Stats --}}
-    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-5">
         <x-admin.stat-card label="Klanten" :value="$stats['customers']">
             <x-slot name="icon">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-6 w-6">
@@ -29,6 +29,14 @@
             <x-slot name="icon">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-6 w-6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9.348 14.652a3.75 3.75 0 0 1 0-5.304m5.304 0a3.75 3.75 0 0 1 0 5.304m-7.425 2.121a6.75 6.75 0 0 1 0-9.546m9.546 0a6.75 6.75 0 0 1 0 9.546M5.106 18.894c-3.808-3.807-3.808-9.98 0-13.788m13.788 0c3.808 3.807 3.808 9.98 0 13.788" />
+                </svg>
+            </x-slot>
+        </x-admin.stat-card>
+
+        <x-admin.stat-card label="Contactaanvragen" :value="$stats['contact_new']">
+            <x-slot name="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-6 w-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 0 1 1.037-.443 48.282 48.282 0 0 0 5.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
                 </svg>
             </x-slot>
         </x-admin.stat-card>

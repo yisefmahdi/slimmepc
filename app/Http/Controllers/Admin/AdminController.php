@@ -18,6 +18,7 @@ class AdminController extends Controller
             'technicians' => \App\Models\User::where('role', 'technician')->count(),
             'orders' => 0,
             'repairs' => 0,
+            'contact_new' => \App\Models\ContactSubmission::where('status', 'new')->count(),
         ];
 
         return view('admin.dashboard', compact('stats'));

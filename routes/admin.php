@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\ContactInboxController;
 use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\Admin\KlantController;
 use Illuminate\Support\Facades\Route;
@@ -68,6 +69,35 @@ Route::prefix('admin')
 
                 Route::post('/{klant}/role', [KlantController::class, 'updateRole'])
                     ->name('role');
+            });
+
+        // Contact inbox (submissions + chat threads)
+        Route::prefix('contact-inbox')
+            ->name('contact-inbox.')
+            ->group(function () {
+                Route::get('/', [ContactInboxController::class, 'index'])
+                    ->name('index');
+
+                Route::get('/data', [ContactInboxController::class, 'data'])
+                    ->name('data');
+
+                Route::get('/new-count', [ContactInboxController::class, 'newCount'])
+                    ->name('new-count');
+
+                Route::get('/{contactSubmission}', [ContactInboxController::class, 'show'])
+                    ->name('show');
+
+                Route::post('/{contactSubmission}/reply', [ContactInboxController::class, 'reply'])
+                    ->name('reply');
+
+                Route::post('/{contactSubmission}/status', [ContactInboxController::class, 'status'])
+                    ->name('status');
+
+                Route::get('/{contactSubmission}/attachment', [ContactInboxController::class, 'attachment'])
+                    ->name('attachment');
+
+                Route::delete('/{contactSubmission}', [ContactInboxController::class, 'destroy'])
+                    ->name('destroy');
             });
     });
 

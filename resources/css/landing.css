@@ -1902,3 +1902,105 @@ html {
     }
 }
 
+/* ======================================================
+   CONTACT FORM — SUCCESS / ERROR POPUP
+====================================================== */
+
+.cf-popup-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    animation: cfFadeIn 180ms ease;
+}
+
+.cf-popup {
+    width: 100%;
+    max-width: 420px;
+    padding: 36px 28px 28px;
+    border-radius: 24px;
+    background: #ffffff;
+    text-align: center;
+    box-shadow: 0 25px 70px -20px rgba(15, 23, 42, 0.35);
+    animation: cfPopIn 220ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.cf-popup-icon {
+    display: inline-flex;
+    width: 56px;
+    height: 56px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    color: #ffffff;
+    font-size: 26px;
+    font-weight: 800;
+}
+
+.cf-popup-icon.is-success {
+    background: linear-gradient(135deg, #1d4ed8, #2563eb);
+    box-shadow: 0 12px 28px rgba(37, 99, 235, 0.28);
+}
+
+.cf-popup-icon.is-error {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+    box-shadow: 0 12px 28px rgba(220, 38, 38, 0.25);
+}
+
+.cf-popup-title {
+    margin: 16px 0 6px;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.cf-popup-text {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #475569;
+}
+
+.cf-popup-btn {
+    margin-top: 22px;
+    padding: 12px 28px;
+    border: 0;
+    border-radius: 12px;
+    background: linear-gradient(to right, #1d4ed8, #2563eb);
+    color: #ffffff;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.25);
+    transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.cf-popup-btn:hover {
+    transform: translateY(-2px);
+}
+
+@keyframes cfFadeIn {
+    from {
+        opacity: 0;
+    }
+}
+
+@keyframes cfPopIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.97);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cf-popup-overlay,
+    .cf-popup {
+        animation: none !important;
+    }
+}
+

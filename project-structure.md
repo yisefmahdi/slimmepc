@@ -222,6 +222,8 @@ slimmepc/
 | Method | URI | Name/Handler | Middleware/Auth |
 |--------|-----|--------------|------------------|
 | GET | `/` | `PageController@home` → `landing.home` (CMS content + design) — **name `home`** | none (guests served from full-page HTML cache; logged-in users always render fresh) |
+| GET | `/contact` | `PageController@contact` → `landing.contact` (full-page cache `cms.page.html.contact.{version}`) | none |
+| POST | `/contact/submit` | `ContactController@submit` → `contact.submit` (JSON, 201; **CSRF-exempt** in bootstrap/app.php + honeypot `website` + `throttle:5,1`; queues `ContactReceived`) | none |
 | GET | `/profile` | `ProfileController@edit` | auth |
 | PATCH | `/profile` | `ProfileController@update` | auth |
 | DELETE | `/profile` | `ProfileController@destroy` | auth |
@@ -244,6 +246,14 @@ slimmepc/
 | DELETE | `/admin/users/{klant}` | `Admin\KlantController@destroy` → `admin.users.destroy` (JSON; blocks self-delete 422) | auth, verified, admin |
 | POST | `/admin/users/{klant}/role` | `Admin\KlantController@updateRole` → `admin.users.role` (JSON; blocks self-role-change 422) | auth, verified, admin |
 | POST | `/admin/users/{klant}/toggle-block` | `Admin\KlantController@toggleBlock` → `admin.users.toggle-block` (JSON; blocks self + admins 422) | auth, verified, admin |
+| GET | `/admin/contact-inbox` | `Admin\ContactInboxController@index` → `admin.contact-inbox.index` (two-pane inbox UI) | auth, verified, admin |
+| GET | `/admin/contact-inbox/data` | `Admin\ContactInboxController@data` → `admin.contact-inbox.data` (JSON: items + pagination + new/total counts) | auth, verified, admin |
+| GET | `/admin/contact-inbox/new-count` | `Admin\ContactInboxController@newCount` → `admin.contact-inbox.new-count` (JSON `{count}`; defined before the wildcard) | auth, verified, admin |
+| GET | `/admin/contact-inbox/{contactSubmission}` | `Admin\ContactInboxController@show` → `admin.contact-inbox.show` (JSON: submission + replies + has_attachment) | auth, verified, admin |
+| POST | `/admin/contact-inbox/{contactSubmission}/reply` | `Admin\ContactInboxController@reply` → `admin.contact-inbox.reply` (JSON; admin reply → status `replied` + queues `ContactReplyMail`) | auth, verified, admin |
+| POST | `/admin/contact-inbox/{contactSubmission}/status` | `Admin\ContactInboxController@status` → `admin.contact-inbox.status` (JSON; new/in_progress/replied/closed) | auth, verified, admin |
+| GET | `/admin/contact-inbox/{contactSubmission}/attachment` | `Admin\ContactInboxController@attachment` → `admin.contact-inbox.attachment` (download) | auth, verified, admin |
+| DELETE | `/admin/contact-inbox/{contactSubmission}` | `Admin\ContactInboxController@destroy` → `admin.contact-inbox.destroy` (JSON; deletes row + storage folder) | auth, verified, admin |
 
 ### auth.php
 | Method | URI | Name/Handler | Middleware/Auth |
@@ -330,6 +340,34 @@ slimmepc/
 ### Table: `jobs` / `job_batches` / `failed_jobs`
 (Standard Laravel — created by 0001_01_01_000002.)
 
+### Table: `contact_submissions`
+| Column | Type | Description |
+|--------|------|--------------|
+| id | bigint (PK, auto) | Primary key |
+| name | string | Sender name |
+| email | string | Sender email |
+| phone | string, nullable | Sender phone |
+| subject | string, nullable | Subject / topic |
+| request_type | string | Type aanvraag (reparatie/verkoop/onderhoud/ander) |
+| message | text | Message body |
+| attachment | string, nullable | Stored path under `contact/{id}` (uuid filename) |
+| status | enum('new','in_progress','replied','closed'), default 'new' | Workflow state |
+| ip_address | string(45), nullable | Client IP |
+| created_at / updated_at | timestamp | Timestamps |
+| **indexes** | status, email, created_at | Filtering + dashboard count |
+
+### Table: `contact_replies`
+| Column | Type | Description |
+|--------|------|--------------|
+| id | bigint (PK, auto) | Primary key |
+| contact_submission_id | bigint (FK cascade) | Parent submission (`contact_submissions.id`) |
+| sender | enum('customer','admin') | Who wrote the message |
+| body | text | Message body |
+| attachment | string, nullable | For inbound: filename under `contact/{id}/inbound` |
+| source | enum('dashboard','email','inbound'), default 'dashboard' | Where it came from |
+| created_at / updated_at | timestamp | Timestamps |
+| **index** | contact_submission_id | Thread lookup |
+
 ## 10. Models/Entities & Relationships
 ```
 User ──→ (sessions via user_id, owned)
@@ -340,6 +378,8 @@ ContentBlock / ContentMeta ──→ standalone CMS tables (no FKs)
 | User | users | Has many sessions (via foreign key), standard auth relations |
 | ContentBlock | content_blocks | None (standalone). Casts `json_value` → array |
 | ContentMeta | content_meta | None (standalone). `protected $table = 'content_meta'` (fixes Laravel pluralization) |
+| ContactSubmission | contact_submissions | HasMany `ContactReply` (replies), HasOne `latestReply` (latestOfMany), scope `new`; casts `status`; `attachmentPath()` resolves the stored file |
+| ContactReply | contact_replies | BelongsTo `ContactSubmission`; casts `sender`/`source` |
 
 ### Support helper: `App\Support\Cms`
 | Method | Purpose |
@@ -380,6 +420,13 @@ ContentBlock / ContentMeta ──→ standalone CMS tables (no FKs)
 | Auth\PasswordController | update | Change password (authenticated) |
 | Auth\ConfirmablePasswordController | show, store | Re-confirm password |
 | Auth\EmailVerificationPromptController / Notification / VerifyEmail | — | Email verification flow |
+| ContactController | submit | Public contact form POST: validates `StoreContactSubmissionRequest` (Dutch messages, honeypot `website` prohibited, attachment ≤10MB), creates `ContactSubmission` (status `new`), stores attachment via `storeAs('contact/{id}', uuid, 'local')`, queues `ContactReceived` mail → JSON 201 "Bedankt! Je bericht is verzonden." |
+| Admin\ContactInboxController | index, data, show, reply, status, attachment, destroy, newCount | Admin contact inbox: `data` = search (name/email/message/phone) + status-filtered pagination + new/total counts; `show` = submission + replies + has_attachment; `reply` creates `ContactReply` (sender=admin, source=dashboard), sets status `replied` if `new`, queues `ContactReplyMail`; `status` whitelists enum; `attachment` = StreamedResponse download; `destroy` deletes storage folder + row; `newCount` for the sidebar badge |
+
+### Console commands
+| Command | Purpose |
+|---------|---------|
+| `contact:fetch-inbound {--limit=50}` | Polls IMAP (webklex/php-imap, pure PHP) for customer replies. Builds an inline `ClientManager` account from `config/contact-inbox.php`, fetches unseen (leaveUnread, asc, limit), regex `\+reply-(\d+)` from To + Delivered-To headers → appends `ContactReply` (sender=customer, source=inbound) to that submission + saves inbound attachments to `contact/{id}/inbound` + sets status `in_progress`, marks Seen. No token → warn + left unread (never touches unrelated mail). Unconfigured → FAILURE "IMAP credentials are not configured" |
 
 ### Middleware
 | Middleware | Alias | Purpose |
@@ -423,6 +470,8 @@ ContentBlock / ContentMeta ──→ standalone CMS tables (no FKs)
 | `admin/content.js` | CMS editor: submit each section form via axios (FormData, **no page refresh — the old `window.location.reload()` was removed**), add/remove json rows (replaces `__INDEX__`), color picker ↔ hex sync, live image preview via FileReader, per-form success/error status text |
 | `admin/icon-picker.js` | CMS icon picker: builds the dropdown grid from `Object.keys(lucide.icons)` (~1743 icons, displayed/stored in kebab-case via pascal↔kebab conversion with roundtrip safety), renders SVGs from the icon spec directly (no global `createIcons` re-scan), case-insensitive live search, kebab→pascal lookup for rendering, `MutationObserver` renders previews in dynamically added JSON rows. Requires `lucide.min.js` (loaded first in the admin layout) |
 | `landing.js` | Landing page: lucide icons, mobile drawer + overlay, search overlay, accordions, Escape/resize handling, process orbit pause on hover, shop carousel (responsive perPage + dots) |
+| `contact-form.js` | Public contact form (`#contactForm` on /contact): vanilla `fetch` POST to `/contact/submit` with FormData + `Accept: application/json`; on 201 resets the form + shows success popup (`.cf-popup-*`); on 422 shows the first validation error; button loading state "Verzenden..." |
+| `admin/contact-inbox.js` | Contact inbox: load/render list (debounced search, status filter, per-page, pagination), open chat thread (replies, header meta, attachment), send reply (POST → toast + append bubble + status badge), change status (select), delete confirm modal, `updateBadge` polls `/new-count` every 60s. Uses `window.SlimmePC.toast` + `window.SlimmePC.modal`. Auto-inits when `#inboxList` exists |
 | `admin/loader.js` | Page-navigation loader for the whole admin: intercepts internal link clicks + native form submits (skips AJAX forms via `defaultPrevented`), stores `sessionStorage.adminPageNav`; the arriving page's inline script reads the flag, shows `#admin-loader` and fades it out on `load` (6s safety) |
 
 ### Landing CSS pipeline
@@ -452,6 +501,17 @@ Logo (site-wide): landing header/footer, favicon, auth `<x-logo>`, logged-in nav
   4. DB migrations + models + relationships (documented in section 9/10 when added)
   5. Wire real stats into `AdminController@dashboard`
 - **Current status:** Users-beheren DONE (renamed from Klanten). CMS ("Home-page") DONE v3 (split into separate pages: design + section editors; JSON repeaters with 2-col layout; save without refresh). Next: Bestellingen (orders) or Reparaties, or extend the CMS to services/shop/footer sections.
+
+### Plan: Contact formulier + inbox (DONE)
+- **Goal:** Make the static /contact form actually submit and give the admin a live inbox with a chat thread.
+- **Steps:**
+  1. Tables `contact_submissions` + `contact_replies`, models, `StoreContactSubmissionRequest`, `ContactController@submit` (CSRF-exempt + honeypot + throttle), queue `ContactReceived` (Reply-To uses Gmail `+reply-{id}` alias) DONE
+  2. Public form wired: `#contactForm` → `contact-form.js` (fetch, success/error popup, loading state) DONE
+  3. Admin inbox: `ContactInboxController` (8 routes), two-pane view + `admin/contact-inbox.js`, sidebar "Inbox / Berichten" item + red new-count badge, dashboard stat card DONE
+  4. Admin replies: `ContactReplyMail` queued (subject "Re: …"), shown in the chat DONE
+  5. Customer e-mail replies auto-arrive: `contact:fetch-inbound` (IMAP, `+reply-{id}` token → appends to chat, saves inbound attachments, status in_progress) + `config/contact-inbox.php` (CONTACT_IMAP_*) DONE
+  6. Tests (5 × ContactSubmitTest) + live verification (submit → DB row + queued mail; admin reply → chat + real Gmail send; IMAP connect) DONE
+- **Current status:** DONE v1. 30/30 tests pass. Deploy notes: server `.env` needs Gmail SMTP (`MAIL_*`) + `CONTACT_IMAP_*`; two crons — `php artisan queue:work --stop-when-empty --tries=3 --max-time=55` and `php artisan contact:fetch-inbound`.
 
 ### Plan: Landing page CMS (DONE v1)
 - **Goal:** Convert `step-1/home.html` to Blade + DB-driven content with admin editing.
@@ -514,4 +574,12 @@ Logo (site-wide): landing header/footer, favicon, auth `<x-logo>`, logged-in nav
 - [2026-08-16] — **Contact page — CMS + landing** (from `contact.html` design; client: "build it like Tarieven and wire it into the header navigation"): new `contact` page in `config/cms.php` with **4 sections** — `hero` (badge, title_line1/2, description, button1_text/url, button2_text, `whatsapp_number` (no `+`, wa.me is built at render), hero_image (image), hero_image_alt, `trust_points` json: icon+label), `gegevens` (card1_title/icon, company_name, address textarea, kvk, btw, route_label/url; card2_title/icon + `contact_methods` json: icon+label+value+url; card3_title/icon + `opening_hours` json: day+note+time+`closed` boolean → grey display), `formulier` (badge, title_line1/2, description, `benefits` json: label — **the form itself is static per client decision: "the form doesn't do anything yet"**, hardcoded fields per design with `onsubmit="return false"`), `locatie` (badge, title_line1/2, description, `map_src` textarea Google Maps embed, route_label/url, `location_items` json: icon+title+text). **Default data**: `database/data/contact.php` (shared source, exact design values: KvK 86906720, BTW NL864142560B01, tel 055 203 21 45 → `tel:`, info@slimme-pc.nl, WhatsApp wa.me/31617100945, opening hours incl. Zondag Gesloten, map + route Google URLs); idempotent migration `2026_08_16_000001_seed_contact_content_blocks.php` (`firstOrCreate` + `Cms::bust()`); `ContentBlockSeeder` extended. Copied hero image `6F69A001-617B-44CE-B7E9-75C6165A3A4F_1_105_c.jpeg` to `public/assets/img/landing/`. **Landing**: `GET /contact` route + `PageController@contact` (mirrors tarieven incl. full-page cache `cms.page.html.contact.{version}`, `$c = Cms::page('home')` + `$p = Cms::page('contact')`); `landing/contact.blade.php` + 4 partials (`contact-hero` gradient banner w/ wa.me CTA, `contact-gegevens` 3 icon cards `md:grid-cols-2 lg:grid-cols-3` w/ new `.card-soft` shadow, `contact-formulier` intro + static form w/ radio "type aanvraag" + attachment dropzone, `contact-locatie` Google embed + route button). CSS: `.card-soft` (`0 14px 45px rgba(15,23,42,.06)`) added to `resources/css/landing.css`, rebuilt. **Admin**: sidebar **Contact dropdown under Tarieven** (Hero / Contactgegevens / Contactformulier / Locatie, envelope icon) + `$sectionInfos['contact']` entries in `section.blade.php`. Header "Contact" nav link (`/contact`, already in DB) highlights automatically via path match. Verified: all 4 admin sections render, headless Chrome 380px (single column, no overflow, 3 stacked 348px cards) + 1280px (3 cards one row, no overflow, hero image loaded, 64 lucide icons), `/contact` 200 with all sections + active header link + `ring-1 ring-white/10` on both navs.
 - [2026-08-16] — **Contact hero button-1 link fixed in code** (client: "#contactformulier is fixed, don't show it as an editable field"): `button1_url` removed from `config/cms.php` (contact hero) and `database/data/contact.php`; the CTA now hardcodes `href="#contactformulier"` in `contact-hero.blade.php`; deleted the leftover `content_blocks` row (`contact`/`hero`/`button1_url`) locally + `Cms::bust()`. Admin field gone, landing link still `#contactformulier`.
 - [2026-08-16] — **Contact page polish (client requests)**: (1) **`Link (#locatie)` field removed** from the `gegevens` section (same reasoning as button-1 link — it's a fixed anchor): `route_url` dropped from `config/cms.php` + `database/data/contact.php`, `contact-gegevens.blade.php` hardcodes `href="#locatie"`, leftover `content_blocks` row deleted. (2) **`Gesloten` auto-detection**: the opening-hours row now turns grey automatically when the time text contains "Gesloten" (`$isClosed = closed || str_contains(time,'gesloten')`), the admin toggle (`closed` boolean) stays as an override. Verified: with `closed=false` but time `Gesloten` the row renders grey, then DB restored. (3) **Favicon on admin + auth pages**: `<link rel="icon">` added to `components/admin/layout.blade.php` + `layouts/guest.blade.php`, pointing at the same CMS header `logo_image` as the site (fallback `assets/img/landing/logo.webp`) — change it in the header editor and the tab icon updates everywhere. (4) **Sidebar scrollbar styled** (client: "elegant, not very visible"): new `.sidebar-scroll` class on the admin nav + webkit/Firefox scrollbar CSS in `resources/css/app.css` (6px, `rgba(148,163,184,.18)` thumb, transparent track), rebuilt `app.css`. Note: the local DB header logo currently points to `AtBGD7…png` — byte-identical (same MD5) to the gitignored 2.5MB design screenshot `u1qSDe…png` re-uploaded via the admin; added it to `.gitignore` so it never deploys. The favicon/header fall back gracefully; the real logo is `logo.webp`.
+- [2026-08-16] — **Contact formulier + inbox (DONE)** — the /contact form now really submits and the admin gets a live inbox with a chat thread:
+  **Data** — `composer require webklex/php-imap` (v6.2.0, pure PHP). Migrations `contact_submissions` (name/email/phone/subject/request_type/message/attachment/status enum new|in_progress|replied|closed/ip_address + indexes) + `contact_replies` (contact_submission_id FK cascade, sender customer|admin, body, attachment, source dashboard|email|inbound). Models `ContactSubmission` (replies/latestReply/scopeNew/attachmentPath) + `ContactReply`.
+  **Public submit** — `StoreContactSubmissionRequest` (Dutch messages, honeypot `website` prohibited, attachment ≤10MB); `ContactController@submit` → 201 JSON "Bedankt!"; `POST /contact/submit` is **CSRF-exempt** (`bootstrap/app.php` validateCsrfTokens) + `throttle:5,1` + honeypot + `ip_address` stored. Form partial rewired: `#contactForm` (novalidate + honeypot + privacy_consent checkbox) + `public/assets/js/contact-form.js` (vanilla fetch, `Accept: application/json`, success/error popup `.cf-popup-*` appended to `resources/css/landing.css`, loading state "Verzenden..."). Since /contact is fully page-cached, the script ships inside the cached partial with filemtime bust.
+  **Outbound mail** — `ContactReceived` (subject "We hebben je bericht ontvangen – Slimme-PC", **Reply-To = `{from}+reply-{id}@…`** so customer replies route back) + `ContactReplyMail` (subject "Re: …") + 2 Dutch markdown email views. Queue: database.
+  **Admin inbox** — `Admin\ContactInboxController` (index/data/new-count/show/reply/status/attachment/destroy, 8 routes `admin.contact-inbox.*`), two-pane view `resources/views/admin/contact-inbox/index.blade.php` + `public/assets/js/admin/contact-inbox.js` (klanten.js pattern, SlimmePC.toast/modal, 60s badge poll). Sidebar "Contact" dropdown now has a live **Inbox / Berichten** item with a red server-rendered new-count badge + dashboard gains a "Contactaanvragen" stat card (grid 4→5 cols). Reply → status `replied` + queues `ContactReplyMail`; status whitelist new/in_progress/replied/closed; attachment download; destroy removes storage folder + row.
+  **Inbound (e-mail replies auto-arrive)** — `config/contact-inbox.php` (CONTACT_IMAP_*) + command `contact:fetch-inbound {--limit=50}`: inline `ClientManager` account (v6 API — `account(name)` takes a string, not an array), fetches unseen leaveUnread asc, regex `\+reply-(\d+)` from To + Delivered-To (Header object handled defensively), appends customer reply + saves inbound attachments to `contact/{id}/inbound` + sets status `in_progress`, marks Seen; unmatched → warn + left unread. `.env.example` CONTACT_IMAP_* block added.
+  **Verification** — `tests/Feature/ContactSubmitTest.php` (5 tests: valid submit → 201 + row + queued mail; validation 422; honeypot; attachment rejected; status tracking), full suite **30/30 pass**. Live: real POST → 201 + row id=1 + attachment stored + `queue:work --once` sent the confirmation via Gmail SMTP (real account, App Password); admin reply via curl (with URL-decoded XSRF token) → JSON "Antwoord verzonden." + status `replied` + reply row visible in the chat + `ContactReplyMail` sent; `contact:fetch-inbound` connected to the real Gmail (unmatched mail left unread, 0 matched). Test data cleaned afterwards.
+  **Deploy notes** — server `.env` needs `MAIL_*` (Gmail SMTP + App Password) and `CONTACT_IMAP_*`; add 2 crons: `* * * * * php artisan queue:work --stop-when-empty --tries=3 --max-time=55` + `* * * * * php artisan contact:fetch-inbound`. Note: production polls the full INBOX but never touches mail without a `+reply-{id}` token (left unread).
 

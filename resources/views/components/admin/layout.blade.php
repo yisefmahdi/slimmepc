@@ -39,6 +39,7 @@
         <script src="{{ asset('assets/js/vendor/alpine.min.js') }}"></script>
         <script src="{{ asset('assets/js/design.js') }}?v={{ filemtime(public_path('assets/js/design.js')) }}"></script>
         <script src="{{ asset('assets/js/admin/klanten.js') }}?v={{ filemtime(public_path('assets/js/admin/klanten.js')) }}"></script>
+        <script src="{{ asset('assets/js/admin/contact-inbox.js') }}?v={{ filemtime(public_path('assets/js/admin/contact-inbox.js')) }}"></script>
         <script src="{{ asset('assets/js/admin/content.js') }}?v={{ filemtime(public_path('assets/js/admin/content.js')) }}"></script>
         <script src="{{ asset('assets/js/admin/loader.js') }}?v={{ filemtime(public_path('assets/js/admin/loader.js')) }}"></script>
         <script src="{{ asset('assets/js/vendor/lucide.min.js') }}?v={{ filemtime(public_path('assets/js/vendor/lucide.min.js')) }}"></script>
@@ -209,7 +210,10 @@
                 </div>
 
                 {{-- 1c. Contact Dropdown --}}
-                <div x-data="{ open: {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === 'contact' ? 'true' : 'false' }} }" class="space-y-1">
+                @php
+                    $inboxNewCount = \App\Models\ContactSubmission::where('status', 'new')->count();
+                @endphp
+                <div x-data="{ open: {{ request()->routeIs('admin.contact-inbox.*') || (request()->routeIs('admin.content.section.edit') && request()->route('page') === 'contact') ? 'true' : 'false' }} }" class="space-y-1">
                     <button type="button" @click="open = !open"
                             class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
                             style="color: rgba(255,255,255,0.95)">
@@ -225,6 +229,16 @@
                         </svg>
                     </button>
                     <div x-show="open" x-cloak x-transition class="border-l-2 border-white/30 ml-6 pl-4 space-y-1.5 py-1 text-xs">
+                        <a href="{{ route('admin.contact-inbox.index') }}"
+                           class="flex items-center justify-between gap-2 rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.contact-inbox.*') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            <span class="flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-4 w-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 0 1 1.037-.443 48.282 48.282 0 0 0 5.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
+                                </svg>
+                                Inbox / Berichten
+                            </span>
+                            <span id="sidebarInboxBadge" class="{{ $inboxNewCount > 0 ? '' : 'hidden' }} inline-flex min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm">{{ min($inboxNewCount, 99) }}</span>
+                        </a>
                         <a href="{{ route('admin.content.section.edit', ['page' => 'contact', 'section' => 'hero']) }}"
                            class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === 'contact' && request()->route('section') === 'hero' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
                             Hero
