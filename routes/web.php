@@ -8,6 +8,8 @@ Route::get('/', [PageController::class, 'home'])->name('home');
 
 Route::get('/tarieven', [PageController::class, 'tarieven'])->name('tarieven');
 
+Route::get('/contact', [PageController::class, 'contact'])->name('contact');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

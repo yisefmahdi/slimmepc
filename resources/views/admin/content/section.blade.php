@@ -45,6 +45,28 @@
                     'location' => 'Derde sectie van de tarievenpagina'
                 ],
             ],
+            'contact' => [
+                'hero' => [
+                    'title' => 'Hero (Contact) bewerken',
+                    'desc' => 'De banner bovenaan de contactpagina. Pas de badge, titels, beschrijving, knoppen, WhatsApp-nummer, afbeelding en vertrouwenspunten aan.',
+                    'location' => 'Bovenste grote sectie van de contactpagina'
+                ],
+                'gegevens' => [
+                    'title' => 'Contactgegevens bewerken',
+                    'desc' => 'Beheer de drie kaarten met bedrijfsgegevens, contactmethoden (telefoon, e-mail, WhatsApp) en openingstijden.',
+                    'location' => 'Tweede sectie van de contactpagina'
+                ],
+                'formulier' => [
+                    'title' => 'Contactformulier bewerken',
+                    'desc' => 'Beheer de introductietekst, titels, beschrijving en de voordelen naast het contactformulier. (De formuliervelden zelf zijn vaste opmaak.)',
+                    'location' => 'Derde sectie van de contactpagina'
+                ],
+                'locatie' => [
+                    'title' => 'Locatie & route bewerken',
+                    'desc' => 'Beheer de tekst naast de kaart, de ingebedde Google Maps-kaart, de route-knop en de locatiepunten.',
+                    'location' => 'Vierde sectie van de contactpagina'
+                ],
+            ],
         ];
 
         $currentInfo = $sectionInfos[$page][$sectionKey] ?? [

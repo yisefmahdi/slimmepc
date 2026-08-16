@@ -1885,6 +1885,10 @@ html {
     background: #f8fbff;
 }
 
+.card-soft {
+    box-shadow: 0 14px 45px rgba(15, 23, 42, 0.06);
+}
+
 @media (prefers-reduced-motion: reduce) {
     .hero-floating,
     .device-floating,

@@ -64,5 +64,32 @@ class PageController extends Controller
 
         return response($html)->header('Content-Type', 'text/html; charset=UTF-8');
     }
+
+    public function contact()
+    {
+        $version = Cms::version();
+        $cacheKey = "cms.page.html.contact.{$version}";
+
+        if (!Auth::check()) {
+            $cached = Cache::get($cacheKey);
+
+            if (is_string($cached)) {
+                return response($cached)->header('Content-Type', 'text/html; charset=UTF-8');
+            }
+        }
+
+        // Header/footer live on the 'home' page; the contact content lives on 'contact'.
+        $c = Cms::page('home');
+        $p = Cms::page('contact');
+        $design = Cms::design();
+
+        $html = view('landing.contact', compact('c', 'p', 'design'))->render();
+
+        if (!Auth::check()) {
+            Cache::put($cacheKey, $html, now()->addMonth());
+        }
+
+        return response($html)->header('Content-Type', 'text/html; charset=UTF-8');
+    }
 }
 

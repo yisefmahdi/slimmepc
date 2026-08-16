@@ -244,6 +244,119 @@ return [
                 ],
             ],
         ],
+
+        'contact' => [
+            'label' => 'Contact',
+            'sections' => [
+                'hero' => [
+                    'label' => 'Hero (Contact met Slimme-PC)',
+                    'blocks' => [
+                        'badge' => ['label' => 'Badge (boven de titel)', 'type' => 'text'],
+                        'title_line1' => ['label' => 'Titel regel 1', 'type' => 'text'],
+                        'title_line2' => ['label' => 'Titel regel 2 (blauw)', 'type' => 'text'],
+                        'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+                        'button1_text' => ['label' => 'Knop 1 tekst (bijv. Bericht versturen)', 'type' => 'text'],
+                        'button1_url' => ['label' => 'Knop 1 link (bijv. #contactformulier)', 'type' => 'text'],
+                        'button2_text' => ['label' => 'Knop 2 tekst (bijv. WhatsApp ons)', 'type' => 'text'],
+                        'whatsapp_number' => ['label' => 'WhatsApp nummer (zonder +, bijv. 31617100945)', 'type' => 'text'],
+                        'hero_image' => ['label' => 'Afbeelding (hero)', 'type' => 'image'],
+                        'hero_image_alt' => ['label' => 'Alt tekst afbeelding', 'type' => 'text'],
+                        'trust_points' => [
+                            'label' => 'Vertrouwenspunten',
+                            'type' => 'json',
+                            'columns' => 1,
+                            'fields' => [
+                                ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                                ['key' => 'label', 'label' => 'Label', 'type' => 'text'],
+                            ],
+                        ],
+                    ],
+                ],
+
+                'gegevens' => [
+                    'label' => 'Contactgegevens, Service & support & Openingstijden',
+                    'blocks' => [
+                        'card1_title' => ['label' => 'Kaart 1 titel (Contactgegevens)', 'type' => 'text'],
+                        'card1_icon' => ['label' => 'Kaart 1 pictogram', 'type' => 'icon'],
+                        'company_name' => ['label' => 'Bedrijfsnaam', 'type' => 'text'],
+                        'address' => ['label' => 'Adres (elke regel apart)', 'type' => 'textarea'],
+                        'kvk' => ['label' => 'KvK-nummer', 'type' => 'text'],
+                        'btw' => ['label' => 'BTW-nummer', 'type' => 'text'],
+                        'route_label' => ['label' => 'Link tekst (bijv. Route bekijken)', 'type' => 'text'],
+                        'route_url' => ['label' => 'Link (bijv. #locatie)', 'type' => 'text'],
+
+                        'card2_title' => ['label' => 'Kaart 2 titel (Service & support)', 'type' => 'text'],
+                        'card2_icon' => ['label' => 'Kaart 2 pictogram', 'type' => 'icon'],
+                        'contact_methods' => [
+                            'label' => 'Contactmethoden (telefoon/e-mail/WhatsApp)',
+                            'type' => 'json',
+                            'columns' => 1,
+                            'fields' => [
+                                ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                                ['key' => 'label', 'label' => 'Label (bijv. Telefoon)', 'type' => 'text'],
+                                ['key' => 'value', 'label' => 'Waarde (bijv. 055 203 21 45)', 'type' => 'text'],
+                                ['key' => 'url', 'label' => 'Link (bijv. tel:+31552032145)', 'type' => 'text'],
+                            ],
+                        ],
+
+                        'card3_title' => ['label' => 'Kaart 3 titel (Openingstijden)', 'type' => 'text'],
+                        'card3_icon' => ['label' => 'Kaart 3 pictogram', 'type' => 'icon'],
+                        'opening_hours' => [
+                            'label' => 'Openingstijden (dagen)',
+                            'type' => 'json',
+                            'columns' => 1,
+                            'fields' => [
+                                ['key' => 'day', 'label' => 'Dag (bijv. Maandag – vrijdag)', 'type' => 'text'],
+                                ['key' => 'note', 'label' => 'Opmerking (bijv. Reguliere openingstijden)', 'type' => 'text'],
+                                ['key' => 'time', 'label' => 'Tijd (bijv. 09:00 – 17:00)', 'type' => 'text'],
+                                ['key' => 'closed', 'label' => 'Gesloten (grijze weergave)', 'type' => 'boolean'],
+                            ],
+                        ],
+                    ],
+                ],
+
+                'formulier' => [
+                    'label' => 'Contactformulier (introductie + voordelen)',
+                    'blocks' => [
+                        'badge' => ['label' => 'Badge (boven de titel)', 'type' => 'text'],
+                        'title_line1' => ['label' => 'Titel regel 1', 'type' => 'text'],
+                        'title_line2' => ['label' => 'Titel regel 2 (blauw)', 'type' => 'text'],
+                        'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+                        'benefits' => [
+                            'label' => 'Voordelen',
+                            'type' => 'json',
+                            'columns' => 1,
+                            'fields' => [
+                                ['key' => 'label', 'label' => 'Label', 'type' => 'text'],
+                            ],
+                        ],
+                    ],
+                ],
+
+                'locatie' => [
+                    'label' => 'Locatie (kaart + bereikbaarheid)',
+                    'blocks' => [
+                        'badge' => ['label' => 'Badge (boven de titel)', 'type' => 'text'],
+                        'title_line1' => ['label' => 'Titel regel 1', 'type' => 'text'],
+                        'title_line2' => ['label' => 'Titel regel 2 (blauw)', 'type' => 'text'],
+                        'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+                        'map_src' => ['label' => 'Kaart URL (Google Maps embed)', 'type' => 'textarea'],
+                        'route_label' => ['label' => 'Knop tekst (bijv. Route plannen)', 'type' => 'text'],
+                        'route_url' => ['label' => 'Knop link (Google Maps)', 'type' => 'textarea'],
+                        'location_items' => [
+                            'label' => 'Locatiepunten',
+                            'type' => 'json',
+                            'columns' => 1,
+                            'fields' => [
+                                ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                                ['key' => 'title', 'label' => 'Titel (optioneel)', 'type' => 'text'],
+                                ['key' => 'text', 'label' => 'Tekst (elke regel apart)', 'type' => 'textarea'],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ],
     ],
 
     /*
