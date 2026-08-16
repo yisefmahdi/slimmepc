@@ -1,3 +1,6 @@
+(function () {
+'use strict';
+
 const state = {
     search: '',
     status: '',
@@ -413,6 +416,10 @@ $(function () {
 
     load();
 
+    // Deep link from the admin notification e-mail (?submission={id}): open that thread
+    const deepId = parseInt(new URLSearchParams(window.location.search).get('submission'), 10);
+    if (deepId) openChat(deepId);
+
     // Search (debounced)
     $('#inboxSearch').on('input', function () {
         window.clearTimeout(state.searchTimer);
@@ -477,3 +484,4 @@ $(function () {
     // Poll badge every 60s
     window.setInterval(updateBadge, 60000);
 });
+})();

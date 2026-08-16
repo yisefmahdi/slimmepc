@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreContactSubmissionRequest;
+use App\Mail\AdminContactNotification;
 use App\Mail\ContactReceived;
 use App\Models\ContactSubmission;
 use Illuminate\Http\JsonResponse;
@@ -35,6 +36,13 @@ class ContactController extends Controller
 
         Mail::to($submission->email)
             ->queue(new ContactReceived($submission));
+
+        $notifyEmail = config('contact-inbox.notify_email');
+
+        if ($notifyEmail) {
+            Mail::to($notifyEmail)
+                ->queue(new AdminContactNotification($submission));
+        }
 
         return response()->json([
             'message' => 'Bedankt! Je bericht is verzonden.',

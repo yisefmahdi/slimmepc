@@ -15,6 +15,7 @@
         <link rel="stylesheet" href="{{ asset('assets/css/app.css') }}?v={{ filemtime(public_path('assets/css/app.css')) }}">
 
         <script src="{{ asset('assets/js/vendor/jquery.min.js') }}"></script>
+        <script src="{{ asset('assets/js/vendor/axios.min.js') }}"></script>
         <script src="{{ asset('assets/js/vendor/alpine.min.js') }}"></script>
         <script src="{{ asset('assets/js/design.js') }}?v={{ filemtime(public_path('assets/js/design.js')) }}"></script>
     </head>

@@ -23,4 +23,15 @@ return [
     ],
 
     'mailbox' => env('CONTACT_IMAP_MAILBOX', 'INBOX'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin notification e-mail
+    |--------------------------------------------------------------------------
+    | Every new contact submission triggers a notification to this address with
+    | the submitter's details and a direct link to open the thread in the
+    | admin dashboard. Falls back to MAIL_FROM_ADDRESS when unset.
+    */
+
+    'notify_email' => env('CONTACT_NOTIFY_EMAIL', env('MAIL_FROM_ADDRESS', '')),
 ];

@@ -1,5 +1,6 @@
 <?php
 
+use App\Mail\AdminContactNotification;
 use App\Mail\ContactReceived;
 use App\Models\ContactSubmission;
 use Illuminate\Http\UploadedFile;
@@ -36,6 +37,7 @@ it('stores a contact submission and queues the confirmation e-mail', function ()
     expect($submission)->not->toBeNull();
 
     Mail::assertQueued(ContactReceived::class, fn ($mail) => $mail->submission->id === $submission->id);
+    Mail::assertQueued(AdminContactNotification::class, fn ($mail) => $mail->submission->id === $submission->id);
 });
 
 it('stores an attachment when provided', function () {
