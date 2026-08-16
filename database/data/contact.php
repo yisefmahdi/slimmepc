@@ -14,7 +14,6 @@ return [
         'title_line2' => 'graag verder.',
         'description' => 'Heb je een vraag, wil je een reparatie bespreken of zakelijk met ons samenwerken? Neem gerust contact met ons op.',
         'button1_text' => 'Bericht versturen',
-        'button1_url' => '#contactformulier',
         'button2_text' => 'WhatsApp ons',
         'whatsapp_number' => '31617100945',
         'hero_image' => 'assets/img/landing/6F69A001-617B-44CE-B7E9-75C6165A3A4F_1_105_c.jpeg',

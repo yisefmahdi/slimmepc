@@ -43,7 +43,7 @@
                 @if (!empty($hero['button1_text']) || !empty($hero['button2_text']))
                 <div class="mt-8 flex flex-wrap gap-4">
                     @if (!empty($hero['button1_text']))
-                    <a href="{{ $hero['button1_url'] ?? '#contactformulier' }}"
+                    <a href="#contactformulier"
                        class="inline-flex items-center gap-3 rounded-xl bg-blue-600 px-6 py-3.5 font-bold text-white shadow-lg shadow-blue-600/20 transition duration-300 hover:-translate-y-0.5 hover:bg-blue-500">
                         {{ $hero['button1_text'] }}
                         <span aria-hidden="true">→</span>

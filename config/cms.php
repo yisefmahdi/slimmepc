@@ -256,7 +256,6 @@ return [
                         'title_line2' => ['label' => 'Titel regel 2 (blauw)', 'type' => 'text'],
                         'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
                         'button1_text' => ['label' => 'Knop 1 tekst (bijv. Bericht versturen)', 'type' => 'text'],
-                        'button1_url' => ['label' => 'Knop 1 link (bijv. #contactformulier)', 'type' => 'text'],
                         'button2_text' => ['label' => 'Knop 2 tekst (bijv. WhatsApp ons)', 'type' => 'text'],
                         'whatsapp_number' => ['label' => 'WhatsApp nummer (zonder +, bijv. 31617100945)', 'type' => 'text'],
                         'hero_image' => ['label' => 'Afbeelding (hero)', 'type' => 'image'],
