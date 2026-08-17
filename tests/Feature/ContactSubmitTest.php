@@ -298,6 +298,58 @@ it('keeps only the PDF attachment when an e-mail has no inline image', function 
     expect(Storage::disk('local')->exists('contact/'.$submission->id.'/inbound/offerte.pdf'))->toBeTrue();
 });
 
+it('prefers the PDF over a re-sent screenshot even when the image is also Content-Disposition: attachment', function () {
+    disableInboundImap();
+    Storage::fake('local');
+
+    // Replicates a real Gmail reply: the previous message's screenshot is
+    // re-attached (both as "attachment" disposition) and the new PDF is the
+    // file the customer actually sent. The PDF must win.
+    $png = base64_encode("\x89PNG\r\n\x1a\nfake-png-bytes");
+    $pdf = base64_encode('%PDF-1.4 fake pdf content');
+
+    $mime = "From: klant@voorbeeld.nl\r\n"
+        ."To: slimmepc+reply-997@example.com\r\n"
+        ."Subject: Re: diagnose\r\n"
+        ."Message-ID: <dup-test@voorbeeld.nl>\r\n"
+        ."Date: ".now()->format('r')."\r\n"
+        ."MIME-Version: 1.0\r\n"
+        ."Content-Type: multipart/mixed; boundary=\"DUP\"\r\n"
+        ."\r\n"
+        ."--DUP\r\n"
+        ."Content-Type: text/plain; charset=\"UTF-8\"\r\n"
+        ."\r\n"
+        ."Zie de nieuwe offerte.\r\n"
+        ."--DUP\r\n"
+        ."Content-Type: image/jpeg; name=\"ed84c59d-6bc0-4b32-a220-dd77621048da (1).jpg\"\r\n"
+        ."Content-Disposition: attachment; filename=\"ed84c59d-6bc0-4b32-a220-dd77621048da (1).jpg\"\r\n"
+        ."Content-Transfer-Encoding: base64\r\n"
+        ."\r\n"
+        .$png."\r\n"
+        ."--DUP\r\n"
+        ."Content-Type: application/pdf; name=\"offerte.pdf\"\r\n"
+        ."Content-Disposition: attachment; filename=\"offerte.pdf\"\r\n"
+        ."Content-Transfer-Encoding: base64\r\n"
+        ."\r\n"
+        .$pdf."\r\n"
+        ."--DUP--";
+
+    $message = \Webklex\PHPIMAP\Message::fromString($mime);
+
+    expect($message->getAttachments()->count())->toBe(2);
+
+    $fetcher = app(InboundContactFetcher::class);
+    $method = new ReflectionMethod($fetcher, 'appendReply');
+    $submission = ContactSubmission::create(validContactPayload(['name' => 'Duplicaat test']));
+
+    $method->invoke($fetcher, $message, $submission);
+
+    $reply = $submission->fresh()->replies->first();
+
+    expect($reply->attachment)->toBe('inbound/offerte.pdf');
+    expect(Storage::disk('local')->exists('contact/'.$submission->id.'/inbound/offerte.pdf'))->toBeTrue();
+});
+
 it('sorts the list by latest activity and exposes the last message + unread count', function () {
     disableInboundImap();
 

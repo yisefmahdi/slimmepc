@@ -275,13 +275,21 @@ class InboundContactFetcher
         // creates the path itself, the makeDirectory is belt-and-suspenders.
         Storage::disk('local')->makeDirectory($dir);
 
-        // Prefer real attached files (Content-Disposition: attachment) over
-        // inline images: a follow-up e-mail that quotes the previous message
-        // re-sends the old inline image as a MIME part, which would otherwise
-        // show up as a "duplicate" of the first screenshot.
+        // Prefer real documents over images: a follow-up e-mail that quotes
+        // the previous message re-sends the old inline/attached image (Gmail
+        // keeps it as a MIME part, often even with Content-Disposition:
+        // attachment), so the actual new file — a PDF, DOCX, XLSX… — must win
+        // or the chat shows the old screenshot as a duplicate and loses the
+        // file. Content-Disposition: attachment is used as a tie-break.
         $list = is_array($attachments) ? $attachments : iterator_to_array($attachments, false);
 
-        usort($list, fn ($a, $b) => (int) ($a->getDisposition() !== 'attachment') - (int) ($b->getDisposition() !== 'attachment'));
+        $sortKey = function ($a) {
+            $isImage = preg_match('/\.(jpe?g|png|gif|webp|bmp|svg)$/i', (string) $a->getName());
+
+            return ($isImage ? 2 : 0) + ($a->getDisposition() === 'attachment' ? 0 : 1);
+        };
+
+        usort($list, fn ($a, $b) => $sortKey($a) - $sortKey($b));
 
         foreach ($list as $attachment) {
             try {
