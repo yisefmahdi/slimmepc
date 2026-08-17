@@ -55,8 +55,8 @@ class ContactInboxController extends Controller
             ->withCount('replies')
             ->withMax('replies', 'created_at')
             ->with('replies')
-            ->orderByDesc('replies_max_created_at')
-            ->orderByDesc('created_at')
+            ->orderByRaw('COALESCE(replies_max_created_at, created_at) DESC')
+            ->orderByDesc('id')
             ->paginate($perPage, [
                 'id', 'name', 'email', 'phone', 'subject', 'request_type',
                 'message', 'attachment', 'status', 'admin_read_at', 'ip_address', 'created_at',

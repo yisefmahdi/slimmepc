@@ -137,14 +137,26 @@ it('sorts the list by latest activity and exposes the last message + unread coun
 
     $older = ContactSubmission::create(validContactPayload(['name' => 'Oud']));
     $newer = ContactSubmission::create(validContactPayload(['name' => 'Nieuw']));
+    $brandNew = ContactSubmission::create(validContactPayload(['name' => 'Nieuwste']));
 
-    // The "newer" thread gets an activity on "older" (created earlier), so it must rank first.
-    \App\Models\ContactReply::create([
+    $now = now();
+    $older->created_at = $now->copy()->subMinutes(10);
+    $older->save();
+    $newer->created_at = $now->copy()->subMinutes(5);
+    $newer->save();
+    $brandNew->created_at = $now->copy()->subMinutes(1);
+    $brandNew->save();
+
+    // The "older" thread gets an inbound reply (last activity), so it must rank first —
+    // even though the "brand new" submission was created more recently.
+    $reply = \App\Models\ContactReply::create([
         'contact_submission_id' => $older->id,
         'sender' => 'customer',
         'body' => 'Late reactie op de oudste aanvraag',
         'source' => 'inbound',
     ]);
+    $reply->created_at = $now;
+    $reply->save();
 
     $admin = User::factory()->create(['role' => 'admin']);
 
@@ -154,7 +166,11 @@ it('sorts the list by latest activity and exposes the last message + unread coun
         ->assertJsonPath('data.0.id', $older->id)
         ->assertJsonPath('data.0.unread', 2)
         ->assertJsonPath('data.0.last_message.body', 'Late reactie op de oudste aanvraag')
-        ->assertJsonPath('data.1.unread', 1);
+        // A fresh submission with no replies ranks by its created_at (top, above older threads).
+        ->assertJsonPath('data.1.id', $brandNew->id)
+        ->assertJsonPath('data.1.unread', 1)
+        ->assertJsonPath('data.2.id', $newer->id)
+        ->assertJsonPath('data.2.unread', 1);
 });
 
 it('strips quoted reply text and signatures from inbound e-mail bodies', function () {
