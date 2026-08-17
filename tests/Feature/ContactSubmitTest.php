@@ -298,6 +298,47 @@ it('keeps only the PDF attachment when an e-mail has no inline image', function 
     expect(Storage::disk('local')->exists('contact/'.$submission->id.'/inbound/offerte.pdf'))->toBeTrue();
 });
 
+it('correctly decodes Arabic MIME-encoded attachment filenames', function () {
+    disableInboundImap();
+    Storage::fake('local');
+
+    $png = base64_encode("\x89PNG\r\n\x1a\nfake-png-bytes");
+
+    // "لانهائي بيج.png" MIME encoded
+    $mime = "From: klant@voorbeeld.nl\r\n"
+        ."To: slimmepc+reply-996@example.com\r\n"
+        ."Subject: Re: arabic-test\r\n"
+        ."Message-ID: <arabic-test@voorbeeld.nl>\r\n"
+        ."Date: ".now()->format('r')."\r\n"
+        ."MIME-Version: 1.0\r\n"
+        ."Content-Type: multipart/mixed; boundary=\"ARABIC\"\r\n"
+        ."\r\n"
+        ."--ARABIC\r\n"
+        ."Content-Type: text/plain; charset=\"UTF-8\"\r\n"
+        ."\r\n"
+        ."مرحبا.\r\n"
+        ."--ARABIC\r\n"
+        ."Content-Type: image/png; name=\"=?UTF-8?B?2YTYp9mG2YfYp9im2Yog2KjZitisLnBuZw==?=\"\r\n"
+        ."Content-Disposition: attachment; filename=\"=?UTF-8?B?2YTYp9mG2YfYp9im2Yog2KjZitisLnBuZw==?=\"\r\n"
+        ."Content-Transfer-Encoding: base64\r\n"
+        ."\r\n"
+        .$png."\r\n"
+        ."--ARABIC--";
+
+    $message = \Webklex\PHPIMAP\Message::fromString($mime);
+
+    $fetcher = app(InboundContactFetcher::class);
+    $method = new ReflectionMethod($fetcher, 'appendReply');
+    $submission = ContactSubmission::create(validContactPayload(['name' => 'Arabic name test']));
+
+    $method->invoke($fetcher, $message, $submission);
+
+    $reply = $submission->fresh()->replies->first();
+
+    expect($reply->attachment)->toBe('inbound/لانهائي بيج.png');
+    expect(Storage::disk('local')->exists('contact/'.$submission->id.'/inbound/لانهائي بيج.png'))->toBeTrue();
+});
+
 it('prefers the PDF over a re-sent screenshot even when the image is also Content-Disposition: attachment', function () {
     disableInboundImap();
     Storage::fake('local');

@@ -300,6 +300,7 @@ class InboundContactFetcher
                 }
 
                 $name = $attachment->decodeName($rawName);
+                $name = $this->decodeMimeHeader($name);
 
                 $content = $attachment->getContent();
 
@@ -338,5 +339,38 @@ class InboundContactFetcher
         }
 
         return 'onbekend';
+    }
+
+    /**
+     * Decode MIME-encoded headers (e.g. =?UTF-8?B?...?=) when php-imap's imap_utf8
+     * is not available or fails. Handles both B (base64) and Q (quoted-printable)
+     * encodings, including multiple words and Arabic filenames.
+     */
+    private function decodeMimeHeader(string $str): string
+    {
+        $str = preg_replace('/(\?=\s+=\?)/', '?==?', $str);
+
+        return preg_replace_callback('/=\?([^\?]+)\?([BQbq])\?([^\?]+)\?=/i', function ($m) {
+            $charset = $m[1];
+            $encoding = strtoupper($m[2]);
+            $data = $m[3];
+
+            if ($encoding === 'B') {
+                $decoded = base64_decode($data);
+            } elseif ($encoding === 'Q') {
+                $decoded = quoted_printable_decode(str_replace('_', ' ', $data));
+            } else {
+                return $m[0];
+            }
+
+            if (strcasecmp($charset, 'UTF-8') !== 0) {
+                try {
+                    $decoded = mb_convert_encoding($decoded, 'UTF-8', $charset);
+                } catch (\Exception $e) {
+                }
+            }
+
+            return $decoded;
+        }, $str);
     }
 }
