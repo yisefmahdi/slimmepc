@@ -111,13 +111,13 @@
                     <label for="contact-attachment" class="mb-2 block text-sm font-bold text-[#0b1f4d]">
                         Bestand toevoegen <span class="font-normal text-slate-400">(optioneel)</span>
                     </label>
-                    <label for="contact-attachment"
+                    <label id="contactAttachmentZone" for="contact-attachment"
                            class="flex min-h-[130px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/50 px-5 text-center transition hover:border-blue-400 hover:bg-blue-50">
                         <span class="flex h-12 w-12 items-center justify-center rounded-full bg-white text-xl text-blue-600 shadow-sm" aria-hidden="true">📎</span>
                         <span class="mt-3 text-sm font-bold text-[#0b1f4d]">Klik om een bestand te selecteren</span>
                         <span class="mt-1 text-xs text-slate-500">Afbeelding, PDF of document – maximaal 10 MB</span>
-                        <input id="contact-attachment" type="file" name="attachment" class="hidden">
                     </label>
+                    <input id="contact-attachment" type="file" name="attachment" class="hidden">
                 </div>
 
                 <div class="mt-6 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">

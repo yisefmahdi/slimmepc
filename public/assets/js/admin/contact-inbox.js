@@ -23,12 +23,14 @@ function showListPane() {
     state.mobileChatOpen = false;
     $('#inboxListPane').removeClass('hidden');
     $('#inboxChatPane').addClass('hidden').removeClass('flex');
+    if (isMobile()) $('#inboxPageHeader').removeClass('hidden');
 }
 
 function showChatPane() {
     state.mobileChatOpen = true;
     $('#inboxListPane').addClass('hidden');
     $('#inboxChatPane').removeClass('hidden').addClass('flex');
+    if (isMobile()) $('#inboxPageHeader').addClass('hidden');
 }
 
 /* ---------- helpers ---------- */

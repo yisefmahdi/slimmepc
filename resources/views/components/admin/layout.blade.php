@@ -633,12 +633,14 @@
                 {{ $slot }}
             </main>
 
-            {{-- Footer --}}
+            {{-- Footer (hidden on the full-height inbox page so it never scrolls) --}}
+            @if (!request()->routeIs('admin.contact-inbox.index'))
             <footer class="px-3 pb-5 sm:px-6 lg:px-8">
                 <p class="text-center text-xs" style="color: var(--c-muted)">
                     &copy; {{ date('Y') }} Slimme-PC Beheer. Alle rechten voorbehouden.
                 </p>
             </footer>
+            @endif
         </div>
     </body>
 </html>

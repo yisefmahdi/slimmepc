@@ -1,9 +1,9 @@
 <x-admin.layout title="Inbox">
     {{-- App shell: fills the viewport below the admin header, no page scroll --}}
-    <div class="inbox-app flex h-[calc(100dvh-6.5rem)] min-h-[24rem] flex-col overflow-hidden lg:h-[calc(100dvh-9rem)] lg:min-h-[26rem]">
+    <div class="inbox-app flex h-[calc(100dvh-108px)] min-h-[24rem] flex-col overflow-hidden lg:h-[calc(100dvh-9rem)] lg:min-h-[26rem]">
 
         {{-- Slim header --}}
-        <div class="mb-4 flex shrink-0 flex-wrap items-center justify-between gap-x-2 gap-y-2">
+        <div id="inboxPageHeader" class="mb-4 flex shrink-0 flex-wrap items-center justify-between gap-x-2 gap-y-2">
             <div>
                 <h2 class="text-base font-extrabold tracking-tight sm:text-lg" style="color: var(--c-heading)">Inbox</h2>
                 <p class="mt-0.5 text-xs" style="color: var(--c-muted)">Contactaanvragen met chatgeschiedenis per bericht.</p>
