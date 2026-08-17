@@ -4,16 +4,14 @@ namespace App\Mail;
 
 use App\Models\ContactSubmission;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Mail\Mailables\Headers;
-use Illuminate\Queue\SerializesModels;
 
-class ContactReceived extends Mailable implements ShouldQueue
+class ContactReceived extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable;
 
     /**
      * Create a new message instance.

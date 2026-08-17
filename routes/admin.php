@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')
     ->name('admin.')
-    ->middleware(['auth', 'verified', 'admin'])
+    ->middleware(['auth', 'verified', 'admin', 'inbound.sync'])
     ->group(function () {
         Route::get('/', [AdminController::class, 'dashboard'])
             ->name('dashboard');
@@ -83,6 +83,11 @@ Route::prefix('admin')
 
                 Route::get('/new-count', [ContactInboxController::class, 'newCount'])
                     ->name('new-count');
+
+                // Pulls inbound e-mail replies immediately (throttled ~15s).
+                // Called by the inbox page every 30 seconds while it is open.
+                Route::post('/sync', [ContactInboxController::class, 'sync'])
+                    ->name('sync');
 
                 Route::get('/{contactSubmission}', [ContactInboxController::class, 'show'])
                     ->name('show');

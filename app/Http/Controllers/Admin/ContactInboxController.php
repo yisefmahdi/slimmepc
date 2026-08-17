@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Mail\ContactReplyMail;
 use App\Models\ContactReply;
 use App\Models\ContactSubmission;
+use App\Services\InboundContactFetcher;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -63,11 +66,19 @@ class ContactInboxController extends Controller
                 'total' => $paginator->total(),
                 'per_page' => $paginator->perPage(),
             ],
-            'counts' => [
-                'new' => ContactSubmission::where('status', 'new')->count(),
-                'total' => ContactSubmission::count(),
-            ],
+            'counts' => $this->counts(),
         ]);
+    }
+
+    /**
+     * Current new/total submission counts.
+     */
+    private function counts(): array
+    {
+        return [
+            'new' => ContactSubmission::where('status', 'new')->count(),
+            'total' => ContactSubmission::count(),
+        ];
     }
 
     /**
@@ -95,6 +106,45 @@ class ContactInboxController extends Controller
     }
 
     /**
+     * Pull inbound e-mail replies right now (throttled ~15s) and return counts.
+     *
+     * The inbox page calls this every 30 seconds while it is open, so replies
+     * that arrive by e-mail show up in the dashboard almost immediately —
+     * no background job or cron is needed.
+     */
+    public function sync(): JsonResponse
+    {
+        $lock = Cache::lock('contact:inbound-fetch-lock', 30);
+
+        $processed = 0;
+        $matched = 0;
+
+        if ($lock->get()) {
+            try {
+                $last = Cache::get('contact:inbox-page-last-sync');
+
+                if (! $last || now()->getTimestamp() - (int) $last >= 15) {
+                    $result = app(InboundContactFetcher::class)->run();
+                    $processed = $result['processed'];
+                    $matched = $result['matched'];
+
+                    Cache::put('contact:inbox-page-last-sync', now()->getTimestamp(), now()->addMinutes(10));
+                }
+            } catch (\Throwable $e) {
+                Log::warning('[contact-inbox] inbox sync failed: '.$e->getMessage());
+            } finally {
+                $lock->release();
+            }
+        }
+
+        return response()->json([
+            'counts' => $this->counts(),
+            'processed' => $processed,
+            'matched' => $matched,
+        ]);
+    }
+
+    /**
      * Store an admin reply, e-mail it to the customer and mark as replied.
      */
     public function reply(Request $request, ContactSubmission $contactSubmission): JsonResponse
@@ -115,7 +165,7 @@ class ContactInboxController extends Controller
         }
 
         Mail::to($contactSubmission->email)
-            ->queue(new ContactReplyMail(
+            ->send(new ContactReplyMail(
                 $contactSubmission,
                 $reply->body,
                 Auth::user()->name,

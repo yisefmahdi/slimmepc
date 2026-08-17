@@ -410,6 +410,37 @@ async function updateBadge() {
     }
 }
 
+/* ---------- inbound sync (30s poll) ---------- */
+async function syncInbound() {
+    try {
+        const { data } = await axios.post('/admin/contact-inbox/sync');
+
+        renderCounts(data.counts);
+
+        const $badge = $('#sidebarInboxBadge');
+        if (data.counts.new > 0) {
+            $badge.removeClass('hidden').text(data.counts.new > 99 ? '99+' : data.counts.new);
+        } else {
+            $badge.addClass('hidden');
+        }
+
+        await load();
+
+        // Refresh the open thread so new inbound replies appear — but never
+        // clobber a reply the admin is currently typing.
+        if (state.currentId && !$('#inboxReply').val().trim()) {
+            try {
+                const chat = await axios.get(`/admin/contact-inbox/${state.currentId}`);
+                renderThread(chat.data);
+            } catch (error) {
+                // best-effort
+            }
+        }
+    } catch (error) {
+        // best-effort — polling continues
+    }
+}
+
 /* ---------- init / bindings ---------- */
 $(function () {
     if (!$('#inboxList').length) return;
@@ -481,7 +512,7 @@ $(function () {
     });
     $('#inboxDeleteConfirmBtn').on('click', confirmDelete);
 
-    // Poll badge every 60s
-    window.setInterval(updateBadge, 60000);
+    // Pull inbound e-mail replies every 30s while the inbox page is open
+    window.setInterval(syncInbound, 30000);
 });
 })();
