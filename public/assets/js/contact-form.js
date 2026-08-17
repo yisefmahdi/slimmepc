@@ -54,20 +54,22 @@
         submitBtn.setAttribute('aria-busy', String(loading));
         submitBtn.classList.toggle('cursor-not-allowed', loading);
 
+        var arrow = submitBtn.lastChild;
+
         if (loading) {
-            submitBtn.dataset.originalContent = submitBtn.innerHTML;
-            submitBtn.style.width = submitBtn.offsetWidth + 'px';
+            if (arrow) {
+                submitBtn.dataset.originalArrow = arrow.innerHTML;
+                arrow.innerHTML = '<span class="cf-spinner" aria-hidden="true"></span>';
+            }
             submitBtn.style.opacity = '0.85';
             submitBtn.style.pointerEvents = 'none';
-            submitBtn.innerHTML =
-                '<span class="cf-spinner" aria-hidden="true"></span>' +
-                '<span class="cf-loading-label">Verzenden...</span>';
-        } else if (submitBtn.dataset.originalContent !== undefined) {
-            submitBtn.innerHTML = submitBtn.dataset.originalContent;
-            submitBtn.style.width = '';
+        } else {
+            if (arrow && submitBtn.dataset.originalArrow !== undefined) {
+                arrow.innerHTML = submitBtn.dataset.originalArrow;
+                delete submitBtn.dataset.originalArrow;
+            }
             submitBtn.style.opacity = '';
             submitBtn.style.pointerEvents = '';
-            delete submitBtn.dataset.originalContent;
         }
     }
 
