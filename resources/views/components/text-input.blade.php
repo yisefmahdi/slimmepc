@@ -12,6 +12,7 @@
         {{ $attributes->merge([
             'id' => $inputId ?? $attributes->get('id'),
             'class' => ($compact ? 'form-input form-input--compact' : 'form-input')
+                       . ((isset($icon) && $icon->isNotEmpty()) ? ($compact ? ' pl-10' : ' pl-12') : '')
                        . ($toggle ? ' pr-12' : ''),
         ]) }}
     >
