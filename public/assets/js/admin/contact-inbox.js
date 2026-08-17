@@ -249,7 +249,7 @@ async function openChat(id) {
     $('#inboxChat').removeClass('hidden').addClass('flex');
 
     /* Show a loading state in the thread so the click feels instant. */
-    $('#inboxReply').val('').prop('disabled', true);
+    $('#inboxReply').val('').prop('disabled', true).css('height', '');
     $('#inboxThread').html(`
         <div class="flex h-full min-h-40 flex-col items-center justify-center gap-3 text-center">
             <span class="spinner spinner-sm" aria-hidden="true"></span>
@@ -281,7 +281,8 @@ async function openChat(id) {
         }
 
         $('#inboxStatusSelect').val(s.status);
-        $('#inboxReply').prop('disabled', false);
+        $('#inboxReply').val('').prop('disabled', false).css('height', '');
+        autoGrowReply();
 
         renderThread(data);
         refreshListHighlight();
@@ -366,6 +367,12 @@ function refreshListHighlight() {
 }
 
 /* ---------- actions ---------- */
+function autoGrowReply() {
+    const $el = $('#inboxReply');
+    $el.css('height', 'auto');
+    $el.css('height', Math.max(52, $el[0].scrollHeight) + 'px');
+}
+
 async function sendReply() {
     const $input = $('#inboxReply');
     const body = $input.val().trim();
@@ -385,6 +392,8 @@ async function sendReply() {
         const { data } = await axios.post(`/admin/contact-inbox/${state.currentId}/reply`, { body });
 
         $input.val('');
+        $input.css('height', '');
+        autoGrowReply();
         $('#inboxStatusSelect').val(data.status);
         appendAdminBubble(data.reply);
         updateBadge();
@@ -586,6 +595,7 @@ $(function () {
 
     // Reply
     $('#inboxReplyBtn').on('click', sendReply);
+    $('#inboxReply').on('input', autoGrowReply);
     $('#inboxReply').on('keydown', function (e) {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
