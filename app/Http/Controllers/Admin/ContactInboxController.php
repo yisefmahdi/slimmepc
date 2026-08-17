@@ -276,6 +276,20 @@ class ContactInboxController extends Controller
     }
 
     /**
+     * Stream an attachment that arrived inside an inbound customer reply.
+     */
+    public function replyAttachment(ContactReply $contactReply): StreamedResponse
+    {
+        abort_unless($contactReply->attachment, 404);
+
+        $path = 'contact/'.$contactReply->contact_submission_id.'/'.$contactReply->attachment;
+
+        abort_unless(Storage::disk('local')->exists($path), 404);
+
+        return Storage::disk('local')->download($path, Str::afterLast($contactReply->attachment, '/'));
+    }
+
+    /**
      * Current number of new (unseen) submissions — used for the sidebar badge.
      */
     public function newCount(): JsonResponse

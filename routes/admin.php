@@ -101,6 +101,9 @@ Route::prefix('admin')
                 Route::get('/{contactSubmission}/attachment', [ContactInboxController::class, 'attachment'])
                     ->name('attachment');
 
+                Route::get('/reply/{contactReply}/attachment', [ContactInboxController::class, 'replyAttachment'])
+                    ->name('reply.attachment');
+
                 Route::delete('/{contactSubmission}', [ContactInboxController::class, 'destroy'])
                     ->name('destroy');
             });

@@ -132,6 +132,33 @@ it('marks a thread as read when the admin opens it and clears the unread badge',
     expect($submission->fresh()->unreadCount())->toBe(0);
 });
 
+it('streams an attachment attached to an inbound reply and exposes it in the thread', function () {
+    disableInboundImap();
+    Storage::fake('local');
+
+    $submission = ContactSubmission::create(validContactPayload(['name' => 'Met bijlage']));
+    $reply = \App\Models\ContactReply::create([
+        'contact_submission_id' => $submission->id,
+        'sender' => 'customer',
+        'body' => 'Zie bijlage',
+        'attachment' => 'inbound/schema.png',
+        'source' => 'inbound',
+    ]);
+
+    Storage::disk('local')->put('contact/'.$submission->id.'/inbound/schema.png', 'fake-image-bytes');
+
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    $this->actingAs($admin)
+        ->get('/admin/contact-inbox/reply/'.$reply->id.'/attachment')
+        ->assertOk()
+        ->assertDownload('schema.png');
+
+    $this->actingAs($admin)
+        ->getJson('/admin/contact-inbox/'.$submission->id)
+        ->assertJsonPath('replies.0.attachment', 'inbound/schema.png');
+});
+
 it('sorts the list by latest activity and exposes the last message + unread count', function () {
     disableInboundImap();
 

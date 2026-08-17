@@ -311,7 +311,7 @@ function renderThread(data) {
                         : 'rounded-bl-md bg-slate-100 dark:bg-slate-800'}"
                          style="${isAdmin ? '' : 'color: var(--c-heading)'}">
                         ${esc(reply.body).replace(/\n/g, '<br>')}
-                        ${hasFile ? `<p class="mt-2 text-xs opacity-80">📎 ${esc(reply.attachment)}</p>` : ''}
+                        ${hasFile ? attachmentHtml(reply) : ''}
                     </div>
                     <p class="mt-1 text-[10px] ${isAdmin ? 'text-end' : ''}" style="color: var(--c-muted)">
                         ${isAdmin ? 'Jij' : esc(s.name)} • ${formatDateTime(reply.created_at)}
@@ -321,6 +321,27 @@ function renderThread(data) {
             </div>
         `;
     };
+
+    function attachmentHtml(reply) {
+        const name = (reply.attachment || '').split('/').pop() || '';
+        if (!name) return '';
+        const url = `/admin/contact-inbox/reply/${reply.id}/attachment`;
+        const isImage = /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(name);
+
+        if (isImage) {
+            return `<a href="${url}" target="_blank" rel="noopener" class="mt-2.5 block" title="Open: ${esc(name)}">
+                <img src="${url}" alt="${esc(name)}" class="max-h-44 w-auto rounded-xl border border-white/20 bg-white/10 object-contain shadow-sm">
+            </a>`;
+        }
+
+        return `<a href="${url}" download="${esc(name)}"
+                class="mt-2.5 inline-flex max-w-full items-center gap-2 rounded-lg border bg-white/10 px-3 py-2 text-xs font-semibold text-slate-100 shadow-sm transition hover:border-white/40 hover:bg-white/20">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-4 w-4 shrink-0">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" />
+                </svg>
+                <span class="truncate">${esc(name)}</span>
+            </a>`;
+    }
 
     const original = `
         <div class="flex justify-start">
