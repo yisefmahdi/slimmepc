@@ -159,6 +159,104 @@ it('streams an attachment attached to an inbound reply and exposes it in the thr
         ->assertJsonPath('replies.0.attachment', 'inbound/schema.png');
 });
 
+it('stores inbound reply attachments (PDF + inline image) and strips [image:] placeholders from the body', function () {
+    disableInboundImap();
+    Storage::fake('local');
+
+    $pdf = base64_encode('%PDF-1.4 fake pdf content');
+    $png = base64_encode("\x89PNG\r\n\x1a\nfake-png-bytes");
+
+    $mime = "From: klant@voorbeeld.nl\r\n"
+        ."To: slimmepc+reply-999@example.com\r\n"
+        ."Subject: Re: help\r\n"
+        ."Message-ID: <pdf-test-1@voorbeeld.nl>\r\n"
+        ."Date: ".now()->format('r')."\r\n"
+        ."MIME-Version: 1.0\r\n"
+        ."Content-Type: multipart/mixed; boundary=\"BOUNDARY123\"\r\n"
+        ."\r\n"
+        ."--BOUNDARY123\r\n"
+        ."Content-Type: text/plain; charset=\"UTF-8\"\r\n"
+        ."\r\n"
+        ."Hallo, hierbij de foto.\r\n"
+        ."[image: ed84c59d-6bc0-4b32-a220-dd77621048da.jpg]\r\n"
+        ."En de offerte.\r\n"
+        ."--BOUNDARY123\r\n"
+        ."Content-Type: image/jpeg; name=\"foto.jpg\"\r\n"
+        ."Content-Disposition: inline; filename=\"foto.jpg\"\r\n"
+        ."Content-ID: <ed84c59d-6bc0-4b32-a220-dd77621048da@example.com>\r\n"
+        ."Content-Transfer-Encoding: base64\r\n"
+        ."\r\n"
+        .$png."\r\n"
+        ."--BOUNDARY123\r\n"
+        ."Content-Type: application/pdf; name=\"offerte.pdf\"\r\n"
+        ."Content-Disposition: attachment; filename=\"offerte.pdf\"\r\n"
+        ."Content-Transfer-Encoding: base64\r\n"
+        ."\r\n"
+        .$pdf."\r\n"
+        ."--BOUNDARY123--";
+
+    $message = \Webklex\PHPIMAP\Message::fromString($mime);
+
+    expect($message->getAttachments()->count())->toBe(2);
+
+    $fetcher = app(InboundContactFetcher::class);
+    $method = new ReflectionMethod($fetcher, 'appendReply');
+    $submission = ContactSubmission::create(validContactPayload(['name' => 'Bijlage uit e-mail']));
+
+    $method->invoke($fetcher, $message, $submission);
+
+    $reply = $submission->fresh()->replies->first();
+
+    expect($reply)->not->toBeNull();
+    // Only the first storable attachment (the inline image) is kept — the
+    // [image:] placeholder is gone from the body.
+    expect($reply->body)->not->toContain('[image:');
+    expect($reply->attachment)->toBe('inbound/foto.jpg');
+    expect(Storage::disk('local')->exists('contact/'.$submission->id.'/inbound/foto.jpg'))->toBeTrue();
+});
+
+it('keeps only the PDF attachment when an e-mail has no inline image', function () {
+    disableInboundImap();
+    Storage::fake('local');
+
+    $pdf = base64_encode('%PDF-1.4 fake pdf content');
+
+    $mime = "From: klant@voorbeeld.nl\r\n"
+        ."To: slimmepc+reply-998@example.com\r\n"
+        ."Subject: Re: offerte\r\n"
+        ."Message-ID: <pdf-test-2@voorbeeld.nl>\r\n"
+        ."Date: ".now()->format('r')."\r\n"
+        ."MIME-Version: 1.0\r\n"
+        ."Content-Type: multipart/mixed; boundary=\"B2\"\r\n"
+        ."\r\n"
+        ."--B2\r\n"
+        ."Content-Type: text/plain; charset=\"UTF-8\"\r\n"
+        ."\r\n"
+        ."Hierbij de offerte.\r\n"
+        ."--B2\r\n"
+        ."Content-Type: application/pdf; name=\"offerte.pdf\"\r\n"
+        ."Content-Disposition: attachment; filename=\"offerte.pdf\"\r\n"
+        ."Content-Transfer-Encoding: base64\r\n"
+        ."\r\n"
+        .$pdf."\r\n"
+        ."--B2--";
+
+    $message = \Webklex\PHPIMAP\Message::fromString($mime);
+
+    expect($message->getAttachments()->count())->toBe(1);
+
+    $fetcher = app(InboundContactFetcher::class);
+    $method = new ReflectionMethod($fetcher, 'appendReply');
+    $submission = ContactSubmission::create(validContactPayload(['name' => 'PDF uit e-mail']));
+
+    $method->invoke($fetcher, $message, $submission);
+
+    $reply = $submission->fresh()->replies->first();
+
+    expect($reply->attachment)->toBe('inbound/offerte.pdf');
+    expect(Storage::disk('local')->exists('contact/'.$submission->id.'/inbound/offerte.pdf'))->toBeTrue();
+});
+
 it('sorts the list by latest activity and exposes the last message + unread count', function () {
     disableInboundImap();
 

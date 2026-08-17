@@ -310,7 +310,7 @@ function renderThread(data) {
                         ? 'rounded-br-md bg-gradient-to-r from-[#075be8] to-[#064bd7] text-white'
                         : 'rounded-bl-md bg-slate-100 dark:bg-slate-800'}"
                          style="${isAdmin ? '' : 'color: var(--c-heading)'}">
-                        ${esc(reply.body).replace(/\n/g, '<br>')}
+                        ${reply.body && reply.body !== '(Geen tekst)' ? `<div>${esc(reply.body).replace(/\n/g, '<br>')}</div>` : ''}
                         ${hasFile ? attachmentHtml(reply) : ''}
                     </div>
                     <p class="mt-1 text-[10px] ${isAdmin ? 'text-end' : ''}" style="color: var(--c-muted)">

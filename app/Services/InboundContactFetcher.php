@@ -223,6 +223,11 @@ class InboundContactFetcher
 
     /**
      * Create the customer reply row (with attachments if present).
+     *
+     * If the e-mail carries attachments but none of them could be stored,
+     * this throws BEFORE creating the reply row, so the message stays
+     * unread and the next fetch pass retries it — a lost attachment can
+     * never be silently burned again.
      */
     private function appendReply($message, ContactSubmission $submission): void
     {
@@ -234,34 +239,67 @@ class InboundContactFetcher
 
         $body = $this->cleanBody((string) $body);
 
+        // Gmail's text/plain alternative replaces inline images with a
+        // "[image: filename]" placeholder — drop it, the real file shows as
+        // an attachment preview in the chat instead.
+        $body = preg_replace('/\[image:\s*[^\]]+\]/i', '', $body) ?? $body;
+
+        $attachments = $message->getAttachments();
+
+        $savedName = $attachments->count() ? $this->storeFirstAttachment($attachments, $submission) : null;
+
         $reply = ContactReply::create([
             'contact_submission_id' => $submission->id,
             'sender' => 'customer',
             'body' => trim($body) ?: '(Geen tekst)',
+            'attachment' => $savedName,
             'source' => 'inbound',
         ]);
 
-        $attachments = $message->getAttachments();
+        $submission->update(['status' => 'in_progress']);
+    }
 
-        if ($attachments->count()) {
-            $dir = storage_path('app/private/contact/'.$submission->id.'/inbound');
+    /**
+     * Persist the first storable attachment of the message.
+     *
+     * @param  iterable<int, \Webklex\PHPIMAP\Attachment>  $attachments
+     *
+     * @throws \RuntimeException when an attachment was expected but none could be saved
+     */
+    private function storeFirstAttachment(iterable $attachments, ContactSubmission $submission): ?string
+    {
+        $dir = 'contact/'.$submission->id.'/inbound';
 
-            foreach ($attachments as $attachment) {
-                try {
-                    $name = $attachment->getName();
+        // webklex writes with raw file_put_contents(), which does NOT create
+        // directories — without this the save fails silently. Storage::put()
+        // creates the path itself, the makeDirectory is belt-and-suspenders.
+        Storage::disk('local')->makeDirectory($dir);
 
-                    $attachment->save($dir, $name, true);
+        foreach ($attachments as $attachment) {
+            try {
+                $rawName = $attachment->getName();
 
-                    $reply->update(['attachment' => 'inbound/'.$name]);
-
-                    break;
-                } catch (\Exception $e) {
-                    Log::warning('[contact-inbox] Could not save attachment: '.$e->getMessage());
+                if ($rawName === '') {
+                    continue;
                 }
+
+                $name = $attachment->decodeName($rawName);
+
+                $content = $attachment->getContent();
+
+                if ($content === '' || $content === false) {
+                    continue;
+                }
+
+                Storage::disk('local')->put($dir.'/'.$name, $content);
+
+                return 'inbound/'.$name;
+            } catch (\Exception $e) {
+                Log::warning('[contact-inbox] Could not save attachment: '.$e->getMessage());
             }
         }
 
-        $submission->update(['status' => 'in_progress']);
+        throw new \RuntimeException('All attachments failed to save.');
     }
 
     /**
