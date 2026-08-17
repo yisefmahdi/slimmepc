@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
@@ -52,11 +53,27 @@ class ContactInboxController extends Controller
 
         $paginator = $query
             ->withCount('replies')
+            ->withMax('replies', 'created_at')
+            ->with('replies')
+            ->orderByDesc('replies_max_created_at')
             ->orderByDesc('created_at')
             ->paginate($perPage, [
                 'id', 'name', 'email', 'phone', 'subject', 'request_type',
-                'message', 'attachment', 'status', 'ip_address', 'created_at',
+                'message', 'attachment', 'status', 'admin_read_at', 'ip_address', 'created_at',
             ]);
+
+        foreach ($paginator->items() as $row) {
+            $last = $row->replies->sortByDesc('created_at')->first();
+
+            $row->last_message = $last ? [
+                'body' => $last->body,
+                'sender' => $last->sender,
+                'source' => $last->source,
+                'created_at' => $last->created_at->toIso8601String(),
+            ] : null;
+
+            $row->unread = $row->unreadCount();
+        }
 
         return response()->json([
             'data' => $paginator->items(),
@@ -71,14 +88,38 @@ class ContactInboxController extends Controller
     }
 
     /**
-     * Current new/total submission counts.
+     * Current new/total/unread submission counts.
      */
     private function counts(): array
     {
         return [
             'new' => ContactSubmission::where('status', 'new')->count(),
             'total' => ContactSubmission::count(),
+            'unread' => $this->unreadTotal(),
         ];
+    }
+
+    /**
+     * Total number of customer-side messages the admin has not seen yet,
+     * across all threads (customer replies + never-opened original messages).
+     */
+    private function unreadTotal(): int
+    {
+        $customerReplies = DB::table('contact_replies')
+            ->join('contact_submissions', 'contact_replies.contact_submission_id', '=', 'contact_submissions.id')
+            ->where('contact_replies.sender', 'customer')
+            ->where(function ($q) {
+                $q->whereNull('contact_submissions.admin_read_at')
+                    ->orWhereColumn('contact_replies.created_at', '>', 'contact_submissions.admin_read_at');
+            })
+            ->count();
+
+        $originals = ContactSubmission::where(function ($q) {
+            $q->whereNull('admin_read_at')
+                ->orWhereColumn('created_at', '>', 'admin_read_at');
+        })->count();
+
+        return $customerReplies + $originals;
     }
 
     /**
@@ -87,6 +128,9 @@ class ContactInboxController extends Controller
     public function show(ContactSubmission $contactSubmission): JsonResponse
     {
         $contactSubmission->load('replies');
+
+        // Opening the thread counts as reading it.
+        $contactSubmission->update(['admin_read_at' => now()]);
 
         return response()->json([
             'submission' => $contactSubmission->only([

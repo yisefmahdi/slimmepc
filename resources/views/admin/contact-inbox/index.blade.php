@@ -12,6 +12,9 @@
             <span class="rounded-full bg-red-50 px-3 py-1.5 font-bold text-red-600 dark:bg-red-900/30 dark:text-red-400" id="inboxCountNew">
                 Nieuw: 0
             </span>
+            <span class="hidden rounded-full bg-amber-50 px-3 py-1.5 font-bold text-amber-600 dark:bg-amber-900/30 dark:text-amber-400" id="inboxCountUnread">
+                Ongelezen: 0
+            </span>
             <span class="rounded-full bg-blue-50 px-3 py-1.5 font-bold text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" id="inboxCountTotal">
                 Totaal: 0
             </span>
@@ -50,7 +53,7 @@
     </div>
 
     {{-- Main: list + chat --}}
-    <div class="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
+    <div class="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,18rem)_minmax(0,1fr)]">
 
         {{-- ============ Left: list ============ --}}
         <x-admin.card class="h-fit lg:h-[calc(100vh-14rem)] lg:overflow-hidden">

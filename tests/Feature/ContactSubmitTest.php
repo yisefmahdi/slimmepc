@@ -113,8 +113,71 @@ it('sync endpoint pulls inbound replies (no IMAP configured) and returns counts'
     $this->actingAs($admin)
         ->postJson('/admin/contact-inbox/sync')
         ->assertOk()
-        ->assertJsonStructure(['counts' => ['new', 'total']])
-        ->assertJsonPath('counts.new', 1);
+        ->assertJsonStructure(['counts' => ['new', 'total', 'unread']])
+        ->assertJsonPath('counts.new', 1)
+        ->assertJsonPath('counts.unread', 1);
+});
+
+it('marks a thread as read when the admin opens it and clears the unread badge', function () {
+    disableInboundImap();
+
+    $submission = ContactSubmission::create(validContactPayload());
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    expect($submission->fresh()->unreadCount())->toBe(1);
+
+    $this->actingAs($admin)->getJson("/admin/contact-inbox/{$submission->id}")->assertOk();
+
+    expect($submission->fresh()->admin_read_at)->not->toBeNull();
+    expect($submission->fresh()->unreadCount())->toBe(0);
+});
+
+it('sorts the list by latest activity and exposes the last message + unread count', function () {
+    disableInboundImap();
+
+    $older = ContactSubmission::create(validContactPayload(['name' => 'Oud']));
+    $newer = ContactSubmission::create(validContactPayload(['name' => 'Nieuw']));
+
+    // The "newer" thread gets an activity on "older" (created earlier), so it must rank first.
+    \App\Models\ContactReply::create([
+        'contact_submission_id' => $older->id,
+        'sender' => 'customer',
+        'body' => 'Late reactie op de oudste aanvraag',
+        'source' => 'inbound',
+    ]);
+
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    $this->actingAs($admin)
+        ->getJson('/admin/contact-inbox/data')
+        ->assertOk()
+        ->assertJsonPath('data.0.id', $older->id)
+        ->assertJsonPath('data.0.unread', 2)
+        ->assertJsonPath('data.0.last_message.body', 'Late reactie op de oudste aanvraag')
+        ->assertJsonPath('data.1.unread', 1);
+});
+
+it('strips quoted reply text and signatures from inbound e-mail bodies', function () {
+    $fetcher = new InboundContactFetcher();
+
+    $english = "sdsdfsdsd\n\nOn Sun, Aug 16, 2026 at 11:01 PM slimmepc <yyyooo2004@gmail.com> wrote:\n> slimmepc <http://localhost:8000>\n> Hallo Yousef Ziad Mahdi,\n> ;dt;\n> Met vriendelijke groet,";
+
+    expect($fetcher->cleanBody($english))->toBe('sdsdfsdsd');
+
+    $dutch = "akkoord\n\nOp zo 16 aug 2026 om 23:01 schreef slimmepc <yyyooo2004@gmail.com>:\n> Hallo,\n> lvpfh";
+
+    expect($fetcher->cleanBody($dutch))->toBe('akkoord');
+});
+
+it('keeps Arabic UTF-8 text intact while cleaning quoted bodies', function () {
+    $fetcher = new InboundContactFetcher();
+
+    $arabic = "كيفك\n\nفي الاثنين، 17 أغسطس 2026 في 3:53 م تمت كتابة ما يلي بواسطة slimmepc <yyyooo2004@gmail.com>:\n> مرحبا";
+
+    $clean = $fetcher->cleanBody($arabic);
+
+    expect($clean)->toBe('كيفك');
+    expect(mb_check_encoding($clean, 'UTF-8'))->toBeTrue();
 });
 
 it('runs the inbound fetcher at most once per minute on admin pages', function () {

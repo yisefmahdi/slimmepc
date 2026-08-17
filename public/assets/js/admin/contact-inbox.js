@@ -10,6 +10,7 @@ const state = {
     deletingId: null,
     replyLoading: false,
     searchTimer: null,
+    unreadTotal: null,
 };
 
 /* ---------- helpers ---------- */
@@ -119,6 +120,15 @@ async function load() {
 function renderCounts(counts) {
     $('#inboxCountNew').text('Nieuw: ' + counts.new);
     $('#inboxCountTotal').text('Totaal: ' + counts.total);
+
+    const $unread = $('#inboxCountUnread');
+    if (counts.unread > 0) {
+        $unread.removeClass('hidden').text('Ongelezen: ' + counts.unread);
+    } else {
+        $unread.addClass('hidden');
+    }
+
+    state.unreadTotal = counts.unread;
 }
 
 function renderList(rows) {
@@ -139,27 +149,39 @@ function renderList(rows) {
         return;
     }
 
-    $el.html(rows.map((s) => `
+    $el.html(rows.map((s) => {
+        const last = s.last_message;
+        const preview = last
+            ? (last.sender === 'admin' ? 'Jij: ' : '') + last.body
+            : s.message;
+        const time = last ? last.created_at : s.created_at;
+        const unread = parseInt(s.unread, 10) || 0;
+
+        return `
         <button type="button" data-inbox-open="${s.id}"
-                class="group flex w-full items-start gap-3 border-b px-6 py-4 text-start transition hover:bg-blue-50/50 dark:hover:bg-slate-800/40 ${state.currentId === s.id ? 'bg-blue-50/60 dark:bg-slate-800/60' : ''}"
+                class="group flex w-full items-start gap-3 border-b px-4 py-3.5 text-start transition hover:bg-blue-50/50 dark:hover:bg-slate-800/40 ${state.currentId === s.id ? 'bg-blue-50/60 dark:bg-slate-800/60' : ''}"
                 style="border-color: rgba(148, 163, 184, 0.12)">
-            <span class="relative mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-[#075be8] to-[#064bd7] text-sm font-bold text-white">
+            <span class="relative mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-[#075be8] to-[#064bd7] text-sm font-bold text-white">
                 ${initial(s.name)}
-                ${s.status === 'new' ? '<span class="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-slate-900"></span>' : ''}
+                ${s.status === 'new' && unread > 0 ? '<span class="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-slate-900"></span>' : ''}
             </span>
             <span class="min-w-0 flex-1">
-                <span class="flex items-baseline justify-between gap-3">
-                    <span class="truncate text-sm font-bold" style="color: var(--c-heading)">${esc(s.name)}</span>
-                    <span class="shrink-0 text-[11px] font-medium" style="color: var(--c-muted)">${formatDate(s.created_at)}</span>
+                <span class="flex items-baseline justify-between gap-2">
+                    <span class="truncate text-sm font-bold ${unread ? '' : 'font-semibold'}" style="color: var(--c-heading)">${esc(s.name)}</span>
+                    <span class="shrink-0 text-[10px] font-medium" style="color: var(--c-muted)">${formatDate(time)}</span>
                 </span>
-                <span class="mt-0.5 flex items-center gap-2">
-                    <span class="truncate text-xs font-semibold" style="color: var(--c-muted)">${esc(subjectLabel(s.subject))}</span>
+                <span class="mt-0.5 flex items-center justify-between gap-2">
+                    <span class="truncate text-[11px] font-semibold" style="color: var(--c-muted)">${esc(subjectLabel(s.subject))}</span>
                     ${statusBadge(s.status)}
                 </span>
-                <span class="mt-1 block truncate text-xs" style="color: var(--c-muted)">${snippet(s.message)}</span>
+                <span class="mt-1 flex items-center justify-between gap-2">
+                    <span class="truncate text-xs ${unread ? 'font-bold' : ''}" style="color: var(--c-muted)">${snippet(preview, 55)}</span>
+                    ${unread ? `<span class="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold leading-none text-white">${unread > 99 ? '99+' : unread}</span>` : ''}
+                </span>
             </span>
         </button>
-    `).join(''));
+        `;
+    }).join(''));
 }
 
 function renderPagination(pag) {
@@ -411,9 +433,43 @@ async function updateBadge() {
 }
 
 /* ---------- inbound sync (30s poll) ---------- */
+function playNotificationSound() {
+    try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return;
+
+        const ctx = new Ctx();
+        if (ctx.state === 'suspended') ctx.resume();
+
+        const beep = (freq, start, dur) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            gain.gain.setValueAtTime(0.0001, ctx.currentTime + start);
+            gain.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + start + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + start + dur);
+            osc.start(ctx.currentTime + start);
+            osc.stop(ctx.currentTime + start + dur);
+        };
+
+        beep(880, 0, 0.18);
+        beep(1174.66, 0.22, 0.22);
+    } catch (error) {
+        // sound is optional
+    }
+}
+
 async function syncInbound() {
     try {
         const { data } = await axios.post('/admin/contact-inbox/sync');
+
+        // New unread messages arrived while the page was open → notify.
+        if (state.unreadTotal !== null && data.counts.unread > state.unreadTotal) {
+            playNotificationSound();
+        }
 
         renderCounts(data.counts);
 

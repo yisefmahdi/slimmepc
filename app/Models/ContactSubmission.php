@@ -22,6 +22,7 @@ class ContactSubmission extends Model
         'message',
         'attachment',
         'status',
+        'admin_read_at',
         'ip_address',
     ];
 
@@ -35,6 +36,7 @@ class ContactSubmission extends Model
         return [
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
+            'admin_read_at' => 'datetime',
         ];
     }
 
@@ -60,6 +62,29 @@ class ContactSubmission extends Model
     public function scopeNew($query)
     {
         return $query->where('status', 'new');
+    }
+
+    /**
+     * How many customer-side messages the admin has not seen yet.
+     *
+     * `admin_read_at` = "everything up to this moment was seen". Any customer
+     * reply created after it (or the original message, if the thread was never
+     * opened) counts as unread.
+     */
+    public function unreadCount(): int
+    {
+        $since = $this->admin_read_at;
+
+        $customerReplies = $this->replies
+            ->where('sender', 'customer')
+            ->when($since, fn ($collection) => $collection->filter(
+                fn (ContactReply $reply) => $reply->created_at->gt($since)
+            ))
+            ->count();
+
+        $originalUnread = ($since && $this->created_at->lte($since)) ? 0 : 1;
+
+        return $customerReplies + $originalUnread;
     }
 
     /**
