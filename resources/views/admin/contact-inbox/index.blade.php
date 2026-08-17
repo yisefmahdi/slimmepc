@@ -1,9 +1,9 @@
 <x-admin.layout title="Inbox">
     {{-- App shell: fills the viewport below the admin header, no page scroll --}}
-    <div class="inbox-app flex h-[calc(100dvh-9rem)] min-h-[26rem] flex-col overflow-hidden">
+    <div class="inbox-app flex h-[calc(100dvh-6.5rem)] min-h-[24rem] flex-col overflow-hidden lg:h-[calc(100dvh-9rem)] lg:min-h-[26rem]">
 
         {{-- Slim header --}}
-        <div class="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-2">
+        <div class="mb-4 flex shrink-0 flex-wrap items-center justify-between gap-x-2 gap-y-2">
             <div>
                 <h2 class="text-base font-extrabold tracking-tight sm:text-lg" style="color: var(--c-heading)">Inbox</h2>
                 <p class="mt-0.5 text-xs" style="color: var(--c-muted)">Contactaanvragen met chatgeschiedenis per bericht.</p>
@@ -97,8 +97,8 @@
                 <div id="inboxChat" class="hidden min-h-0 flex-1 flex-col">
 
                     {{-- Chat header --}}
-                    <div class="shrink-0 border-b px-4 py-3 sm:px-5" style="border-color: rgba(148, 163, 184, 0.15)">
-                        <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="shrink-0 border-b px-4 py-3.5 sm:px-5" style="border-color: rgba(148, 163, 184, 0.15)">
+                        <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-2.5">
                             <div class="flex min-w-0 items-center gap-3">
                                 <button type="button" id="inboxBackBtn"
                                         class="rounded-lg p-2 transition hover:bg-blue-50 hover:text-blue-600 lg:hidden dark:hover:bg-blue-900/30" style="color: var(--c-muted)">
@@ -141,7 +141,7 @@
                         </div>
 
                         {{-- Compact meta chips --}}
-                        <div class="mt-3 flex flex-wrap items-center gap-1.5 text-[11px]">
+                        <div class="mt-3 flex flex-wrap items-center gap-2 text-[11px]">
                             <span class="inline-flex items-center gap-1.5 rounded-md border px-2 py-1 font-semibold" style="border-color: rgba(148, 163, 184, 0.15); color: var(--c-heading)">
                                 Onderwerp: <span id="inboxSubject" class="font-bold">—</span>
                             </span>
@@ -158,10 +158,10 @@
                     </div>
 
                     {{-- Thread (scrolls) --}}
-                    <div id="inboxThread" class="inbox-scroll min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4 sm:px-6"></div>
+                    <div id="inboxThread" class="inbox-scroll min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-5 sm:px-6"></div>
 
                     {{-- Reply box --}}
-                    <div class="shrink-0 border-t px-4 py-3 sm:px-5" style="border-color: rgba(148, 163, 184, 0.15)">
+                    <div class="shrink-0 border-t px-4 py-4 sm:px-5" style="border-color: rgba(148, 163, 184, 0.15)">
                         <div class="flex items-end gap-3">
                             <textarea id="inboxReply" rows="2" placeholder="Typ je antwoord hier..."
                                       class="form-input flex-1 resize-none text-sm" style="min-height: 52px"></textarea>
@@ -173,9 +173,6 @@
                                 Versturen
                             </button>
                         </div>
-                        <p class="mt-2 text-[11px]" style="color: var(--c-muted)">
-                            Het antwoord wordt per e-mail naar de klant gestuurd. Reageert de klant per e-mail? Dan verschijnt dat antwoord automatisch in dit gesprek.
-                        </p>
                     </div>
                 </div>
             </div>

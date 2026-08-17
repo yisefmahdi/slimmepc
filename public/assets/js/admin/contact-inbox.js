@@ -177,7 +177,7 @@ function renderList(rows) {
 
         return `
         <button type="button" data-inbox-open="${s.id}"
-                class="group flex w-full items-start gap-3 border-b px-4 py-3.5 text-start transition hover:bg-blue-50/50 dark:hover:bg-slate-800/40 ${state.currentId === s.id ? 'bg-blue-50/60 dark:bg-slate-800/60' : ''}"
+                class="group flex w-full items-start gap-3 border-b px-4 py-4 text-start transition hover:bg-blue-50/50 dark:hover:bg-slate-800/40 ${state.currentId === s.id ? 'bg-blue-50/60 dark:bg-slate-800/60' : ''}"
                 style="border-color: rgba(148, 163, 184, 0.12)">
             <span class="relative mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-[#075be8] to-[#064bd7] text-sm font-bold text-white">
                 ${initial(s.name)}
