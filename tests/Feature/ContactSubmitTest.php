@@ -180,6 +180,19 @@ it('keeps Arabic UTF-8 text intact while cleaning quoted bodies', function () {
     expect(mb_check_encoding($clean, 'UTF-8'))->toBeTrue();
 });
 
+it('renders the inbox page as a two-pane chat shell', function () {
+    disableInboundImap();
+
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    $this->actingAs($admin)
+        ->get('/admin/contact-inbox')
+        ->assertOk()
+        ->assertSee('id="inboxListPane"', false)
+        ->assertSee('id="inboxChatPane"', false)
+        ->assertSee('id="inboxThread"', false);
+});
+
 it('runs the inbound fetcher at most once per minute on admin pages', function () {
     disableInboundImap();
 

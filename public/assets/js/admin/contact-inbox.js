@@ -11,7 +11,25 @@ const state = {
     replyLoading: false,
     searchTimer: null,
     unreadTotal: null,
+    mobileChatOpen: false,
 };
+
+/* True below the lg breakpoint (single-pane mobile chat). */
+function isMobile() {
+    return window.matchMedia('(max-width: 1023.98px)').matches;
+}
+
+function showListPane() {
+    state.mobileChatOpen = false;
+    $('#inboxListPane').removeClass('hidden');
+    $('#inboxChatPane').addClass('hidden').removeClass('flex');
+}
+
+function showChatPane() {
+    state.mobileChatOpen = true;
+    $('#inboxListPane').addClass('hidden');
+    $('#inboxChatPane').removeClass('hidden').addClass('flex');
+}
 
 /* ---------- helpers ---------- */
 function esc(value) {
@@ -192,37 +210,24 @@ function renderPagination(pag) {
         return;
     }
 
-    const windowSize = 3;
-    let start = Math.max(1, pag.current - windowSize);
-    let end = Math.min(pag.last, pag.current + windowSize);
-    if (end - start < windowSize * 2) {
-        start = Math.max(1, end - (windowSize * 2));
-    }
-
-    const pages = [];
-    for (let i = start; i <= end; i++) pages.push(i);
-
-    const btn = (label, page, disabled = false, active = false) => `
+    const btn = (label, page, disabled = false, arrow = false) => `
         <button type="button" data-inbox-page="${page}" ${disabled ? 'disabled' : ''}
-                class="inline-flex h-10 min-w-10 items-center justify-center rounded-xl px-3 text-sm font-semibold transition
-                       ${active
-                            ? 'bg-gradient-to-r from-[#075be8] to-[#064bd7] text-white shadow-[0_8px_20px_rgba(0,91,234,0.3)]'
-                            : disabled
-                                ? 'cursor-not-allowed opacity-40'
-                                : 'border hover:border-blue-300 hover:text-blue-600 dark:hover:border-blue-500/50'}
-                       " style="${active ? '' : 'border-color: rgba(148, 163, 184, 0.25); color: var(--c-heading)'}">
-            ${label}
+                class="inline-flex h-8 min-w-8 items-center justify-center rounded-lg px-2 text-xs font-bold transition
+                       ${disabled ? 'cursor-not-allowed opacity-40' : 'hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/30'}"
+                       style="color: var(--c-heading); border-color: rgba(148, 163, 184, 0.25)">
+            ${arrow ? `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="${label === 'Vorige' ? 'M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18' : 'm13.5 4.5 7.5 7.5-7.5 7.5M21 12H3'}" />
+            </svg>` : label}
         </button>`;
 
     $el.html(`
-        <div class="flex flex-wrap items-center justify-between gap-3">
-            <p class="text-xs" style="color: var(--c-muted)">
-                ${pag.total} aanvragen — pagina ${pag.current} van ${pag.last}
+        <div class="flex items-center justify-between gap-2">
+            <p class="text-[11px]" style="color: var(--c-muted)">
+                ${pag.total} · ${pag.current}/${pag.last}
             </p>
-            <div class="flex flex-wrap items-center gap-2">
-                ${btn('Vorige', pag.current - 1, pag.current <= 1)}
-                ${pages.map((p) => btn(p, p, false, p === pag.current)).join('')}
-                ${btn('Volgende', pag.current + 1, pag.current >= pag.last)}
+            <div class="flex items-center gap-1.5">
+                ${btn('Vorige', pag.current - 1, pag.current <= 1, true)}
+                ${btn('Volgende', pag.current + 1, pag.current >= pag.last, true)}
             </div>
         </div>
     `);
@@ -234,6 +239,8 @@ async function openChat(id) {
         const { data } = await axios.get(`/admin/contact-inbox/${id}`);
         const s = data.submission;
         state.currentId = id;
+
+        if (isMobile()) showChatPane();
 
         $('#inboxChatEmpty').addClass('hidden');
         $('#inboxChat').removeClass('hidden').addClass('flex');
@@ -404,6 +411,7 @@ async function confirmDelete() {
             state.currentId = null;
             $('#inboxChat').addClass('hidden').removeClass('flex');
             $('#inboxChatEmpty').removeClass('hidden');
+            if (isMobile()) showListPane();
         }
 
         state.deletingId = null;
@@ -546,6 +554,7 @@ $(function () {
     $('#inboxBackBtn').on('click', function () {
         $('#inboxChat').addClass('hidden').removeClass('flex');
         $('#inboxChatEmpty').removeClass('hidden');
+        if (isMobile()) showListPane();
     });
 
     // Status select
