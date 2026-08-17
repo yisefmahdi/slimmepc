@@ -19,6 +19,7 @@ class ContactReplyMail extends Mailable
         public ContactSubmission $submission,
         public string $replyBody,
         public string $adminName,
+        public ?string $attachment = null,
     ) {
     }
 
@@ -43,6 +44,29 @@ class ContactReplyMail extends Mailable
         $from = config('mail.from.address', 'info@slimme-pc.nl');
 
         return preg_replace('/@/', '+reply-'.$this->submission->id.'@', $from, 1) ?? $from;
+    }
+
+    /**
+     * Attach the file the admin added from the dashboard (if any).
+     *
+     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     */
+    public function attachments(): array
+    {
+        if (! $this->attachment) {
+            return [];
+        }
+
+        $path = storage_path('app/private/contact/'.$this->submission->id.'/'.$this->attachment);
+
+        if (! is_file($path)) {
+            return [];
+        }
+
+        return [
+            \Illuminate\Mail\Mailables\Attachment::fromPath($path)
+                ->as(\Illuminate\Support\Str::afterLast($this->attachment, '/')),
+        ];
     }
 
     /**

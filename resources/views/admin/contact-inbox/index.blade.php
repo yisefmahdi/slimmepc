@@ -162,9 +162,32 @@
 
                     {{-- Reply box --}}
                     <div class="shrink-0 border-t px-4 py-4 sm:px-5" style="border-color: rgba(148, 163, 184, 0.15)">
-                        <div class="flex items-end gap-3">
+                        <div id="inboxAttachChip" class="mb-3 hidden items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold"
+                             style="border-color: rgba(148, 163, 184, 0.25); color: var(--c-heading)">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-4 w-4 shrink-0">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" />
+                            </svg>
+                            <span id="inboxAttachName" class="truncate"></span>
+                            <span id="inboxAttachSize" class="shrink-0 font-normal" style="color: var(--c-muted)"></span>
+                            <button type="button" id="inboxAttachRemove" title="Bestand verwijderen"
+                                    class="ml-auto shrink-0 rounded-md p-1 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="flex items-end gap-2.5">
                             <textarea id="inboxReply" rows="2" placeholder="Typ je antwoord hier..."
                                       class="form-input flex-1 resize-none text-sm" style="min-height: 52px"></textarea>
+                            <input type="file" id="inboxAttachFile" class="hidden"
+                                   accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx,.txt,.csv">
+                            <button type="button" id="inboxAttachBtn" title="Bestand toevoegen (max 10 MB)"
+                                    class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-slate-800"
+                                    style="border-color: rgba(148, 163, 184, 0.35); color: var(--c-muted)">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" />
+                                </svg>
+                            </button>
                             <button type="button" id="inboxReplyBtn"
                                     class="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#075be8] to-[#064bd7] px-5 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(0,91,234,0.25)] transition duration-300 hover:-translate-y-0.5">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">

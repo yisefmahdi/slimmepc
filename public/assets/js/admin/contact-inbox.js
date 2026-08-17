@@ -9,6 +9,7 @@ const state = {
     currentId: null,
     deletingId: null,
     replyLoading: false,
+    replyAttachmentFile: null,
     searchTimer: null,
     unreadTotal: null,
     mobileChatOpen: false,
@@ -250,6 +251,7 @@ async function openChat(id) {
 
     /* Show a loading state in the thread so the click feels instant. */
     $('#inboxReply').val('').prop('disabled', true).css('height', '');
+    clearReplyAttachment();
     $('#inboxThread').html(`
         <div class="flex h-full min-h-40 flex-col items-center justify-center gap-3 text-center">
             <span class="spinner spinner-sm" aria-hidden="true"></span>
@@ -301,7 +303,7 @@ function renderThread(data) {
 
     const bubble = (reply) => {
         const isAdmin = reply.sender === 'admin';
-        const hasFile = reply.attachment && reply.source === 'inbound';
+        const hasFile = !!reply.attachment;
 
         return `
             <div class="flex ${isAdmin ? 'justify-end' : 'justify-start'}">
@@ -321,27 +323,6 @@ function renderThread(data) {
             </div>
         `;
     };
-
-    function attachmentHtml(reply) {
-        const name = (reply.attachment || '').split('/').pop() || '';
-        if (!name) return '';
-        const url = `/admin/contact-inbox/reply/${reply.id}/attachment`;
-        const isImage = /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(name);
-
-        if (isImage) {
-            return `<a href="${url}" target="_blank" rel="noopener" class="mt-2.5 block" title="Open: ${esc(name)}">
-                <img src="${url}" alt="${esc(name)}" class="max-h-44 w-auto rounded-xl border border-white/20 bg-white/10 object-contain shadow-sm">
-            </a>`;
-        }
-
-        return `<a href="${url}" download="${esc(name)}"
-                class="mt-2.5 inline-flex max-w-full items-center gap-2 rounded-lg border bg-white/10 px-3 py-2 text-xs font-semibold text-slate-100 shadow-sm transition hover:border-white/40 hover:bg-white/20">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-4 w-4 shrink-0">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" />
-                </svg>
-                <span class="truncate">${esc(name)}</span>
-            </a>`;
-    }
 
     const original = `
         <div class="flex justify-start">
@@ -365,12 +346,34 @@ function scrollThreadToBottom() {
     $thread.scrollTop($thread[0].scrollHeight);
 }
 
+function attachmentHtml(reply) {
+    const name = (reply.attachment || '').split('/').pop() || '';
+    if (!name) return '';
+    const url = `/admin/contact-inbox/reply/${reply.id}/attachment`;
+    const isImage = /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(name);
+
+    if (isImage) {
+        return `<a href="${url}" target="_blank" rel="noopener" class="mt-2.5 block" title="Open: ${esc(name)}">
+            <img src="${url}" alt="${esc(name)}" class="max-h-44 w-auto rounded-xl border border-white/20 bg-white/10 object-contain shadow-sm">
+        </a>`;
+    }
+
+    return `<a href="${url}" download="${esc(name)}"
+            class="mt-2.5 inline-flex max-w-full items-center gap-2 rounded-lg border bg-white/10 px-3 py-2 text-xs font-semibold text-slate-100 shadow-sm transition hover:border-white/40 hover:bg-white/20">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-4 w-4 shrink-0">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" />
+            </svg>
+            <span class="truncate">${esc(name)}</span>
+        </a>`;
+}
+
 function appendAdminBubble(reply) {
     $('#inboxThread').append(`
         <div class="flex justify-end">
             <div class="max-w-[85%] sm:max-w-[70%]">
                 <div class="rounded-2xl rounded-br-md bg-gradient-to-r from-[#075be8] to-[#064bd7] px-4 py-3 text-sm leading-relaxed text-white">
-                    ${esc(reply.body).replace(/\n/g, '<br>')}
+                    ${reply.body && reply.body !== '(Geen tekst)' ? `<div>${esc(reply.body).replace(/\n/g, '<br>')}</div>` : ''}
+                    ${reply.attachment ? attachmentHtml(reply) : ''}
                 </div>
                 <p class="mt-1 text-end text-[10px]" style="color: var(--c-muted)">
                     Jij • ${formatDateTime(reply.created_at)}
@@ -397,10 +400,11 @@ function autoGrowReply() {
 async function sendReply() {
     const $input = $('#inboxReply');
     const body = $input.val().trim();
+    const file = state.replyAttachmentFile;
 
     if (!state.currentId) return;
-    if (!body) {
-        window.SlimmePC.toast.error('Typ eerst een antwoord.');
+    if (!body && !file) {
+        window.SlimmePC.toast.error('Typ eerst een antwoord of kies een bestand.');
         $input.focus();
         return;
     }
@@ -410,11 +414,16 @@ async function sendReply() {
     const $btn = $('#inboxReplyBtn').prop('disabled', true).addClass('cursor-not-allowed opacity-70');
 
     try {
-        const { data } = await axios.post(`/admin/contact-inbox/${state.currentId}/reply`, { body });
+        const fd = new FormData();
+        fd.append('body', body);
+        if (file) fd.append('attachment', file, file.name);
+
+        const { data } = await axios.post(`/admin/contact-inbox/${state.currentId}/reply`, fd);
 
         $input.val('');
         $input.css('height', '');
         autoGrowReply();
+        clearReplyAttachment();
         $('#inboxStatusSelect').val(data.status);
         appendAdminBubble(data.reply);
         updateBadge();
@@ -426,6 +435,30 @@ async function sendReply() {
         state.replyLoading = false;
         $btn.prop('disabled', false).removeClass('cursor-not-allowed opacity-70');
     }
+}
+
+function setReplyAttachment(file) {
+    const allowed = /\.(jpg|jpeg|png|webp|pdf|doc|docx|xls|xlsx|txt|csv)$/i;
+    if (!allowed.test(file.name)) {
+        window.SlimmePC.toast.error('Dit bestandstype wordt niet ondersteund.');
+        return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+        window.SlimmePC.toast.error('Het bestand mag maximaal 10 MB zijn.');
+        return;
+    }
+
+    state.replyAttachmentFile = file;
+
+    $('#inboxAttachName').text(file.name);
+    $('#inboxAttachSize').text((file.size / 1024 / 1024).toFixed(2) + ' MB');
+    $('#inboxAttachChip').removeClass('hidden').addClass('flex');
+}
+
+function clearReplyAttachment() {
+    state.replyAttachmentFile = null;
+    $('#inboxAttachFile').val('');
+    $('#inboxAttachChip').addClass('hidden').removeClass('flex');
 }
 
 async function changeStatus(id, status) {
@@ -623,6 +656,15 @@ $(function () {
             sendReply();
         }
     });
+
+    // Attach a file to the reply (image / PDF / doc, max 10 MB)
+    $('#inboxAttachBtn').on('click', function () {
+        $('#inboxAttachFile').trigger('click');
+    });
+    $('#inboxAttachFile').on('change', function () {
+        if (this.files && this.files[0]) setReplyAttachment(this.files[0]);
+    });
+    $('#inboxAttachRemove').on('click', clearReplyAttachment);
 
     // Delete
     $('#inboxDeleteBtn').on('click', function () {

@@ -103,6 +103,46 @@ it('marks a submission as replied and sends the reply e-mail after an admin repl
     Mail::assertSent(\App\Mail\ContactReplyMail::class);
 });
 
+it('stores an attachment sent by the admin from the dashboard', function () {
+    Mail::fake();
+    Storage::fake('local');
+    disableInboundImap();
+
+    $submission = ContactSubmission::create(validContactPayload());
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    $this->actingAs($admin)
+        ->post("/admin/contact-inbox/{$submission->id}/reply", [
+            'body' => 'Hierbij de offerte.',
+            'attachment' => UploadedFile::fake()->create('offerte.pdf', 100, 'application/pdf'),
+        ])
+        ->assertOk()
+        ->assertJsonPath('reply.attachment', fn ($v) => str_starts_with((string) $v, 'outbound/'));
+
+    $reply = $submission->fresh()->replies()->where('sender', 'admin')->first();
+    expect($reply->attachment)->toStartWith('outbound/');
+
+    $files = Storage::disk('local')->allFiles('contact/'.$submission->id.'/outbound');
+    expect($files)->toHaveCount(1);
+    expect(str_ends_with($files[0], '.pdf'))->toBeTrue();
+});
+
+it('attaches the dashboard file to the admin reply e-mail', function () {
+    disableInboundImap();
+
+    $submission = ContactSubmission::create(validContactPayload());
+
+    Storage::disk('local')->put('contact/'.$submission->id.'/outbound/test.pdf', '%PDF');
+
+    $mail = new \App\Mail\ContactReplyMail($submission, 'Hallo', 'Admin', 'outbound/test.pdf');
+
+    $attachments = $mail->attachments();
+    expect($attachments)->toHaveCount(1);
+    expect($attachments[0]->as)->toBe('test.pdf');
+
+    Storage::disk('local')->deleteDirectory('contact/'.$submission->id);
+});
+
 it('sync endpoint pulls inbound replies (no IMAP configured) and returns counts', function () {
     Mail::fake();
     disableInboundImap();
@@ -208,11 +248,12 @@ it('stores inbound reply attachments (PDF + inline image) and strips [image:] pl
     $reply = $submission->fresh()->replies->first();
 
     expect($reply)->not->toBeNull();
-    // Only the first storable attachment (the inline image) is kept — the
+    // Attachment-disposition files win over inline images (a follow-up e-mail
+    // quoting the previous message re-sends the old inline image), and the
     // [image:] placeholder is gone from the body.
     expect($reply->body)->not->toContain('[image:');
-    expect($reply->attachment)->toBe('inbound/foto.jpg');
-    expect(Storage::disk('local')->exists('contact/'.$submission->id.'/inbound/foto.jpg'))->toBeTrue();
+    expect($reply->attachment)->toBe('inbound/offerte.pdf');
+    expect(Storage::disk('local')->exists('contact/'.$submission->id.'/inbound/offerte.pdf'))->toBeTrue();
 });
 
 it('keeps only the PDF attachment when an e-mail has no inline image', function () {

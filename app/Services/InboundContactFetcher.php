@@ -275,7 +275,15 @@ class InboundContactFetcher
         // creates the path itself, the makeDirectory is belt-and-suspenders.
         Storage::disk('local')->makeDirectory($dir);
 
-        foreach ($attachments as $attachment) {
+        // Prefer real attached files (Content-Disposition: attachment) over
+        // inline images: a follow-up e-mail that quotes the previous message
+        // re-sends the old inline image as a MIME part, which would otherwise
+        // show up as a "duplicate" of the first screenshot.
+        $list = is_array($attachments) ? $attachments : iterator_to_array($attachments, false);
+
+        usort($list, fn ($a, $b) => (int) ($a->getDisposition() !== 'attachment') - (int) ($b->getDisposition() !== 'attachment'));
+
+        foreach ($list as $attachment) {
             try {
                 $rawName = $attachment->getName();
 

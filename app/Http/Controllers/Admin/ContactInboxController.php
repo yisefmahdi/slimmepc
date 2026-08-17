@@ -194,13 +194,26 @@ class ContactInboxController extends Controller
     public function reply(Request $request, ContactSubmission $contactSubmission): JsonResponse
     {
         $request->validate([
-            'body' => ['required', 'string', 'min:1', 'max:5000'],
+            'body' => ['required_without:attachment', 'string', 'min:1', 'max:5000'],
+            'attachment' => ['nullable', 'file', 'max:10240', 'mimes:jpg,jpeg,png,webp,pdf,doc,docx,xls,xlsx,txt,csv'],
         ]);
+
+        $attachmentPath = null;
+
+        if ($request->hasFile('attachment') && $request->file('attachment')->isValid()) {
+            $file = $request->file('attachment');
+            $name = Str::uuid().'.'.$file->getClientOriginalExtension();
+
+            $file->storeAs('contact/'.$contactSubmission->id.'/outbound', $name, 'local');
+
+            $attachmentPath = 'outbound/'.$name;
+        }
 
         $reply = ContactReply::create([
             'contact_submission_id' => $contactSubmission->id,
             'sender' => 'admin',
-            'body' => $request->string('body')->toString(),
+            'body' => $request->string('body')->toString() ?: '(Geen tekst)',
+            'attachment' => $attachmentPath,
             'source' => 'dashboard',
         ]);
 
@@ -213,6 +226,7 @@ class ContactInboxController extends Controller
                 $contactSubmission,
                 $reply->body,
                 Auth::user()->name,
+                $attachmentPath,
             ));
 
         return response()->json([
@@ -221,7 +235,7 @@ class ContactInboxController extends Controller
                 'id' => $reply->id,
                 'sender' => 'admin',
                 'body' => $reply->body,
-                'attachment' => null,
+                'attachment' => $reply->attachment,
                 'source' => 'dashboard',
                 'created_at' => $reply->created_at->toIso8601String(),
             ],
