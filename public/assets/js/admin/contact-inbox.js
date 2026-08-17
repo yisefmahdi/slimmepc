@@ -236,16 +236,32 @@ function renderPagination(pag) {
 }
 
 /* ---------- chat ---------- */
+let chatRequestSeq = 0;
+
 async function openChat(id) {
+    const seq = ++chatRequestSeq;
+    state.currentId = id;
+
+    if (isMobile()) showChatPane();
+
+    refreshListHighlight();
+    $('#inboxChatEmpty').addClass('hidden');
+    $('#inboxChat').removeClass('hidden').addClass('flex');
+
+    /* Show a loading state in the thread so the click feels instant. */
+    $('#inboxReply').val('').prop('disabled', true);
+    $('#inboxThread').html(`
+        <div class="flex h-full min-h-40 flex-col items-center justify-center gap-3 text-center">
+            <span class="spinner spinner-sm" aria-hidden="true"></span>
+            <p class="text-xs font-semibold" style="color: var(--c-muted)">Gesprek laden...</p>
+        </div>
+    `);
+
     try {
         const { data } = await axios.get(`/admin/contact-inbox/${id}`);
+        if (seq !== chatRequestSeq) return; /* a newer chat was opened meanwhile */
+
         const s = data.submission;
-        state.currentId = id;
-
-        if (isMobile()) showChatPane();
-
-        $('#inboxChatEmpty').addClass('hidden');
-        $('#inboxChat').removeClass('hidden').addClass('flex');
 
         $('#inboxAvatar').text(initial(s.name));
         $('#inboxName').text(s.name);
@@ -265,12 +281,16 @@ async function openChat(id) {
         }
 
         $('#inboxStatusSelect').val(s.status);
-        $('#inboxReply').val('').prop('disabled', false);
+        $('#inboxReply').prop('disabled', false);
 
         renderThread(data);
         refreshListHighlight();
         load();
     } catch (error) {
+        if (seq !== chatRequestSeq) return;
+        $('#inboxChatEmpty').removeClass('hidden');
+        $('#inboxChat').addClass('hidden').removeClass('flex');
+        $('#inboxReply').prop('disabled', false);
         window.SlimmePC.toast.error('Kon het bericht niet laden.');
     }
 }
