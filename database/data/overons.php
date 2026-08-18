@@ -13,7 +13,7 @@ return [
         'title_line1' => 'Wij repareren niet alleen apparaten.',
         'title_line2' => 'Wij lossen problemen op.',
         'description' => 'Slimme-PC is dé specialist in reparatie, upgrade en onderhoud van computers, laptops, consoles en meer. Met passie voor technologie en oog voor kwaliteit helpen wij jou verder.',
-        'hero_image' => 'assets/img/landing/6F69A001-617B-44CE-B7E9-75C6165A3A4F_1_105_c.jpeg',
+        'hero_image' => 'assets/img/landing/81kelZG3xvereuCNPzQ9aMcoshigTEsgLLcVE7et.jpg',
         'hero_image_alt' => 'Professionele reparatiewerkplaats',
         'trust_points' => [
             ['icon' => 'circle-check', 'label' => 'Eerlijk advies'],
@@ -32,7 +32,7 @@ return [
         'title_prefix' => 'Mijn naam is',
         'title_highlight' => 'Mohammed.',
         'description' => 'In 2018 ben ik Slimme-PC gestart met één doel: eerlijke, transparante en kwalitatieve reparaties aanbieden in Apeldoorn.',
-        'image' => 'assets/img/landing/about-mo.jpg',
+        'image' => 'assets/img/landing/qmkFcXn7ryxcedJaDw97I9jtpAjRKXOZ6dqnwLCh.png',
         'image_alt' => 'Mohammed, eigenaar van Slimme-PC',
         'points' => [
             ['icon' => 'circle-check', 'label' => 'Wij repareren op componentniveau, niet alleen vervangen.'],
