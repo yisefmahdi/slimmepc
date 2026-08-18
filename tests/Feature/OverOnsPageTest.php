@@ -16,6 +16,8 @@ it('renders the over-ons page with all sections', function () {
     $response->assertSee('about-werkplaats-1.jpg', false);
     $response->assertSee('overons.css', false);
     $response->assertSee('data-werkplaats-track', false);
+    $response->assertSee('review-track', false);
+    $response->assertDontSee('werkplaats-arrow', false);
 });
 
 it('seeds the overons content blocks for every section', function () {

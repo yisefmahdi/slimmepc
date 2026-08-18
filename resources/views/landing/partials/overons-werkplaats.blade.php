@@ -1,24 +1,11 @@
 @php $werkplaats = $o['werkplaats'] ?? []; @endphp
 
 <section class="mx-auto max-w-7xl px-5 pb-14 sm:px-8 lg:px-10 lg:pb-20">
-    <div class="reveal flex flex-wrap items-end justify-between gap-4">
-        @if (!empty($werkplaats['badge']))
+    @if (!empty($werkplaats['badge']))
+    <div class="reveal">
         <span class="text-sm font-black uppercase tracking-[0.14em] text-blue-600">{{ $werkplaats['badge'] }}</span>
-        @endif
-
-        @if (count($werkplaats['items'] ?? []))
-        <div class="flex gap-2">
-            <button type="button" data-werkplaats-prev aria-label="Naar links"
-                    class="werkplaats-arrow">
-                <i data-lucide="arrow-left"></i>
-            </button>
-            <button type="button" data-werkplaats-next aria-label="Naar rechts"
-                    class="werkplaats-arrow">
-                <i data-lucide="arrow-right"></i>
-            </button>
-        </div>
-        @endif
     </div>
+    @endif
 
     @if (count($werkplaats['items'] ?? []))
     <div class="werkplaats-track mt-6" data-werkplaats-track>
