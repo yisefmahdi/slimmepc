@@ -8,9 +8,9 @@
     </div>
 
     @if (count($reis['items'] ?? []))
-    <div class="timeline-track relative mt-10 grid gap-8 lg:grid-cols-5">
+    <div class="timeline-track relative mt-10 flex gap-6 overflow-x-auto">
         @foreach ($reis['items'] as $item)
-        <div class="reveal relative text-center">
+        <div class="timeline-item reveal relative text-center">
             <div class="relative z-10 mx-auto grid h-14 w-14 place-items-center rounded-full border-4 border-blue-100 bg-white text-blue-600 shadow-card">
                 <i data-lucide="{{ $item['icon'] ?? 'star' }}" class="h-6 w-6"></i>
             </div>

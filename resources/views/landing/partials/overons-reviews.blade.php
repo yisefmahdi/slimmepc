@@ -1,10 +1,10 @@
 @php $reviews = $o['reviews'] ?? []; @endphp
 
-<section class="bg-slate-50">
+<section class="bg-brand-gradient">
     <div class="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10 lg:py-20">
         <div class="reveal text-center">
             @if (!empty($reviews['badge']))
-            <span class="text-sm font-black uppercase tracking-[0.14em] text-blue-600">{{ $reviews['badge'] }}</span>
+            <span class="text-sm font-black uppercase tracking-[0.14em] text-white">{{ $reviews['badge'] }}</span>
             @endif
         </div>
 
