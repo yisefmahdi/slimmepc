@@ -172,5 +172,41 @@ document.addEventListener("DOMContentLoaded", () => {
         createDots();
         goToPage(0);
     }
+
+    /* =========================================
+       REVEAL ON SCROLL
+    ========================================= */
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add("visible");
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll(".reveal").forEach((el) => revealObserver.observe(el));
+
+    /* =========================================
+       WERKPLAATS HORIZONTAL SCROLL (Over ons)
+    ========================================= */
+    const werkplaatsTrack = document.querySelector("[data-werkplaats-track]");
+    const werkplaatsPrev = document.querySelector("[data-werkplaats-prev]");
+    const werkplaatsNext = document.querySelector("[data-werkplaats-next]");
+
+    if (werkplaatsTrack && werkplaatsPrev && werkplaatsNext) {
+        const werkplaatsStep = () => {
+            const card = werkplaatsTrack.querySelector(".werkplaats-card");
+            return card ? card.getBoundingClientRect().width + 16 : 300;
+        };
+
+        werkplaatsPrev.addEventListener("click", () => {
+            werkplaatsTrack.scrollBy({ left: -werkplaatsStep(), behavior: "smooth" });
+        });
+
+        werkplaatsNext.addEventListener("click", () => {
+            werkplaatsTrack.scrollBy({ left: werkplaatsStep(), behavior: "smooth" });
+        });
+    }
 });
 

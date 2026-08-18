@@ -239,6 +239,26 @@ class ContentBlockSeeder extends Seeder
             }
         }
 
+        $overons = require database_path('data/overons.php');
+
+        foreach ($overons as $section => $blocks) {
+            $sort = 0;
+
+            foreach ($blocks as $key => $value) {
+                $isJson = is_array($value);
+
+                ContentBlock::firstOrCreate(
+                    ['page' => 'overons', 'section' => $section, 'block_key' => $key],
+                    [
+                        'type' => $isJson ? 'json' : 'text',
+                        'value' => $isJson ? null : $value,
+                        'json_value' => $isJson ? $value : null,
+                        'sort_order' => $sort++,
+                    ]
+                );
+            }
+        }
+
         $design = [
             'meta_title' => 'Slimme-PC — Computerreparatie & IT-service in Apeldoorn',
             'meta_description' => 'Van diagnose tot reparatie: Slimme-PC is jouw betrouwbare partner voor computerreparatie, laptopreparatie, data recovery en IT-service in Apeldoorn.',

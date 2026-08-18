@@ -91,5 +91,32 @@ class PageController extends Controller
 
         return response($html)->header('Content-Type', 'text/html; charset=UTF-8');
     }
+
+    public function overons()
+    {
+        $version = Cms::version();
+        $cacheKey = "cms.page.html.overons.{$version}";
+
+        if (!Auth::check()) {
+            $cached = Cache::get($cacheKey);
+
+            if (is_string($cached)) {
+                return response($cached)->header('Content-Type', 'text/html; charset=UTF-8');
+            }
+        }
+
+        // Header/footer live on the 'home' page; the over-ons content lives on 'overons'.
+        $c = Cms::page('home');
+        $o = Cms::page('overons');
+        $design = Cms::design();
+
+        $html = view('landing.overons', compact('c', 'o', 'design'))->render();
+
+        if (!Auth::check()) {
+            Cache::put($cacheKey, $html, now()->addMonth());
+        }
+
+        return response($html)->header('Content-Type', 'text/html; charset=UTF-8');
+    }
 }
 

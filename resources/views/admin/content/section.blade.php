@@ -67,6 +67,43 @@
                     'location' => 'Vierde sectie van de contactpagina'
                 ],
             ],
+            'overons' => [
+                'hero' => [
+                    'title' => 'Hero (Over ons) bewerken',
+                    'desc' => 'De banner bovenaan de over-ons-pagina. Pas de badge, titels, beschrijving, achtergrondafbeelding, vertrouwenspunten en de Google-beoordeling aan.',
+                    'location' => 'Bovenste grote sectie van de over-ons-pagina'
+                ],
+                'meet' => [
+                    'title' => 'Meet Mo bewerken',
+                    'desc' => 'Beheer de foto en het verhaal van de eigenaar, de punten waar we voor staan en de handtekening onderaan.',
+                    'location' => 'Tweede sectie van de over-ons-pagina'
+                ],
+                'why' => [
+                    'title' => 'Waarom klanten terugkomen bewerken',
+                    'desc' => 'Beheer de vier kaarten met de redenen waarom klanten voor Slimme-PC kiezen.',
+                    'location' => 'Derde sectie van de over-ons-pagina'
+                ],
+                'werkplaats' => [
+                    'title' => 'Binnen in onze werkplaats bewerken',
+                    'desc' => 'Beheer de foto\'s van de werkplaats. De kaarten schuiven horizontaal (links/rechts) op de pagina.',
+                    'location' => 'Vierde sectie van de over-ons-pagina'
+                ],
+                'reis' => [
+                    'title' => 'Onze reis bewerken',
+                    'desc' => 'Beheer de mijlpalen op de tijdlijn (jaartal, pictogram en titel).',
+                    'location' => 'Vijfde sectie van de over-ons-pagina'
+                ],
+                'reviews' => [
+                    'title' => 'Wat klanten zeggen bewerken',
+                    'desc' => 'Beheer de klantbeoordelingen (sterren, naam en tekst) die op de over-ons-pagina worden getoond.',
+                    'location' => 'Zesde sectie van de over-ons-pagina'
+                ],
+                'trust' => [
+                    'title' => 'Trust onderaan bewerken',
+                    'desc' => 'Beheer de vier vertrouwenspunten (pictogram, titel en ondertitel) onderaan de over-ons-pagina.',
+                    'location' => 'Zevende sectie van de over-ons-pagina'
+                ],
+            ],
         ];
 
         $currentInfo = $sectionInfos[$page][$sectionKey] ?? [

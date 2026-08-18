@@ -11,6 +11,8 @@ Route::get('/tarieven', [PageController::class, 'tarieven'])->name('tarieven');
 
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 
+Route::get('/over-ons', [PageController::class, 'overons'])->name('over-ons');
+
 Route::post('/contact/submit', [ContactController::class, 'submit'])
     ->middleware('throttle:5,1')
     ->name('contact.submit');

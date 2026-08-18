@@ -258,6 +258,54 @@
                     </div>
                 </div>
 
+                {{-- 1d. Over ons Dropdown --}}
+                <div x-data="{ open: {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === 'overons' ? 'true' : 'false' }} }" class="space-y-1">
+                    <button type="button" @click="open = !open"
+                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
+                            style="color: rgba(255,255,255,0.95)">
+                        <span class="flex items-center gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5 text-blue-100">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                            </svg>
+                            <span>Over ons</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+                    <div x-show="open" x-cloak x-transition class="border-l-2 border-white/30 ml-6 pl-4 space-y-1.5 py-1 text-xs">
+                        <a href="{{ route('admin.content.section.edit', ['page' => 'overons', 'section' => 'hero']) }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === 'overons' && request()->route('section') === 'hero' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Hero
+                        </a>
+                        <a href="{{ route('admin.content.section.edit', ['page' => 'overons', 'section' => 'meet']) }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === 'overons' && request()->route('section') === 'meet' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Meet Mo
+                        </a>
+                        <a href="{{ route('admin.content.section.edit', ['page' => 'overons', 'section' => 'why']) }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === 'overons' && request()->route('section') === 'why' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Waarom klanten terugkomen
+                        </a>
+                        <a href="{{ route('admin.content.section.edit', ['page' => 'overons', 'section' => 'werkplaats']) }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === 'overons' && request()->route('section') === 'werkplaats' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Binnen in onze werkplaats
+                        </a>
+                        <a href="{{ route('admin.content.section.edit', ['page' => 'overons', 'section' => 'reis']) }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === 'overons' && request()->route('section') === 'reis' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Onze reis
+                        </a>
+                        <a href="{{ route('admin.content.section.edit', ['page' => 'overons', 'section' => 'reviews']) }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === 'overons' && request()->route('section') === 'reviews' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Wat klanten zeggen
+                        </a>
+                        <a href="{{ route('admin.content.section.edit', ['page' => 'overons', 'section' => 'trust']) }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === 'overons' && request()->route('section') === 'trust' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Trust (onderaan)
+                        </a>
+                    </div>
+                </div>
+
                 {{-- 2. Diensten Dropdown --}}
                 <div x-data="{ open: false }" class="space-y-1">
                     <button type="button" @click="open = !open"

@@ -355,6 +355,143 @@ return [
                 ],
             ],
         ],
+
+        'overons' => [
+            'label' => 'Over ons',
+            'sections' => [
+                'hero' => [
+                    'label' => 'Hero (Over Slimme-PC)',
+                    'blocks' => [
+                        'badge' => ['label' => 'Badge (boven de titel)', 'type' => 'text'],
+                        'title_line1' => ['label' => 'Titel regel 1', 'type' => 'text'],
+                        'title_line2' => ['label' => 'Titel regel 2 (blauw)', 'type' => 'text'],
+                        'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+                        'hero_image' => ['label' => 'Achtergrondafbeelding (hero)', 'type' => 'image'],
+                        'hero_image_alt' => ['label' => 'Alt tekst afbeelding', 'type' => 'text'],
+                        'trust_points' => [
+                            'label' => 'Vertrouwenspunten (bijv. Eerlijk advies)',
+                            'type' => 'json',
+                            'columns' => 2,
+                            'fields' => [
+                                ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                                ['key' => 'label', 'label' => 'Label', 'type' => 'text'],
+                            ],
+                        ],
+                        'rating_value' => ['label' => 'Google beoordeling (bijv. 4.9)', 'type' => 'text'],
+                        'rating_scale' => ['label' => 'Schaal (bijv. uit 5)', 'type' => 'text'],
+                        'rating_count' => ['label' => 'Aantal reviews (bijv. 120+ reviews)', 'type' => 'text'],
+                        'rating_url' => ['label' => 'Link naar Google Maps profiel', 'type' => 'text'],
+                    ],
+                ],
+
+                'meet' => [
+                    'label' => 'Meet Mo (eigenaar)',
+                    'blocks' => [
+                        'badge' => ['label' => 'Badge (boven de titel)', 'type' => 'text'],
+                        'title_prefix' => ['label' => 'Titel (voor highlight)', 'type' => 'text'],
+                        'title_highlight' => ['label' => 'Titel (blauw deel)', 'type' => 'text'],
+                        'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+                        'image' => ['label' => 'Foto van Mo', 'type' => 'image'],
+                        'image_alt' => ['label' => 'Alt tekst foto', 'type' => 'text'],
+                        'points' => [
+                            'label' => 'Punten (waar we voor staan)',
+                            'type' => 'json',
+                            'columns' => 1,
+                            'fields' => [
+                                ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                                ['key' => 'label', 'label' => 'Label', 'type' => 'text'],
+                            ],
+                        ],
+                        'sign_name' => ['label' => 'Handtekening naam (bijv. Mo Al Hendi)', 'type' => 'text'],
+                        'sign_role' => ['label' => 'Handtekening rol (bijv. Oprichter Slimme-PC)', 'type' => 'text'],
+                    ],
+                ],
+
+                'why' => [
+                    'label' => 'Waarom klanten terugkomen',
+                    'blocks' => [
+                        'badge' => ['label' => 'Badge (boven de titel)', 'type' => 'text'],
+                        'items' => [
+                            'label' => 'Kaarten (4)',
+                            'type' => 'json',
+                            'columns' => 2,
+                            'fields' => [
+                                ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                                ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                                ['key' => 'description', 'label' => 'Beschrijving', 'type' => 'textarea'],
+                            ],
+                        ],
+                    ],
+                ],
+
+                'werkplaats' => [
+                    'label' => 'Binnen in onze werkplaats',
+                    'blocks' => [
+                        'badge' => ['label' => 'Badge (boven de titel)', 'type' => 'text'],
+                        'items' => [
+                            'label' => 'Foto\'s (sla horizontaal)',
+                            'type' => 'json',
+                            'columns' => 2,
+                            'fields' => [
+                                ['key' => 'image', 'label' => 'Afbeelding', 'type' => 'image'],
+                                ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                                ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                            ],
+                        ],
+                    ],
+                ],
+
+                'reis' => [
+                    'label' => 'Onze reis (tijdlijn)',
+                    'blocks' => [
+                        'badge' => ['label' => 'Badge (boven de titel)', 'type' => 'text'],
+                        'items' => [
+                            'label' => 'Mijlpalen',
+                            'type' => 'json',
+                            'columns' => 2,
+                            'fields' => [
+                                ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                                ['key' => 'year', 'label' => 'Jaartal (bijv. 2018)', 'type' => 'text'],
+                                ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                            ],
+                        ],
+                    ],
+                ],
+
+                'reviews' => [
+                    'label' => 'Wat klanten zeggen',
+                    'blocks' => [
+                        'badge' => ['label' => 'Badge (boven de titel)', 'type' => 'text'],
+                        'items' => [
+                            'label' => 'Reviews',
+                            'type' => 'json',
+                            'columns' => 1,
+                            'fields' => [
+                                ['key' => 'stars', 'label' => 'Aantal sterren (1 t/m 5)', 'type' => 'text'],
+                                ['key' => 'name', 'label' => 'Naam (bijv. Mark, Apeldoorn)', 'type' => 'text'],
+                                ['key' => 'quote', 'label' => 'Tekst', 'type' => 'textarea'],
+                            ],
+                        ],
+                    ],
+                ],
+
+                'trust' => [
+                    'label' => 'Trust (onderaan de pagina)',
+                    'blocks' => [
+                        'items' => [
+                            'label' => 'Vertrouwenspunten',
+                            'type' => 'json',
+                            'columns' => 2,
+                            'fields' => [
+                                ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                                ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                                ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ],
     ],
 
     /*
