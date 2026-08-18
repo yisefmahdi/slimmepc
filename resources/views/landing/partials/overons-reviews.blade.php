@@ -12,7 +12,7 @@
         <div class="werkplaats-track review-track mt-8">
             @foreach ($reviews['items'] as $item)
             @php $stars = min(max((int) ($item['stars'] ?? 5), 1), 5); @endphp
-            <article class="werkplaats-card review-card rounded-[24px] border border-blue-100 bg-white p-6 shadow-card">
+            <article class="werkplaats-card review-card rounded-[24px] border border-blue-100 bg-white p-6 ">
                 <div class="flex items-center justify-between">
                     <div class="flex text-amber-400">
                         @for ($i = 0; $i < $stars; $i++)
