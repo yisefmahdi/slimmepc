@@ -19,7 +19,7 @@
                 ],
                 'services' => [
                     'title' => 'Onze diensten bewerken',
-                    'desc' => 'Bewerk de 8 servicekaarten van de homepage. Elke service kan via de schakelaar worden verborgen van de homepage (zonder hem te verwijderen).',
+                    'desc' => 'Beheer de servicekaarten van de homepage. Voeg nieuwe diensten toe, verwijder ze of verberg een dienst tijdelijk van de homepage via de schakelaar (zonder hem te verwijderen).',
                     'location' => 'Derde sectie op de homepage'
                 ],
                 'footer' => [

@@ -86,15 +86,13 @@ return [
                         'title_suffix' => ['label' => 'Titel (na highlight)', 'type' => 'text'],
                         'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
                         'services' => [
-                            'label' => 'Diensten (8 kaarten)',
+                            'label' => 'Diensten (kaarten)',
                             'type' => 'json',
                             'columns' => 2,
-                            'fixed' => true,
                             'fields' => [
                                 ['key' => 'image', 'label' => 'Afbeelding (kaart op de homepage)', 'type' => 'image'],
                                 ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
-['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
-                                ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                                ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
                                 ['key' => 'description', 'label' => 'Beschrijving', 'type' => 'textarea'],
                                 ['key' => 'link', 'label' => 'Link (bijv. /pc.html)', 'type' => 'text', 'hidden' => true],
                                 ['key' => 'hidden', 'label' => 'Verberg van de homepage', 'type' => 'boolean'],
