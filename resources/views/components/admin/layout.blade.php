@@ -355,159 +355,13 @@
                     </div>
                 </div>
 
-                {{-- 3. Pages Dropdown --}}
-                <div x-data="{ open: false }" class="space-y-1">
-                    <button type="button" @click="open = !open"
-                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
-                            style="color: rgba(255,255,255,0.95)">
-                        <span class="flex items-center gap-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5 text-blue-100">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                            </svg>
-                            <span>Pages</span>
-                        </span>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                        </svg>
-                    </button>
-                    <div x-show="open" x-cloak x-transition class="border-l-2 border-white/30 ml-6 pl-4 space-y-1 py-1 text-xs text-blue-100">
-                        <span class="block rounded-lg px-3 py-1.5 cursor-not-allowed hover:bg-white/5">Hardware-photos <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
-                    </div>
-                </div>
 
-                {{-- 4. Webshop Dropdown --}}
-                <div x-data="{ open: false }" class="space-y-1">
-                    <button type="button" @click="open = !open"
-                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
-                            style="color: rgba(255,255,255,0.95)">
-                        <span class="flex items-center gap-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5 text-blue-100">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                            </svg>
-                            <span>Webshop</span>
-                        </span>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                        </svg>
-                    </button>
-                    <div x-show="open" x-cloak x-transition class="border-l-2 border-white/30 ml-6 pl-4 space-y-1 py-1 text-xs text-blue-100">
-                        <span class="block rounded-lg px-3 py-1.5 cursor-not-allowed hover:bg-white/5">Category-producten <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
-                        <span class="block rounded-lg px-3 py-1.5 cursor-not-allowed hover:bg-white/5">Producten <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
-                        <span class="block rounded-lg px-3 py-1.5 cursor-not-allowed hover:bg-white/5">SliderImage <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
-                        <span class="block rounded-lg px-3 py-1.5 cursor-not-allowed hover:bg-white/5">Licentiecodes <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
-                    </div>
-                </div>
 
-                {{-- 5. Website-aanvragen Link --}}
-                <span class="group flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-blue-100 cursor-not-allowed">
-                    <span class="flex items-center gap-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5 text-blue-100">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.25m0 0A11.959 11.959 0 0112 16.5c-3.162 0-6.033-1.23-8.156-3.228m0 0A8.96 8.96 0 013 12c0-.778.099-1.533.284-2.25" />
-                        </svg>
-                        <span>Website-aanvragen</span>
-                    </span>
-                    <span class="rounded-full bg-white/20 px-2 py-0.5 text-[9px] font-bold text-white">Binnenkort</span>
-                </span>
 
-                {{-- 6. Contact-klanten Link --}}
-                <span class="group flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-blue-100 cursor-not-allowed">
-                    <span class="flex items-center gap-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5 text-blue-100">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-                        </svg>
-                        <span>Contact-klanten</span>
-                    </span>
-                    <span class="rounded-full bg-white/20 px-2 py-0.5 text-[9px] font-bold text-white">Binnenkort</span>
-                </span>
 
-                {{-- 7. Bestellings Dropdown --}}
-                <div x-data="{ open: false }" class="space-y-1">
-                    <button type="button" @click="open = !open"
-                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
-                            style="color: rgba(255,255,255,0.95)">
-                        <span class="flex items-center gap-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5 text-blue-100">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 6h.008v.008H6.75V21Z" />
-                            </svg>
-                            <span>Bestellings</span>
-                        </span>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                        </svg>
-                    </button>
-                    <div x-show="open" x-cloak x-transition class="border-l-2 border-white/30 ml-6 pl-4 space-y-1 py-1 text-xs text-blue-100">
-                        <span class="block rounded-lg px-3 py-1.5 cursor-not-allowed hover:bg-white/5">Bestellings <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
-                        <span class="block rounded-lg px-3 py-1.5 cursor-not-allowed hover:bg-white/5">Facturen <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
-                    </div>
-                </div>
 
-                {{-- 8. Afspraken Dropdown --}}
-                <div x-data="{ open: false }" class="space-y-1">
-                    <button type="button" @click="open = !open"
-                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
-                            style="color: rgba(255,255,255,0.95)">
-                        <span class="flex items-center gap-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5 text-blue-100">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-1.35h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-                            </svg>
-                            <span>Afspraken</span>
-                        </span>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                        </svg>
-                    </button>
-                    <div x-show="open" x-cloak x-transition class="border-l-2 border-white/30 ml-6 pl-4 space-y-1 py-1 text-xs text-blue-100">
-                        <span class="block rounded-lg px-3 py-1.5 cursor-not-allowed hover:bg-white/5">Algemeen afspraken <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
-                        <span class="block rounded-lg px-3 py-1.5 cursor-not-allowed hover:bg-white/5">Facturen van afspraken <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
-                    </div>
-                </div>
 
-                {{-- 9. Abonnement Dropdown --}}
-                <div x-data="{ open: false }" class="space-y-1">
-                    <button type="button" @click="open = !open"
-                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
-                            style="color: rgba(255,255,255,0.95)">
-                        <span class="flex items-center gap-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5 text-blue-100">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zm6-10.125a1.875 1.875 0 11-3.75 0 1.875 1.875 0 013.75 0zm1.294 6.336a6.721 6.721 0 01-3.17.789 6.721 6.721 0 01-3.168-.789 3.375 3.375 0 016.338 0z" />
-                            </svg>
-                            <span>Abonnement</span>
-                        </span>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                        </svg>
-                    </button>
-                    <div x-show="open" x-cloak x-transition class="border-l-2 border-white/30 ml-6 pl-4 space-y-1 py-1 text-xs text-blue-100">
-                        <span class="block rounded-lg px-3 py-1.5 cursor-not-allowed hover:bg-white/5">Klanten-lijst <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
-                        <span class="block rounded-lg px-3 py-1.5 cursor-not-allowed hover:bg-white/5">Abonnement-beheren <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
-                    </div>
-                </div>
 
-                {{-- 10. Prijs-instellingen Dropdown --}}
-                <div x-data="{ open: false }" class="space-y-1">
-                    <button type="button" @click="open = !open"
-                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
-                            style="color: rgba(255,255,255,0.95)">
-                        <span class="flex items-center gap-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5 text-blue-100">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a6.932 6.932 0 010 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.332.183-.582.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 010-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
-                            </svg>
-                            <span>Prijs-instellingen</span>
-                        </span>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                        </svg>
-                    </button>
-                    <div x-show="open" x-cloak x-transition class="border-l-2 border-white/30 ml-6 pl-4 space-y-1 py-1 text-xs text-blue-100">
-                        <span class="block rounded-lg px-3 py-1.5 cursor-not-allowed hover:bg-white/5">Prijs-beheren <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
-                    </div>
-                </div>
 
                 {{-- 11. Users-beheren Dropdown (Active: Klanten) --}}
                 <div x-data="{ open: {{ request()->routeIs('admin.users.*') ? 'true' : 'false' }} }" class="space-y-1">
@@ -530,88 +384,11 @@
                            class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.users.*') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
                             Users
                         </a>
-                        <span class="block rounded-lg px-3 py-1.5 text-blue-100 cursor-not-allowed hover:bg-white/15">
-                            Send Emails <small class="text-[10px] font-normal italic opacity-60">(Binnenkort)</small>
-                        </span>
-                        <span class="block rounded-lg px-3 py-1.5 text-blue-100 cursor-not-allowed hover:bg-white/15">
-                            Klantenlijst <small class="text-[10px] font-normal italic opacity-60">(Binnenkort)</small>
-                        </span>
-                        <span class="block rounded-lg px-3 py-1.5 text-blue-100 cursor-not-allowed hover:bg-white/15">
-                            Popup Melding <small class="text-[10px] font-normal italic opacity-60">(Binnenkort)</small>
-                        </span>
-                        <span class="block rounded-lg px-3 py-1.5 text-blue-100 cursor-not-allowed hover:bg-white/15">
-                            Algemene Voorwaarden <small class="text-[10px] font-normal italic opacity-60">(Binnenkort)</small>
-                        </span>
-                        <span class="block rounded-lg px-3 py-1.5 text-blue-100 cursor-not-allowed hover:bg-white/15">
-                            Privacybeleid <small class="text-[10px] font-normal italic opacity-60">(Binnenkort)</small>
-                        </span>
                     </div>
                 </div>
 
-                {{-- 12. Manual Invoices Dropdown --}}
-                <div x-data="{ open: false }" class="space-y-1">
-                    <button type="button" @click="open = !open"
-                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
-                            style="color: rgba(255,255,255,0.95)">
-                        <span class="flex items-center gap-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5 text-blue-100">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                            </svg>
-                            <span>Manual-invoices</span>
-                        </span>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                        </svg>
-                    </button>
-                    <div x-show="open" x-cloak x-transition class="border-l-2 border-white/30 ml-6 pl-4 space-y-1 py-1 text-xs text-blue-100">
-                        <span class="block rounded-lg px-3 py-1.5 cursor-not-allowed hover:bg-white/5">Hardware <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
-                        <span class="block rounded-lg px-3 py-1.5 cursor-not-allowed hover:bg-white/5">Bevestging-mail <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
-                    </div>
-                </div>
 
-                {{-- 13. Live Chat Dropdown --}}
-                <div x-data="{ open: false }" class="space-y-1">
-                    <button type="button" @click="open = !open"
-                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
-                            style="color: rgba(255,255,255,0.95)">
-                        <span class="flex items-center gap-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5 text-blue-100">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.242c0 .969-.616 1.814-1.5 2.097M18.75 9.75h-10.5a2.25 2.25 0 00-2.25 2.25v4.5a2.25 2.25 0 002.25 2.25h10.5a2.25 2.25 0 002.25-2.25v-4.5a2.25 2.25 0 00-2.25-2.25z" />
-                            </svg>
-                            <span>Live-chat</span>
-                        </span>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                        </svg>
-                    </button>
-                    <div x-show="open" x-cloak x-transition class="border-l-2 border-white/30 ml-6 pl-4 space-y-1 py-1 text-xs text-blue-100">
-                        <span class="block rounded-lg px-3 py-1.5 cursor-not-allowed hover:bg-white/5">Vragen-antwoorden <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
-                        <span class="block rounded-lg px-3 py-1.5 cursor-not-allowed hover:bg-white/5">Inbox-Live <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
-                    </div>
-                </div>
 
-                {{-- 14. Database site Dropdown --}}
-                <div x-data="{ open: false }" class="space-y-1">
-                    <button type="button" @click="open = !open"
-                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
-                            style="color: rgba(255,255,255,0.95)">
-                        <span class="flex items-center gap-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5 text-blue-100">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 1.036-.84 1.875-1.875 1.875h-12.75c-1.035 0-1.875-.84-1.875-1.875m16.5 0v11.25c0 1.035-.84 1.875-1.875 1.875h-12.75c-1.035 0-1.875-.84-1.875-1.875V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0h-16.5" />
-                            </svg>
-                            <span>Database site</span>
-                        </span>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                        </svg>
-                    </button>
-                    <div x-show="open" x-cloak x-transition class="border-l-2 border-white/30 ml-6 pl-4 space-y-1 py-1 text-xs text-blue-100">
-                        <span class="block rounded-lg px-3 py-1.5 cursor-not-allowed hover:bg-white/5">Backup-maken <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
-                    </div>
-                </div>
             </nav>
                     </div>
                 </div>
