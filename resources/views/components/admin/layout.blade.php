@@ -307,8 +307,12 @@
                 </div>
 
                 {{-- 2. Diensten Dropdown --}}
-                <div x-data="{ open: false }" class="space-y-1">
-                    <button type="button" @click="open = !open"
+                @php
+                    $activeSvcPage = request()->route('page');
+                    $isSvcPage = in_array($activeSvcPage, array_values(config('cms.service_slugs')), true);
+                @endphp
+                <div x-data="{ open: {{ $isSvcPage ? 'true' : 'false' }}, init() { if (localStorage.getItem('nav-diensten') !== null) { this.open = localStorage.getItem('nav-diensten') === '1'; } }, toggle() { this.open = !this.open; localStorage.setItem('nav-diensten', this.open ? '1' : '0'); } }" class="space-y-1">
+                    <button type="button" @click="toggle()"
                             class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
                             style="color: rgba(255,255,255,0.95)">
                         <span class="flex items-center gap-3">
@@ -329,8 +333,8 @@
                                 $svcLabel = $svcPage['label'] ?? $pageKey;
                                 $svcSections = $svcPage['sections'] ?? [];
                             @endphp
-                            <div x-data="{ svc: false }" class="space-y-1">
-                                <button type="button" @click="svc = !svc"
+                            <div x-data="{ svc: {{ $activeSvcPage === $pageKey ? 'true' : 'false' }}, init() { if (localStorage.getItem('nav-svc-{{$pageKey}}') !== null) { this.svc = localStorage.getItem('nav-svc-{{$pageKey}}') === '1'; } }, toggle() { this.svc = !this.svc; localStorage.setItem('nav-svc-{{$pageKey}}', this.svc ? '1' : '0'); } }" class="space-y-1">
+                                <button type="button" @click="toggle()"
                                         class="flex w-full items-center justify-between gap-2 rounded-lg px-3 py-1.5 text-left font-semibold text-blue-50 hover:bg-white/10 hover:text-white">
                                     <span>{{ $svcLabel }}</span>
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
