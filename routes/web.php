@@ -3,7 +3,12 @@
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\VideoStreamController;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/stream/video/{file}', [VideoStreamController::class, 'show'])
+    ->where('file', '.*')
+    ->name('video.stream');
 
 Route::get('/', [PageController::class, 'home'])->name('home');
 

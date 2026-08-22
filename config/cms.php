@@ -17,7 +17,7 @@
 
 $serviceSectionDef = [
     'hero' => [
-        'label' => 'Hero (bovenkant servicepagina)',
+        'label' => 'Hero',
         'blocks' => [
             'badge' => ['label' => 'Badge (boven titel)', 'type' => 'text'],
             'title1' => ['label' => 'Titel regel 1', 'type' => 'text'],
@@ -38,9 +38,10 @@ $serviceSectionDef = [
         ],
     ],
     'problems' => [
-        'label' => 'Wat is er mis? (probleemkeuze)',
+                'label' => 'Wat is er mis?',
         'blocks' => [
-            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'title' => ['label' => 'Titel (voor highlight)', 'type' => 'text'],
+            'title_highlight' => ['label' => 'Titel (gekleurde highlight)', 'type' => 'text'],
             'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
             'items' => [
                 'label' => 'Problemen (kaarten)',
@@ -54,7 +55,7 @@ $serviceSectionDef = [
         ],
     ],
     'speciality' => [
-        'label' => 'Onze specialiteit (componentniveau)',
+                'label' => 'Onze specialiteit',
         'blocks' => [
             'badge' => ['label' => 'Badge', 'type' => 'text'],
             'title1' => ['label' => 'Titel regel 1', 'type' => 'text'],
@@ -70,6 +71,7 @@ $serviceSectionDef = [
                 ],
             ],
             'video' => ['label' => 'Video (mp4)', 'type' => 'video'],
+            'video_poster' => ['label' => 'Video poster (afbeelding)', 'type' => 'image'],
         ],
     ],
     'equipment' => [
@@ -108,7 +110,8 @@ $serviceSectionDef = [
     'other' => [
         'label' => 'Andere reparaties',
         'blocks' => [
-            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'title' => ['label' => 'Titel (voor highlight)', 'type' => 'text'],
+            'title_highlight' => ['label' => 'Titel (gekleurde highlight)', 'type' => 'text'],
             'items' => [
                 'label' => 'Andere reparaties (kaarten)',
                 'type' => 'json',
@@ -135,11 +138,11 @@ $serviceSectionDef = [
                 ],
             ],
             'more_url' => ['label' => 'Meer FAQ link', 'type' => 'text', 'hidden' => true],
-            'cta_title' => ['label' => 'CTA titel', 'type' => 'text'],
+            'cta_title' => ['label' => 'CTA titel regel 1', 'type' => 'text'],
+            'cta_title2' => ['label' => 'CTA titel regel 2 (gradient)', 'type' => 'text'],
             'cta_subtitle' => ['label' => 'CTA ondertitel', 'type' => 'textarea'],
             'cta_phone' => ['label' => 'CTA telefoon', 'type' => 'text'],
-            'cta_button' => ['label' => 'CTA knop tekst', 'type' => 'text'],
-            'cta_bg' => ['label' => 'CTA achtergrond', 'type' => 'image'],
+            'cta_bg' => ['label' => 'CTA afbeelding (karakter)', 'type' => 'image'],
         ],
     ],
     'bottom' => [

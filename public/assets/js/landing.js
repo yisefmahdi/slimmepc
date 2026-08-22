@@ -57,6 +57,48 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    /* =========================================
+       SERVICE FAQ ACCORDION
+    ========================================= */
+    document.querySelectorAll(".faq-toggle").forEach((button) => {
+        button.addEventListener("click", () => {
+            const item = button.closest(".faq-item");
+
+            document.querySelectorAll(".faq-item").forEach((other) => {
+                if (other !== item) other.classList.remove("active");
+            });
+
+            item.classList.toggle("active");
+        });
+    });
+
+    /* =========================================
+       SERVICE SPECIALITY VIDEO — play button
+       The design overlays sit above the <video>, so the center
+       play button triggers playback (native controls also work
+       because the overlays are pointer-events-none).
+    ========================================= */
+    const specialityVideo = document.getElementById("specialityVideo");
+    const specialityPlayBtn = document.getElementById("specialityPlayBtn");
+
+    if (specialityVideo && specialityPlayBtn) {
+        specialityPlayBtn.addEventListener("click", () => {
+            specialityVideo.play();
+        });
+
+        specialityVideo.addEventListener("play", () => {
+            specialityPlayBtn.style.opacity = "0";
+            specialityPlayBtn.style.pointerEvents = "none";
+        });
+
+        specialityVideo.addEventListener("pause", () => {
+            if (specialityVideo.currentTime > 0 && !specialityVideo.ended) {
+                specialityPlayBtn.style.opacity = "1";
+                specialityPlayBtn.style.pointerEvents = "auto";
+            }
+        });
+    }
+
     document.addEventListener("keydown", (event) => {
         if (event.key === "Escape") {
             hideMobileMenu();

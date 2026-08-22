@@ -13,6 +13,24 @@
 
     $navBefore = array_slice($navLinks, 0, 2);
     $navAfter  = array_slice($navLinks, 2);
+
+    // Diensten dropdown: list every service page; mark as ready only when it has content.
+    $servicePages = config('cms.service_slugs', []);
+    $svcIcons = [
+        'laptopreparatie' => 'laptop',
+        'pcreparatie'     => 'monitor',
+        'macbook'         => 'apple',
+        'datarecovery'    => 'database',
+        'ipad'            => 'tablet',
+        'moederbord'      => 'cpu',
+        'software'        => 'panels-top-left',
+        'netwerk'         => 'wifi',
+        'console'         => 'gamepad-2',
+    ];
+    $svcReady = [];
+    foreach ($servicePages as $slug => $pageKey) {
+        $svcReady[$slug] = \App\Models\ContentBlock::where('page', $pageKey)->exists();
+    }
 @endphp
 
 <header id="navbar" class="
@@ -189,30 +207,33 @@
                         shadow-menu
                     ">
                     <div class="grid grid-cols-2 gap-2">
-                        @foreach ($c['header']['services_dropdown'] ?? [] as $item)
-                            <a href="{{ $item['url'] ?? '#' }}" class="
-                                    flex gap-3 rounded-xl p-3
-                                    hover:bg-brand-50
-                                ">
-                                <span class="
-                                        flex h-10 w-10 shrink-0
-                                        items-center justify-center
-                                        rounded-xl bg-brand-100
-                                        text-brand-700
-                                    ">
-                                    <i data-lucide="{{ $item['icon'] ?? 'wrench' }}" class="h-5 w-5"></i>
-                                </span>
-
-                                <span>
-                                    <strong class="block text-sm text-slate-900">
-                                        {{ $item['label'] ?? '' }}
-                                    </strong>
-
-                                    <small class="text-xs text-slate-500">
-                                        {{ $item['subtitle'] ?? '' }}
-                                    </small>
-                                </span>
-                            </a>
+                        @foreach ($servicePages as $slug => $pageKey)
+                            @php
+                                $ready = $svcReady[$slug] ?? false;
+                                $svcLabel = config("cms.pages.{$pageKey}.label") ?? $pageKey;
+                                $svcIcon = $svcIcons[$pageKey] ?? 'wrench';
+                            @endphp
+                            @if ($ready)
+                                <a href="{{ url('/diensten/'.$slug) }}" class="flex gap-3 rounded-xl p-3 transition hover:bg-brand-50">
+                                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-100 text-brand-700">
+                                        <i data-lucide="{{ $svcIcon }}" class="h-5 w-5"></i>
+                                    </span>
+                                    <span>
+                                        <strong class="block text-sm text-slate-900">{{ $svcLabel }}</strong>
+                                        <small class="text-xs text-slate-500">Direct repareren</small>
+                                    </span>
+                                </a>
+                            @else
+                                <div class="flex gap-3 rounded-xl p-3 opacity-60">
+                                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-400">
+                                        <i data-lucide="{{ $svcIcon }}" class="h-5 w-5"></i>
+                                    </span>
+                                    <span>
+                                        <strong class="block text-sm text-slate-700">{{ $svcLabel }}</strong>
+                                        <small class="mt-0.5 inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-500">Binnenkort</small>
+                                    </span>
+                                </div>
+                            @endif
                         @endforeach
                     </div>
                 </div>
@@ -488,14 +509,25 @@
                 <i data-lucide="chevron-down" class="accordion-icon h-4 w-4 transition"></i>
             </button>
 
-            <div id="mobileServices" class="hidden space-y-1 pb-2 pl-12">
-                @foreach ($c['header']['services_dropdown'] ?? [] as $item)
-                    <a href="{{ $item['url'] ?? '#' }}"
-                        class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-100">
-                        {{ $item['label'] ?? '' }}
-                    </a>
-                @endforeach
-            </div>
+                <div id="mobileServices" class="hidden space-y-1 pb-2 pl-12">
+                    @foreach ($servicePages as $slug => $pageKey)
+                        @php
+                            $ready = $svcReady[$slug] ?? false;
+                            $svcLabel = config("cms.pages.{$pageKey}.label") ?? $pageKey;
+                        @endphp
+                        @if ($ready)
+                            <a href="{{ url('/diensten/'.$slug) }}"
+                                class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-100">
+                                {{ $svcLabel }}
+                            </a>
+                        @else
+                            <div class="flex items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-400">
+                                <span>{{ $svcLabel }}</span>
+                                <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold">Binnenkort</span>
+                            </div>
+                        @endif
+                    @endforeach
+                </div>
 
             @foreach ($navAfter as $link)
                 <a href="{{ $link['url'] ?? '#' }}" class="
