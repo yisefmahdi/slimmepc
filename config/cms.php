@@ -15,6 +15,150 @@
 | design: settings stored as JSON in content_meta (meta_key = 'design').
 */
 
+$serviceSectionDef = [
+    'hero' => [
+        'label' => 'Hero (bovenkant servicepagina)',
+        'blocks' => [
+            'badge' => ['label' => 'Badge (boven titel)', 'type' => 'text'],
+            'title1' => ['label' => 'Titel regel 1', 'type' => 'text'],
+            'title2' => ['label' => 'Titel regel 2', 'type' => 'text'],
+            'title3' => ['label' => 'Titel regel 3 (gradient)', 'type' => 'text'],
+            'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+            'image' => ['label' => 'Achtergrondafbeelding (hero)', 'type' => 'image'],
+            'usp' => [
+                'label' => 'USP-rij (4 items in hero)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'problems' => [
+        'label' => 'Wat is er mis? (probleemkeuze)',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Problemen (kaarten)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'speciality' => [
+        'label' => 'Onze specialiteit (componentniveau)',
+        'blocks' => [
+            'badge' => ['label' => 'Badge', 'type' => 'text'],
+            'title1' => ['label' => 'Titel regel 1', 'type' => 'text'],
+            'title2' => ['label' => 'Titel regel 2 (gradient)', 'type' => 'text'],
+            'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+            'list' => [
+                'label' => 'Specialiteiten (lijst)',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                ],
+            ],
+            'video' => ['label' => 'Video (mp4)', 'type' => 'video'],
+        ],
+    ],
+    'equipment' => [
+        'label' => 'Professionele uitrusting',
+        'blocks' => [
+            'items' => [
+                'label' => 'Uitrusting (4 items)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'example' => [
+        'label' => 'Een reparatie van dichtbij',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'before_image' => ['label' => 'Voor afbeelding', 'type' => 'image'],
+            'before_label' => ['label' => 'Voor label', 'type' => 'text'],
+            'before_text' => ['label' => 'Voor tekst', 'type' => 'textarea'],
+            'diagnose_image' => ['label' => 'Diagnose afbeelding', 'type' => 'image'],
+            'diagnose_label' => ['label' => 'Diagnose label', 'type' => 'text'],
+            'diagnose_text' => ['label' => 'Diagnose tekst', 'type' => 'textarea'],
+            'after_image' => ['label' => 'Na afbeelding', 'type' => 'image'],
+            'after_label' => ['label' => 'Na label', 'type' => 'text'],
+            'after_text' => ['label' => 'Na tekst', 'type' => 'textarea'],
+            'tested_title' => ['label' => 'Getest titel', 'type' => 'text'],
+            'tested_text' => ['label' => 'Getest tekst', 'type' => 'textarea'],
+        ],
+    ],
+    'other' => [
+        'label' => 'Andere reparaties',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Andere reparaties (kaarten)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'image', 'label' => 'Afbeelding', 'type' => 'image'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'faq' => [
+        'label' => 'FAQ + CTA',
+        'blocks' => [
+            'title' => ['label' => 'FAQ titel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Veelgestelde vragen',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'question', 'label' => 'Vraag', 'type' => 'text'],
+                    ['key' => 'answer', 'label' => 'Antwoord', 'type' => 'textarea'],
+                ],
+            ],
+            'more_url' => ['label' => 'Meer FAQ link', 'type' => 'text', 'hidden' => true],
+            'cta_title' => ['label' => 'CTA titel', 'type' => 'text'],
+            'cta_subtitle' => ['label' => 'CTA ondertitel', 'type' => 'textarea'],
+            'cta_phone' => ['label' => 'CTA telefoon', 'type' => 'text'],
+            'cta_button' => ['label' => 'CTA knop tekst', 'type' => 'text'],
+            'cta_bg' => ['label' => 'CTA achtergrond', 'type' => 'image'],
+        ],
+    ],
+    'bottom' => [
+        'label' => 'Onderaan USP-balk',
+        'blocks' => [
+            'items' => [
+                'label' => 'USP items (onderaan)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+];
+
 return [
 
     'cache_version_key' => 'cache_version',
@@ -490,6 +634,15 @@ return [
                 ],
             ],
         ],
+        'laptopreparatie' => ['label' => 'Laptop Reparatie', 'sections' => $serviceSectionDef],
+        'pcreparatie' => ['label' => 'PC Reparatie', 'sections' => $serviceSectionDef],
+        'macbook' => ['label' => 'MacBook Reparatie', 'sections' => $serviceSectionDef],
+        'datarecovery' => ['label' => 'Data Recovery', 'sections' => $serviceSectionDef],
+        'ipad' => ['label' => 'iPad Reparatie', 'sections' => $serviceSectionDef],
+        'moederbord' => ['label' => 'Moederbord Reparatie', 'sections' => $serviceSectionDef],
+        'software' => ['label' => 'Software & Windows', 'sections' => $serviceSectionDef],
+        'netwerk' => ['label' => 'Netwerkoplossingen', 'sections' => $serviceSectionDef],
+        'console' => ['label' => 'Console Reparatie', 'sections' => $serviceSectionDef],
     ],
 
     /*
@@ -497,6 +650,17 @@ return [
     | Brand colors and the font are FIXED in code (resources/views/landing/layouts/app.blade.php
     | + resources/css/landing.css) and are intentionally NOT editable here.
     */
+    'service_slugs' => [
+        'laptop-reparatie' => 'laptopreparatie',
+        'pc-reparatie' => 'pcreparatie',
+        'macbook-reparatie' => 'macbook',
+        'data-recovery' => 'datarecovery',
+        'ipad-reparatie' => 'ipad',
+        'moederbord-reparatie' => 'moederbord',
+        'software-windows' => 'software',
+        'netwerkoplossingen' => 'netwerk',
+        'console-reparatie' => 'console',
+    ],
     'design' => [
         'site' => [
             'label' => 'Site',

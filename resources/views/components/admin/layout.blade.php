@@ -323,13 +323,31 @@
                         </svg>
                     </button>
                     <div x-show="open" x-cloak x-transition class="border-l-2 border-white/30 ml-6 pl-4 space-y-1 py-1 text-xs text-blue-100">
-                        <span class="block rounded-lg px-3 py-1.5 cursor-not-allowed hover:bg-white/5">Hardware-afspraak <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
-                        <span class="block rounded-lg px-3 py-1.5 cursor-not-allowed hover:bg-white/5">Hardware afdeling <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
-                        <span class="block rounded-lg px-3 py-1.5 cursor-not-allowed hover:bg-white/5">Software-afdeling <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
-                        <span class="block rounded-lg px-3 py-1.5 cursor-not-allowed hover:bg-white/5">Dataherstelen-afdeeling <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
-                        <span class="block rounded-lg px-3 py-1.5 cursor-not-allowed hover:bg-white/5">Website-afdeling <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
-                        <span class="block rounded-lg px-3 py-1.5 cursor-not-allowed hover:bg-white/5">Netwerk-afdeling <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
-                        <span class="block rounded-lg px-3 py-1.5 cursor-not-allowed hover:bg-white/5">Pcbouwen-afdeling <small class="text-[10px] opacity-60">(Binnenkort)</small></span>
+                        @foreach (array_values(config('cms.service_slugs')) as $pageKey)
+                            @php
+                                $svcPage = config("cms.pages.{$pageKey}");
+                                $svcLabel = $svcPage['label'] ?? $pageKey;
+                                $svcSections = $svcPage['sections'] ?? [];
+                            @endphp
+                            <div x-data="{ svc: false }" class="space-y-1">
+                                <button type="button" @click="svc = !svc"
+                                        class="flex w-full items-center justify-between gap-2 rounded-lg px-3 py-1.5 text-left font-semibold text-blue-50 hover:bg-white/10 hover:text-white">
+                                    <span>{{ $svcLabel }}</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                         class="h-3.5 w-3.5 shrink-0 transition-transform duration-200" :class="svc ? 'rotate-180' : ''">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                    </svg>
+                                </button>
+                                <div x-show="svc" x-cloak x-transition class="space-y-1 border-l border-white/15 ml-3 pl-3">
+                                    @foreach ($svcSections as $sectionKey => $sectionCfg)
+                                        <a href="{{ route('admin.content.section.edit', ['page' => $pageKey, 'section' => $sectionKey]) }}"
+                                           class="block rounded-lg px-3 py-1.5 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === $pageKey && request()->route('section') === $sectionKey ? 'bg-white/15 text-white font-bold' : 'text-blue-100 hover:bg-white/10 hover:text-white' }}">
+                                            {{ $sectionCfg['label'] ?? $sectionKey }}
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
 

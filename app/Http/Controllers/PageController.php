@@ -118,5 +118,43 @@ class PageController extends Controller
 
         return response($html)->header('Content-Type', 'text/html; charset=UTF-8');
     }
+
+    public function service(string $slug)
+    {
+        $map = config('cms.service_slugs', []);
+        if (! array_key_exists($slug, $map)) {
+            abort(404);
+        }
+
+        $pageKey = $map[$slug];
+        $version = Cms::version();
+        $cacheKey = "cms.page.html.service.{$pageKey}.{$version}";
+
+        if (!Auth::check()) {
+            $cached = Cache::get($cacheKey);
+            if (is_string($cached)) {
+                return response($cached)->header('Content-Type', 'text/html; charset=UTF-8');
+            }
+        }
+
+        $s = Cms::page($pageKey);
+        $design = Cms::design();
+
+        // Placeholder pages that have not been filled in yet return 404.
+        if (empty($s['hero']['title1'] ?? '')) {
+            abort(404);
+        }
+
+        // Header/footer live on the 'home' page.
+        $c = Cms::page('home');
+
+        $html = view('landing.service', compact('c', 's', 'design', 'slug', 'pageKey'))->render();
+
+        if (!Auth::check()) {
+            Cache::put($cacheKey, $html, now()->addMonth());
+        }
+
+        return response($html)->header('Content-Type', 'text/html; charset=UTF-8');
+    }
 }
 

@@ -40,6 +40,10 @@ Route::prefix('admin')
                     ->whereAlpha('page')
                     ->whereAlpha('section')
                     ->name('section');
+
+                // Progressive media (image/video) upload used by the section editor.
+                Route::post('/media', [ContentController::class, 'uploadMedia'])
+                    ->name('media');
             });
 
         // Users management (formerly klanten)

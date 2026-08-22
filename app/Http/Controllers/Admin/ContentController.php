@@ -86,14 +86,22 @@ class ContentController extends Controller
                         $file = $value;
                     }
 
-                    if ($blockSchema['type'] === 'image' && $file) {
-                        $request->validate([
-                            "blocks.{$key}_file" => ['image', 'mimes:jpeg,png,webp', 'max:5120'],
-                        ], [], ["blocks.{$key}_file" => 'afbeelding']);
-
-                        $name = $file->hashName();
-                        $file->move(public_path('assets/img/landing'), $name);
-                        $stringValue = 'assets/img/landing/' . $name;
+                    if (($blockSchema['type'] === 'image' || $blockSchema['type'] === 'video') && $file) {
+                        if ($blockSchema['type'] === 'image') {
+                            $request->validate([
+                                "blocks.{$key}_file" => ['image', 'mimes:jpeg,png,webp', 'max:5120'],
+                            ], [], ["blocks.{$key}_file" => 'afbeelding']);
+                            $name = $file->hashName();
+                            $file->move(public_path('assets/img/landing'), $name);
+                            $stringValue = 'assets/img/landing/' . $name;
+                        } else {
+                            $request->validate([
+                                "blocks.{$key}_file" => ['file', 'mimes:mp4,mov,webm', 'max:51200'],
+                            ], [], ["blocks.{$key}_file" => 'video']);
+                            $name = $file->hashName();
+                            $file->move(public_path('assets/video'), $name);
+                            $stringValue = 'assets/video/' . $name;
+                        }
                     } else {
                         $stringValue = $value === null ? null : (string) $value;
                     }
@@ -221,6 +229,31 @@ class ContentController extends Controller
         }
 
         return $items;
+    }
+
+    /**
+     * Progressive ajax upload for images/videos used inside the section editor.
+     * Returns a stored path (e.g. assets/video/NAME or assets/img/landing/NAME).
+     */
+    public function uploadMedia(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $data = $request->validate([
+            'file' => ['required', 'file', 'mimes:jpeg,png,webp,mp4,mov,webm', 'max:51200'],
+        ]);
+
+        $file = $data['file'];
+        $name = $file->hashName();
+        $ext = strtolower($file->getClientOriginalExtension());
+
+        if (in_array($ext, ['mp4', 'mov', 'webm'], true)) {
+            $file->move(public_path('assets/video'), $name);
+            $path = 'assets/video/' . $name;
+        } else {
+            $file->move(public_path('assets/img/landing'), $name);
+            $path = 'assets/img/landing/' . $name;
+        }
+
+        return response()->json(['path' => $path]);
     }
 }
 

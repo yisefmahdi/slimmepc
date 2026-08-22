@@ -240,6 +240,40 @@
                                                    style="border-color: rgba(148,163,184,.3); color: var(--c-muted)">
                                         </div>
                                     </div>
+                                @elseif (($block['type'] ?? 'text') === 'video')
+                                    <div class="flex flex-wrap items-center gap-5 rounded-xl border p-4 bg-slate-50/50 dark:bg-slate-800/30" data-video-block style="border-color: rgba(148,163,184,.25)">
+                                        <div class="flex items-center gap-4">
+                                            <div class="relative h-24 w-40 overflow-hidden rounded-xl border bg-white dark:bg-slate-900 shadow-inner flex items-center justify-center" style="border-color: rgba(148,163,184,.3)">
+                                                <video data-video-preview src="{{ $blockValue ? asset($blockValue) : '' }}"
+                                                       controls class="h-full w-full object-contain p-1"
+                                                       style="{{ $blockValue ? '' : 'display: none' }}"></video>
+                                                <span class="text-[10px] text-slate-400 absolute" style="{{ $blockValue ? 'display: none' : '' }}">Geen video</span>
+                                            </div>
+                                            <div class="text-xs space-y-1" style="color: var(--c-muted)">
+                                                <span class="block font-bold text-sm" style="color: var(--c-heading)" data-video-name>
+                                                    @if ($blockValue)
+                                                        {{ basename($blockValue) }}
+                                                    @else
+                                                        Geen video gekozen
+                                                    @endif
+                                                </span>
+                                                <span class="block">Ondersteund: MP4, MOV, WEBM (Max 50MB).</span>
+                                            </div>
+                                        </div>
+                                        <div class="min-w-[240px] flex-1">
+                                            <input type="hidden" name="blocks[{{ $blockKey }}]" value="{{ $blockValue }}" data-video-value>
+                                            <input type="file" name="blocks[{{ $blockKey }}_file]" accept="video/mp4,video/webm,video/quicktime"
+                                                   class="js-media-input block w-full cursor-pointer rounded-xl border text-sm file:mr-3 file:rounded-xl file:border-0 file:bg-blue-50 file:px-4 file:py-2.5 file:text-sm file:font-bold file:text-blue-700 hover:file:bg-blue-100"
+                                                   style="border-color: rgba(148,163,184,.3); color: var(--c-muted)"
+                                                   data-media-type="video">
+                                            <div class="js-media-progress mt-2 hidden">
+                                                <div class="h-2 w-full overflow-hidden rounded bg-slate-200">
+                                                    <div class="js-media-bar h-full bg-blue-600" style="width:0%"></div>
+                                                </div>
+                                                <p class="js-media-pct mt-1 text-xs text-slate-500">0%</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 @elseif (($block['type'] ?? 'text') === 'icon')
                                     <div class="icon-picker" data-icon-picker>
                                         <input type="hidden" name="blocks[{{ $blockKey }}]" value="{{ $blockValue }}">

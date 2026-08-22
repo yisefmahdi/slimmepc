@@ -90,7 +90,8 @@
         var fileInputs = form.querySelectorAll('input[type="file"]');
         for (var i = 0; i < fileInputs.length; i++) {
             var file = fileInputs[i].files && fileInputs[i].files[0];
-            if (file && file.size > 5 * 1024 * 1024) {
+            // Video uploads are handled progressively and may exceed the image limit.
+            if (file && file.size > 5 * 1024 * 1024 && !fileInputs[i].classList.contains('js-media-input')) {
                 toastMessage('Afbeelding is te groot (maximaal 5 MB).', false);
                 return;
             }
@@ -236,6 +237,58 @@
                 };
                 reader.readAsDataURL(fileInput.files[0]);
             });
+
+        form.addEventListener('change', function (e) {
+            var input = e.target;
+            if (!input.classList || !input.classList.contains('js-media-input')) return;
+            if (input.getAttribute('data-media-type') !== 'video') return;
+            var file = input.files && input.files[0];
+            if (!file) return;
+
+            var block = input.closest('[data-video-block]');
+            if (!block) return;
+
+            var progress = block.querySelector('.js-media-progress');
+            var bar = block.querySelector('.js-media-bar');
+            var pct = block.querySelector('.js-media-pct');
+            var hidden = block.querySelector('[data-video-value]');
+
+            if (progress) progress.classList.remove('hidden');
+            if (bar) bar.style.width = '0%';
+            if (pct) pct.textContent = '0%';
+
+            var fd = new FormData();
+            fd.append('file', file);
+
+            axios.post('/admin/content/media', fd, {
+                headers: { 'X-CSRF-TOKEN': csrfToken() },
+                onUploadProgress: function (ev) {
+                    if (!ev.total) return;
+                    var percent = Math.round((ev.loaded / ev.total) * 100);
+                    if (bar) bar.style.width = percent + '%';
+                    if (pct) pct.textContent = percent + '%';
+                }
+            }).then(function (response) {
+                var path = response.data && response.data.path;
+                if (!path) return;
+                if (hidden) hidden.value = path;
+                var preview = block.querySelector('[data-video-preview]');
+                if (preview) {
+                    preview.src = '/' + path;
+                    preview.style.display = '';
+                }
+                var name = block.querySelector('[data-video-name]');
+                if (name) name.textContent = path.split('/').pop();
+                input.value = '';
+                if (progress) progress.classList.add('hidden');
+            }).catch(function (error) {
+                if (progress) progress.classList.add('hidden');
+                var msg = 'Video upload mislukt.';
+                var d = error.response && error.response.data;
+                if (d && d.message) msg = d.message;
+                toastMessage(msg, false);
+            });
+        });
         });
     }
 

@@ -104,7 +104,7 @@ class ContentBlockSeeder extends Seeder
                 'title_suffix' => 'die bij jou past',
                 'description' => 'Van hardware reparaties tot data recovery, upgrades en software. Klik op een service en ontdek hoe wij je kunnen helpen.',
                 'services' => [
-                    ['icon' => 'laptop', 'title' => 'Laptop Reparatie', 'description' => 'Scherm, toetsenbord, batterij, scharnieren en andere laptopproblemen.', 'link' => '/reparatie-laptop.html', 'image' => '53f89edd-3207-4891-b580-7246605e1858.png', 'hidden' => false],
+                    ['icon' => 'laptop', 'title' => 'Laptop Reparatie', 'description' => 'Scherm, toetsenbord, batterij, scharnieren en andere laptopproblemen.', 'link' => '/diensten/laptop-reparatie', 'image' => '53f89edd-3207-4891-b580-7246605e1858.png', 'hidden' => false],
                     ['icon' => 'monitor', 'title' => 'PC Reparatie', 'description' => 'Desktop traag, start niet of hardwareproblemen? Wij lossen het snel op.', 'link' => '/pc.html', 'image' => 'aad70dda-b34c-4737-881f-eddab9c5b46c.png', 'hidden' => false],
                     ['icon' => 'apple', 'title' => 'MacBook Reparatie', 'description' => 'Professionele reparatie voor MacBook Air, MacBook Pro en andere Apple-apparaten.', 'link' => '/diensten/macbook-reparatie', 'image' => '363f8f55-fba7-4f23-88db-8c8e728d522e.png', 'hidden' => false],
                     ['icon' => 'database', 'title' => 'Data Recovery', 'description' => 'Wij herstellen gegevens van beschadigde of niet meer werkende opslagapparaten.', 'link' => '/datarecovery.html', 'image' => 'e6cc3cb7-5aea-460d-a1a9-884318edc64a.png', 'hidden' => false],
@@ -250,6 +250,131 @@ class ContentBlockSeeder extends Seeder
 
                 ContentBlock::firstOrCreate(
                     ['page' => 'overons', 'section' => $section, 'block_key' => $key],
+                    [
+                        'type' => $isJson ? 'json' : 'text',
+                        'value' => $isJson ? null : $value,
+                        'json_value' => $isJson ? $value : null,
+                        'sort_order' => $sort++,
+                    ]
+                );
+            }
+        }
+
+        // Service detail pages (CMS-editable). First-or-create so admin edits are preserved on reseed.
+        $laptop = [
+            'hero' => [
+                'badge' => 'Laptop reparatie in Apeldoorn',
+                'title1' => 'Laptop kapot?',
+                'title2' => 'Slimme-PC',
+                'title3' => 'maakt hem weer als nieuw',
+                'description' => 'Van scherm tot moederbord: wij repareren je laptop snel en vakkundig in onze werkplaats in Apeldoorn. Eerlijk advies, transparante prijzen en garantie.',
+                'image' => 'assets/img/landing/53f89edd-3207-4891-b580-7246605e1858.png',
+                'usp' => [
+                    ['icon' => 'zap', 'title' => 'Snelle diagnose', 'subtitle' => 'Vaak dezelfde dag'],
+                    ['icon' => 'shield-check', 'title' => 'Garantie', 'subtitle' => 'Op de reparatie'],
+                    ['icon' => 'badge-euro', 'title' => 'Eerlijke prijs', 'subtitle' => 'Vooraf duidelijk'],
+                    ['icon' => 'map-pin', 'title' => 'In Apeldoorn', 'subtitle' => 'Eigen werkplaats'],
+                ],
+            ],
+            'problems' => [
+                'title' => 'Wat is er mis met je laptop?',
+                'subtitle' => 'Kies je probleem en ontdek hoe wij helpen.',
+                'items' => [
+                    ['icon' => 'monitor-x', 'title' => 'Geen beeld'],
+                    ['icon' => 'alert-triangle', 'title' => 'Blue screen'],
+                    ['icon' => 'gauge', 'title' => 'Traag systeem'],
+                    ['icon' => 'battery-low', 'title' => 'Batterij leeg'],
+                    ['icon' => 'keyboard', 'title' => 'Toetsenbord stuk'],
+                    ['icon' => 'tablet', 'title' => 'Scherm gebroken'],
+                    ['icon' => 'plug', 'title' => 'Oplader probleem'],
+                    ['icon' => 'fan', 'title' => 'Ventilator lawaai'],
+                    ['icon' => 'droplet', 'title' => 'Waterschade'],
+                    ['icon' => 'bug', 'title' => 'Software fout'],
+                    ['icon' => 'wifi', 'title' => 'Geen Wi-Fi'],
+                    ['icon' => 'memory-stick', 'title' => 'Geheugen issue'],
+                ],
+            ],
+            'speciality' => [
+                'badge' => 'Onze specialiteit',
+                'title1' => 'Reparatie op',
+                'title2' => 'componentniveau',
+                'description' => 'Waar anderen het moederbord vervangen, repareren wij op componentniveau. Schematisch zoeken we de exacte storing en lossen die precies op — vaak stukken goedkoper.',
+                'list' => [
+                    ['icon' => 'microchip', 'title' => 'Moederbord diagnose'],
+                    ['icon' => 'cpu', 'title' => 'Chip-level soldeerwerk'],
+                    ['icon' => 'circuit-board', 'title' => 'Schema analyse'],
+                    ['icon' => 'test-tube', 'title' => 'Component test'],
+                    ['icon' => 'wrench', 'title' => 'Precisie reparatie'],
+                ],
+                'video' => '',
+            ],
+            'equipment' => [
+                'items' => [
+                    ['icon' => 'microscope', 'title' => 'Microscoop', 'subtitle' => 'Fijne inspectie van circuits'],
+                    ['icon' => 'flame', 'title' => 'Heetluchtstation', 'subtitle' => 'BGA reflow & soldeerwerk'],
+                    ['icon' => 'multimeter', 'title' => 'Multimeter', 'subtitle' => 'Doormeten van spanning'],
+                    ['icon' => 'power', 'title' => 'Voedingstester', 'subtitle' => 'Stroom & stabiliteit'],
+                ],
+            ],
+            'example' => [
+                'title' => 'Een reparatie van dichtbij',
+                'subtitle' => 'Zo lossen we een complexe storing op.',
+                'before_image' => '',
+                'before_label' => 'Vóór',
+                'before_text' => 'Laptop gaf geen beeld en sloot direct na opstart af.',
+                'diagnose_image' => '',
+                'diagnose_label' => 'Diagnose',
+                'diagnose_text' => 'Via schema-analyse een kortsluiting in het voedingscircuit gelokaliseerd.',
+                'after_image' => '',
+                'after_label' => 'Na reparatie',
+                'after_text' => 'Nieuwe condensator geplaatst, volledig getest en werkend afgeleverd.',
+                'tested_title' => 'Getest & werkend',
+                'tested_text' => 'Alle poorten, scherm en batterij grondig getest voor levering.',
+            ],
+            'other' => [
+                'title' => 'Andere laptop reparaties',
+                'items' => [
+                    ['image' => '', 'title' => 'Scherm vervanging', 'subtitle' => 'LCD & touchscreen'],
+                    ['image' => '', 'title' => 'Toetsenbord', 'subtitle' => 'Mechanisch & flex'],
+                    ['image' => '', 'title' => 'Batterij', 'subtitle' => 'Oplaadbaar'],
+                    ['image' => '', 'title' => 'Ventilator', 'subtitle' => 'Koeling & stof'],
+                    ['image' => '', 'title' => 'Oplader & poort', 'subtitle' => 'Laden en voeding'],
+                    ['image' => '', 'title' => 'Waterschade', 'subtitle' => 'Reinigen & drogen'],
+                ],
+            ],
+            'faq' => [
+                'title' => 'Veelgestelde vragen',
+                'items' => [
+                    ['question' => 'Hoe lang duurt een laptop reparatie?', 'answer' => 'De meeste reparaties zijn binnen 1-3 werkdagen klaar, afhankelijk van de onderdelen.'],
+                    ['question' => 'Krijg ik garantie op de reparatie?', 'answer' => 'Ja, op onze reparaties zit garantie. We bespreken de voorwaarden vooraf met je.'],
+                    ['question' => 'Is mijn data veilig?', 'answer' => 'We gaan zorgvuldig om met je gegevens en maken indien gewenst een backup voor de reparatie.'],
+                    ['question' => 'Wat kost een diagnose?', 'answer' => 'De diagnose is transparant geprijsd en wordt verrekend bij een doorgaande reparatie.'],
+                    ['question' => 'Kan ik langskomen zonder afspraak?', 'answer' => 'Je bent welkom in onze werkplaats in Apeldoorn; een afspraak versnelt de service.'],
+                ],
+                'more_url' => '',
+                'cta_title' => 'Klaar om je laptop te laten maken?',
+                'cta_subtitle' => 'Plan vandaag nog je reparatie in Apeldoorn.',
+                'cta_phone' => '085 080 1167',
+                'cta_button' => 'Reparatie aanvragen',
+                'cta_bg' => '',
+            ],
+            'bottom' => [
+                'items' => [
+                    ['icon' => 'zap', 'title' => 'Snelle service', 'subtitle' => 'Vaak dezelfde dag'],
+                    ['icon' => 'shield-check', 'title' => 'Garantie', 'subtitle' => 'Op de reparatie'],
+                    ['icon' => 'badge-euro', 'title' => 'Eerlijke prijs', 'subtitle' => 'Vooraf duidelijk'],
+                    ['icon' => 'user-round', 'title' => 'Persoonlijk', 'subtitle' => 'Advies op maat'],
+                    ['icon' => 'map-pin', 'title' => 'Lokaal', 'subtitle' => 'Apeldoorn'],
+                ],
+            ],
+        ];
+
+        foreach ($laptop as $section => $blocks) {
+            $sort = 0;
+            foreach ($blocks as $key => $value) {
+                $isJson = is_array($value);
+                ContentBlock::firstOrCreate(
+                    ['page' => 'laptopreparatie', 'section' => $section, 'block_key' => $key],
                     [
                         'type' => $isJson ? 'json' : 'text',
                         'value' => $isJson ? null : $value,
