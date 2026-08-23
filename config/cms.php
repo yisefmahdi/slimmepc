@@ -497,6 +497,297 @@ $macSectionDef = [
     ],
 ];
 
+$ipadSectionDef = [
+    'hero' => [
+        'label' => 'Hero',
+        'blocks' => [
+            'badge' => ['label' => 'Badge (boven titel)', 'type' => 'text'],
+            'title1' => ['label' => 'Titel regel 1 (Tablet kapot?)', 'type' => 'text'],
+            'title2' => ['label' => 'Titel regel 2 (Wij maken ’m)', 'type' => 'text'],
+            'title3' => ['label' => 'Titel regel 3 (weer compleet.)', 'type' => 'text'],
+            'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+            'trust' => [
+                'label' => 'Vertrouwenspunten (4)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Tekst', 'type' => 'text'],
+                ],
+            ],
+            'image' => ['label' => 'Tablet afbeelding (hero rechts)', 'type' => 'image'],
+        ],
+    ],
+    'problems' => [
+        'label' => 'Wat is er kapot?',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'left_items' => [
+                'label' => 'Linker problemen (4)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'emoji', 'label' => 'Icoon', 'type' => 'text'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                ],
+            ],
+            'center_image' => ['label' => 'Middelste tablet afbeelding', 'type' => 'image'],
+            'right_items' => [
+                'label' => 'Rechter problemen (4)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'emoji', 'label' => 'Icoon', 'type' => 'text'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                ],
+            ],
+            'cta_title' => ['label' => 'CTA titel (Tablet laadt niet?)', 'type' => 'text'],
+            'cta_text' => ['label' => 'CTA tekst', 'type' => 'textarea'],
+        ],
+    ],
+    'screen' => [
+        'label' => 'Schermreparatie',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'before_image' => ['label' => 'Voor afbeelding', 'type' => 'image'],
+            'before_label' => ['label' => 'Voor label', 'type' => 'text'],
+            'after_image' => ['label' => 'Na afbeelding', 'type' => 'image'],
+            'after_label' => ['label' => 'Na label', 'type' => 'text'],
+            'benefits' => [
+                'label' => 'Voordelen (4)',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Tekst', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'brands' => [
+        'label' => 'Merken',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Merken (6)',
+                'type' => 'json',
+                'columns' => 3,
+                'fields' => [
+                    ['key' => 'emoji', 'label' => 'Icoon', 'type' => 'text'],
+                    ['key' => 'title', 'label' => 'Naam', 'type' => 'text'],
+                    ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'steps' => [
+        'label' => 'Reparatie stappen',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'steps' => [
+                'label' => 'Stappen (3)',
+                'type' => 'json',
+                'columns' => 3,
+                'fields' => [
+                    ['key' => 'number', 'label' => 'Nummer', 'type' => 'text'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'description', 'label' => 'Beschrijving', 'type' => 'textarea'],
+                ],
+            ],
+            'benefits' => [
+                'label' => 'Voordelen (4)',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Tekst', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'repair' => [
+        'label' => 'Repareren of vervangen',
+        'blocks' => [
+            'repair_title' => ['label' => 'Repareren titel', 'type' => 'text'],
+            'repair_subtitle' => ['label' => 'Repareren ondertitel', 'type' => 'text'],
+            'repair_items' => [
+                'label' => 'Repareren punten (5)',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Tekst', 'type' => 'text'],
+                ],
+            ],
+            'repair_image' => ['label' => 'Repareren afbeelding', 'type' => 'image'],
+            'replace_title' => ['label' => 'Vervangen titel', 'type' => 'text'],
+            'replace_items' => [
+                'label' => 'Vervangen punten (4)',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Tekst', 'type' => 'text'],
+                ],
+            ],
+            'replace_image' => ['label' => 'Vervangen afbeelding', 'type' => 'image'],
+            'advice_title' => ['label' => 'Advies titel', 'type' => 'text'],
+            'advice_text' => ['label' => 'Advies tekst', 'type' => 'textarea'],
+        ],
+    ],
+    'numbers' => [
+        'label' => 'Cijfers',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Cijfers (4)',
+                'type' => 'json',
+                'columns' => 4,
+                'fields' => [
+                    ['key' => 'emoji', 'label' => 'Icoon', 'type' => 'text'],
+                    ['key' => 'value', 'label' => 'Waarde', 'type' => 'text'],
+                    ['key' => 'label', 'label' => 'Label', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'faq' => [
+        'label' => 'FAQ',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Vragen (4)',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'question', 'label' => 'Vraag', 'type' => 'text'],
+                    ['key' => 'answer', 'label' => 'Antwoord', 'type' => 'textarea'],
+                ],
+            ],
+        ],
+    ],
+    'cta' => [
+        'label' => 'Afsluitende CTA',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'address_title' => ['label' => 'Adres titel', 'type' => 'text'],
+            'address_text' => ['label' => 'Adres', 'type' => 'textarea'],
+            'image' => ['label' => 'CTA afbeelding', 'type' => 'image'],
+        ],
+    ],
+];
+
+$softwareSectionDef = [
+    'hero' => [
+        'label' => 'Hero',
+        'blocks' => [
+            'badge' => ['label' => 'Badge (boven titel)', 'type' => 'text'],
+            'title1' => ['label' => 'Titel regel 1 (Software-probleem?)', 'type' => 'text'],
+            'title2' => ['label' => 'Titel regel 2 (Wij)', 'type' => 'text'],
+            'title3' => ['label' => 'Titel regel 3 (lossen)', 'type' => 'text'],
+            'title4' => ['label' => 'Titel regel 4 (het op.)', 'type' => 'text'],
+            'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+            'bullets' => [
+                'label' => 'Punten (4)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Tekst', 'type' => 'text'],
+                ],
+            ],
+            'image' => ['label' => 'Hero afbeelding (rechts)', 'type' => 'image'],
+        ],
+    ],
+    'selector' => [
+        'label' => 'Waar kunnen we je mee helpen?',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'tabs' => [
+                'label' => 'Tabs (9)',
+                'type' => 'json',
+                'columns' => 3,
+                'fields' => [
+                    ['key' => 'emoji', 'label' => 'Icoon', 'type' => 'text'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                ],
+            ],
+            'selected_title' => ['label' => 'Geselecteerde titel', 'type' => 'text'],
+            'selected_image' => ['label' => 'Geselecteerde afbeelding', 'type' => 'image'],
+            'selected_image_text' => ['label' => 'Afbeelding tekst', 'type' => 'text'],
+            'selected_problems' => [
+                'label' => 'Problemen (8)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Tekst', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'services' => [
+        'label' => 'Dit kunnen we voor je doen',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Services (6)',
+                'type' => 'json',
+                'columns' => 3,
+                'fields' => [
+                    ['key' => 'image', 'label' => 'Afbeelding', 'type' => 'image'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'points', 'label' => 'Punten (4, komma gescheiden)', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'steps' => [
+        'label' => 'Zo gaan we te werk',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'steps' => [
+                'label' => 'Stappen (5)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'emoji', 'label' => 'Icoon', 'type' => 'text'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'description', 'label' => 'Beschrijving', 'type' => 'textarea'],
+                ],
+            ],
+        ],
+    ],
+    'trust' => [
+        'label' => 'Trust bar (blauw)',
+        'blocks' => [
+            'items' => [
+                'label' => 'Items (4)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'emoji', 'label' => 'Icoon', 'type' => 'text'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'final' => [
+        'label' => 'Contact & Review',
+        'blocks' => [
+            'remote_title' => ['label' => 'Remote titel', 'type' => 'text'],
+            'remote_text' => ['label' => 'Remote tekst', 'type' => 'textarea'],
+            'contact_title' => ['label' => 'Contact titel', 'type' => 'text'],
+            'contact_subtitle' => ['label' => 'Contact ondertitel', 'type' => 'text'],
+            'contact_phone' => ['label' => 'Telefoon', 'type' => 'text'],
+            'contact_address' => ['label' => 'Adres', 'type' => 'textarea'],
+            'contact_image' => ['label' => 'Winkel afbeelding', 'type' => 'image'],
+            'review_text' => ['label' => 'Review tekst', 'type' => 'textarea'],
+            'review_author' => ['label' => 'Review auteur', 'type' => 'text'],
+        ],
+    ],
+];
+
 return [
 
     'cache_version_key' => 'cache_version',
@@ -976,9 +1267,9 @@ return [
         'pcreparatie' => ['label' => 'PC Reparatie', 'sections' => $serviceSectionDef],
         'mac' => ['label' => 'Mac Reparatie', 'sections' => $macSectionDef],
         'datarecovery' => ['label' => 'Data Recovery', 'sections' => $serviceSectionDef],
-        'ipad' => ['label' => 'iPad Reparatie', 'sections' => $serviceSectionDef],
+        'ipad' => ['label' => 'iPad Reparatie', 'sections' => $ipadSectionDef],
         'moederbord' => ['label' => 'Moederbord Reparatie', 'sections' => $serviceSectionDef],
-        'software' => ['label' => 'Software & Windows', 'sections' => $serviceSectionDef],
+        'software' => ['label' => 'Software & Windows', 'sections' => $softwareSectionDef],
         'netwerk' => ['label' => 'Netwerkoplossingen', 'sections' => $serviceSectionDef],
         'console' => ['label' => 'Playstation / Xbox', 'sections' => $consoleSectionDef],
     ],

@@ -108,9 +108,9 @@ class ContentBlockSeeder extends Seeder
                     ['icon' => 'monitor', 'title' => 'PC Reparatie', 'description' => 'Desktop traag, start niet of hardwareproblemen? Wij lossen het snel op.', 'link' => '/pc.html', 'image' => 'aad70dda-b34c-4737-881f-eddab9c5b46c.png', 'hidden' => false],
                     ['icon' => 'apple', 'title' => 'MacBook Reparatie', 'description' => 'Professionele reparatie voor MacBook Air, MacBook Pro en andere Apple-apparaten.', 'link' => '/diensten/mac-reparatie', 'image' => '363f8f55-fba7-4f23-88db-8c8e728d522e.png', 'hidden' => false],
                     ['icon' => 'database', 'title' => 'Data Recovery', 'description' => 'Wij herstellen gegevens van beschadigde of niet meer werkende opslagapparaten.', 'link' => '/datarecovery.html', 'image' => 'e6cc3cb7-5aea-460d-a1a9-884318edc64a.png', 'hidden' => false],
-                    ['icon' => 'arrow-up', 'title' => 'Ipad', 'description' => 'Wij herstellen gegevens van beschadigde of niet meer werkende opslagapparaten.', 'link' => '/smart-apparaten.html', 'image' => 'ipad.png', 'hidden' => false],
+                    ['icon' => 'arrow-up', 'title' => 'iPad Reparatie', 'description' => 'Scherm, batterij, laadpoort en andere iPad & tablet reparaties.', 'link' => '/diensten/ipad-reparatie', 'image' => 'ipad.png', 'hidden' => false],
                     ['icon' => 'cpu', 'title' => 'Moederbord Reparatie', 'description' => 'Component-level reparatie bij complexe storingen, geen beeld en stroomproblemen.', 'link' => '/matherbord-reparatie.html', 'image' => '85cea032-2e38-4f3d-8071-f8677565c0a3.png', 'hidden' => false],
-                    ['icon' => 'panels-top-left', 'title' => 'Software & Windows', 'description' => 'Installatie, updates, drivers, optimalisatie en het verwijderen van virussen.', 'link' => '/software.html', 'image' => '45e1353e-fb4a-4fec-9e45-1e00df7b86ec.png', 'hidden' => false],
+                    ['icon' => 'panels-top-left', 'title' => 'Software & Windows', 'description' => 'Installatie, updates, drivers, optimalisatie en het verwijderen van virussen.', 'link' => '/diensten/software-windows', 'image' => '45e1353e-fb4a-4fec-9e45-1e00df7b86ec.png', 'hidden' => false],
                     ['icon' => 'wifi', 'title' => 'Netwerkoplossingen', 'description' => 'Installatie en onderhoud van stabiele, veilige en efficiënte netwerken.', 'link' => '/diensten/netwerkoplossingen', 'image' => 'cd15d7f8-c7f8-4d86-aa46-b51b04415092.png', 'hidden' => false],
                     ['icon' => 'gamepad-2', 'title' => 'Playstation / Xbox', 'description' => 'PlayStation, Xbox en Nintendo reparatie: HDMI, ventilator, laadpoort en stroomproblemen lossen wij vakkundig op.', 'link' => '/diensten/console-reparatie', 'image' => 'playstation-xbox.png', 'hidden' => false],
                 ],
@@ -644,6 +644,246 @@ class ContentBlockSeeder extends Seeder
                 $isJson = is_array($value);
                 ContentBlock::updateOrCreate(
                     ['page' => 'console', 'section' => $section, 'block_key' => $key],
+                    [
+                        'type' => $isJson ? 'json' : 'text',
+                        'value' => $isJson ? null : $value,
+                        'json_value' => $isJson ? $value : null,
+                        'sort_order' => $sort++,
+                    ]
+                );
+            }
+        }
+
+        $ipad = [
+            'hero' => [
+                'badge' => 'Tablet & iPad Reparatie · Apeldoorn',
+                'title1' => 'Tablet kapot?',
+                'title2' => 'Wij maken ’m',
+                'title3' => 'weer compleet.',
+                'description' => 'Van een gebarsten scherm en batterijproblemen tot laadproblemen en andere defecten.',
+                'trust' => [
+                    ['title' => 'Professionele reparatie'],
+                    ['title' => 'Snel en betrouwbaar'],
+                    ['title' => 'Kwaliteitsonderdelen'],
+                    ['title' => 'Garantie op reparaties'],
+                ],
+                'image' => 'assets/img/landing/19f2b394-7583-4c87-9dd9-82cb5a851fd9.png',
+            ],
+            'problems' => [
+                'title' => 'Wat is er kapot?',
+                'subtitle' => 'Klik op het probleem en bekijk wat wij voor je kunnen betekenen.',
+                'left_items' => [
+                    ['emoji' => '▭', 'title' => 'Gebarsten scherm', 'subtitle' => 'Scherm vervangen'],
+                    ['emoji' => '▥', 'title' => 'Batterij snel leeg', 'subtitle' => 'Batterij vervangen'],
+                    ['emoji' => '⚡', 'title' => 'Laadt niet', 'subtitle' => 'Laadpoort reparatie'],
+                    ['emoji' => '◷', 'title' => 'Start niet op', 'subtitle' => 'Moederbord reparatie'],
+                ],
+                'center_image' => 'assets/img/landing/l00v181zmokewobpvy9j8uw8pw9wnl135377.avif',
+                'right_items' => [
+                    ['emoji' => '☝', 'title' => 'Touch werkt niet', 'subtitle' => 'Touchscreen problemen'],
+                    ['emoji' => '◉', 'title' => 'Camera / geluid', 'subtitle' => 'Camera of luidspreker'],
+                    ['emoji' => '▯', 'title' => 'Knoppen defect', 'subtitle' => 'Knoppen vervangen'],
+                    ['emoji' => '⚙', 'title' => 'Softwareproblemen', 'subtitle' => 'Systeemfouten & updates'],
+                ],
+                'cta_title' => 'Tablet laadt niet?',
+                'cta_text' => "We controleren de kabel,\nlaadpoort, batterij en het\nlaadcircuit om de oorzaak\nte vinden.",
+            ],
+            'screen' => [
+                'title' => 'Schermreparatie',
+                'subtitle' => 'Gebarsten, geen beeld of touchproblemen? Wij vervangen snel en vakkundig je scherm.',
+                'before_image' => 'assets/img/landing/blauwe-achtergrond-met-gebroken-glaseffect_53876-147682.avif',
+                'before_label' => 'VOOR',
+                'after_image' => 'assets/img/landing/Samsung-Galaxy-Tab-S10-FE-Tablet-Grijs-128GB.webp',
+                'after_label' => 'NA',
+                'benefits' => [
+                    ['title' => 'Originele kwaliteit schermen'],
+                    ['title' => 'Perfecte touch & helder beeld'],
+                    ['title' => 'Professionele montage'],
+                    ['title' => 'Garantie op schermreparatie'],
+                ],
+            ],
+            'brands' => [
+                'title' => 'Wij repareren verschillende merken en modellen',
+                'items' => [
+                    ['emoji' => '●', 'title' => 'Apple iPad', 'subtitle' => 'Alle iPad modellen'],
+                    ['emoji' => '▯', 'title' => 'Samsung', 'subtitle' => 'Galaxy Tab'],
+                    ['emoji' => '▭', 'title' => 'Lenovo', 'subtitle' => 'Lenovo Tab'],
+                    ['emoji' => '▦', 'title' => 'Microsoft Surface', 'subtitle' => 'Surface Pro / Go'],
+                    ['emoji' => '◉', 'title' => 'Huawei', 'subtitle' => 'Huawei MatePad'],
+                    ['emoji' => '•••', 'title' => 'Andere tablets', 'subtitle' => 'Vraag naar jouw model'],
+                ],
+            ],
+            'steps' => [
+                'title' => 'Onze reparatie stappen',
+                'steps' => [
+                    ['number' => '01', 'title' => 'Beschadigd', 'description' => "Je tablet werkt\nniet zoals het hoort."],
+                    ['number' => '02', 'title' => 'Reparatie', 'description' => "We onderzoeken en\nrepareren vakkundig."],
+                    ['number' => '03', 'title' => 'Klaar', 'description' => "Je tablet is weer\nals nieuw."],
+                ],
+                'benefits' => [
+                    ['title' => 'Gratis diagnose'],
+                    ['title' => 'Duidelijk advies vooraf'],
+                    ['title' => 'Pas repareren na akkoord'],
+                    ['title' => 'Garantie op reparatie'],
+                ],
+            ],
+            'repair' => [
+                'repair_title' => 'Repareren of toch vervangen?',
+                'repair_subtitle' => 'Vaak is reparatie de beste en voordeligere keuze.',
+                'repair_items' => [
+                    ['title' => 'Scherm vervangen'],
+                    ['title' => 'Batterij vervangen'],
+                    ['title' => 'Laadpoort reparatie'],
+                    ['title' => 'Kleine defecten oplossen'],
+                    ['title' => 'Voordeliger & duurzamer'],
+                ],
+                'repair_image' => 'assets/img/landing/l00v181zmokewobpvy9j8uw8pw9wnl135377.avif',
+                'replace_title' => 'Vervangen',
+                'replace_items' => [
+                    ['title' => 'Soms niet nodig'],
+                    ['title' => 'Hogere kosten'],
+                    ['title' => 'Gegevens overzetten'],
+                    ['title' => 'Niet altijd de beste keuze'],
+                ],
+                'replace_image' => 'assets/img/landing/763983dd201b21a191e84072371b2c39884063.webp',
+                'advice_title' => "Laat ons eerst bekijken\nwat er defect is.",
+                'advice_text' => 'Wij geven eerlijk advies of reparatie loont.',
+            ],
+            'numbers' => [
+                'title' => 'Slimme-PC in cijfers',
+                'items' => [
+                    ['emoji' => '⚒', 'value' => '10+', 'label' => 'Jaar ervaring'],
+                    ['emoji' => '☆', 'value' => '2500+', 'label' => 'Tablets gerepareerd'],
+                    ['emoji' => '♢', 'value' => '90 Dagen', 'label' => 'Garantie op reparaties'],
+                    ['emoji' => '◷', 'value' => 'Snel', 'label' => 'Meeste reparaties klaar binnen 24–48 uur'],
+                ],
+            ],
+            'faq' => [
+                'title' => 'Veelgestelde vragen',
+                'items' => [
+                    ['question' => 'Hoe lang duurt een tablet reparatie?', 'answer' => 'De meeste reparaties zijn afhankelijk van onderdeel en schade binnen korte tijd uitvoerbaar.'],
+                    ['question' => 'Krijg ik garantie op de reparatie?', 'answer' => 'Ja, op uitgevoerde reparaties en gebruikte onderdelen geldt garantie volgens onze voorwaarden.'],
+                    ['question' => 'Gaat mijn data verloren?', 'answer' => 'We proberen je gegevens altijd te behouden en bespreken risico\'s vooraf.'],
+                    ['question' => 'Welke tablets repareren jullie?', 'answer' => 'We repareren onder andere Apple, Samsung, Lenovo, Microsoft Surface, Huawei en andere merken.'],
+                ],
+            ],
+            'cta' => [
+                'title' => 'Geef je tablet een tweede kans.',
+                'subtitle' => 'Snel, vakkundig en met garantie gerepareerd.',
+                'address_title' => 'Slimme-PC Apeldoorn',
+                'address_text' => "Laan van de Mensenrechten 400\n7331 VZ Apeldoorn",
+                'image' => 'assets/img/landing/scherm-en-beeldkwaliteit_hero_1751220810.webp',
+            ],
+        ];
+
+        foreach ($ipad as $section => $blocks) {
+            $sort = 0;
+            foreach ($blocks as $key => $value) {
+                $isJson = is_array($value);
+                ContentBlock::updateOrCreate(
+                    ['page' => 'ipad', 'section' => $section, 'block_key' => $key],
+                    [
+                        'type' => $isJson ? 'json' : 'text',
+                        'value' => $isJson ? null : $value,
+                        'json_value' => $isJson ? $value : null,
+                        'sort_order' => $sort++,
+                    ]
+                );
+            }
+        }
+
+        $software = [
+            'hero' => [
+                'badge' => 'IT Hulp & Software · Apeldoorn',
+                'title1' => 'Software-probleem?',
+                'title2' => 'Wij',
+                'title3' => 'lossen',
+                'title4' => 'het op.',
+                'description' => "Van Windows en software tot printers,\ninternet, e-mail en netwerk.\nEén adres voor al jouw IT-hulp.",
+                'bullets' => [
+                    ['title' => 'Voor particulier & zakelijk'],
+                    ['title' => 'Ervaren & snel geholpen'],
+                    ['title' => 'Eerlijk advies, vaste tarieven'],
+                    ['title' => 'Remote of bij ons in de winkel'],
+                ],
+                'image' => 'assets/img/landing/software-hero.png',
+            ],
+            'selector' => [
+                'title' => 'Waar kunnen we je mee helpen?',
+                'subtitle' => 'Klik op een categorie of kies het probleem dat je ervaart.',
+                'tabs' => [
+                    ['emoji' => '▦', 'title' => "Windows &\nSoftware"],
+                    ['emoji' => '🖨', 'title' => 'Printer'],
+                    ['emoji' => '◉', 'title' => "Internet &\nWiFi"],
+                    ['emoji' => '⛓', 'title' => 'Netwerk'],
+                    ['emoji' => '✉', 'title' => 'E-mail'],
+                    ['emoji' => '☁', 'title' => "Accounts &\nCloud"],
+                    ['emoji' => '♢', 'title' => 'Beveiliging'],
+                    ['emoji' => '⌨', 'title' => 'Randapparatuur'],
+                    ['emoji' => '•••', 'title' => "Ander IT-\nprobleem?"],
+                ],
+                'selected_title' => 'Windows & Software problemen?',
+                'selected_image' => 'assets/img/landing/windows-service.jpg',
+                'selected_image_text' => "Installatie • Updates • Drivers\nFouten • Trage PC • Software",
+                'selected_problems' => [
+                    ['title' => 'Windows start niet of vastlopers'],
+                    ['title' => 'Drivers installeren of bijwerken'],
+                    ['title' => 'Blauw scherm of foutmeldingen'],
+                    ['title' => 'Programma\'s installeren / verwijderen'],
+                    ['title' => 'Trage computer of lange opstarttijd'],
+                    ['title' => 'Software werkt niet goed'],
+                    ['title' => 'Windows updates problemen'],
+                    ['title' => 'Bestanden kwijt of beschadigd'],
+                ],
+            ],
+            'services' => [
+                'title' => 'Dit kunnen we voor je doen',
+                'items' => [
+                    ['image' => 'assets/img/landing/windows-service-card.png', 'title' => 'Windows & Software', 'points' => 'Installatie Windows 10 / 11,Updates & optimalisatie,Drivers & programma\'s,Trage PC oplossen'],
+                    ['image' => 'assets/img/landing/printer-service.png', 'title' => 'Printerproblemen', 'points' => 'Installatie & configuratie,Printer niet gevonden,Printen / scannen werkt niet,Drivers & WiFi problemen'],
+                    ['image' => 'assets/img/landing/router-service.png', 'title' => 'Internet & WiFi', 'points' => 'Geen internet verbinding,Trage of instabiele WiFi,WiFi bereik vergroten,Router / modem hulp'],
+                    ['image' => 'assets/img/landing/network-service.png', 'title' => 'Netwerk', 'points' => 'Thuisnetwerk instellen,Apparaten verbinden,Netwerkproblemen oplossen,Bekabeld of draadloos'],
+                    ['image' => 'assets/img/landing/email-service.png', 'title' => 'E-mail', 'points' => 'E-mail instellen & herstellen,Verzenden/ontvangen werkt niet,Outlook, Gmail, etc.,Synchronisatie problemen'],
+                    ['image' => 'assets/img/landing/security-service.png', 'title' => 'Beveiliging', 'points' => 'Malware & virussen verwijderen,Beveiligingsinstellingen,Ongewenste software,Privacy & veiligheid'],
+                ],
+            ],
+            'steps' => [
+                'title' => 'Zo gaan we te werk',
+                'steps' => [
+                    ['emoji' => '☵', 'title' => '1. Probleem bespreken', 'description' => 'Je vertelt ons wat er speelt. We stellen de juiste vragen.'],
+                    ['emoji' => '⌕', 'title' => '2. Diagnose', 'description' => 'We onderzoeken het probleem grondig.'],
+                    ['emoji' => '▧', 'title' => '3. Oplossing voorstellen', 'description' => 'Je ontvangt een duidelijke uitleg en een eerlijk advies.'],
+                    ['emoji' => '⚙', 'title' => '4. Reparatie & testen', 'description' => 'We lossen het probleem op en testen alles goed.'],
+                    ['emoji' => '✓', 'title' => '5. Alles werkt weer', 'description' => 'Je apparaat werkt weer zoals het hoort!'],
+                ],
+            ],
+            'trust' => [
+                'items' => [
+                    ['emoji' => '◷', 'title' => 'Snelle service', 'subtitle' => "Vaak klaar terwijl je wacht\nof binnen 24 uur"],
+                    ['emoji' => '€', 'title' => 'Eerlijke prijzen', 'subtitle' => "Geen verrassingen\nHeldere tarieven vooraf"],
+                    ['emoji' => '♢', 'title' => 'Gegarandeerd', 'subtitle' => "Op reparaties &\nsoftware oplossingen"],
+                    ['emoji' => '♟', 'title' => 'Persoonlijke hulp', 'subtitle' => "We nemen de tijd\nvoor jouw probleem"],
+                ],
+            ],
+            'final' => [
+                'remote_title' => 'Probleem zonder bezoek oplossen?',
+                'remote_text' => "Veel software-, e-mail- en Windowsproblemen\nkunnen we veilig op afstand oplossen.",
+                'contact_title' => 'Nog vragen? Wij helpen je graag!',
+                'contact_subtitle' => 'Bel, WhatsApp of kom langs in onze winkel in Apeldoorn.',
+                'contact_phone' => '055 203 21 45',
+                'contact_address' => "Laan van de Mensenrechten 400\n7331 VZ Apeldoorn",
+                'contact_image' => 'assets/img/landing/slimme-pc-shop.jpg',
+                'review_text' => "Mijn printer deed niets meer en internet viel steeds weg.\nBinnen 30 minuten alles opgelost!",
+                'review_author' => '– Klant uit Apeldoorn',
+            ],
+        ];
+
+        foreach ($software as $section => $blocks) {
+            $sort = 0;
+            foreach ($blocks as $key => $value) {
+                $isJson = is_array($value);
+                ContentBlock::updateOrCreate(
+                    ['page' => 'software', 'section' => $section, 'block_key' => $key],
                     [
                         'type' => $isJson ? 'json' : 'text',
                         'value' => $isJson ? null : $value,
