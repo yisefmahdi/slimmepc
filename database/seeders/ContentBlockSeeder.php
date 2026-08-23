@@ -502,6 +502,142 @@ class ContentBlockSeeder extends Seeder
             ],
         ];
 
+        $mac = [
+            'hero' => [
+                'badge' => 'MacBook & iMac reparatie · Apeldoorn',
+                'title1' => 'Je Mac verdient',
+                'title2' => 'meer dan een',
+                'title3' => 'snelle fix.',
+                'description' => 'Professionele diagnose en reparatie van MacBook en iMac — van scherm en batterij tot complexe moederbordproblemen.',
+                'trust' => [
+                    ['title' => 'Snelle service'],
+                    ['title' => 'Deskundige reparateurs'],
+                    ['title' => 'Heldere communicatie'],
+                    ['title' => 'Garantie op reparaties'],
+                ],
+                'image' => 'assets/img/landing/imac-macbook2.png',
+            ],
+            'devices' => [
+                'title' => 'Welke Mac kunnen we voor je repareren?',
+                'subtitle' => 'Voor elk model en elke generatie — wij helpen je verder.',
+                'items' => [
+                    ['name' => 'MacBook', 'image' => 'assets/img/landing/macbook.webp', 'sub1' => 'Air · Pro', 'sub2' => 'Intel & Apple Silicon'],
+                    ['name' => 'iMac', 'image' => 'assets/img/landing/imac-2422-m1-3.webp', 'sub1' => '21.5″ · 24″ · 27″', 'sub2' => 'Intel & Apple Silicon'],
+                    ['name' => 'Mac mini & overige Macs', 'image' => 'assets/img/landing/mac-mini.jpg', 'sub1' => 'Mac mini', 'sub2' => 'Overige Apple apparaten'],
+                ],
+            ],
+            'problems' => [
+                'title' => 'Wat is er mis met je Mac?',
+                'subtitle' => 'Klik op een probleem en bekijk wat wij voor je kunnen betekenen.',
+                'items' => [
+                    ['emoji' => '⏻', 'title' => 'Mac start niet op', 'subtitle' => 'Power / logic board'],
+                    ['emoji' => '🔌', 'title' => 'Mac laadt niet', 'subtitle' => 'USB-C / charging'],
+                    ['emoji' => '▣', 'title' => 'Scherm defect', 'subtitle' => 'Display / backlight'],
+                    ['emoji' => '🔋', 'title' => 'Batterij probleem', 'subtitle' => 'Battery / power'],
+                    ['emoji' => '♨', 'title' => 'Wordt warm', 'subtitle' => 'Cooling / vervuiling'],
+                    ['emoji' => '💧', 'title' => 'Waterschade', 'subtitle' => 'Liquid damage'],
+                    ['emoji' => '●', 'title' => 'macOS problemen', 'subtitle' => 'Software / recovery'],
+                    ['emoji' => '▤', 'title' => 'Data nodig?', 'subtitle' => 'Data recovery'],
+                ],
+                'component_title' => 'Niet alleen onderdelen vervangen.',
+                'component_text' => 'Wij doen component-level reparatie: meten, onderzoeken en precies het juiste onderdeel herstellen.',
+                'component_items' => [
+                    ['title' => 'Logic board repair'],
+                    ['title' => 'USB-C / HDMI reparatie'],
+                    ['title' => 'Laadproblemen & circuits'],
+                    ['title' => 'MacBook & iMac specialist'],
+                ],
+            ],
+            'process' => [
+                'title' => 'Zo repareren wij je Mac',
+                'subtitle' => 'We zorgen dat je Mac weer perfect werkt.',
+                'items' => [
+                    ['emoji' => '🔍', 'title' => '1. Nauwkeurig onderzoek', 'description' => 'We onderzoeken zorgvuldig waar het probleem vandaan komt.'],
+                    ['emoji' => '▣', 'title' => '2. Advies op maat', 'description' => 'Je ontvangt duidelijk advies over de beste oplossing.'],
+                    ['emoji' => '⚙', 'title' => '3. Reparatie', 'description' => 'We repareren indien nodig tot op componentniveau.'],
+                    ['emoji' => '✓', 'title' => '4. Testen & opleveren', 'description' => 'Je Mac wordt uitgebreid getest voordat je hem terugkrijgt.'],
+                ],
+            ],
+            'water' => [
+                'title' => 'Vloeistofschade?',
+                'text' => 'Zet je Mac uit en probeer hem niet opnieuw op te starten. Wij voeren een grondige reiniging en specialistische reparatie uit.',
+                'image' => 'assets/img/landing/macbook-moederbord-reparatie-utrecht-1920w.webp',
+            ],
+            'battery' => [
+                'title' => 'Batterij problemen?',
+                'items' => [
+                    ['title' => 'Snelle ontlading'],
+                    ['title' => 'Mac onverwacht uit'],
+                    ['title' => 'Batterij opgezwollen'],
+                ],
+                'image' => 'assets/img/landing/TmDelUWE2PnmwawZ.medium-2.jpeg',
+            ],
+            'imac' => [
+                'title' => 'Ook je iMac is bij ons welkom.',
+                'text' => 'Van traag systeem tot geen beeld — wij lossen het probleem vakkundig op.',
+                'image' => 'assets/img/landing/imac-2422-m1-3.webp',
+                'items' => [
+                    ['title' => 'Traag? – SSD of software probleem'],
+                    ['title' => 'Start niet? – diagnose'],
+                    ['title' => 'Geen beeld? – scherm / hardware'],
+                    ['title' => 'Wordt warm? – onderhoud'],
+                ],
+            ],
+            'why' => [
+                'badge' => 'Slimme-PC Apeldoorn',
+                'title' => 'MacBook & iMac: alles onder één dak',
+                'text' => 'Geen onnodige onderdelen vervangen. Eerst onderzoeken, daarna gericht repareren.',
+                'items' => [
+                    ['title' => 'Specialist in Apple apparaten'],
+                    ['title' => 'Reparatie op componentniveau'],
+                    ['title' => 'Professionele diagnose'],
+                    ['title' => 'Duidelijke prijs vooraf'],
+                    ['title' => 'Garantie op reparaties'],
+                    ['title' => 'Zorgvuldig omgaan met je data'],
+                ],
+            ],
+            'recent' => [
+                'title' => 'Recente Mac reparaties',
+                'items' => [
+                    ['image' => 'assets/img/landing/macbook.webp', 'title' => 'MacBook Pro – vloeistofschade', 'text' => 'Logic board professioneel hersteld.'],
+                    ['image' => 'assets/img/landing/imac-2422-m1-3.webp', 'title' => 'MacBook Air – laadt niet', 'text' => 'Charging circuit gerepareerd', 'text2' => ''],
+                    ['image' => 'assets/img/landing/Mac-macbook.png', 'title' => 'iMac – start niet', 'text' => 'Voedingsprobleem onderzocht en opgelost.'],
+                ],
+            ],
+            'faq' => [
+                'title' => 'Veelgestelde vragen',
+                'subtitle' => 'Praktische informatie over onze Mac reparaties.',
+                'items' => [
+                    ['question' => 'Hoe lang duurt een Mac reparatie?', 'answer' => 'Dit hangt af van het defect en de benodigde onderdelen. Na de diagnose laten wij weten wat de verwachte reparatietijd is.'],
+                    ['question' => 'Repareren jullie ook oudere Macs?', 'answer' => 'Ja. We bekijken eerst technisch en economisch of reparatie nog verstandig is.'],
+                    ['question' => 'Kan mijn data behouden blijven?', 'answer' => 'In veel gevallen wel. Bij problemen met opslag of het logic board bekijken we eerst welke mogelijkheden er zijn om je data veilig te behouden.'],
+                    ['question' => 'Geven jullie garantie op reparaties?', 'answer' => 'Op uitgevoerde reparaties en vervangen onderdelen geven wij garantie volgens de voorwaarden van de reparatie.'],
+                    ['question' => 'Repareren jullie Apple Silicon Macs?', 'answer' => 'Ja. We werken met zowel Intel Macs als nieuwere Apple Silicon modellen.'],
+                ],
+            ],
+            'cta' => [
+                'title' => 'Probleem met je Mac?',
+                'subtitle' => 'Vervangen is niet altijd nodig.',
+                'text' => 'Laat hem eerst professioneel onderzoeken.',
+            ],
+        ];
+
+        foreach ($mac as $section => $blocks) {
+            $sort = 0;
+            foreach ($blocks as $key => $value) {
+                $isJson = is_array($value);
+                ContentBlock::updateOrCreate(
+                    ['page' => 'mac', 'section' => $section, 'block_key' => $key],
+                    [
+                        'type' => $isJson ? 'json' : 'text',
+                        'value' => $isJson ? null : $value,
+                        'json_value' => $isJson ? $value : null,
+                        'sort_order' => $sort++,
+                    ]
+                );
+            }
+        }
+
         foreach ($console as $section => $blocks) {
             $sort = 0;
             foreach ($blocks as $key => $value) {

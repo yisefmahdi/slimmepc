@@ -318,6 +318,185 @@ $consoleSectionDef = [
     ],
 ];
 
+$macSectionDef = [
+    'hero' => [
+        'label' => 'Hero',
+        'blocks' => [
+            'badge' => ['label' => 'Badge (boven titel)', 'type' => 'text'],
+            'title1' => ['label' => 'Titel regel 1', 'type' => 'text'],
+            'title2' => ['label' => 'Titel regel 2 (normaal)', 'type' => 'text'],
+            'title3' => ['label' => 'Titel regel 2 (blauw)', 'type' => 'text'],
+            'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+            'trust' => [
+                'label' => 'Vertrouwenspunten (hero)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Tekst', 'type' => 'text'],
+                ],
+            ],
+            'image' => ['label' => 'Mac afbeelding (hero rechts)', 'type' => 'image'],
+        ],
+    ],
+    'devices' => [
+        'label' => 'Welke Mac heb je?',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Mac modellen (3 kaarten)',
+                'type' => 'json',
+                'columns' => 3,
+                'fields' => [
+                    ['key' => 'name', 'label' => 'Naam', 'type' => 'text'],
+                    ['key' => 'image', 'label' => 'Afbeelding', 'type' => 'image'],
+                    ['key' => 'sub1', 'label' => 'Regel 1', 'type' => 'text'],
+                    ['key' => 'sub2', 'label' => 'Regel 2', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'problems' => [
+        'label' => 'Problemen + component reparatie',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Problemen (8 kaarten)',
+                'type' => 'json',
+                'columns' => 4,
+                'fields' => [
+                    ['key' => 'emoji', 'label' => 'Icoon (emoji)', 'type' => 'text'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                ],
+            ],
+            'component_title' => ['label' => 'Component titel', 'type' => 'text'],
+            'component_text' => ['label' => 'Component tekst', 'type' => 'textarea'],
+            'component_items' => [
+                'label' => 'Component punten',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Tekst', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'process' => [
+        'label' => 'Werkwijze',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Stappen (4)',
+                'type' => 'json',
+                'columns' => 4,
+                'fields' => [
+                    ['key' => 'emoji', 'label' => 'Icoon (emoji)', 'type' => 'text'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'description', 'label' => 'Beschrijving', 'type' => 'textarea'],
+                ],
+            ],
+        ],
+    ],
+    'water' => [
+        'label' => 'Vloeistofschade',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'text' => ['label' => 'Tekst', 'type' => 'textarea'],
+            'image' => ['label' => 'Afbeelding', 'type' => 'image'],
+        ],
+    ],
+    'battery' => [
+        'label' => 'Batterij problemen',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Punten',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Tekst', 'type' => 'text'],
+                ],
+            ],
+            'image' => ['label' => 'Afbeelding', 'type' => 'image'],
+        ],
+    ],
+    'imac' => [
+        'label' => 'iMac',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'text' => ['label' => 'Tekst', 'type' => 'textarea'],
+            'image' => ['label' => 'Afbeelding', 'type' => 'image'],
+            'items' => [
+                'label' => 'Punten',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Tekst', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'why' => [
+        'label' => 'Waarom Slimme-PC',
+        'blocks' => [
+            'badge' => ['label' => 'Badge (boven titel)', 'type' => 'text'],
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'text' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+            'items' => [
+                'label' => 'Punten (6)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Tekst', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'recent' => [
+        'label' => 'Recente Mac reparaties',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Reparaties (3 kaarten)',
+                'type' => 'json',
+                'columns' => 3,
+                'fields' => [
+                    ['key' => 'image', 'label' => 'Afbeelding', 'type' => 'image'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'text', 'label' => 'Beschrijving', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'faq' => [
+        'label' => 'FAQ',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Vragen',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'question', 'label' => 'Vraag', 'type' => 'text'],
+                    ['key' => 'answer', 'label' => 'Antwoord', 'type' => 'textarea'],
+                ],
+            ],
+        ],
+    ],
+    'cta' => [
+        'label' => 'Afsluitende CTA',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'text' => ['label' => 'Tekst', 'type' => 'text'],
+        ],
+    ],
+];
+
 return [
 
     'cache_version_key' => 'cache_version',
@@ -795,7 +974,7 @@ return [
         ],
         'laptopreparatie' => ['label' => 'Laptop Reparatie', 'sections' => $serviceSectionDef],
         'pcreparatie' => ['label' => 'PC Reparatie', 'sections' => $serviceSectionDef],
-        'macbook' => ['label' => 'MacBook Reparatie', 'sections' => $serviceSectionDef],
+        'mac' => ['label' => 'Mac Reparatie', 'sections' => $macSectionDef],
         'datarecovery' => ['label' => 'Data Recovery', 'sections' => $serviceSectionDef],
         'ipad' => ['label' => 'iPad Reparatie', 'sections' => $serviceSectionDef],
         'moederbord' => ['label' => 'Moederbord Reparatie', 'sections' => $serviceSectionDef],
@@ -812,7 +991,7 @@ return [
     'service_slugs' => [
         'laptop-reparatie' => 'laptopreparatie',
         'pc-reparatie' => 'pcreparatie',
-        'macbook-reparatie' => 'macbook',
+        'mac-reparatie' => 'mac',
         'data-recovery' => 'datarecovery',
         'ipad-reparatie' => 'ipad',
         'moederbord-reparatie' => 'moederbord',
