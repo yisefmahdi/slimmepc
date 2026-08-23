@@ -204,7 +204,7 @@ class ContentController extends Controller
 
                         $name = $file->hashName();
                         $file->move(public_path('assets/img/landing'), $name);
-                        $clean[$fieldKey] = $name;
+                        $clean[$fieldKey] = 'assets/img/landing/' . $name;
                         continue;
                     }
 

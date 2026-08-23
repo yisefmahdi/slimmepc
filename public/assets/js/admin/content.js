@@ -28,7 +28,7 @@
 
                 var img = block.querySelector('[data-image-preview]');
                 if (img) {
-                    img.src = '/' + val;
+                    img.src = val.indexOf('/') !== -1 ? '/' + val : '/assets/img/landing/' + val;
                     img.style.display = '';
                 }
 
@@ -62,13 +62,13 @@
 
                         var img = imageBlock.querySelector('[data-image-preview]');
                         if (img) {
-                            img.src = '/' + fv;
+                            img.src = fv.indexOf('/') !== -1 ? '/' + fv : '/assets/img/landing/' + fv;
                             img.style.display = '';
                         }
 
                         var name = imageBlock.querySelector('[data-image-name]');
                         if (name) {
-                            name.textContent = fv;
+                            name.textContent = fv.split('/').pop();
                         }
 
                         var fileInput = imageBlock.querySelector('input[type="file"]');
