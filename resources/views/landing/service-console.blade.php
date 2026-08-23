@@ -12,8 +12,8 @@
             <div class="absolute -top-28 left-[30%] w-[420px] h-[420px] rounded-full bg-blue-300/20 blur-[120px]"></div>
             <div class="absolute right-0 bottom-0 w-[380px] h-[380px] rounded-full bg-cyan-300/10 blur-[100px]"></div>
 
-            <div class="relative max-w-7xl mx-auto px-6 lg:px-8 pt-6 pb-10 lg:pt-7 lg:pb-14">
-                <div class="flex items-center gap-2 text-[12px] text-white/75 mb-6">
+            <div class="relative max-w-7xl mx-auto px-6 lg:px-8 pt-5 pb-10 lg:pt-6 lg:pb-14">
+                <div class="flex items-center gap-2 text-[12px] text-white/75 mb-5">
                     <a href="{{ url('/') }}" class="hover:text-white transition">Home</a>
                     <i data-lucide="chevron-right" class="w-3 h-3"></i>
                     <a href="{{ url('/#diensten') }}" class="hover:text-white transition">Diensten</a>
