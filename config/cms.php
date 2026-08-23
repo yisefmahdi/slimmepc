@@ -645,7 +645,7 @@ return [
         'moederbord' => ['label' => 'Moederbord Reparatie', 'sections' => $serviceSectionDef],
         'software' => ['label' => 'Software & Windows', 'sections' => $serviceSectionDef],
         'netwerk' => ['label' => 'Netwerkoplossingen', 'sections' => $serviceSectionDef],
-        'console' => ['label' => 'Console Reparatie', 'sections' => $serviceSectionDef],
+        'console' => ['label' => 'Playstation / Xbox', 'sections' => $serviceSectionDef],
     ],
 
     /*
