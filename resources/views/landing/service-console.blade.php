@@ -20,12 +20,12 @@
                             {{ $s['hero']['badge'] ?? 'Console reparatie · Apeldoorn' }}
                         </p>
 
-                        <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black leading-[1.05]">
+                        <h1 class="text-[30px] sm:text-[52px] lg:text-[60px] font-black leading-[1.05]">
                             {{ $s['hero']['title1'] ?? 'PlayStation 5 of Xbox' }}
                             <span class="text-blue-300">{{ $s['hero']['title2'] ?? 'kapot?' }}</span>
                         </h1>
 
-                        <p class="mt-5 text-lg sm:text-2xl font-semibold text-blue-50 leading-snug">
+                        <p class="mt-5 text-[16px] sm:text-[20px] lg:text-[24px] font-semibold text-blue-50 leading-snug">
                             {{ $s['hero']['description'] ?? '' }}
                         </p>
 
@@ -38,9 +38,9 @@
                             @endforeach
                         </div>
 
-                        <div class="mt-8 flex flex-wrap gap-4">
+                        <div class="mt-8 flex flex-wrap gap-3 sm:gap-4">
                             <a href="{{ $s['hero']['cta1_url'] ?? '#' }}"
-                               class="inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-500 px-5 py-2.5 sm:px-6 sm:py-3 rounded-lg font-semibold text-[14px] sm:text-[15px] transition duration-300">
+                               class="inline-flex justify-center items-center gap-2 sm:gap-5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg px-5 py-2.5 sm:px-7 sm:py-4 text-[14px] sm:text-[15px] shadow-[0_16px_35px_rgba(37,99,235,.22)] hover:shadow-[0_20px_45px_rgba(37,99,235,.32)] hover:-translate-y-1 transition duration-300">
 
                                 {{ $s['hero']['cta1_text'] ?? 'Console reparatie aanmelden' }}
 
@@ -48,7 +48,7 @@
                             </a>
 
                             <a href="{{ $s['hero']['cta2_url'] ?? '#problemen' }}"
-                               class="inline-flex items-center gap-3 border border-white/30 bg-white/5 hover:bg-white/10 px-5 py-2.5 sm:px-6 sm:py-3 rounded-lg font-semibold text-[14px] sm:text-[15px] transition duration-300">
+                               class="inline-flex justify-center items-center gap-2 sm:gap-4 border border-white/80 hover:bg-white/10 text-white font-semibold rounded-lg px-5 py-2.5 sm:px-7 sm:py-4 text-[14px] sm:text-[15px] transition">
 
                                 {{ $s['hero']['cta2_text'] ?? 'Bekijk problemen' }}
 
@@ -57,13 +57,13 @@
                         </div>
                     </div>
 
-                    <div class="relative mt-10 lg:mt-0">
-                        <div class="absolute w-[420px] h-[420px] rounded-full bg-blue-400/20 blur-[90px]"></div>
+                    <div class="relative mt-10 lg:mt-0 flex justify-center">
+                        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[420px] sm:h-[420px] rounded-full bg-blue-400/20 blur-[90px]"></div>
 
                         <img
                             src="{{ asset($s['hero']['image'] ?? 'assets/img/landing/playtios2.png') }}"
                             alt="PlayStation 5 en Xbox reparatie"
-                            class="relative z-10 w-[420px] sm:w-[520px] lg:w-[620px] xl:w-[750px] max-w-none object-contain drop-shadow-2xl mx-auto"
+                            class="relative z-10 w-full max-w-[340px] sm:max-w-none sm:w-[520px] lg:w-[620px] xl:w-[750px] object-contain drop-shadow-2xl"
                         >
                     </div>
 
