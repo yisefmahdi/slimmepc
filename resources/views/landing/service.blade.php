@@ -65,7 +65,7 @@
                         {{ $s['hero']['badge'] ?? '' }}
                     </div>
 
-                    <h1 class="text-white font-black leading-[1.02] tracking-[-0.04em] text-[42px] sm:text-[52px] lg:text-[45px]">
+                    <h1 class="text-white font-black leading-[1.02] tracking-[-0.04em] text-[30px] sm:text-[52px] lg:text-[45px]">
                         {{ $s['hero']['title1'] ?? '' }}
 
                         <span class="block text-[#1597ff]">
@@ -129,7 +129,7 @@
         <section class="py-7 lg:py-8 bg-white">
             <div class="max-w-[1400px] mx-auto px-6 lg:px-14">
                 <div class="text-center mb-5">
-                    <h2 class="text-[30px] lg:text-[34px] font-black tracking-tight">
+                    <h2 class="text-[24px] lg:text-[34px] font-black tracking-tight">
                         {{ $s['problems']['title'] ?? '' }}
                         <span class="text-[#087fea]">{{ $s['problems']['title_highlight'] ?? '' }}</span>
                         {{ $s['problems']['subtitle'] ?? '' }}
@@ -161,7 +161,7 @@
                                 {{ $s['speciality']['badge'] ?? '' }}
                             </div>
 
-                            <h2 class="text-[31px] font-black leading-[1.04] mt-4">
+                            <h2 class="text-[24px] lg:text-[31px] font-black leading-[1.04] mt-4">
                                 {{ $s['speciality']['title1'] ?? '' }}
                                 <span class="block text-[#0759c7]">{{ $s['speciality']['title2'] ?? '' }}</span>
                             </h2>
@@ -232,7 +232,7 @@
         <section class="pb-8">
             <div class="max-w-[1300px] mx-auto px-6">
                 <div class="text-center mb-5">
-                    <h2 class="font-black text-[29px] lg:text-[32px]">{{ $s['example']['title'] ?? '' }}</h2>
+                    <h2 class="font-black text-[24px] lg:text-[32px]">{{ $s['example']['title'] ?? '' }}</h2>
                     <p class="text-gray-500 text-[13px] mt-1">{{ $s['example']['subtitle'] ?? '' }}</p>
                 </div>
 
@@ -294,7 +294,7 @@
         {{-- OTHER REPAIRS --}}
         <section class="pb-9">
             <div class="max-w-[1400px] mx-auto px-6 lg:px-14">
-                <h2 class="text-center font-black text-[28px] lg:text-[31px] mb-5">
+                <h2 class="text-center font-black text-[24px] lg:text-[31px] mb-5">
                     {{ $s['other']['title'] ?? '' }}
                     <span class="text-[#0759c7]">{{ $s['other']['title_highlight'] ?? '' }}</span>
                 </h2>
@@ -345,8 +345,8 @@
                     </div>
 
                     <div id="reparatie-aanmelden" class="relative overflow-hidden bg-gradient-to-r from-[#0752ae] to-[#063f96] rounded-xl min-h-[270px]">
-                        <div class="relative z-10 px-8 lg:px-10 py-8 lg:py-10 max-w-[65%]">
-                            <h2 class="text-white font-black text-[32px] lg:text-[38px] leading-tight">
+                        <div class="relative z-10 px-6 py-7 lg:px-10 lg:py-10 max-w-full lg:max-w-[65%]">
+                            <h2 class="text-white font-black text-[24px] lg:text-[38px] leading-tight">
                                 {{ $s['faq']['cta_title'] ?? 'Laptop' }}
                                 <span class="text-[#4cb4ff]">{{ $s['faq']['cta_title2'] ?? 'laten repareren?' }}</span>
                             </h2>
@@ -374,7 +374,7 @@
                         </div>
 
                         <img src="{{ asset($s['faq']['cta_bg'] ?? 'assets/img/landing/53f89edd-3207-4891-b580-7246605e1858.png') }}" alt="Slimme-PC"
-                             class="absolute right-0 bottom-0 h-[95%] object-contain object-bottom">
+                             class="absolute right-0 bottom-0 h-[70%] lg:h-[95%] object-contain object-bottom">
                     </div>
 
                 </div>
