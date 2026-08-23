@@ -86,12 +86,12 @@
                 </div>
 
                 <div class="grid md:grid-cols-3 gap-6">
-                    @foreach ($s['consoles']['items'] ?? [] as $c)
+                    @foreach ($s['consoles']['items'] ?? [] as $ci)
                         <div class="{{ $loop->first ? 'bg-white border-2 border-blue-500' : 'bg-white border border-slate-200 hover:border-blue-300' }} rounded-2xl p-6 shadow-sm hover:shadow-lg transition">
                             <div class="flex items-center justify-between gap-6">
-                                <img src="{{ asset($c['image'] ?? '') }}" alt="{{ $c['name'] ?? '' }}" class="w-40 h-40 object-contain">
+                                <img src="{{ asset($ci['image'] ?? '') }}" alt="{{ $ci['name'] ?? '' }}" class="w-40 h-40 object-contain">
                                 <div>
-                                    <h3 class="text-xl font-bold">{{ $c['name'] ?? '' }}</h3>
+                                    <h3 class="text-xl font-bold">{{ $ci['name'] ?? '' }}</h3>
                                     <a href="#"
                                        class="inline-block mt-4 bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg text-sm font-semibold">
                                         Bekijken →

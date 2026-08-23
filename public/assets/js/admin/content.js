@@ -62,7 +62,7 @@
 
                         var img = imageBlock.querySelector('[data-image-preview]');
                         if (img) {
-                            img.src = '/assets/img/landing/' + fv;
+                            img.src = '/' + fv;
                             img.style.display = '';
                         }
 
