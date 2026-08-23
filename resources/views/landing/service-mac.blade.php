@@ -13,7 +13,7 @@
 
             <div class="relative mx-auto max-w-7xl px-6 lg:px-8 pt-5 pb-14 lg:pt-6 lg:pb-20">
 
-                <div class="flex items-center gap-2 text-[12px] text-slate-500 mb-5">
+                <div class="flex items-center gap-2 text-[12px] text-slate-500 mb-5 mt-3">
                     <a href="{{ url('/') }}" class="hover:text-slate-700 transition">Home</a>
                     <i data-lucide="chevron-right" class="w-3 h-3"></i>
                     <a href="{{ url('/#diensten') }}" class="hover:text-slate-700 transition">Diensten</a>
