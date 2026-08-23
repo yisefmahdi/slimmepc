@@ -63,7 +63,7 @@
                             @if (!empty($cat['image']))
                             <div class="relative mt-8 flex min-h-[275px] items-center justify-center">
                                 <div class="absolute h-48 w-48 rounded-full bg-blue-300/25 blur-3xl"></div>
-                                <img src="{{ asset('assets/img/landing/' . $cat['image']) }}" alt="{{ $cat['title'] ?? '' }}"
+                                <img src="{{ asset('assets/img/landing/' . basename($cat['image'] ?? '')) }}" alt="{{ $cat['title'] ?? '' }}"
                                      class="device-floating relative z-10 max-h-[260px] w-full object-contain"
                                      loading="lazy" decoding="async">
                             </div>

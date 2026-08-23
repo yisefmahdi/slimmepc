@@ -131,7 +131,7 @@
                                             </span>
                                         @endif
 
-                                        <img src="{{ asset('assets/img/landing/' . ($product['image'] ?? '')) }}"
+                                        <img src="{{ asset('assets/img/landing/' . basename($product['image'] ?? '')) }}"
                                             alt="{{ $product['title'] ?? '' }}" class="product-image" loading="lazy" decoding="async">
                                     </div>
 

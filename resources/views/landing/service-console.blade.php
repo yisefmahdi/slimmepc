@@ -89,7 +89,7 @@
                     @foreach ($s['consoles']['items'] ?? [] as $ci)
                         <div class="{{ $loop->first ? 'bg-white border-2 border-blue-500' : 'bg-white border border-slate-200 hover:border-blue-300' }} rounded-2xl p-6 shadow-sm hover:shadow-lg transition">
                             <div class="flex items-center justify-between gap-6">
-                                <img src="{{ asset($ci['image'] ?? '') }}" alt="{{ $ci['name'] ?? '' }}" class="w-40 h-40 object-contain">
+                                <img src="{{ asset('assets/img/landing/' . basename($ci['image'] ?? '')) }}" alt="{{ $ci['name'] ?? '' }}" class="w-40 h-40 object-contain">
                                 <div>
                                     <h3 class="text-xl font-bold">{{ $ci['name'] ?? '' }}</h3>
                                     <a href="#"

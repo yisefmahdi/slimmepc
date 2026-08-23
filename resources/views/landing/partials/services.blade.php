@@ -125,7 +125,7 @@
                     <div class="service-visual">
                         <div class="service-platform"></div>
 
-                        <img src="{{ asset('assets/img/landing/' . ($service['image'] ?? '')) }}" alt="{{ $service['title'] ?? '' }}"
+                        <img src="{{ asset('assets/img/landing/' . basename($service['image'] ?? '')) }}" alt="{{ $service['title'] ?? '' }}"
                             class="service-device" loading="lazy" decoding="async">
                     </div>
 

@@ -12,7 +12,7 @@
         @foreach ($werkplaats['items'] as $item)
         <article class="werkplaats-card image-card relative overflow-hidden rounded-[22px] bg-slate-900 shadow-card">
             @if (!empty($item['image']))
-            <img src="{{ asset('assets/img/landing/' . $item['image']) }}" alt="{{ $item['title'] ?? '' }}"
+            <img src="{{ asset('assets/img/landing/' . basename($item['image'] ?? '')) }}" alt="{{ $item['title'] ?? '' }}"
                  class="h-64 w-full object-cover" loading="lazy" decoding="async">
             @endif
             <div class="werkplaats-card-overlay absolute inset-0"></div>

@@ -85,7 +85,7 @@
                     @foreach ($s['devices']['items'] ?? [] as $di)
                         <div class="group rounded-2xl border border-blue-100 bg-gradient-to-br from-white to-blue-50/40 p-5 transition hover:-translate-y-1 hover:border-blue-300 hover:shadow-xl">
                             <div class="flex items-center gap-5">
-                                <img src="{{ asset($di['image'] ?? '') }}" alt="{{ $di['name'] ?? '' }}" class="h-32 w-40 object-contain">
+                                <img src="{{ asset('assets/img/landing/' . basename($di['image'] ?? '')) }}" alt="{{ $di['name'] ?? '' }}" class="h-32 w-40 object-contain">
                                 <div>
                                     <h3 class="text-xl font-black text-[#0b1f4d]">{{ $di['name'] ?? '' }}</h3>
                                     <p class="mt-2 text-sm text-slate-600">{{ $di['sub1'] ?? '' }}</p>
@@ -323,7 +323,7 @@
                 <div class="mt-8 grid md:grid-cols-3 gap-5">
                     @foreach ($s['recent']['items'] ?? [] as $ri)
                         <div class="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm">
-                            <img src="{{ asset($ri['image'] ?? '') }}" alt="{{ $ri['title'] ?? '' }}"
+                            <img src="{{ asset('assets/img/landing/' . basename($ri['image'] ?? '')) }}" alt="{{ $ri['title'] ?? '' }}"
                                  class="h-44 w-full rounded-xl object-cover">
                             <h3 class="mt-4 font-black text-[#0b1f4d]">{{ $ri['title'] ?? '' }}</h3>
                             <p class="mt-1 text-sm text-slate-600">{{ $ri['text'] ?? '' }}</p>
