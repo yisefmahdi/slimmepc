@@ -100,9 +100,9 @@
                         @endforeach
                     </div>
 
-                    <div class="flex flex-col sm:flex-row gap-4 mt-9">
+                    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-7 sm:mt-9">
                         <a href="{{ $s['hero']['cta1_url'] ?? '#reparatie-aanmelden' }}"
-                           class="inline-flex justify-center items-center gap-5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg px-7 py-4 shadow-[0_16px_35px_rgba(37,99,235,.22)] hover:shadow-[0_20px_45px_rgba(37,99,235,.32)] hover:-translate-y-1 transition duration-300">
+                           class="inline-flex justify-center items-center gap-2 sm:gap-5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg px-5 py-2.5 sm:px-7 sm:py-4 text-[14px] sm:text-[15px] shadow-[0_16px_35px_rgba(37,99,235,.22)] hover:shadow-[0_20px_45px_rgba(37,99,235,.32)] hover:-translate-y-1 transition duration-300">
 
                             {{ $s['hero']['cta1_text'] ?? 'Reparatie aanmelden' }}
 
@@ -110,7 +110,7 @@
                         </a>
 
                         <a href="{{ $s['hero']['cta2_url'] ?? '#werkwijze' }}"
-                           class="inline-flex justify-center items-center gap-4 border border-white/80 hover:bg-white/10 text-white font-semibold rounded-lg px-7 py-4 transition">
+                           class="inline-flex justify-center items-center gap-2 sm:gap-4 border border-white/80 hover:bg-white/10 text-white font-semibold rounded-lg px-5 py-2.5 sm:px-7 sm:py-4 text-[14px] sm:text-[15px] transition">
 
                             {{ $s['hero']['cta2_text'] ?? 'Bekijk onze werkwijze' }}
 
@@ -355,15 +355,15 @@
                                 {!! nl2br(e($s['faq']['cta_subtitle'] ?? '')) !!}
                             </p>
 
-                            <div class="flex flex-wrap gap-4 mt-7">
-                                <a href="#reparatie-aanmelden"
-                                   class="bg-[#ff7200] hover:bg-[#ed6900] text-white rounded-lg px-6 py-3.5 font-bold text-[13px] flex items-center gap-5 transition">
-                                    Reparatie aanmelden
-                                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
-                                </a>
+                                <div class="flex flex-wrap gap-3 sm:gap-4 mt-5 sm:mt-7">
+                                    <a href="#reparatie-aanmelden"
+                                       class="bg-[#ff7200] hover:bg-[#ed6900] text-white rounded-lg px-4 py-2.5 sm:px-6 sm:py-3.5 font-bold text-[12px] sm:text-[13px] flex items-center gap-2 sm:gap-5 transition">
+                                        Reparatie aanmelden
+                                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                    </a>
 
-                                <a href="tel:{{ preg_replace('/[^0-9]/', '', $s['faq']['cta_phone'] ?? '0552032145') }}"
-                                   class="border border-white/70 hover:bg-white/10 text-white rounded-lg px-6 py-3.5 font-bold text-[13px] flex items-center gap-3 transition">
+                                    <a href="tel:{{ preg_replace('/[^0-9]/', '', $s['faq']['cta_phone'] ?? '0552032145') }}"
+                                       class="border border-white/70 hover:bg-white/10 text-white rounded-lg px-4 py-2.5 sm:px-6 sm:py-3.5 font-bold text-[12px] sm:text-[13px] flex items-center gap-2 sm:gap-3 transition">
                                     <i data-lucide="phone" class="w-5 h-5"></i>
                                     <span>
                                         <small class="block font-normal text-[10px] opacity-80">Bel ons direct</small>
