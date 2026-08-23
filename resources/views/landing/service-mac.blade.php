@@ -11,7 +11,15 @@
             <div class="absolute -top-24 right-[15%] h-[340px] w-[340px] rounded-full bg-blue-300/20 blur-[100px]"></div>
             <div class="absolute left-[35%] top-[30%] h-[260px] w-[260px] rounded-full bg-cyan-200/20 blur-[100px]"></div>
 
-            <div class="relative mx-auto max-w-7xl px-6 lg:px-8 py-14 lg:py-20">
+            <div class="relative mx-auto max-w-7xl px-6 lg:px-8 pt-6 pb-14 lg:pt-7 lg:pb-20">
+
+                <div class="flex items-center gap-2 text-[12px] text-slate-500 mb-6">
+                    <a href="{{ url('/') }}" class="hover:text-slate-700 transition">Home</a>
+                    <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                    <a href="{{ url('/#diensten') }}" class="hover:text-slate-700 transition">Diensten</a>
+                    <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                    <span class="text-[#0b1f4d] font-semibold">{{ config('cms.pages.mac.label') ?? 'Mac Reparatie' }}</span>
+                </div>
 
                 <div class="grid lg:grid-cols-2 gap-12 items-center">
 
