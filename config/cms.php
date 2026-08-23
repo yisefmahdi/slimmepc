@@ -162,6 +162,166 @@ $serviceSectionDef = [
     ],
 ];
 
+$consoleSectionDef = [
+    'hero' => [
+        'label' => 'Hero',
+        'blocks' => [
+            'badge' => ['label' => 'Badge (boven titel)', 'type' => 'text'],
+            'title1' => ['label' => 'Titel regel 1', 'type' => 'text'],
+            'title2' => ['label' => 'Titel regel 2', 'type' => 'text'],
+            'title3' => ['label' => 'Titel regel 3 (gradient)', 'type' => 'text'],
+            'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+            'problem_list' => [
+                'label' => 'Probleem-lijst (hero)',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Probleem', 'type' => 'text'],
+                ],
+            ],
+            'cta1_text' => ['label' => 'CTA 1 tekst', 'type' => 'text'],
+            'cta1_url' => ['label' => 'CTA 1 link', 'type' => 'text'],
+            'cta2_text' => ['label' => 'CTA 2 tekst', 'type' => 'text'],
+            'cta2_url' => ['label' => 'CTA 2 link', 'type' => 'text'],
+            'image' => ['label' => 'Console afbeelding (hero rechts)', 'type' => 'image'],
+        ],
+    ],
+    'consoles' => [
+        'label' => 'Welke console heb je?',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Consoles (3 kaarten)',
+                'type' => 'json',
+                'columns' => 3,
+                'fields' => [
+                    ['key' => 'name', 'label' => 'Naam', 'type' => 'text'],
+                    ['key' => 'image', 'label' => 'Afbeelding', 'type' => 'image'],
+                ],
+            ],
+        ],
+    ],
+    'problems' => [
+        'label' => 'Wat is er mis?',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Problemen (kaarten)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'emoji', 'label' => 'Emoji', 'type' => 'text'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'werkwijze' => [
+        'label' => 'Onze werkwijze',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'steps' => [
+                'label' => 'Stappen',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'number', 'label' => 'Nummer', 'type' => 'text'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'description', 'label' => 'Beschrijving', 'type' => 'textarea'],
+                ],
+            ],
+        ],
+    ],
+    'motorkap' => [
+        'label' => 'Onder de motorkap',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+            'checklist' => [
+                'label' => 'Checklist',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Tekst', 'type' => 'text'],
+                ],
+            ],
+            'image' => ['label' => 'Afbeelding (binnenkant)', 'type' => 'image'],
+            'spots' => [
+                'label' => 'Onderdelen',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'description', 'label' => 'Beschrijving', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'voorana' => [
+        'label' => 'Voor & na',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'before_image' => ['label' => 'Voor afbeelding', 'type' => 'image'],
+            'before_label' => ['label' => 'Voor label', 'type' => 'text'],
+            'after_image' => ['label' => 'Na afbeelding', 'type' => 'image'],
+            'after_label' => ['label' => 'Na label', 'type' => 'text'],
+            'checklist' => [
+                'label' => 'Checklist',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Tekst', 'type' => 'text'],
+                ],
+            ],
+            'hdmi_title' => ['label' => 'HDMI titel', 'type' => 'text'],
+            'hdmi_steps' => [
+                'label' => 'HDMI stappen',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'number', 'label' => 'Nummer', 'type' => 'text'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'services' => [
+        'label' => 'Onze console services',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Services (kaarten)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'emoji', 'label' => 'Emoji', 'type' => 'text'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'description', 'label' => 'Beschrijving', 'type' => 'textarea'],
+                    ['key' => 'price', 'label' => 'Prijs', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'garantie' => [
+        'label' => 'Garantie',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+            'points' => [
+                'label' => 'Punten',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Tekst', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+];
+
 return [
 
     'cache_version_key' => 'cache_version',
@@ -645,7 +805,7 @@ return [
         'moederbord' => ['label' => 'Moederbord Reparatie', 'sections' => $serviceSectionDef],
         'software' => ['label' => 'Software & Windows', 'sections' => $serviceSectionDef],
         'netwerk' => ['label' => 'Netwerkoplossingen', 'sections' => $serviceSectionDef],
-        'console' => ['label' => 'Playstation / Xbox', 'sections' => $serviceSectionDef],
+        'console' => ['label' => 'Playstation / Xbox', 'sections' => $consoleSectionDef],
     ],
 
     /*

@@ -387,6 +387,137 @@ class ContentBlockSeeder extends Seeder
             }
         }
 
+        $console = [
+            'hero' => [
+                'badge' => 'Console reparatie · Apeldoorn',
+                'title1' => 'PlayStation 5 of Xbox',
+                'title2' => 'kapot?',
+                'description' => 'Wij brengen je console weer terug in de game.',
+                'problem_list' => [
+                    ['title' => 'Geen beeld'],
+                    ['title' => 'Valt uit'],
+                    ['title' => 'Controller problemen'],
+                    ['title' => 'HDMI probleem'],
+                    ['title' => 'Start niet'],
+                    ['title' => 'Software probleem'],
+                    ['title' => 'Oververhitting'],
+                    ['title' => 'Ventilator lawaai'],
+                    ['title' => 'En meer...'],
+                ],
+                'cta1_text' => 'Console reparatie aanmelden',
+                'cta1_url' => '/reparatie-aanmelden',
+                'cta2_text' => 'Bekijk problemen',
+                'cta2_url' => '#problemen',
+                'image' => 'assets/img/landing/playtios2.png',
+            ],
+            'consoles' => [
+                'title' => 'Welke console heb je?',
+                'subtitle' => 'Wij repareren alle populaire gaming consoles',
+                'items' => [
+                    ['name' => 'PlayStation 5', 'image' => 'assets/img/landing/playstation-xbox.png'],
+                    ['name' => 'Xbox Series X', 'image' => 'assets/img/landing/Xbox-series-X-wit-digital-only.jpg'],
+                    ['name' => 'Xbox Series S', 'image' => 'assets/img/landing/Microsoft-Xbox-Series-X_b562417b-7584-4740-983b-422cb2832fb9.7ef4114105e8cbe37cc4125a3cb125f0.avif'],
+                ],
+            ],
+            'problems' => [
+                'title' => 'Wat is er mis met je console?',
+                'subtitle' => 'Selecteer het probleem en wij lossen het op',
+                'items' => [
+                    ['emoji' => '🖥️', 'title' => 'Geen beeld', 'subtitle' => 'Zwart scherm of geen signaal'],
+                    ['emoji' => '🌡️', 'title' => 'Wordt heet', 'subtitle' => 'Oververhitting tijdens gamen'],
+                    ['emoji' => '⏻', 'title' => 'Valt uit', 'subtitle' => 'Uitval tijdens het spelen'],
+                    ['emoji' => '🔌', 'title' => 'Start niet', 'subtitle' => 'Geen reactie bij opstarten'],
+                    ['emoji' => '🔊', 'title' => 'Veel geluid', 'subtitle' => 'Ventilator maakt lawaai'],
+                    ['emoji' => '🔌', 'title' => 'USB werkt niet', 'subtitle' => 'Controller niet verbonden'],
+                    ['emoji' => '🎮', 'title' => 'Controller probleem', 'subtitle' => 'Sticks of knoppen doen het niet'],
+                    ['emoji' => '❓', 'title' => 'Anders', 'subtitle' => 'Een ander probleem? Wij kijken mee'],
+                ],
+            ],
+            'werkwijze' => [
+                'title' => 'Onze werkwijze',
+                'steps' => [
+                    ['number' => '1', 'title' => 'Aanmelden', 'description' => 'Meld je console reparatie online of in de winkel aan.'],
+                    ['number' => '2', 'title' => 'Diagnose', 'description' => 'Wij stellen gratis de oorzaak vast.'],
+                    ['number' => '3', 'title' => 'Reparatie', 'description' => 'Wij repareren je console vakkundig.'],
+                    ['number' => '4', 'title' => 'Testen', 'description' => 'Alles wordt grondig getest voor oplevering.'],
+                    ['number' => '5', 'title' => 'Klaar!', 'description' => 'Je console is weer speelklaar.'],
+                ],
+            ],
+            'motorkap' => [
+                'title' => 'Onder de motorkap',
+                'description' => 'Component-level reparatie van je console: wij vervangen niet zomaar, wij repareren het defecte onderdeel. Met professionele apparatuur en ervaren technici.',
+                'checklist' => [
+                    ['title' => 'HDMI poort vervangen & repareren'],
+                    ['title' => 'Koeling & ventilator revisie'],
+                    ['title' => 'Stroomvoorziening & laadcircuit'],
+                    ['title' => 'Moederbord diagnose op componentniveau'],
+                ],
+                'image' => 'assets/img/landing/playtios2.png',
+                'spots' => [
+                    ['title' => 'HDMI PORT', 'description' => 'Defecte poort vervangen of opnieuw solderen.'],
+                    ['title' => 'KOELING', 'description' => 'Ventilator en koelpasta vernieuwen.'],
+                    ['title' => 'VENTILATOR', 'description' => 'Lawaai of uitval van de koeling oplossen.'],
+                    ['title' => 'VOEDING', 'description' => 'Stroomproblemen en kortsluiting herstellen.'],
+                    ['title' => 'USB CONNECTOR', 'description' => 'Loszittende of defecte USB-poorten.'],
+                ],
+            ],
+            'voorana' => [
+                'title' => 'Voor & na: Professionele reiniging',
+                'before_image' => 'assets/img/landing/playtios2.png',
+                'before_label' => 'Voor',
+                'after_image' => 'assets/img/landing/playtios2.png',
+                'after_label' => 'Na',
+                'checklist' => [
+                    ['title' => 'Volledige demontage & reiniging'],
+                    ['title' => 'Koelpasta vernieuwd'],
+                    ['title' => 'Ventilator volledig ontstoff'],
+                    ['title' => 'Weer stil & koel tijdens gamen'],
+                ],
+                'hdmi_title' => 'HDMI probleem opgelost',
+                'hdmi_steps' => [
+                    ['number' => '1', 'title' => 'Defecte HDMI poort verwijderd'],
+                    ['number' => '2', 'title' => 'Nieuwe poort geplaatst & gesoldeerd'],
+                    ['number' => '3', 'title' => 'Beeld getest op 4K resolutie'],
+                    ['number' => '4', 'title' => 'Console weer speelklaar'],
+                ],
+            ],
+            'services' => [
+                'title' => 'Onze console services',
+                'items' => [
+                    ['emoji' => '❄️', 'title' => 'Cooling Service', 'description' => 'Reiniging, nieuwe koelpasta en ventilator revisie.', 'price' => 'Vanaf €55'],
+                    ['emoji' => '🔌', 'title' => 'HDMI Repair', 'description' => 'HDMI poort vervangen of opnieuw solderen.', 'price' => 'Vanaf €69'],
+                    ['emoji' => '⚡', 'title' => 'Power / No Boot', 'description' => 'Geen stroom of start niet? Stroomcircuit herstellen.', 'price' => 'Vanaf €59'],
+                    ['emoji' => '🛠️', 'title' => 'General Check', 'description' => 'Volledige inspectie en diagnose van je console.', 'price' => 'Vanaf €59'],
+                ],
+            ],
+            'garantie' => [
+                'title' => 'Garantie op reparaties',
+                'description' => 'Wij staan achter ons werk. Elke console reparatie wordt uitgebreid getest en komt met garantie, zodat jij zorgeloos verder kunt gamen.',
+                'points' => [
+                    ['title' => 'Garantie op uitgevoerde reparaties'],
+                    ['title' => 'Alleen hoogwaardige onderdelen'],
+                    ['title' => 'Gratis controle na de reparatie'],
+                    ['title' => 'Eerlijke prijsopgave vooraf'],
+                ],
+            ],
+        ];
+
+        foreach ($console as $section => $blocks) {
+            $sort = 0;
+            foreach ($blocks as $key => $value) {
+                $isJson = is_array($value);
+                ContentBlock::updateOrCreate(
+                    ['page' => 'console', 'section' => $section, 'block_key' => $key],
+                    [
+                        'type' => $isJson ? 'json' : 'text',
+                        'value' => $isJson ? null : $value,
+                        'json_value' => $isJson ? $value : null,
+                        'sort_order' => $sort++,
+                    ]
+                );
+            }
+        }
+
         $design = [
             'meta_title' => 'Slimme-PC — Computerreparatie & IT-service in Apeldoorn',
             'meta_description' => 'Van diagnose tot reparatie: Slimme-PC is jouw betrouwbare partner voor computerreparatie, laptopreparatie, data recovery en IT-service in Apeldoorn.',

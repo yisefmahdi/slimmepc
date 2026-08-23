@@ -148,7 +148,8 @@ class PageController extends Controller
         // Header/footer live on the 'home' page.
         $c = Cms::page('home');
 
-        $html = view('landing.service', compact('c', 's', 'design', 'slug', 'pageKey'))->render();
+        $view = view()->exists('landing.service-' . $pageKey) ? 'landing.service-' . $pageKey : 'landing.service';
+        $html = view($view, compact('c', 's', 'design', 'slug', 'pageKey'))->render();
 
         if (!Auth::check()) {
             Cache::put($cacheKey, $html, now()->addMonth());
