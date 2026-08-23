@@ -311,10 +311,13 @@
                     $activeSvcPage = request()->route('page');
                     $isSvcPage = in_array($activeSvcPage, array_values(config('cms.service_slugs')), true);
                     // Only show service pages that have actual content (so unbuilt services stay out of the admin nav).
+                    // De-duplicate by pageKey so alias slugs (e.g. macbook-reparatie -> mac) don't create duplicate sidebar entries.
                     $svcVisiblePages = [];
+                    $seenSvc = [];
                     foreach (array_values(config('cms.service_slugs')) as $pageKey) {
-                        if (\App\Models\ContentBlock::where('page', $pageKey)->exists()) {
+                        if (!isset($seenSvc[$pageKey]) && \App\Models\ContentBlock::where('page', $pageKey)->exists()) {
                             $svcVisiblePages[] = $pageKey;
+                            $seenSvc[$pageKey] = true;
                         }
                     }
                 @endphp
