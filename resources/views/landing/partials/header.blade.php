@@ -19,6 +19,7 @@
     $svcIcons = [
         'laptopreparatie' => 'laptop',
         'pcreparatie'     => 'monitor',
+        'mac'             => 'apple',
         'macbook'         => 'apple',
         'datarecovery'    => 'database',
         'ipad'            => 'tablet',
@@ -31,6 +32,16 @@
     foreach ($servicePages as $slug => $pageKey) {
         $svcReady[$slug] = \App\Models\ContentBlock::where('page', $pageKey)->exists();
     }
+    // De-duplicate by pageKey so alias slugs (e.g. macbook-reparatie -> mac) don't render twice in the dropdown.
+    $seenKeys = [];
+    $uniqueServicePages = [];
+    foreach ($servicePages as $slug => $pageKey) {
+        if (!isset($seenKeys[$pageKey])) {
+            $uniqueServicePages[$slug] = $pageKey;
+            $seenKeys[$pageKey] = true;
+        }
+    }
+    $servicePages = $uniqueServicePages;
 @endphp
 
 <header id="navbar" class="
