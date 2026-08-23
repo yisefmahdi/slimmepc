@@ -992,6 +992,7 @@ return [
         'laptop-reparatie' => 'laptopreparatie',
         'pc-reparatie' => 'pcreparatie',
         'mac-reparatie' => 'mac',
+        'macbook-reparatie' => 'mac',
         'data-recovery' => 'datarecovery',
         'ipad-reparatie' => 'ipad',
         'moederbord-reparatie' => 'moederbord',
