@@ -33,12 +33,12 @@ Route::prefix('admin')
 
                 // Section editors (Header, Hero, Why)
                 Route::get('/{page}/section/{section}', [ContentController::class, 'editSection'])
-                    ->whereAlpha('page')
-                    ->whereAlpha('section')
+                    ->where('page', '[A-Za-z0-9_]+')
+                    ->where('section', '[A-Za-z0-9_]+')
                     ->name('section.edit');
                 Route::post('/{page}/section/{section}', [ContentController::class, 'updateSection'])
-                    ->whereAlpha('page')
-                    ->whereAlpha('section')
+                    ->where('page', '[A-Za-z0-9_]+')
+                    ->where('section', '[A-Za-z0-9_]+')
                     ->name('section');
 
                 // Progressive media (image/video) upload used by the section editor.

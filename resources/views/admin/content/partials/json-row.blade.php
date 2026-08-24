@@ -84,7 +84,7 @@
                                     <div class="flex flex-wrap items-center gap-4 rounded-xl border p-4 bg-slate-50/50 dark:bg-slate-800/30" data-image-block style="border-color: rgba(148,163,184,.25)">
                                         <div class="flex items-center gap-4">
                                             <div class="relative h-20 w-28 overflow-hidden rounded-xl border bg-white dark:bg-slate-900 shadow-inner flex items-center justify-center" style="border-color: rgba(148,163,184,.3)">
-                                                <img data-image-preview src="{{ $value ? asset('assets/img/landing/' . basename($value)) : '' }}"
+                                                <img data-image-preview src="{{ $value ? asset(str_starts_with($value, 'assets/') ? $value : 'assets/img/landing/' . ltrim($value, '/')) : '' }}"
                                                      alt="" class="h-full w-full object-contain p-1"
                                                      style="{{ $value ? '' : 'display: none' }}">
                                                 <span class="text-[10px] text-slate-400 absolute" style="{{ $value ? 'display: none' : '' }}">Geen voorbeeld</span>

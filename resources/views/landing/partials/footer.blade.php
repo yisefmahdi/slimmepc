@@ -99,21 +99,33 @@
                     Diensten
                 </h4>
 
+                @php
+                    // Dynamic footer Diensten: list every service page that has content, de-duplicated by pageKey (alias slugs don't duplicate)
+                    $footerServiceSlugs = config('cms.service_slugs', []);
+                    $seenFooter = [];
+                    $footerLinks = [];
+                    foreach ($footerServiceSlugs as $slug => $pageKey) {
+                        if (isset($seenFooter[$pageKey])) continue;
+                        $seenFooter[$pageKey] = true;
+                        // Only show services that have actual content blocks (so unbuilt stay out)
+                        if (!\App\Models\ContentBlock::where('page', $pageKey)->exists()) continue;
+                        $label = config("cms.pages.{$pageKey}.label") ?? $pageKey;
+                        $footerLinks[] = ['label' => $label, 'url' => url('/diensten/'.$slug)];
+                    }
+                @endphp
                 <ul class="footer-links">
-                    @foreach ([
-                        ['label' => 'Laptop reparatie', 'url' => '/diensten/laptop-reparatie'],
-                        ['label' => 'Computer reparatie', 'url' => '/diensten/pc-reparatie'],
-                        ['label' => 'Data recovery', 'url' => '/diensten/data-recovery'],
-                        ['label' => 'Software & Windows', 'url' => '/diensten/software-windows'],
-                        ['label' => 'Onderhoud & upgrade', 'url' => '/diensten/upgrades'],
-                        ['label' => 'Netwerk & WiFi', 'url' => '/diensten/netwerkoplossingen'],
-                    ] as $link)
+                    @forelse ($footerLinks as $link)
                         <li>
                             <a href="{{ $link['url'] }}">
                                 {{ $link['label'] }}
                             </a>
                         </li>
-                    @endforeach
+                    @empty
+                        <li><a href="{{ url('/diensten/laptop-reparatie') }}">Laptop reparatie</a></li>
+                        <li><a href="{{ url('/diensten/pc-reparatie') }}">PC Reparatie</a></li>
+                        <li><a href="{{ url('/diensten/data-recovery') }}">Data Recovery</a></li>
+                        <li><a href="{{ url('/diensten/software-windows') }}">Software &amp; Windows</a></li>
+                    @endforelse
                 </ul>
             </div>
 

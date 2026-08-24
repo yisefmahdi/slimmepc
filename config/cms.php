@@ -788,6 +788,655 @@ $softwareSectionDef = [
     ],
 ];
 
+$netwerkSectionDef = [
+    'hero' => [
+        'label' => 'Hero',
+        'blocks' => [
+            'badge' => ['label' => 'Badge', 'type' => 'text'],
+            'title1' => ['label' => 'Titel regel 1 (Sterk netwerk.)', 'type' => 'text'],
+            'title2' => ['label' => 'Titel regel 2 (Altijd verbonden.)', 'type' => 'text'],
+            'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+            'bullets' => [
+                'label' => 'Punten (6)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Tekst', 'type' => 'text'],
+                ],
+            ],
+            'image' => ['label' => 'Hero afbeelding', 'type' => 'image'],
+        ],
+    ],
+    'trust' => [
+        'label' => 'Trust bar (4)',
+        'blocks' => [
+            'items' => [
+                'label' => 'Items (4)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'emoji', 'label' => 'Icoon', 'type' => 'text'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'solutions' => [
+        'label' => 'Waarmee kunnen we je helpen?',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Oplossingen (6)',
+                'type' => 'json',
+                'columns' => 3,
+                'fields' => [
+                    ['key' => 'emoji', 'label' => 'Icoon', 'type' => 'text'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'description', 'label' => 'Beschrijving', 'type' => 'textarea'],
+                ],
+            ],
+        ],
+    ],
+    'recognize' => [
+        'label' => 'Herken je dit?',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Problemen (6)',
+                'type' => 'json',
+                'columns' => 3,
+                'fields' => [
+                    ['key' => 'emoji', 'label' => 'Icoon', 'type' => 'text'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'home_business' => [
+        'label' => 'Thuis & Zakelijk',
+        'blocks' => [
+            'home_title' => ['label' => 'Thuis titel', 'type' => 'text'],
+            'home_items' => [
+                'label' => 'Thuis punten (5)',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Tekst', 'type' => 'text'],
+                ],
+            ],
+            'home_image' => ['label' => 'Thuis afbeelding', 'type' => 'image'],
+            'business_title' => ['label' => 'Zakelijk titel', 'type' => 'text'],
+            'business_items' => [
+                'label' => 'Zakelijk punten (7)',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Tekst', 'type' => 'textarea'],
+                ],
+            ],
+            'business_image' => ['label' => 'Zakelijk afbeelding', 'type' => 'image'],
+        ],
+    ],
+    'steps' => [
+        'label' => 'Onze werkwijze',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'steps' => [
+                'label' => 'Stappen (5)',
+                'type' => 'json',
+                'fixed' => true,
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'emoji', 'label' => 'Icoon', 'type' => 'text'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'description', 'label' => 'Beschrijving', 'type' => 'textarea'],
+                ],
+            ],
+        ],
+    ],
+    'brands' => [
+        'label' => 'Merken',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Merken (5)',
+                'type' => 'json',
+                'columns' => 3,
+                'fields' => [
+                    ['key' => 'image', 'label' => 'Logo', 'type' => 'image'],
+                    ['key' => 'title', 'label' => 'Naam', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'final' => [
+        'label' => 'Final CTA',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'benefits' => [
+                'label' => 'Voordelen (3)',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                ],
+            ],
+            'image' => ['label' => 'Technicus afbeelding', 'type' => 'image'],
+        ],
+    ],
+];
+
+$moederbordSectionDef = [
+    'hero' => [
+        'label' => 'Hero',
+        'blocks' => [
+            'badge' => ['label' => 'Badge', 'type' => 'text'],
+            'title1' => ['label' => 'Titel regel 1 (Defect moederbord?)', 'type' => 'text'],
+            'title2' => ['label' => 'Titel regel 2 (Wij repareren verder)', 'type' => 'text'],
+            'title3' => ['label' => 'Titel regel 3 (waar anderen stoppen.)', 'type' => 'text'],
+            'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+            'usps' => [
+                'label' => 'USP (4)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'icon', 'label' => 'Icoon', 'type' => 'icon'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                ],
+            ],
+            'image' => ['label' => 'Moederbord afbeelding (hero)', 'type' => 'image'],
+        ],
+    ],
+    'process' => [
+        'label' => 'Van klacht naar oplossing',
+        'blocks' => [
+            'title1' => ['label' => 'Titel regel 1 (Van klacht)', 'type' => 'text'],
+            'title2' => ['label' => 'Titel regel 2 (naar oplossing)', 'type' => 'text'],
+            'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+            'center_image' => ['label' => 'Middelste afbeelding', 'type' => 'image'],
+            'items' => [
+                'label' => 'Stappen (5)',
+                'type' => 'json',
+                'fixed' => true,
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'icon', 'label' => 'Icoon', 'type' => 'icon'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'workbench' => [
+        'label' => 'Werkbank + Video',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'highlight' => ['label' => 'Highlight (vakwerk.)', 'type' => 'text'],
+            'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+            'features' => [
+                'label' => 'Features (3)',
+                'type' => 'json',
+                'columns' => 3,
+                'fields' => [
+                    ['key' => 'icon', 'label' => 'Icoon', 'type' => 'icon'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                ],
+            ],
+            'video' => ['label' => 'Video (mp4/webm)', 'type' => 'video'],
+            'video_poster' => ['label' => 'Video poster', 'type' => 'image'],
+            'lab_items' => [
+                'label' => 'Lab lijst (6)',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Tekst', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'repairs' => [
+        'label' => 'Wat repareren wij?',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Reparaties (6)',
+                'type' => 'json',
+                'columns' => 3,
+                'fields' => [
+                    ['key' => 'icon', 'label' => 'Icoon', 'type' => 'icon'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'description', 'label' => 'Beschrijving', 'type' => 'textarea'],
+                    ['key' => 'image', 'label' => 'Afbeelding', 'type' => 'image'],
+                ],
+            ],
+        ],
+    ],
+    'compare' => [
+        'label' => 'Vergelijking (VS)',
+        'blocks' => [
+            'left_title' => ['label' => 'Links titel', 'type' => 'text'],
+            'left_items' => [
+                'label' => 'Links punten (4)',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Tekst', 'type' => 'text'],
+                ],
+            ],
+            'right_title' => ['label' => 'Rechts titel', 'type' => 'text'],
+            'right_items' => [
+                'label' => 'Rechts punten (4)',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Tekst', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'cases' => [
+        'label' => 'Echte reparaties (3)',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Cases (3)',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'badge', 'label' => 'Badge (CASE 01)', 'type' => 'text'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'defect', 'label' => 'Defect', 'type' => 'text'],
+                    ['key' => 'solution', 'label' => 'Oplossing', 'type' => 'text'],
+                    ['key' => 'image', 'label' => 'Afbeelding', 'type' => 'image'],
+                ],
+            ],
+        ],
+    ],
+    'faq' => [
+        'label' => 'FAQ',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Vragen (4)',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'question', 'label' => 'Vraag', 'type' => 'text'],
+                    ['key' => 'answer', 'label' => 'Antwoord', 'type' => 'textarea'],
+                ],
+            ],
+        ],
+    ],
+    'cta' => [
+        'label' => 'CTA (Moederbord defect...)',
+        'blocks' => [
+            'title1' => ['label' => 'Titel regel 1', 'type' => 'text'],
+            'title2' => ['label' => 'Titel regel 2 (highlight)', 'type' => 'text'],
+            'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+            'phone' => ['label' => 'Telefoon (Bel ons direct)', 'type' => 'text'],
+            'image' => ['label' => 'CTA afbeelding', 'type' => 'image'],
+        ],
+    ],
+    'benefits' => [
+        'label' => 'Bottom USP (5)',
+        'blocks' => [
+            'items' => [
+                'label' => 'Punten (5)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'icon', 'label' => 'Icoon', 'type' => 'icon'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+];
+
+$datarecoverySectionDef = [
+    'hero' => [
+        'label' => 'Hero',
+        'blocks' => [
+            'badge' => ['label' => 'Badge', 'type' => 'text'],
+            'title1' => ['label' => 'Titel regel 1 (Belangrijke bestanden)', 'type' => 'text'],
+            'title2' => ['label' => 'Titel regel 2 (kwijt?)', 'type' => 'text'],
+            'subtitle' => ['label' => 'Ondertitel (Geef je data...)', 'type' => 'text'],
+            'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+            'usps' => [
+                'label' => 'USP (4)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'icon', 'label' => 'Icoon', 'type' => 'icon'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                ],
+            ],
+            'hero_image' => ['label' => 'Hero harde schijf afbeelding', 'type' => 'image'],
+            'media' => [
+                'label' => 'Bestandstypes (4 rechts)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'icon', 'label' => 'Icoon', 'type' => 'icon'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'devices' => [
+        'label' => 'Waar staan je bestanden op?',
+        'blocks' => [
+            'title1' => ['label' => 'Titel regel 1 (Waar staan je)', 'type' => 'text'],
+            'title2' => ['label' => 'Titel regel 2 (bestanden)', 'type' => 'text'],
+            'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Apparaten (6)',
+                'type' => 'json',
+                'columns' => 3,
+                'fields' => [
+                    ['key' => 'image', 'label' => 'Afbeelding', 'type' => 'image'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'process' => [
+        'label' => 'Van beschadiging naar herstel',
+        'blocks' => [
+            'title1' => ['label' => 'Titel regel 1 (Van beschadiging naar)', 'type' => 'text'],
+            'title2' => ['label' => 'Titel regel 2 (herstel)', 'type' => 'text'],
+            'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'steps' => [
+                'label' => 'Stappen (5 + trust)',
+                'type' => 'json',
+                'columns' => 3,
+                'fields' => [
+                    ['key' => 'icon', 'label' => 'Icoon', 'type' => 'icon'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'description', 'label' => 'Beschrijving', 'type' => 'textarea'],
+                ],
+            ],
+        ],
+    ],
+    'recover' => [
+        'label' => 'Wat kunnen wij herstellen?',
+        'blocks' => [
+            'title1' => ['label' => 'Titel regel 1 (Wat kunnen wij)', 'type' => 'text'],
+            'title2' => ['label' => 'Titel regel 2 (herstellen?)', 'type' => 'text'],
+            'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Items (7)',
+                'type' => 'json',
+                'columns' => 3,
+                'fields' => [
+                    ['key' => 'icon', 'label' => 'Icoon', 'type' => 'icon'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'cases' => [
+        'label' => 'Echte cases (3)',
+        'blocks' => [
+            'title1' => ['label' => 'Titel regel 1 (Echte data recovery)', 'type' => 'text'],
+            'title2' => ['label' => 'Titel regel 2 (cases)', 'type' => 'text'],
+            'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Cases (3)',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'badge', 'label' => 'Badge', 'type' => 'text'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'description', 'label' => 'Beschrijving', 'type' => 'textarea'],
+                    ['key' => 'result', 'label' => 'Resultaat (Hersteld: ...)', 'type' => 'text'],
+                    ['key' => 'image', 'label' => 'Afbeelding', 'type' => 'image'],
+                ],
+            ],
+        ],
+    ],
+    'trust_cta_faq' => [
+        'label' => 'Trust + CTA + FAQ',
+        'blocks' => [
+            'trust_title' => ['label' => 'Trust titel', 'type' => 'text'],
+            'trust_items' => [
+                'label' => 'Trust punten (4)',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Tekst', 'type' => 'text'],
+                ],
+            ],
+            'cta_title1' => ['label' => 'CTA titel regel 1 (Laat je data herstellen)', 'type' => 'text'],
+            'cta_title2' => ['label' => 'CTA titel regel 2 (door specialisten.)', 'type' => 'text'],
+            'cta_description' => ['label' => 'CTA beschrijving', 'type' => 'textarea'],
+            'cta_image' => ['label' => 'CTA afbeelding', 'type' => 'image'],
+            'faq_title' => ['label' => 'FAQ titel', 'type' => 'text'],
+            'faq_items' => [
+                'label' => 'FAQ (5)',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'question', 'label' => 'Vraag', 'type' => 'text'],
+                    ['key' => 'answer', 'label' => 'Antwoord', 'type' => 'textarea'],
+                ],
+            ],
+        ],
+    ],
+    'benefits' => [
+        'label' => 'Bottom USP (5)',
+        'blocks' => [
+            'items' => [
+                'label' => 'Punten (5)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'icon', 'label' => 'Icoon', 'type' => 'icon'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+];
+
+$pcSectionDef = [
+    'hero' => [
+        'label' => 'Hero',
+        'blocks' => [
+            'badge' => ['label' => 'Badge', 'type' => 'text'],
+            'title1' => ['label' => 'Titel regel 1 (Problemen met je PC?)', 'type' => 'text'],
+            'title2' => ['label' => 'Titel regel 2 (Of tijd voor iets beters?)', 'type' => 'text'],
+            'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+            'bullets' => [
+                'label' => 'Punten (6)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Tekst', 'type' => 'text'],
+                ],
+            ],
+            'image' => ['label' => 'Hero PC afbeelding', 'type' => 'image'],
+        ],
+    ],
+    'benefits' => [
+        'label' => 'Hero voordelen (4)',
+        'blocks' => [
+            'items' => [
+                'label' => 'Voordelen (4)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'emoji', 'label' => 'Icoon', 'type' => 'text'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'help' => [
+        'label' => 'Waarmee kunnen we je helpen?',
+        'blocks' => [
+            'repair_title' => ['label' => 'Reparatie titel (Mijn PC is kapot)', 'type' => 'text'],
+            'repair_items' => [
+                'label' => 'Reparatie punten (6)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Tekst', 'type' => 'text'],
+                ],
+            ],
+            'repair_image' => ['label' => 'Reparatie afbeelding', 'type' => 'image'],
+            'custom_title' => ['label' => 'Op maat titel (Ik wil een PC)', 'type' => 'text'],
+            'custom_items' => [
+                'label' => 'Op maat punten (6)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Tekst', 'type' => 'text'],
+                ],
+            ],
+            'custom_image' => ['label' => 'Op maat afbeelding', 'type' => 'image'],
+        ],
+    ],
+    'choice' => [
+        'label' => 'Jouw PC, jouw keuze',
+        'blocks' => [
+            'title1' => ['label' => 'Titel regel 1 (Jouw PC,)', 'type' => 'text'],
+            'title2' => ['label' => 'Titel regel 2 (jouw keuze)', 'type' => 'text'],
+            'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'center_image' => ['label' => 'Middelste PC afbeelding', 'type' => 'image'],
+            'left_items' => [
+                'label' => 'Linker componenten (3)',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'emoji', 'label' => 'Icoon', 'type' => 'text'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'description', 'label' => 'Beschrijving', 'type' => 'textarea'],
+                ],
+            ],
+            'right_items' => [
+                'label' => 'Rechter componenten (3)',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'emoji', 'label' => 'Icoon', 'type' => 'text'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'description', 'label' => 'Beschrijving', 'type' => 'textarea'],
+                ],
+            ],
+            'cooling_title' => ['label' => 'Koeling titel', 'type' => 'text'],
+            'cooling_text' => ['label' => 'Koeling tekst', 'type' => 'textarea'],
+        ],
+    ],
+    'problems' => [
+        'label' => 'PC probleem?',
+        'blocks' => [
+            'title1' => ['label' => 'Titel regel 1 (PC probleem?)', 'type' => 'text'],
+            'title2' => ['label' => 'Titel regel 2 (Wij vinden de oplossing.)', 'type' => 'text'],
+            'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+            'items' => [
+                'label' => 'Problemen (3: Power/Display/Performance)',
+                'type' => 'json',
+                'columns' => 3,
+                'fields' => [
+                    ['key' => 'emoji', 'label' => 'Icoon', 'type' => 'text'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'points', 'label' => 'Punten (3, komma gescheiden)', 'type' => 'text'],
+                ],
+            ],
+            'image' => ['label' => 'Rechts afbeelding', 'type' => 'image'],
+        ],
+    ],
+    'upgrades' => [
+        'label' => 'Upgrades',
+        'blocks' => [
+            'title1' => ['label' => 'Titel regel 1 (Niet altijd een)', 'type' => 'text'],
+            'title2' => ['label' => 'Titel regel 2 (nieuwe PC nodig.)', 'type' => 'text'],
+            'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+            'items' => [
+                'label' => 'Upgrades (4)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'before_label', 'label' => 'Voor label', 'type' => 'text'],
+                    ['key' => 'before_image', 'label' => 'Voor afbeelding', 'type' => 'image'],
+                    ['key' => 'before_spec', 'label' => 'Voor spec (bijv. 100 MB/s)', 'type' => 'text'],
+                    ['key' => 'after_label', 'label' => 'Na label', 'type' => 'text'],
+                    ['key' => 'after_image', 'label' => 'Na afbeelding', 'type' => 'image'],
+                    ['key' => 'after_spec', 'label' => 'Na spec', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'builds' => [
+        'label' => 'PC builds',
+        'blocks' => [
+            'title1' => ['label' => 'Titel regel 1 (PC builds door)', 'type' => 'text'],
+            'title2' => ['label' => 'Titel regel 2 (Slimme-PC)', 'type' => 'text'],
+            'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Builds (4)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'badge', 'label' => 'Badge', 'type' => 'text'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'description', 'label' => 'Beschrijving', 'type' => 'text'],
+                    ['key' => 'image', 'label' => 'Afbeelding', 'type' => 'image'],
+                ],
+            ],
+        ],
+    ],
+    'why' => [
+        'label' => 'Waarom PC op maat (6)',
+        'blocks' => [
+            'items' => [
+                'label' => 'Punten (6)',
+                'type' => 'json',
+                'columns' => 3,
+                'fields' => [
+                    ['key' => 'emoji', 'label' => 'Icoon', 'type' => 'text'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'description', 'label' => 'Beschrijving', 'type' => 'textarea'],
+                ],
+            ],
+        ],
+    ],
+    'faq_cta' => [
+        'label' => 'FAQ + CTA',
+        'blocks' => [
+            'faq_title' => ['label' => 'FAQ titel', 'type' => 'text'],
+            'faq_items' => [
+                'label' => 'FAQ (4)',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'question', 'label' => 'Vraag', 'type' => 'text'],
+                    ['key' => 'answer', 'label' => 'Antwoord', 'type' => 'textarea'],
+                ],
+            ],
+            'cta_title' => ['label' => 'CTA titel', 'type' => 'text'],
+            'cta_description' => ['label' => 'CTA beschrijving', 'type' => 'textarea'],
+            'cta_image' => ['label' => 'CTA afbeelding', 'type' => 'image'],
+        ],
+    ],
+];
+
 return [
 
     'cache_version_key' => 'cache_version',
@@ -1264,13 +1913,13 @@ return [
             ],
         ],
         'laptopreparatie' => ['label' => 'Laptop Reparatie', 'sections' => $serviceSectionDef],
-        'pcreparatie' => ['label' => 'PC Reparatie', 'sections' => $serviceSectionDef],
+        'pcreparatie' => ['label' => 'PC Reparatie', 'sections' => $pcSectionDef],
         'mac' => ['label' => 'Mac Reparatie', 'sections' => $macSectionDef],
-        'datarecovery' => ['label' => 'Data Recovery', 'sections' => $serviceSectionDef],
+        'datarecovery' => ['label' => 'Data Recovery', 'sections' => $datarecoverySectionDef],
         'ipad' => ['label' => 'iPad Reparatie', 'sections' => $ipadSectionDef],
-        'moederbord' => ['label' => 'Moederbord Reparatie', 'sections' => $serviceSectionDef],
+        'moederbord' => ['label' => 'Moederbord Reparatie', 'sections' => $moederbordSectionDef],
         'software' => ['label' => 'Software & Windows', 'sections' => $softwareSectionDef],
-        'netwerk' => ['label' => 'Netwerkoplossingen', 'sections' => $serviceSectionDef],
+        'netwerk' => ['label' => 'Netwerkoplossingen', 'sections' => $netwerkSectionDef],
         'console' => ['label' => 'Playstation / Xbox', 'sections' => $consoleSectionDef],
     ],
 

@@ -34,7 +34,7 @@ class ContentBlockSeeder extends Seeder
                 ],
                 'services_dropdown' => [
                     ['label' => 'Laptop & PC reparatie', 'url' => '/diensten/laptop-reparatie', 'icon' => 'laptop', 'subtitle' => 'Diagnose en reparatie'],
-                    ['label' => 'Moederbord reparatie', 'url' => '/diensten/moederbord', 'icon' => 'microchip', 'subtitle' => 'Component-level service'],
+                    ['label' => 'Moederbord reparatie', 'url' => '/diensten/moederbord-reparatie', 'icon' => 'microchip', 'subtitle' => 'Component-level service'],
                     ['label' => 'Data recovery', 'url' => '/diensten/data-recovery', 'icon' => 'database-backup', 'subtitle' => 'Bestanden herstellen'],
                     ['label' => 'Onderhoud & upgrades', 'url' => '/diensten/onderhoud', 'icon' => 'fan', 'subtitle' => 'Reinigen, SSD en RAM'],
                 ],
@@ -105,11 +105,11 @@ class ContentBlockSeeder extends Seeder
                 'description' => 'Van hardware reparaties tot data recovery, upgrades en software. Klik op een service en ontdek hoe wij je kunnen helpen.',
                 'services' => [
                     ['icon' => 'laptop', 'title' => 'Laptop Reparatie', 'description' => 'Scherm, toetsenbord, batterij, scharnieren en andere laptopproblemen.', 'link' => '/diensten/laptop-reparatie', 'image' => '53f89edd-3207-4891-b580-7246605e1858.png', 'hidden' => false],
-                    ['icon' => 'monitor', 'title' => 'PC Reparatie', 'description' => 'Desktop traag, start niet of hardwareproblemen? Wij lossen het snel op.', 'link' => '/pc.html', 'image' => 'aad70dda-b34c-4737-881f-eddab9c5b46c.png', 'hidden' => false],
+                    ['icon' => 'monitor', 'title' => 'PC Reparatie', 'description' => 'Desktop traag, start niet of hardwareproblemen? Wij lossen het snel op.', 'link' => '/diensten/pc-reparatie', 'image' => 'aad70dda-b34c-4737-881f-eddab9c5b46c.png', 'hidden' => false],
                     ['icon' => 'apple', 'title' => 'MacBook Reparatie', 'description' => 'Professionele reparatie voor MacBook Air, MacBook Pro en andere Apple-apparaten.', 'link' => '/diensten/mac-reparatie', 'image' => '363f8f55-fba7-4f23-88db-8c8e728d522e.png', 'hidden' => false],
-                    ['icon' => 'database', 'title' => 'Data Recovery', 'description' => 'Wij herstellen gegevens van beschadigde of niet meer werkende opslagapparaten.', 'link' => '/datarecovery.html', 'image' => 'e6cc3cb7-5aea-460d-a1a9-884318edc64a.png', 'hidden' => false],
+                    ['icon' => 'database', 'title' => 'Data Recovery', 'description' => 'Wij herstellen gegevens van beschadigde of niet meer werkende opslagapparaten.', 'link' => '/diensten/data-recovery', 'image' => 'e6cc3cb7-5aea-460d-a1a9-884318edc64a.png', 'hidden' => false],
                     ['icon' => 'arrow-up', 'title' => 'iPad Reparatie', 'description' => 'Scherm, batterij, laadpoort en andere iPad & tablet reparaties.', 'link' => '/diensten/ipad-reparatie', 'image' => 'ipad.png', 'hidden' => false],
-                    ['icon' => 'cpu', 'title' => 'Moederbord Reparatie', 'description' => 'Component-level reparatie bij complexe storingen, geen beeld en stroomproblemen.', 'link' => '/matherbord-reparatie.html', 'image' => '85cea032-2e38-4f3d-8071-f8677565c0a3.png', 'hidden' => false],
+                    ['icon' => 'cpu', 'title' => 'Moederbord Reparatie', 'description' => 'Component-level reparatie bij complexe storingen, geen beeld en stroomproblemen.', 'link' => '/diensten/moederbord-reparatie', 'image' => '85cea032-2e38-4f3d-8071-f8677565c0a3.png', 'hidden' => false],
                     ['icon' => 'panels-top-left', 'title' => 'Software & Windows', 'description' => 'Installatie, updates, drivers, optimalisatie en het verwijderen van virussen.', 'link' => '/diensten/software-windows', 'image' => '45e1353e-fb4a-4fec-9e45-1e00df7b86ec.png', 'hidden' => false],
                     ['icon' => 'wifi', 'title' => 'Netwerkoplossingen', 'description' => 'Installatie en onderhoud van stabiele, veilige en efficiënte netwerken.', 'link' => '/diensten/netwerkoplossingen', 'image' => 'cd15d7f8-c7f8-4d86-aa46-b51b04415092.png', 'hidden' => false],
                     ['icon' => 'gamepad-2', 'title' => 'Playstation / Xbox', 'description' => 'PlayStation, Xbox en Nintendo reparatie: HDMI, ventilator, laadpoort en stroomproblemen lossen wij vakkundig op.', 'link' => '/diensten/console-reparatie', 'image' => 'playstation-xbox.png', 'hidden' => false],
@@ -884,6 +884,507 @@ class ContentBlockSeeder extends Seeder
                 $isJson = is_array($value);
                 ContentBlock::updateOrCreate(
                     ['page' => 'software', 'section' => $section, 'block_key' => $key],
+                    [
+                        'type' => $isJson ? 'json' : 'text',
+                        'value' => $isJson ? null : $value,
+                        'json_value' => $isJson ? $value : null,
+                        'sort_order' => $sort++,
+                    ]
+                );
+            }
+        }
+
+        $netwerk = [
+            'hero' => [
+                'badge' => 'NETWERKOPLOSSINGEN · APELDOORN',
+                'title1' => 'Sterk netwerk.',
+                'title2' => 'Altijd verbonden.',
+                'description' => "Betrouwbare netwerken voor thuis en bedrijven.\nVan stabiele WiFi en bekabeling tot complete netwerkinstallaties en beheer.",
+                'bullets' => [
+                    ['title' => 'Snel & stabiel internet'],
+                    ['title' => 'WiFi dekking in elke ruimte'],
+                    ['title' => 'Professionele installatie'],
+                    ['title' => 'Bekabeld of draadloos'],
+                    ['title' => 'Netwerk voor thuis & zakelijk'],
+                    ['title' => 'Onderhoud & beheer'],
+                ],
+                'image' => 'assets/img/landing/e4be1a09-745c-4b20-bd54-d93ecab9442a.png',
+            ],
+            'trust' => [
+                'items' => [
+                    ['emoji' => '♢', 'title' => 'Gratis advies', 'subtitle' => 'Vrijblijvend & persoonlijk'],
+                    ['emoji' => '♢', 'title' => 'Vakkundige installatie', 'subtitle' => 'Netjes & professioneel'],
+                    ['emoji' => '⚭', 'title' => 'Top kwaliteit apparatuur', 'subtitle' => 'Betrouwbare merken'],
+                    ['emoji' => '◷', 'title' => 'Nazorg & support', 'subtitle' => 'Wij blijven voor je klaar'],
+                ],
+            ],
+            'solutions' => [
+                'title' => 'Waarmee kunnen we je helpen?',
+                'subtitle' => 'Kies de oplossing die bij jouw situatie past.',
+                'items' => [
+                    ['emoji' => '◉', 'title' => 'WiFi oplossingen', 'description' => "Sterke dekking en stabiel\ninternet in elke ruimte."],
+                    ['emoji' => '⚯', 'title' => 'Netwerkbekabeling', 'description' => "Netwerkkabels trekken,\npunten aanleggen en\nstructuur verbeteren."],
+                    ['emoji' => '▤', 'title' => 'Netwerkapparatuur', 'description' => "Routers, switches,\naccess points en\nfirewalls op maat."],
+                    ['emoji' => '♧', 'title' => 'Zakelijk netwerk', 'description' => "Complete netwerkinstallaties\nvoor bedrijven en kantoren."],
+                    ['emoji' => '♢', 'title' => 'Netwerk beveiliging', 'description' => "Beveiliging, gastnetwerken\nen toegangsbeheer."],
+                    ['emoji' => '⚙', 'title' => 'Netwerkbeheer', 'description' => "Monitoring, onderhoud\nen support voor een\nzorgeloos netwerk."],
+                ],
+            ],
+            'recognize' => [
+                'title' => 'Herken je dit?',
+                'items' => [
+                    ['emoji' => '◉', 'title' => 'WiFi valt weg'],
+                    ['emoji' => '◌', 'title' => 'Slecht bereik'],
+                    ['emoji' => '↗', 'title' => 'Trage verbinding'],
+                    ['emoji' => '◎', 'title' => 'Geen internet'],
+                    ['emoji' => '♧', 'title' => 'Netwerk uitbreiden'],
+                    ['emoji' => '♙', 'title' => "Nieuw kantoor\naansluiten"],
+                ],
+            ],
+            'home_business' => [
+                'home_title' => 'Thuisnetwerk',
+                'home_items' => [
+                    ['title' => 'WiFi in elke kamer'],
+                    ['title' => 'Sneller internet'],
+                    ['title' => 'Slimme apparaten verbinden'],
+                    ['title' => 'Ouderlijk toezicht'],
+                    ['title' => 'Gastnetwerk'],
+                ],
+                'home_image' => 'assets/img/landing/2b775919-c76612bc-step-2_-install-structured-cabling-(ethernet-backh.jpg',
+                'business_title' => 'Zakelijk netwerk',
+                'business_items' => [
+                    ['title' => 'Stabiele verbindingen'],
+                    ['title' => 'Veilig en betrouwbaar'],
+                    ['title' => 'Schaalbaar en toekomstproof'],
+                    ['title' => "Gast- & medewerkersnetwerk"],
+                    ['title' => "WiFi voor gasten gescheiden\nvan bedrijfsnetwerk"],
+                    ['title' => "Werkplekken, printers,\nNAS & apparatuur verbinden"],
+                    ['title' => 'Centrale beheeropties'],
+                ],
+                'business_image' => 'assets/img/landing/LAN-Corning1.jpg',
+            ],
+            'steps' => [
+                'title' => 'Onze werkwijze',
+                'steps' => [
+                    ['emoji' => '☵', 'title' => '1. Advies', 'description' => "We bespreken jouw wensen\nen bekijken de situatie."],
+                    ['emoji' => '▧', 'title' => '2. Plan op maat', 'description' => "We maken een voorstel\ndat past bij jouw behoeften."],
+                    ['emoji' => '⚒', 'title' => '3. Installatie & configuratie', 'description' => "Vakkundige installatie en\nconfiguratie van alle apparatuur."],
+                    ['emoji' => '✓', 'title' => '4. Test & controle', 'description' => "We testen alles grondig\nvoor optimale prestaties."],
+                    ['emoji' => '♫', 'title' => '5. Support & beheer', 'description' => "We blijven beschikbaar voor\nonderhoud en support."],
+                ],
+            ],
+            'brands' => [
+                'title' => 'Merken waarop we vertrouwen',
+                'items' => [
+                    ['image' => 'assets/img/landing/brand-ubiquiti.png', 'title' => 'Ubiquiti'],
+                    ['image' => 'assets/img/landing/brand-tplink.png', 'title' => 'TP-Link'],
+                    ['image' => 'assets/img/landing/brand-mikrotik.png', 'title' => 'MikroTik'],
+                    ['image' => 'assets/img/landing/brand-synology.png', 'title' => 'Synology'],
+                    ['image' => 'assets/img/landing/brand-netgear.png', 'title' => 'Netgear'],
+                ],
+            ],
+            'final' => [
+                'title' => 'Klaar voor een sterker netwerk?',
+                'subtitle' => 'Vraag vrijblijvend advies aan en ontdek wat wij voor jou kunnen betekenen.',
+                'benefits' => [
+                    ['title' => 'Gratis & vrijblijvend advies', 'subtitle' => 'Bij jou thuis of op locatie'],
+                    ['title' => 'Snelle service', 'subtitle' => 'Binnen 24–48 uur'],
+                    ['title' => 'Altijd bereikbaar', 'subtitle' => 'Ook voor spoedklussen'],
+                ],
+                'image' => 'assets/img/landing/images.jpeg',
+            ],
+        ];
+
+        foreach ($netwerk as $section => $blocks) {
+            $sort = 0;
+            foreach ($blocks as $key => $value) {
+                $isJson = is_array($value);
+                ContentBlock::updateOrCreate(
+                    ['page' => 'netwerk', 'section' => $section, 'block_key' => $key],
+                    [
+                        'type' => $isJson ? 'json' : 'text',
+                        'value' => $isJson ? null : $value,
+                        'json_value' => $isJson ? $value : null,
+                        'sort_order' => $sort++,
+                    ]
+                );
+            }
+        }
+
+        $moederbord = [
+            'hero' => [
+                'badge' => 'Moederbord reparatie Apeldoorn',
+                'title1' => 'Defect moederbord?',
+                'title2' => 'Wij repareren verder',
+                'title3' => 'waar anderen stoppen.',
+                'description' => "Geen onnodige vervanging. Eerst meten.\nDan repareren. Op componentniveau.",
+                'usps' => [
+                    ['icon' => 'shield-check', 'title' => 'Gratis diagnose', 'subtitle' => 'Eerlijk & duidelijk'],
+                    ['icon' => 'microchip', 'title' => 'Component level repair', 'subtitle' => 'Wij vervangen niet het hele bord'],
+                    ['icon' => 'flask-conical', 'title' => 'Snelle doorlooptijd', 'subtitle' => 'Vaak dezelfde dag klaar'],
+                    ['icon' => 'shield-check', 'title' => 'Garantie', 'subtitle' => 'Op reparaties & onderdelen'],
+                ],
+                'image' => 'assets/img/landing/fd440a8c-4dba-4e09-86a1-b71edb28ea87.png',
+            ],
+            'process' => [
+                'title1' => 'Van klacht',
+                'title2' => 'naar oplossing',
+                'description' => "Wij doorlopen een gestructureerd diagnoseproces om het echte\nprobleem te vinden en gericht te repareren.",
+                'center_image' => 'assets/img/landing/363f8f55-fba7-4f23-88db-8c8e728d522e.png',
+                'items' => [
+                    ['icon' => 'laptop', 'title' => 'KLACHT', 'subtitle' => 'Bijv. laptop start niet meer'],
+                    ['icon' => 'activity', 'title' => 'METING', 'subtitle' => 'Voeding & signalen worden gemeten'],
+                    ['icon' => 'microchip', 'title' => 'COMPONENT', 'subtitle' => 'Defect onderdeel wordt gelokaliseerd'],
+                    ['icon' => 'syringe', 'title' => 'REPARATIE', 'subtitle' => 'Microsolderen & vervangen van defecte onderdelen'],
+                    ['icon' => 'shield-check', 'title' => 'TEST', 'subtitle' => 'Grondig getest voor 100% zekerheid'],
+                ],
+            ],
+            'workbench' => [
+                'title' => 'Echte reparatie.',
+                'highlight' => 'vakwerk.',
+                'description' => "Onder de microscoop zoeken we naar de oorzaak\nen repareren we op componentniveau.",
+                'features' => [
+                    ['icon' => 'microscope', 'title' => 'Ervaren technici'],
+                    ['icon' => 'settings', 'title' => 'Professionele apparatuur'],
+                    ['icon' => 'shield-check', 'title' => 'Nauwkeurig & veilig'],
+                ],
+                'video' => null,
+                'video_poster' => 'assets/img/landing/e4703bd3-ffe8-4ca1-8543-7f5a97484698.png',
+                'lab_items' => [
+                    ['title' => 'Microscoop inspectie'],
+                    ['title' => 'Soldeerstation (JBC)'],
+                    ['title' => 'DC Power Supply'],
+                    ['title' => 'Digitale Multimeter'],
+                    ['title' => 'Oscilloscoop'],
+                    ['title' => 'ESD veilige werkplek'],
+                ],
+            ],
+            'repairs' => [
+                'title' => 'Wat repareren wij op een moederbord?',
+                'subtitle' => 'Wij repareren alleen het defecte onderdeel, niet onnodig het hele moederbord.',
+                'items' => [
+                    ['icon' => 'zap', 'title' => 'Voeding (MOSFET / IC)', 'description' => 'Defecte voedingen worden opgespoord en vervangen.', 'image' => 'assets/img/landing/what-computer-chips-made-of.jpg'],
+                    ['icon' => 'plug', 'title' => 'Laadcircuit (DC / USB-C)', 'description' => 'Reparatie van laadpoort, laad-IC en power circuits.', 'image' => 'assets/img/landing/what-computer-chips-made-of.jpg'],
+                    ['icon' => 'cpu', 'title' => 'BIOS / Firmware', 'description' => 'BIOS problemen, corrupte chip of herprogrammeren.', 'image' => 'assets/img/landing/what-computer-chips-made-of.jpg'],
+                    ['icon' => 'laptop-minimal', 'title' => 'Connectoren & Poorten', 'description' => 'HDMI, USB, audio, DC-jack en andere connectoren.', 'image' => 'assets/img/landing/what-computer-chips-made-of.jpg'],
+                    ['icon' => 'activity', 'title' => 'Kortsluiting Opsporen', 'description' => 'Short circuit detectie en reparatie op componentniveau.', 'image' => 'assets/img/landing/what-computer-chips-made-of.jpg'],
+                    ['icon' => 'brain-circuit', 'title' => 'Component Vervangen', 'description' => 'IC, capacitors, resistors, coil, transistor en meer.', 'image' => 'assets/img/landing/what-computer-chips-made-of.jpg'],
+                ],
+            ],
+            'compare' => [
+                'left_title' => 'Het hele moederbord vervangen?',
+                'left_items' => [
+                    ['title' => 'Zeer hoge kosten'],
+                    ['title' => 'Gegevens kunnen verloren gaan'],
+                    ['title' => 'Niet altijd direct beschikbaar'],
+                    ['title' => 'Niet altijd de echte oplossing'],
+                ],
+                'right_title' => 'Slimme-PC repareert op componentniveau',
+                'right_items' => [
+                    ['title' => 'Alleen het defecte onderdeel vervangen'],
+                    ['title' => 'Lagere kosten'],
+                    ['title' => 'Gegevens blijven behouden'],
+                    ['title' => 'Duurzame oplossing'],
+                ],
+            ],
+            'cases' => [
+                'title' => 'Echte moederbord reparaties bij Slimme-PC',
+                'subtitle' => 'Voorbeelden van succesvolle component level reparaties.',
+                'items' => [
+                    ['badge' => 'CASE 01', 'title' => 'Laptop laadt niet', 'defect' => 'Defect: Charging IC', 'solution' => 'Oplossing: IC vervangen', 'image' => 'assets/img/landing/kO1LIJHDa11tczsJsamOPZfBGTjhLrQnH18u2AZ4.webp'],
+                    ['badge' => 'CASE 02', 'title' => 'Geen beeld', 'defect' => 'Defect: BIOS probleem', 'solution' => 'Oplossing: BIOS geprogrammeerd', 'image' => 'assets/img/landing/e6CDTwkoydKhv1YqP7v960jbKDJiHFBxVh8og5LH.png'],
+                    ['badge' => 'CASE 03', 'title' => 'Dood moederbord', 'defect' => 'Kortsluiting in power circuit', 'solution' => 'Oplossing: MOSFET vervangen', 'image' => 'assets/img/landing/589e8caa-b215-46bc-8687-99fbcae79b5a.png'],
+                ],
+            ],
+            'faq' => [
+                'title' => 'Veelgestelde vragen',
+                'items' => [
+                    ['question' => 'Kan elk moederbord gerepareerd worden?', 'answer' => 'Niet elk defect kan worden hersteld, maar veel problemen op componentniveau zijn wel degelijk te repareren.'],
+                    ['question' => 'Hoe lang duurt een moederbord reparatie?', 'answer' => 'Dit hangt af van het defect en de beschikbaarheid van componenten.'],
+                    ['question' => 'Wat kost een moederbord reparatie?', 'answer' => 'De kosten zijn afhankelijk van de diagnose en het beschadigde circuit of component.'],
+                    ['question' => 'Is de reparatie betrouwbaar?', 'answer' => 'Na de reparatie testen wij het apparaat uitgebreid voordat het wordt teruggegeven.'],
+                ],
+            ],
+            'cta' => [
+                'title1' => 'Moederbord defect betekent',
+                'title2' => 'niet automatisch einde laptop.',
+                'description' => 'Laat ons eerst onderzoeken wat er werkelijk defect is.',
+                'phone' => '055 203 21 45',
+                'image' => 'assets/img/landing/kO1LIJHDa11tczsJsamOPZfBGTjhLrQnH18u2AZ4.webp',
+            ],
+            'benefits' => [
+                'items' => [
+                    ['icon' => 'shield-check', 'title' => 'Gratis diagnose', 'subtitle' => 'Eerlijk & transparant'],
+                    ['icon' => 'microchip', 'title' => 'Component level repair', 'subtitle' => 'Niet vervangen, maar repareren'],
+                    ['icon' => 'gauge', 'title' => 'Snelle service', 'subtitle' => 'Vaak dezelfde dag klaar'],
+                    ['icon' => 'shield', 'title' => 'Garantie op reparaties', 'subtitle' => 'Op onderdelen & arbeid'],
+                    ['icon' => 'lock-keyhole', 'title' => 'Veilig & betrouwbaar', 'subtitle' => 'ESD veilig & professioneel'],
+                ],
+            ],
+        ];
+
+        foreach ($moederbord as $section => $blocks) {
+            $sort = 0;
+            foreach ($blocks as $key => $value) {
+                $isJson = is_array($value);
+                ContentBlock::updateOrCreate(
+                    ['page' => 'moederbord', 'section' => $section, 'block_key' => $key],
+                    [
+                        'type' => $isJson ? 'json' : 'text',
+                        'value' => $isJson ? null : $value,
+                        'json_value' => $isJson ? $value : null,
+                        'sort_order' => $sort++,
+                    ]
+                );
+            }
+        }
+
+        $datarecovery = [
+            'hero' => [
+                'badge' => 'Data recovery Apeldoorn',
+                'title1' => 'Belangrijke bestanden',
+                'title2' => 'kwijt?',
+                'subtitle' => 'Geef je data nog niet op.',
+                'description' => "Wij herstellen gegevens van beschadigde HDD's, SSD's,\nUSB-sticks, geheugenkaarten en meer.",
+                'usps' => [
+                    ['icon' => 'clipboard-check', 'title' => 'Gratis diagnose', 'subtitle' => 'Zonder verplichting'],
+                    ['icon' => 'badge-check', 'title' => 'Hoge slagingskans', 'subtitle' => 'Geavanceerde technieken'],
+                    ['icon' => 'shield-check', 'title' => 'Vertrouwelijk behandeld', 'subtitle' => 'Jouw data blijft privé'],
+                    ['icon' => 'clock-3', 'title' => 'Snelle doorlooptijd', 'subtitle' => 'Vaak binnen 2–5 dagen'],
+                ],
+                'hero_image' => 'assets/img/landing/c2bf5922-aa0e-445e-a81a-b4f31a4822da.png',
+                'media' => [
+                    ['icon' => 'file-text', 'title' => 'Documenten', 'subtitle' => 'Word, Excel, PDF...'],
+                    ['icon' => 'image', 'title' => "Foto's", 'subtitle' => 'JPG, PNG, RAW...'],
+                    ['icon' => 'video', 'title' => "Video's", 'subtitle' => 'MP4, MOV, AVI...'],
+                    ['icon' => 'cloud', 'title' => 'Back-ups', 'subtitle' => 'Belangrijke kopieën'],
+                ],
+            ],
+            'devices' => [
+                'title1' => 'Waar staan je',
+                'title2' => 'bestanden',
+                'title3' => 'op?',
+                'subtitle' => 'Selecteer het type opslagapparaat',
+                'items' => [
+                    ['image' => 'assets/img/landing/hdd.jpeg', 'title' => 'HDD', 'subtitle' => 'Interne harde schijf'],
+                    ['image' => 'assets/img/landing/SSD-hard.jpg', 'title' => 'SSD', 'subtitle' => 'Solid State Drive'],
+                    ['image' => 'assets/img/landing/group_1477_group.jpeg', 'title' => 'USB-Stick', 'subtitle' => 'Geheugenstick'],
+                    ['image' => 'assets/img/landing/micro-sd-kaart.jpg', 'title' => 'SD / MicroSD', 'subtitle' => 'Geheugenkaart'],
+                    ['image' => 'assets/img/landing/external-hard-drive.webp', 'title' => 'Externe HDD', 'subtitle' => 'Externe harde schijf'],
+                    ['image' => 'assets/img/landing/windows-apple-.jpg', 'title' => 'Laptop / PC', 'subtitle' => 'Systeem problemen'],
+                ],
+            ],
+            'process' => [
+                'title1' => 'Van beschadiging naar',
+                'title2' => 'herstel',
+                'subtitle' => 'Zo werken wij aan het terughalen van jouw data',
+                'steps' => [
+                    ['icon' => 'stethoscope', 'title' => 'Diagnose', 'description' => 'We onderzoeken gratis de schade en de haalbaarheid.'],
+                    ['icon' => 'scan-search', 'title' => 'Analyse', 'description' => 'We scannen de schijf op leesbare gegevens.'],
+                    ['icon' => 'folder-open', 'title' => 'Herstel', 'description' => 'Bestanden worden veilig gekopieerd naar nieuwe opslag.'],
+                    ['icon' => 'shield-check', 'title' => 'Controle', 'description' => 'We controleren de bestanden samen met jou.'],
+                    ['icon' => 'cloud-download', 'title' => 'Terug naar jou', 'description' => 'Je ontvangt jouw data veilig terug.'],
+                ],
+            ],
+            'recover' => [
+                'title1' => 'Wat kunnen wij',
+                'title2' => 'herstellen?',
+                'subtitle' => 'Wij werken met bijna alle opslagmedia en bestandssystemen.',
+                'items' => [
+                    ['icon' => 'hard-drive', 'title' => 'HDD (SATA / IDE)', 'subtitle' => 'Alle merken'],
+                    ['icon' => 'cpu', 'title' => 'SSD (SATA / NVMe)', 'subtitle' => 'Alle types'],
+                    ['icon' => 'usb', 'title' => 'USB-Sticks', 'subtitle' => 'Alle capaciteiten'],
+                    ['icon' => 'sd-card', 'title' => 'SD / MicroSD', 'subtitle' => 'Camera, telefoon'],
+                    ['icon' => 'server', 'title' => 'NAS / RAID', 'subtitle' => 'RAID 0/1/5/6/10'],
+                    ['icon' => 'briefcase', 'title' => 'Externe schijven', 'subtitle' => 'Alle formaten'],
+                    ['icon' => 'folder-cog', 'title' => 'Bestandssystemen', 'subtitle' => 'NTFS, exFAT, FAT32, HFS+, APFS'],
+                ],
+            ],
+            'cases' => [
+                'title1' => 'Echte data recovery',
+                'title2' => 'cases',
+                'subtitle' => 'Enkele voorbeelden van succesvolle herstelde gegevens.',
+                'items' => [
+                    ['badge' => 'CASE #1021', 'title' => 'HDD maakt geluid', 'description' => 'Defecte harde schijf met mechanische schade.', 'result' => 'Hersteld: 1.2 TB', 'image' => 'assets/img/landing/hdd-2.avif'],
+                    ['badge' => 'CASE #0987', 'title' => 'SSD wordt niet herkend', 'description' => 'SSD met controller probleem, geen toegang tot data.', 'result' => 'Hersteld: 480 GB', 'image' => 'assets/img/landing/Externe-schijf-wordt-niet-herkend-door-Windows.webp'],
+                    ['badge' => 'CASE #0954', 'title' => 'USB per ongeluk geformatteerd', 'description' => "Belangrijke documenten en foto's teruggehaald.", 'result' => 'Hersteld: 64 GB', 'image' => 'assets/img/landing/group_1477_group.jpeg'],
+                ],
+            ],
+            'trust_cta_faq' => [
+                'trust_title' => 'Jouw data is bij ons veilig',
+                'trust_items' => [
+                    ['title' => 'Geen data wordt zonder toestemming gedeeld'],
+                    ['title' => 'We werken op een beveiligde werkplek'],
+                    ['title' => 'Jouw data blijft uitsluitend van jou'],
+                    ['title' => 'Indien niet herstelbaar: geen kosten'],
+                ],
+                'cta_title1' => 'Laat je data herstellen',
+                'cta_title2' => 'door specialisten.',
+                'cta_description' => "Wacht niet langer en vergroot de kans\nop succesvol herstel.",
+                'cta_image' => 'assets/img/landing/e6cc3cb7-5aea-460d-a1a9-884318edc64a.png',
+                'faq_title' => 'Veelgestelde vragen',
+                'faq_items' => [
+                    ['question' => 'Wat kost een data recovery?', 'answer' => 'De kosten hangen af van het type opslagmedium en de schade.'],
+                    ['question' => 'Hoe lang duurt het herstelproces?', 'answer' => 'Veel onderzoeken en herstellingen duren enkele werkdagen.'],
+                    ['question' => 'Welke schijven kunnen jullie herstellen?', 'answer' => 'HDD, SSD, USB, SD-kaarten, externe schijven en diverse RAID-systemen.'],
+                    ['question' => 'Is mijn data veilig bij jullie?', 'answer' => 'Wij behandelen alle ontvangen gegevens vertrouwelijk.'],
+                    ['question' => 'Wat als de data niet herstelbaar is?', 'answer' => 'Na onderzoek bespreken wij duidelijk de haalbaarheid en mogelijkheden.'],
+                ],
+            ],
+            'benefits' => [
+                'items' => [
+                    ['icon' => 'shield-check', 'title' => 'Gratis diagnose', 'subtitle' => 'Zonder verplichting'],
+                    ['icon' => 'atom', 'title' => 'Geavanceerde technieken', 'subtitle' => 'Professionele tools'],
+                    ['icon' => 'badge-check', 'title' => 'Hoge slagingskans', 'subtitle' => 'Jarenlange ervaring'],
+                    ['icon' => 'clock', 'title' => 'Snelle doorlooptijd', 'subtitle' => 'Vaak binnen 2–5 dagen'],
+                    ['icon' => 'shield', 'title' => 'Geen herstel, geen kosten', 'subtitle' => 'Eerlijk & transparant'],
+                ],
+            ],
+        ];
+
+        foreach ($datarecovery as $section => $blocks) {
+            $sort = 0;
+            foreach ($blocks as $key => $value) {
+                $isJson = is_array($value);
+                ContentBlock::updateOrCreate(
+                    ['page' => 'datarecovery', 'section' => $section, 'block_key' => $key],
+                    [
+                        'type' => $isJson ? 'json' : 'text',
+                        'value' => $isJson ? null : $value,
+                        'json_value' => $isJson ? $value : null,
+                        'sort_order' => $sort++,
+                    ]
+                );
+            }
+        }
+
+        $pc = [
+            'hero' => [
+                'badge' => 'PC Reparatie & PC op maat · Apeldoorn',
+                'title1' => 'Problemen met je PC?',
+                'title2' => 'Of tijd voor iets beters?',
+                'description' => "Van reparatie en upgrades tot een complete PC op maat.\nKwaliteit, snelheid en eerlijk advies.",
+                'bullets' => [
+                    ['title' => 'Diagnose & reparatie'],
+                    ['title' => 'Zakelijke computers'],
+                    ['title' => 'Upgrades'],
+                    ['title' => 'PC op maat'],
+                    ['title' => "Gaming PC's"],
+                    ['title' => 'Professionele montage'],
+                ],
+                'image' => 'assets/img/landing/0bdab181-585e-44c9-a56e-11cc49cff612.png',
+            ],
+            'benefits' => [
+                'items' => [
+                    ['emoji' => '⌁', 'title' => 'Gratis diagnose', 'subtitle' => 'Eerlijk & transparant'],
+                    ['emoji' => '◷', 'title' => 'Snelle service', 'subtitle' => 'Vaak binnen 24 uur'],
+                    ['emoji' => '♢', 'title' => 'Garantie', 'subtitle' => 'Op reparaties & onderdelen'],
+                    ['emoji' => '☆', 'title' => 'Betrouwbaar', 'subtitle' => 'Jarenlange ervaring'],
+                ],
+            ],
+            'help' => [
+                'repair_title' => 'Mijn PC is kapot',
+                'repair_items' => [
+                    ['title' => 'Start niet'],
+                    ['title' => 'Valt uit'],
+                    ['title' => 'Geen beeld'],
+                    ['title' => 'Maakt geluid'],
+                    ['title' => 'Wordt te warm'],
+                    ['title' => 'Overige problemen'],
+                ],
+                'repair_image' => 'assets/img/landing/0bdab181-585e-44c9-a56e-11cc49cff612.png',
+                'custom_title' => 'Ik wil een PC',
+                'custom_items' => [
+                    ['title' => 'Gaming PC'],
+                    ['title' => 'Custom build'],
+                    ['title' => 'Werk / kantoor'],
+                    ['title' => 'Upgrade bestaande PC'],
+                    ['title' => 'Foto & video'],
+                    ['title' => 'Advies op maat'],
+                ],
+                'custom_image' => 'assets/img/landing/0bdab181-585e-44c9-a56e-11cc49cff612.png',
+            ],
+            'choice' => [
+                'title1' => 'Jouw PC,',
+                'title2' => 'jouw keuze',
+                'subtitle' => 'Klik op een onderdeel voor meer informatie',
+                'center_image' => 'assets/img/landing/0bdab181-585e-44c9-a56e-11cc49cff612.png',
+                'left_items' => [
+                    ['emoji' => '▧', 'title' => 'Processor (CPU)', 'description' => "Het brein van je PC.\nMeer kernen, meer kracht."],
+                    ['emoji' => '▥', 'title' => 'Werkgeheugen (RAM)', 'description' => "Meer RAM = soepeler multitasken\nen snelheid."],
+                    ['emoji' => '▱', 'title' => 'Opslag (SSD / HDD)', 'description' => "Snelle SSD voor snelheid,\nHDD voor capaciteit."],
+                ],
+                'right_items' => [
+                    ['emoji' => '▦', 'title' => 'Moederbord', 'description' => "Verbindt alles met elkaar.\nKies kwaliteit & stabiliteit."],
+                    ['emoji' => '⌁', 'title' => 'Grafische kaart (GPU)', 'description' => "Voor gaming, 3D en zware\ntoepassingen."],
+                    ['emoji' => '⬡', 'title' => 'Voeding (PSU)', 'description' => "Stabiele stroom voor een\nveilige en betrouwbare PC."],
+                ],
+                'cooling_title' => 'Koeling',
+                'cooling_text' => "Houdt je PC koel en stil.\nBetere prestaties, langere levensduur.",
+            ],
+            'problems' => [
+                'title1' => 'PC probleem?',
+                'title2' => 'Wij vinden de oplossing.',
+                'description' => "Van kleine storingen tot complexe problemen,\nwij sporen het op en lossen het vakkundig op.",
+                'items' => [
+                    ['emoji' => '⏻', 'title' => 'Power', 'points' => 'Geen stroom,Start en valt uit,Ventilatoren draaien niet'],
+                    ['emoji' => '▣', 'title' => 'Display', 'points' => 'Geen beeld,Blue screen / errors,GPU problemen'],
+                    ['emoji' => '◴', 'title' => 'Performance', 'points' => 'Traag / haperingen,Oververhitting,Crashes / vastlopers'],
+                ],
+                'image' => 'assets/img/landing/0bdab181-585e-44c9-a56e-11cc49cff612.png',
+            ],
+            'upgrades' => [
+                'title1' => 'Niet altijd een',
+                'title2' => 'nieuwe PC nodig.',
+                'description' => "Met de juiste upgrade geef je jouw PC\neen tweede leven en haal je weer het maximale eruit.",
+                'items' => [
+                    ['title' => 'Opslag upgrade', 'before_label' => 'HDD 1TB', 'before_image' => 'assets/img/landing/pc/hdd.png', 'before_spec' => '100 MB/s', 'after_label' => 'NVMe SSD 1TB', 'after_image' => 'assets/img/landing/pc/nvme.png', 'after_spec' => '3500 MB/s'],
+                    ['title' => 'Geheugen upgrade', 'before_label' => '8GB RAM', 'before_image' => 'assets/img/landing/0bdab181-585e-44c9-a56e-11cc49cff612.png', 'before_spec' => '', 'after_label' => '32GB RAM', 'after_image' => 'assets/img/landing/0bdab181-585e-44c9-a56e-11cc49cff612.png', 'after_spec' => ''],
+                    ['title' => 'Koeling upgrade', 'before_label' => 'Standaard koeler', 'before_image' => 'assets/img/landing/0bdab181-585e-44c9-a56e-11cc49cff612.png', 'before_spec' => '', 'after_label' => 'Premium koeler', 'after_image' => 'assets/img/landing/0bdab181-585e-44c9-a56e-11cc49cff612.png', 'after_spec' => ''],
+                    ['title' => 'Grafische kaart upgrade', 'before_label' => 'GTX 1650', 'before_image' => 'assets/img/landing/0bdab181-585e-44c9-a56e-11cc49cff612.png', 'before_spec' => '', 'after_label' => 'RTX 4060', 'after_image' => 'assets/img/landing/0bdab181-585e-44c9-a56e-11cc49cff612.png', 'after_spec' => ''],
+                ],
+            ],
+            'builds' => [
+                'title1' => 'PC builds door',
+                'title2' => 'Slimme-PC',
+                'subtitle' => 'Met zorg samengesteld. Op maat gebouwd. 100% getest.',
+                'items' => [
+                    ['badge' => 'Gaming Beast', 'title' => 'Voor de beste game-ervaring', 'description' => 'High FPS • Stil • Krachtig', 'image' => 'assets/img/landing/0bdab181-585e-44c9-a56e-11cc49cff612.png'],
+                    ['badge' => 'Creator Pro', 'title' => 'Voor foto, video & 3D', 'description' => 'Stabiel • Snel • Betrouwbaar', 'image' => 'assets/img/landing/0bdab181-585e-44c9-a56e-11cc49cff612.png'],
+                    ['badge' => 'Workstation', 'title' => 'Voor werk & productiviteit', 'description' => 'Efficiënt • Uitbreidbaar • Stil', 'image' => 'assets/img/landing/0bdab181-585e-44c9-a56e-11cc49cff612.png'],
+                    ['badge' => 'Office PC', 'title' => 'Voor kantoor & dagelijks gebruik', 'description' => 'Snel • Betrouwbaar • Voordelig', 'image' => 'assets/img/landing/0bdab181-585e-44c9-a56e-11cc49cff612.png'],
+                ],
+            ],
+            'why' => [
+                'items' => [
+                    ['emoji' => '◉', 'title' => 'Prestaties op maat', 'description' => 'Alleen wat je nodig hebt, geen onnodige kosten.'],
+                    ['emoji' => '✥', 'title' => 'Betere kwaliteit', 'description' => 'Hoogwaardige onderdelen van topmerken.'],
+                    ['emoji' => '⌘', 'title' => 'Uitbreidbaar', 'description' => 'Makkelijk te upgraden in de toekomst.'],
+                    ['emoji' => '♢', 'title' => 'Professioneel gebouwd', 'description' => 'Netjes kabelmanagement en optimale koeling.'],
+                    ['emoji' => '◌', 'title' => '100% getest', 'description' => 'We testen de PC uitgebreid voor levering.'],
+                    ['emoji' => '♙', 'title' => 'Persoonlijk advies', 'description' => 'Wij denken met je mee voor het beste resultaat.'],
+                ],
+            ],
+            'faq_cta' => [
+                'faq_title' => 'Veelgestelde vragen',
+                'faq_items' => [
+                    ['question' => 'Hoe lang duurt een PC reparatie?', 'answer' => 'De meeste reparaties worden binnen één tot enkele werkdagen uitgevoerd.'],
+                    ['question' => 'Wat kost een diagnose?', 'answer' => 'We bekijken eerst het probleem en bespreken daarna duidelijk de mogelijkheden.'],
+                    ['question' => 'Bouwen jullie ook gaming PC\'s?', 'answer' => 'Ja. We bouwen gaming PC\'s volledig afgestemd op jouw games en budget.'],
+                    ['question' => 'Kan ik mijn eigen onderdelen aanleveren?', 'answer' => 'Dat kan in overleg. We controleren vooraf de compatibiliteit.'],
+                ],
+                'cta_title' => 'Klaar voor een betere PC?',
+                'cta_description' => "Laat je PC repareren of stel jouw ideale PC samen.\nWij helpen je graag verder!",
+                'cta_image' => 'assets/img/landing/0bdab181-585e-44c9-a56e-11cc49cff612.png',
+            ],
+        ];
+
+        foreach ($pc as $section => $blocks) {
+            $sort = 0;
+            foreach ($blocks as $key => $value) {
+                $isJson = is_array($value);
+                ContentBlock::updateOrCreate(
+                    ['page' => 'pcreparatie', 'section' => $section, 'block_key' => $key],
                     [
                         'type' => $isJson ? 'json' : 'text',
                         'value' => $isJson ? null : $value,
