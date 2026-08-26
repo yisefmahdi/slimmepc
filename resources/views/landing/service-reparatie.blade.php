@@ -405,7 +405,7 @@
                         </div>
 
                         <div class="mt-5 grid gap-5 xl:grid-cols-2">
-                            <fieldset class="rounded-[24px] border border-slate-200 p-5">
+                            <fieldset id="fieldset-data_importance" class="rounded-[24px] border border-slate-200 p-5">
                                 <legend class="px-2 text-sm font-black text-slate-900">
                                     Staan er belangrijke gegevens op?
                                 </legend>
@@ -435,7 +435,7 @@
                                 </div>
                             </fieldset>
 
-                            <fieldset class="rounded-[24px] border border-slate-200 p-5">
+                            <fieldset id="fieldset-opened_before" class="rounded-[24px] border border-slate-200 p-5">
                                 <legend class="px-2 text-sm font-black text-slate-900">
                                     Eerder geopend of gerepareerd?
                                 </legend>
@@ -1406,6 +1406,8 @@
                 .forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('hidden'); });
             ['brand','model','name','email','phone','postcode']
                 .forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('border-red-400','ring-4','ring-red-100'); });
+            ['fieldset-data_importance','fieldset-opened_before']
+                .forEach(id => { const el = document.getElementById(id); if (el) { el.classList.add('border-slate-200'); el.classList.remove('border-red-400','ring-4','ring-red-100'); } });
         }
 
         function showServerErrors(errors) {
@@ -1443,6 +1445,10 @@
                 if (['brand','model','name','email','phone','postcode'].includes(flat)) {
                     const inp = document.getElementById(flat);
                     if (inp) inp.classList.add('border-red-400','ring-4','ring-red-100');
+                }
+                if (flat === 'data_importance' || flat === 'opened_before') {
+                    const fs = document.getElementById('fieldset-' + flat);
+                    if (fs) { fs.classList.remove('border-slate-200'); fs.classList.add('border-red-400','ring-4','ring-red-100'); }
                 }
                 if (stepFor[flat] && stepFor[flat] < earliest) earliest = stepFor[flat];
             });

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreRepairSubmissionRequest extends FormRequest
 {
@@ -27,8 +28,8 @@ class StoreRepairSubmissionRequest extends FormRequest
             'brand' => ['required', 'string', 'max:255'],
             'model' => ['required', 'string', 'max:255'],
             'serial' => ['nullable', 'string', 'max:255'],
-            'data_importance' => ['required', 'string', 'in:Ja, gegevens behouden,Nee,Weet ik niet'],
-            'opened_before' => ['required', 'string', 'in:Ja,Nee,Weet ik niet'],
+            'data_importance' => ['required', 'string', Rule::in(['Ja, gegevens behouden', 'Nee', 'Weet ik niet'])],
+            'opened_before' => ['required', 'string', Rule::in(['Ja', 'Nee', 'Weet ik niet'])],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255'],
             'phone' => ['required', 'string', 'max:40'],
@@ -56,6 +57,8 @@ class StoreRepairSubmissionRequest extends FormRequest
             'model.required' => 'Vul het model in.',
             'data_importance.required' => 'Maak een keuze bij "Belangrijke gegevens".',
             'opened_before.required' => 'Maak een keuze bij "Eerder geopend".',
+            'data_importance.in' => 'Maak een geldige keuze bij "Belangrijke gegevens".',
+            'opened_before.in' => 'Maak een geldige keuze bij "Eerder geopend".',
             'name.required' => 'Vul je naam in.',
             'email.required' => 'Vul je e-mailadres in.',
             'email.email' => 'Voer een geldig e-mailadres in.',
