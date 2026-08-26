@@ -57,6 +57,15 @@
         }
     }
 
+    function openModal(id) {
+        if (window.openModal && typeof window.openModal === 'function') {
+            window.openModal(id);
+        } else {
+            const el = document.getElementById('modal-' + id);
+            if (el) el.classList.remove('hidden');
+        }
+    }
+
     function load() {
         const params = new URLSearchParams({
             search: searchEl.value.trim(),
@@ -156,12 +165,7 @@
         currentId = id;
         api('/admin/reparatie-aanmeldingen/' + id).then(data => {
             renderDetail(data.submission, data.photos || []);
-            if (window.openModal && typeof window.openModal === 'function') {
-                window.openModal('repairDetailModal');
-            } else {
-                const m = document.getElementById('modal-repairDetailModal');
-                if (m) m.classList.remove('hidden');
-            }
+            openModal('repairDetailModal');
         }).catch(() => {});
     }
 
@@ -290,13 +294,7 @@
 
     deleteBtn.addEventListener('click', () => {
         if (!currentId) return;
-        if (window.openModal && typeof window.openModal === 'function') {
-            window.openModal('repairDeleteModal');
-        } else if (deleteModal && deleteModal.showModal) {
-            deleteModal.showModal();
-        } else {
-            deleteModal.classList.remove('hidden');
-        }
+        openModal('repairDeleteModal');
     });
     deleteConfirmBtn.addEventListener('click', confirmDelete);
 
