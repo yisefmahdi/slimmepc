@@ -119,6 +119,32 @@ class PageController extends Controller
         return response($html)->header('Content-Type', 'text/html; charset=UTF-8');
     }
 
+    public function reparatie()
+    {
+        $version = Cms::version();
+        $cacheKey = "cms.page.html.reparatie.{$version}";
+
+        if (!Auth::check()) {
+            $cached = Cache::get($cacheKey);
+            if (is_string($cached)) {
+                return response($cached)->header('Content-Type', 'text/html; charset=UTF-8');
+            }
+        }
+
+        // Header/footer live on the 'home' page; the form content lives on 'reparatie'.
+        $c = Cms::page('home');
+        $s = Cms::page('reparatie');
+        $design = Cms::design();
+
+        $html = view('landing.service-reparatie', compact('c', 's', 'design'))->render();
+
+        if (!Auth::check()) {
+            Cache::put($cacheKey, $html, now()->addMonth());
+        }
+
+        return response($html)->header('Content-Type', 'text/html; charset=UTF-8');
+    }
+
     public function service(string $slug)
     {
         $map = config('cms.service_slugs', []);

@@ -3,6 +3,7 @@
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RepairController;
 use App\Http\Controllers\VideoStreamController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,11 +19,17 @@ Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 
 Route::get('/over-ons', [PageController::class, 'overons'])->name('over-ons');
 
+Route::get('/reparatie-aanmelden', [PageController::class, 'reparatie'])->name('reparatie');
+
 Route::get('/diensten/{slug}', [PageController::class, 'service'])->name('service.show');
 
 Route::post('/contact/submit', [ContactController::class, 'submit'])
     ->middleware('throttle:5,1')
     ->name('contact.submit');
+
+Route::post('/reparatie/submit', [RepairController::class, 'submit'])
+    ->middleware('throttle:5,1')
+    ->name('reparatie.submit');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

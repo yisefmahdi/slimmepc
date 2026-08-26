@@ -47,7 +47,7 @@
                         </div>
 
                         <div class="mt-8 flex flex-wrap gap-3 sm:gap-4">
-                            <a href="{{ $s['hero']['cta1_url'] ?? '#' }}"
+                            <a href="{{ $s['hero']['cta1_url'] ?? '/reparatie-aanmelden' }}"
                                class="inline-flex justify-center items-center gap-2 sm:gap-5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg px-5 py-2.5 sm:px-7 sm:py-4 text-[14px] sm:text-[15px] shadow-[0_16px_35px_rgba(37,99,235,.22)] hover:shadow-[0_20px_45px_rgba(37,99,235,.32)] hover:-translate-y-1 transition duration-300">
 
                                 {{ $s['hero']['cta1_text'] ?? 'Console reparatie aanmelden' }}

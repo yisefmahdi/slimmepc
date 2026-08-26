@@ -247,6 +247,11 @@
                             @endif
                         @endforeach
                     </div>
+
+                    <a href="{{ url('/reparatie-aanmelden') }}" class="mt-2 flex items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-brand-700">
+                        <i data-lucide="clipboard-list" class="h-5 w-5"></i>
+                        Reparatie aanmelden
+                    </a>
                 </div>
             </div>
 
@@ -538,6 +543,11 @@
                             </div>
                         @endif
                     @endforeach
+
+                    <a href="{{ url('/reparatie-aanmelden') }}" class="mt-1 flex items-center gap-2 rounded-lg bg-brand-600 px-3 py-2 text-sm font-bold text-white hover:bg-brand-700">
+                        <i data-lucide="clipboard-list" class="h-4 w-4"></i>
+                        Reparatie aanmelden
+                    </a>
                 </div>
 
             @foreach ($navAfter as $link)

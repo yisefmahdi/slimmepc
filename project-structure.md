@@ -33,6 +33,7 @@ slimmepc/
 │   │   │   │                  #   NewPassword, Password, PasswordResetLink, RegisteredUser, VerifyEmail
 │   │   │   ├── Controller.php
 │   │   │   ├── PageController.php    # home() → landing.home with Cms::page('home') + flat Cms::design(); serves the full-page HTML cache for guests only (auth users always render fresh — personalized header)
+│   │   │   ├── RepairController.php   # reparatie-aanmelden submit → repair_submissions + emails (repair.submit)
 │   │   │   └── ProfileController.php
 │   │   ├── Middleware/
 │   │   │   └── EnsureUserIsAdmin.php     # role !== 'admin' → 403
@@ -43,7 +44,9 @@ slimmepc/
 │   ├── Models/
 │   │   ├── ContentBlock.php   # CMS block: page/section/block_key/type/value/json_value (cast array)/sort_order
 │   │   ├── ContentMeta.php    # CMS meta: meta_key/meta_value (design JSON + cache_version) — table `content_meta`
-│   │   └── User.php           # Customized: phone, is_blocked, address fields, role, klantnummer + isAdmin()/isTechnician()/isCustomer()
+│   │   ├── User.php           # Customized: phone, is_blocked, address fields, role, klantnummer + isAdmin()/isTechnician()/isCustomer()
+│   │   └── RepairSubmission.php # Reparatie submission: repair_number, device, problems[]/photos[] (array cast), privacy (bool), status enum, scopeNew(), photoUrls()
+│   ├── Mail/                     # RepairReceived (customer confirmation), AdminRepairNotification (owner notify, +reply-repair-{id} Reply-To)
 │   ├── Providers/
 │   │   └── AppServiceProvider.php
 │   ├── Support/
@@ -61,7 +64,8 @@ slimmepc/
 │   │   ├── 0001_01_01_000001_create_cache_table.php   # cache + cache_locks
 │   │   ├── 0001_01_01_000002_create_jobs_table.php    # jobs + job_batches + failed_jobs
 │   │   └── 2026_08_11_000001_create_content_blocks_table.php  # page+section+block_key unique; json_value LONGTEXT
-│   │   └── 2026_08_11_000002_create_content_meta_table.php    # meta_key unique
+│   │   ├── 2026_08_11_000002_create_content_meta_table.php    # meta_key unique
+│   │   └── 2026_08_25_000001_create_repair_submissions_table.php  # repair_submissions (SP-##### ref, device/problems json, photos json, status enum, ip)
 │   └── seeders/
 │       ├── DatabaseSeeder.php         # calls AdminUserSeeder + ContentBlockSeeder
 │       ├── AdminUserSeeder.php        # creates slimmepc@admin.com admin account
@@ -83,7 +87,8 @@ slimmepc/
 │       │   │   ├── klanten.js       # Users CRUD (axios, no page refresh) — endpoints target /admin/users
 │       │   │   ├── content.js       # CMS editor: section forms (axios, no reload on save), json row add/remove, color sync, file preview
 │       │   │   ├── icon-picker.js   # CMS icon picker: searchable dropdown of all lucide icons (icon+name), kebab/pascal conversion, MutationObserver re-renders new rows
-│       │   │   └── loader.js        # admin page-navigation loader: intercepts internal links/forms (sessionStorage flag adminPageNav)
+│       │   │   ├── loader.js        # admin page-navigation loader: intercepts internal links/forms (sessionStorage flag adminPageNav)
+│       │   │   └── reparatie-aanmeldingen.js # Reparatie inbox: table rows + detail modal + inline status change (Bijgewerkt ✓ message) + delete/photo (axios, SlimmePC toast, polls new-count)
 │       │   └── vendor/
 │       │       ├── jquery.min.js    # jQuery 4 (local copy from node_modules)
 │       │       ├── axios.min.js     # axios 1.x (local copy from node_modules)
@@ -113,7 +118,8 @@ slimmepc/
 │       │   │   └── partials/
 │       │   │       └── json-row.blade.php  # repeatable item row for type=json blocks (index param, __INDEX__ for templates)
 │       │   ├── klanten/index.blade.php # Users-beheren (AJAX table + modals) — route admin.users.index
-│       │   └── dashboard.blade.php     # admin dashboard (Dutch, responsive)
+│       │   ├── dashboard.blade.php     # admin dashboard (Dutch, responsive)
+│       │   └── reparatie-aanmeldingen/index.blade.php # Reparatie inbox (table + detail modal, search/filter/per-page/pagination, inline status change, delete modal)
 │       ├── components/       # design-system blade components (see section 11)
 │       │   └── admin/        # admin-only components: layout, sidebar-link, stat-card, card, modal
 │       ├── landing/          # CMS-driven landing page (rebuilt from step-1/home.html) + 9 dedicated service pages
@@ -128,6 +134,7 @@ slimmepc/
 │       │   ├── service-moederbord.blade.php # Moederbord Reparatie (pageKey `moederbord`) — dark `hero-bg` #031326 design from step-2/matherbord-reparatie.html, 8 sections + video upload (like laptop speciality)
 │       │   ├── service-datarecovery.blade.php # Data Recovery (pageKey `datarecovery`) — light design from step-2/datarecovery.html, 7 sections
 │       │   ├── service-pcreparatie.blade.php  # PC Reparatie (pageKey `pcreparatie`) — light `from-white via-[#f8fbff] to-[#edf5ff]` design from step-2/pc.html, 8 sections + pc/* subfolder images
+│       │   └── service-reparatie.blade.php     # Standalone reparatie-aanmelden 5-step wizard (pageKey `reparatie`, not a service page) — CMS-styled, matches step-2/Reparatie-aanmelden.html
 │       │   └── partials/
 │       │       ├── header.blade.php    # nav (desktop + mobile drawer + search overlay) from $c['header']; order = $navBefore (Home, Over ons) → Webshop ▾ → Diensten ▾ → $navAfter (Lid worden, Tarieven, Contact); **Diensten dropdown is dynamic** — reads `service_slugs` de-duplicated by pageKey (`$uniqueServicePages`) + `ContentBlock::where(page)->exists()` + `config(pages.{pageKey}.label)` + `$svcIcons` (includes `mac` alias); `mac-reparatie` ↔ `macbook-reparatie` alias kept for old links. Account area is AUTH-AWARE: guest → Account button (login), logged-in → user name + dropdown (native <details>, no JS) with Mijn account → /profile + Uitloggen (POST /logout); mobile drawer shows the name tile + full-width logout button
 │       │       ├── hero.blade.php      # badge/title/description/buttons/trust + desktop orbit visual + mobile steps
@@ -214,6 +221,8 @@ slimmepc/
 - **Landing cache is guest-only**: the full-page HTML cache must never store a logged-in user's response (it would leak their name to all guests). `PageController@home` checks `Auth::check()` before reading AND before writing the cache
 - **No user-facing `/dashboard` anymore**: the route + view were deleted (2026-08-12). All post-auth redirects point to `route('home')`; do not reintroduce a dashboard without updating every redirect + the header "Mijn account" links (they point to `profile.edit`)
 - Admin test account: `slimmepc@admin.com` / `slimmepc@@#@10`
+- **Admin compiled Tailwind misses arbitrary classes (2026-08-26)**: `public/assets/css/app.css` (compiled from `resources/css/app.css`) does NOT contain newer/arbitrary utilities like `min-w-[780px]`, `min-w-[820px]`, and possibly `overflow-x-auto`. So admin tables that must scroll horizontally on small screens must use **inline styles** (`style="min-width:780px"` on the `<table>` and `style="overflow-x:auto"` on the scroll wrapper) instead of relying on Tailwind classes. Both the reparatie-aanmeldingen table and the klanten (`/admin/users`) table use this. The klanten table previously used `overflow-x-auto -m-6` — the `-m-6` negative margin clipped the scrollbar, so it was removed; keep the scroll wrapper without negative margin. If you run `npm run css` after adding new Tailwind utilities to admin Blade, the JIT may pick them up, but verify in the compiled file before trusting a class in production.
+- **Reparatie emails via `afterResponse` (2026-08-26)**: `RepairController@submit` wraps the two `Mail::send` calls in `dispatch(function(){ ... })->afterResponse();` so the JSON `201` is returned to the browser immediately and the customer/owner emails fire server-side after the response — the user closing the tab can't cancel delivery and SMTP latency never blocks the UI. `.env` `MAIL_MAILER` stays `smtp` for real delivery; locally, unreachable Gmail SMTP makes sending slow, so you can temporarily set `MAIL_MAILER=log` to test the instant submit path (don't commit that change). Use `afterResponse` (not a second frontend request) so delivery is guaranteed regardless of the user's session.
 
 ## 7. Sections & Pages / Main Features
 | # | Section | Path/Page | Description & Details |
@@ -227,7 +236,7 @@ slimmepc/
 | 7 | Verify email | `/verify-email` | Redesigned: resend button + logout link, green auto-dismiss alert |
 | 8 | ~~Dashboard~~ (removed) | — | **Deleted entirely** (2026-08-12): `resources/views/dashboard.blade.php` + the `/dashboard` route are gone. After login/register/email-verify/password-confirm the user lands on the **home page** (`route('home')`). Logged-in users manage their account at `/profile` (link from the header dropdown "Mijn account" + mobile tile) |
 | 9 | Profile | `/profile` | Auth only. Edit/update/delete profile via `ProfileController` (still Breeze styling). This is now the only logged-in user page besides the landing — "Mijn account" dropdown item + mobile name tile link here |
-| 10 | Admin dashboard | `/admin` | Auth + verified + admin role only. Independent admin panel: dark sidebar (logo, nav: Dashboard + **Home-page** dropdown (split CMS) + **Users-beheren** dropdown (renamed from Klanten) + placeholders). Sidebar redesigned with **Heroicons SVG** (no emojis), elegant dropdown styling (left `border-white/30` border), **dark `#0b1638` background with light/white text** (`text-blue-100`/`blue-50` labels, sub-links and icons; active sidebar link = **white pill with `#1d4ed8` blue text**), and a 2-column "Binnenkort" section list that mirrors the old sidebar. Sticky topbar (title, theme toggle, user dropdown), stat cards (Klanten/Techniciens/Bestellingen/Reparaties), welcome banner, recent orders empty state, quick actions, system status. Fully responsive (sidebar → mobile drawer + overlay) |
+| 10 | Admin dashboard | `/admin` | Auth + verified + admin role only. Independent admin panel: dark sidebar (logo, nav: Dashboard + **Home-page** dropdown (split CMS) + **Users-beheren** dropdown (renamed from Klanten) + **Diensten** dropdown which contains a **Reparatie sub-dropdown** whose FIRST item is the **"Aanmeldingen"** link → `/admin/reparatie-aanmeldingen` (no icon, red new-count badge) + placeholders). Sidebar redesigned with **Heroicons SVG** (no emojis), elegant dropdown styling (left `border-white/30` border), **dark `#0b1638` background with light/white text** (`text-blue-100`/`blue-50` labels, sub-links and icons; active sidebar link = **white pill with `#1d4ed8` blue text**), and a 2-column "Binnenkort" section list that mirrors the old sidebar. Sticky topbar (title, theme toggle, user dropdown), stat cards (Klanten/Techniciens/Bestellingen/Reparaties), welcome banner, recent orders empty state, quick actions, system status. Fully responsive (sidebar → mobile drawer + overlay) |
 | 11 | Users-beheren | `/admin/users` | Admin CRUD for customers/technicians/admins (controller still named `KlantController`). AJAX table (search, role filter, per-page, pagination), stats chips (users/technicians/admins), create/edit modal (auto klantnummer KL-YY-XXXX + auto password generation), details modal, delete confirm modal, inline role select + block/unblock toggle. All Dutch, no page refresh (axios + jQuery, `public/assets/js/admin/klanten.js` — endpoints target `/admin/users`). Route names `admin.users.*` (renamed from `admin.klanten.*`) |
 | 12 | Home-page (CMS) | `/admin/content/design` (Ontwerp & SEO) + `/admin/content/home/section/{header\|hero\|why\|services\|footer}` | Admin CMS editor **split into separate pages** (no more single accordion page). The sidebar "Home-page" dropdown links to: **Ontwerp & SEO** (`design.blade.php` — SEO meta, 6 color pickers + hex sync, font select, saved as JSON in `content_meta`), **Header** (`section.blade.php` — logo image upload + logo text + tagline), **Hero** (badge, 3 title lines, description, 2 images with real file upload + live preview), **Waarom voor ons kiezen** (badge, title prefix/highlight, description, hub icon/title/subtitle, **Voordelen** 6 json cards, **Statistieken** 4 json cards), **Services** (8 fixed service cards: per-card image upload, icon picker, hide toggle) and **Footer** (bedrijfstekst, social, contact, trust, copyright, payment methods). Each page has a header card explaining what it controls + where it appears on the site (location badge). JSON repeaters render 2 cards per row when the block defines `'columns' => 2`; `'fixed' => true` locks the rows (hide toggle in the row header, no add/delete). **All icon fields use a searchable lucide icon picker** (button showing icon+name → dropdown grid of ~1743 icons, live search). Each page has its own save button (axios POST → JSON, **no page refresh — shows "Opgeslagen!" only**). The old top quick-nav tabs (Home-page secties / Live website bekijken) were **removed**. Saving calls `Cms::bust()` → instant frontend update |
 | 13 | Service-page (CMS) — Laptop (shared) | `/diensten/laptop-reparatie` (`service.show`, pageKey `laptopreparatie`) + `/admin/content/laptopreparatie/section/{...}` | CMS service detail page matching `step-2/reparatie-laptop.html` (built first, uses shared `landing/service.blade.php` + `serviceSectionDef` 8 sections: hero, problems, speciality, equipment, example, other, faq, bottom). **Video**: `speciality.video` (`type: video` → `public/assets/video` + `VideoStreamController` Range). Hero CTA `cta1/cta2` removed from admin (fixed). `service_slugs['laptop-reparatie'=>'laptopreparatie']`. |
@@ -240,6 +249,8 @@ slimmepc/
 | 20 | Service-page: Data Recovery | `/diensten/data-recovery` (`service.show`, pageKey `datarecovery`) + `/admin/content/datarecovery/section/{...}` | Dedicated light design from `step-2/datarecovery.html` (7 sections: hero `c2bf5922...png` + 4 USP + 4 media, devices 6 (`hdd.jpeg`, `SSD-hard.jpg`, `group_1477...`, `micro-sd...`, `external...`, `windows-apple...`), process 5+trust, recover 7, cases 3, trust+cta+faq 3 cols, bottom 5). `service-datarecovery.blade.php` + `$datarecoverySectionDef` (hero, devices, process, recover, cases, trust_cta_faq, benefits). **Buttons fixed**, hero `text-[30px] sm:text-[52px] lg:text-[40px]`. Home link was `/datarecovery.html` → fixed to `/diensten/data-recovery`. |
 | 21 | Service-page: PC Reparatie | `/diensten/pc-reparatie` (`service.show`, pageKey `pcreparatie`) + `/admin/content/pcreparatie/section/{...}` | Dedicated light `from-white via-[#f8fbff] to-[#edf5ff]` design from `step-2/pc.html` (8 sections: hero PC `0bdab181...png` + 7 floating components `cpu.png`/`pc/*` `hidden xl:block`, benefits 4, help 2 cards `Mijn PC is kapot`/`Ik wil een PC`, choice 6 + center PC + cooling, problems 3, upgrades 4 (`pc/hdd.png`/`pc/nvme.png` subfolder), builds 4+CTA, why 6, faq+cta). `service-pcreparatie.blade.php` (note pageKey `pcreparatie` → view `service-pcreparatie`) + `$pcSectionDef` (hero, benefits, help, choice, problems, upgrades, builds, why, faq_cta). **Buttons fixed**, hero `text-[30px] sm:text-[52px] lg:text-[40px]`. **Subfolder images** (`pc/hdd.png`) handled via `str_starts_with` in `json-row.blade.php` + `service-pcreparatie` (preserves `pc/`). Home link was `/pc.html` → fixed to `/diensten/pc-reparatie`. |
 
+| 22 | Reparatie aanmelden (wizard + backend) | `/reparatie-aanmelden` (`PageController@reparatie`, name `reparatie`) + `POST /reparatie/submit` (`RepairController@submit`, name `reparatie.submit`) + admin `/admin/reparatie-aanmeldingen/*` | Standalone CMS-styled page rebuilt from `step-2/Reparatie-aanmelden.html`: a 5-step wizard (apparaat → probleem + foto's → apparaatgegevens → contact & voorkeur → controle). All fields required except `Serienummer` + foto's (optional). Per-step JS validation + backend `StoreRepairSubmissionRequest` (Dutch messages, honeypot `website`, `throttle:5,1`). On submit: stores `RepairSubmission` (status `new`), uploads ≤5 photos to `repair/{id}/` (local disk); **emails (`RepairReceived` customer confirmation + `AdminRepairNotification` owner → `CONTACT_NOTIFY_EMAIL`) are dispatched via `dispatch(function(){...})->afterResponse()` so the `201 {message, repair_number}` (`SP-YYYY-#####`) returns to the browser instantly and SMTP latency never blocks the user** (`.env` `MAIL_MAILER` stays `smtp` for real delivery; locally an unreachable Gmail SMTP can be temporarily set to `log` to test the instant submit path — do not commit that). Frontend `repairForm`: `@csrf` + `fetch` submit + **per-field error display (red border + message) that jumps back to the earliest invalid step** + **success/error toast via `window.SlimmePC.toast`** (replaces the old `alert()`; `design.js` + jQuery are now loaded at the bottom of the standalone reparatie page so the toast works); final success screen shows the `aanmeldnummer`. **Stap 2 was compacted** (description rows 5→4, dropzone smaller/horizontal `py-5`, smaller icon). The frontend **header Diensten dropdown** now includes a **"Reparatie aanmelden"** link to `/reparatie-aanmelden`. Admin inbox (`reparatie-aanmeldingen`, reached from the **Diensten → Reparatie sub-dropdown** in the sidebar — note the **"Aanmeldingen" link is the FIRST item there and has NO icon**, only the red new-count badge): redesigned from the old two-pane into a **table + detail modal** (`reparatie-aanmeldingen/index.blade.php` + `public/assets/js/admin/reparatie-aanmeldingen.js`): columns Aanmeldnr · Naam · Apparaat · Merk/Model · Status · Ontvangen · Actie (Bekijk); search + status filter + per-page + pagination; **inline status `<select>` in the Status column (colored: new/red, in_progress/amber, completed/green) — changing it posts `.../status`, shows a "Bijgewerkt ✓" message under the select for 2.5s, disables during the request, and updates the header Nieuw/Totaal counts without a full reload**; clicking "Bekijk" opens a detail modal (all fields + streamed photos) and there is a delete-confirm modal. The table uses **inline `style="min-width:780px"` + `style="overflow:auto"` on its scroll container** (the compiled admin Tailwind CSS lacks arbitrary `min-w-[...]`/`overflow-x-auto` — see gotchas). Dashboard keeps a live "Reparaties" stat + recent-repairs table. |
+
 ## 8. Complete Routes
 
 ### web.php
@@ -250,6 +261,8 @@ slimmepc/
 | GET | `/stream/video/{file}` | `VideoStreamController@show` — streams `public/assets/video/{file}` with HTTP Range support (206 Partial Content) — **name `video.stream`** | none (serves the speciality `<video>`; `php artisan serve` lacks Range support, so the range route is required for playback) |
 | GET | `/contact` | `PageController@contact` → `landing.contact` (full-page cache `cms.page.html.contact.{version}`) | none |
 | POST | `/contact/submit` | `ContactController@submit` → `contact.submit` (JSON, 201; **CSRF-exempt** in bootstrap/app.php + honeypot `website` + `throttle:5,1`; queues `ContactReceived`) | none |
+| GET | `/reparatie-aanmelden` | `PageController@reparatie` → `landing.service-reparatie` (CMS-styled 5-step wizard page, **name `reparatie`**) | none (guest-only full-page HTML cache `cms.page.html.reparatie.{version}`, auth renders fresh) |
+| POST | `/reparatie/submit` | `RepairController@submit` → `reparatie.submit` (JSON, 201 `{message, repair_number}`; **CSRF-protected** + honeypot `website` + `throttle:5,1`; queues `RepairReceived` + `AdminRepairNotification`) | none |
 | GET | `/profile` | `ProfileController@edit` | auth |
 | PATCH | `/profile` | `ProfileController@update` | auth |
 | DELETE | `/profile` | `ProfileController@destroy` | auth |
@@ -280,6 +293,13 @@ slimmepc/
 | POST | `/admin/contact-inbox/{contactSubmission}/status` | `Admin\ContactInboxController@status` → `admin.contact-inbox.status` (JSON; new/in_progress/replied/closed) | auth, verified, admin |
 | GET | `/admin/contact-inbox/{contactSubmission}/attachment` | `Admin\ContactInboxController@attachment` → `admin.contact-inbox.attachment` (download) | auth, verified, admin |
 | DELETE | `/admin/contact-inbox/{contactSubmission}` | `Admin\ContactInboxController@destroy` → `admin.contact-inbox.destroy` (JSON; deletes row + storage folder) | auth, verified, admin |
+| GET | `/admin/reparatie-aanmeldingen` | `Admin\RepairInboxController@index` → `admin.reparatie-aanmeldingen.index` (two-pane inbox UI) | auth, verified, admin |
+| GET | `/admin/reparatie-aanmeldingen/data` | `Admin\RepairInboxController@data` → `admin.reparatie-aanmeldingen.data` (JSON: items + pagination + new/total counts) | auth, verified, admin |
+| GET | `/admin/reparatie-aanmeldingen/new-count` | `Admin\RepairInboxController@newCount` → `admin.reparatie-aanmeldingen.new-count` (JSON `{count}`) | auth, verified, admin |
+| GET | `/admin/reparatie-aanmeldingen/{repairSubmission}` | `Admin\RepairInboxController@show` → `admin.reparatie-aanmeldingen.show` (JSON: submission + photo URLs) | auth, verified, admin |
+| POST | `/admin/reparatie-aanmeldingen/{repairSubmission}/status` | `Admin\RepairInboxController@status` → `admin.reparatie-aanmeldingen.status` (JSON; new/in_progress/completed) | auth, verified, admin |
+| GET | `/admin/reparatie-aanmeldingen/{repairSubmission}/photo/{index}` | `Admin\RepairInboxController@photo` → `admin.reparatie-aanmeldingen.photo` (streamed image) | auth, verified, admin |
+| DELETE | `/admin/reparatie-aanmeldingen/{repairSubmission}` | `Admin\RepairInboxController@destroy` → `admin.reparatie-aanmeldingen.destroy` (JSON; deletes row + storage folder + photos) | auth, verified, admin |
 
 ### auth.php
 | Method | URI | Name/Handler | Middleware/Auth |
@@ -394,6 +414,32 @@ slimmepc/
 | created_at / updated_at | timestamp | Timestamps |
 | **index** | contact_submission_id | Thread lookup |
 
+### Table: `repair_submissions`
+| Column | Type | Description |
+|--------|------|--------------|
+| id | bigint (PK, auto) | Primary key |
+| repair_number | string, unique | Public reference `SP-YYYY-#####` |
+| device | string | Selected device (wizard step 1) |
+| problems | json (cast array) | Selected problem labels (step 2) |
+| description | text, nullable | Free-text problem description |
+| brand | string | Device brand (step 3) |
+| model | string | Device model |
+| serial | string, nullable | Serial number (optional) |
+| data_importance | string, nullable | "Ja, gegevens behouden" / "Nee" / "Weet ik niet" |
+| opened_before | string, nullable | "Ja" / "Nee" / "Weet ik niet" |
+| name | string | Submitter name (step 4) |
+| email | string | Submitter email |
+| phone | string | Submitter phone |
+| postcode | string | Postcode |
+| delivery_method | string, nullable | "Naar de winkel brengen" / "Eerst telefonisch advies" / "Ophalen / bezorgen" |
+| contact_preference | string, nullable | "WhatsApp" / "Telefoon" / "E-mail" |
+| privacy | boolean, default false | Privacy consent |
+| photos | json (cast array), nullable | Stored photo filenames under `repair/{id}/` |
+| status | enum('new','in_progress','completed'), default 'new' | Workflow state |
+| ip_address | string(45), nullable | Client IP |
+| created_at / updated_at | timestamp | Timestamps |
+| **indexes** | status, email, created_at | Filtering + dashboard count |
+
 ## 10. Models/Entities & Relationships
 ```
 User ──→ (sessions via user_id, owned)
@@ -406,6 +452,7 @@ ContentBlock / ContentMeta ──→ standalone CMS tables (no FKs)
 | ContentMeta | content_meta | None (standalone). `protected $table = 'content_meta'` (fixes Laravel pluralization) |
 | ContactSubmission | contact_submissions | HasMany `ContactReply` (replies), HasOne `latestReply` (latestOfMany), scope `new`; casts `status`; `attachmentPath()` resolves the stored file |
 | ContactReply | contact_replies | BelongsTo `ContactSubmission`; casts `sender`/`source` |
+| RepairSubmission | repair_submissions | Standalone. Casts `problems`/`photos` → array, `privacy` → bool; `scopeNew()`; status enum; `photoUrls()` returns `route('admin.reparatie-aanmeldingen.photo', [...])` per photo |
 
 ### Support helper: `App\Support\Cms`
 | Method | Purpose |
@@ -418,7 +465,7 @@ ContentBlock / ContentMeta ──→ standalone CMS tables (no FKs)
 | `bust()` | Writes an **always-unique** version (`now()->format('Uv')` — microseconds) → every cache keyed by version (incl. the full-page HTML cache) is invalidated on the next request |
 
 ### CMS data (seedered, 55 blocks + design)
-- Hero: badge, title_line1/2/gradient, description, buttons (2), trust (3), hero_image, hero_image_mobile, hero_image_alt
+- Hero: badge, title_line1/2/gradient, description, buttons (2), trust (3), hero_image, hero_image_mobile, hero_image_alt, **visual_main (image override of the SVG orbit), visual_devices (image), badge_icon (icon), badge_title (text), badge_subtitle (text)** — the last 5 added so the hero visual + badge are CMS-editable without code changes
 - Why: badge, title_prefix, title_highlight, description, hub (icon/title/subtitle), benefits (6 cards), stats (4)
 - Services: badge, titles, description, services (4 cards with icons/images)
 - Shop: badge, titles, description, benefits (3), cta, note, products (4, with badge/badge_color/specs/price/in_stock), trust (3)
@@ -435,7 +482,7 @@ ContentBlock / ContentMeta ──→ standalone CMS tables (no FKs)
 ## 11. Controllers / Core Business Logic
 | Controller/Module | Main Methods | Purpose |
 |---------------------|---------------|---------|
-| Admin\AdminController | dashboard | Admin dashboard view with stats (customer/technician counts from DB, orders/repairs placeholders) |
+| Admin\AdminController | dashboard | Admin dashboard view with stats (customer/technician/user counts from DB, orders placeholder, **repairs + repairs_new from `RepairSubmission`**, contact_new) + `recentRepairs` (latest 5 `RepairSubmission`) for the recent-repairs table |
 | Admin\ContentController | editDesign, editSection, updateSection, updateDesign | CMS editor (split pages). `editDesign` passes design groups + current design to `design.blade.php` (Ontwerp & SEO page). `editSection` validates `{page}`/`{section}` against `config/cms.php`, passes section schema + content to `section.blade.php`. `updateSection` validates against `config/cms.php`, upserts blocks (json blocks normalized + boolean cast), handles image uploads (`blocks.{key}_file` → `public/assets/img/landing` with hashName), then `Cms::bust()`. `updateDesign` stores design groups as JSON in `content_meta` (rejects `_hex` twin inputs) + busts cache |
 | Admin\KlantController | index, data, store, show, update, destroy, updateRole, toggleBlock | Users-beheren CRUD (routes under `admin.users.*`, URL `/admin/users`; controller class name unchanged). `data` = search/role-filtered paginated JSON (+ role counts). `store` auto-generates klantnummer (KL-YY-XXXX) + password (`Str::password(10)`), returns `generated_password`. Guards: no self-delete, no self-role-change, no self-block, no blocking admins (all 422 JSON) |
 | PageController | home, service | **home**: landing page with full-page HTML cache (see above). **service($slug)**: CMS service page — loads `Cms::page($pageKey)` where `$pageKey = config('cms.service_slugs')[$slug]` (404 if slug unknown), 404s when `hero.title1` is empty (unbuilt page), same full-page cache pattern as `home` keyed `cms.page.html.service.{$pageKey}.{$version}` (guest-only, auth renders fresh), and injects `Cms::page('home')` for the header/footer. It renders `landing.service-{$pageKey}` when that view exists (per-pageKey override, e.g. `service-console.blade.php` for `console`), otherwise the shared `landing.service` template |
@@ -450,6 +497,8 @@ ContentBlock / ContentMeta ──→ standalone CMS tables (no FKs)
 | Auth\EmailVerificationPromptController / Notification / VerifyEmail | — | Email verification flow |
 | ContactController | submit | Public contact form POST: validates `StoreContactSubmissionRequest` (Dutch messages, honeypot `website` prohibited, attachment ≤10MB), creates `ContactSubmission` (status `new`), stores attachment via `storeAs('contact/{id}', uuid, 'local')`, queues `ContactReceived` mail → JSON 201 "Bedankt! Je bericht is verzonden." |
 | Admin\ContactInboxController | index, data, show, reply, status, attachment, destroy, newCount | Admin contact inbox: `data` = search (name/email/message/phone) + status-filtered pagination + new/total counts; `show` = submission + replies + has_attachment; `reply` creates `ContactReply` (sender=admin, source=dashboard), sets status `replied` if `new`, queues `ContactReplyMail`; `status` whitelists enum; `attachment` = StreamedResponse download; `destroy` deletes storage folder + row; `newCount` for the sidebar badge |
+| RepairController | submit | Public reparatie form POST: validates `StoreRepairSubmissionRequest` (Dutch messages, honeypot `website`, throttle 5,1), creates `RepairSubmission` (status `new`, `repair_number` = `SP-{year}-{5-digit}`), stores ≤5 photos via `storeAs('repair/{id}', hashName, 'local')`, queues `RepairReceived` (customer) + `AdminRepairNotification` (owner → `config('contact-inbox.notify_email')`), returns 201 JSON `{message, repair_number}` |
+| Admin\RepairInboxController | index, data, newCount, show, status, photo, destroy | Admin reparatie inbox (mirrors ContactInboxController): `data` = search (name/email/device/brand) + status-filtered pagination + new/total counts; `show` = submission + `photoUrls()`; `status` whitelists enum new/in_progress/completed; `photo` = `Storage::response` for `repair/{id}/{file}`; `destroy` deletes storage folder + row; `newCount` for the sidebar badge |
 
 ### Console commands
 | Command | Purpose |
@@ -499,6 +548,7 @@ ContentBlock / ContentMeta ──→ standalone CMS tables (no FKs)
 | `admin/icon-picker.js` | CMS icon picker: builds the dropdown grid from `Object.keys(lucide.icons)` (~1743 icons, displayed/stored in kebab-case via pascal↔kebab conversion with roundtrip safety), renders SVGs from the icon spec directly (no global `createIcons` re-scan), case-insensitive live search, kebab→pascal lookup for rendering, `MutationObserver` renders previews in dynamically added JSON rows. Requires `lucide.min.js` (loaded first in the admin layout) |
 | `landing.js` | Landing page: lucide icons, mobile drawer + overlay, search overlay, accordions, Escape/resize handling, process orbit pause on hover, shop carousel (responsive perPage + dots) |
 | `contact-form.js` | Public contact form (`#contactForm` on /contact): vanilla `fetch` POST to `/contact/submit` with FormData + `Accept: application/json`; on 201 resets the form + shows success popup (`.cf-popup-*`); on 422 shows the first validation error; button loading state "Verzenden..." |
+| `reparatie-aanmeldingen.js` | Admin reparatie inbox: load/render list (debounced search, status filter, per-page, pagination), open detail (fields + photo grid), change status (select → POST), delete confirm modal, `updateBadge` polls `/new-count`. Uses `window.SlimmePC.toast` + `window.SlimmePC.modal`. Auto-inits when `#repairList` exists. The public wizard (`#repairForm` in `landing/service-reparatie.blade.php`) is wired inline in the page script: `fetch` POST to `/reparatie/submit` with FormData (`_token`, `device`, `problems[]`, `photos[]`, all step fields) + `Accept: application/json`; on 201 shows `#successScreen` with `#repairNumber`; on 422 maps errors to per-field red messages and returns to the earliest invalid step |
 | `admin/contact-inbox.js` | Contact inbox: load/render list (debounced search, status filter, per-page, pagination), open chat thread (replies, header meta, attachment), send reply (POST → toast + append bubble + status badge), change status (select), delete confirm modal, `updateBadge` polls `/new-count` every 60s. Uses `window.SlimmePC.toast` + `window.SlimmePC.modal`. Auto-inits when `#inboxList` exists |
 | `admin/loader.js` | Page-navigation loader for the whole admin: intercepts internal link clicks + native form submits (skips AJAX forms via `defaultPrevented`), stores `sessionStorage.adminPageNav`; the arriving page's inline script reads the flag, shows `#admin-loader` and fades it out on `load` (6s safety) |
 
@@ -540,6 +590,17 @@ Logo (site-wide): landing header/footer, favicon, auth `<x-logo>`, logged-in nav
   5. Customer e-mail replies auto-arrive: `contact:fetch-inbound` (IMAP, `+reply-{id}` token → appends to chat, saves inbound attachments, status in_progress) + `config/contact-inbox.php` (CONTACT_IMAP_*) DONE
   6. Tests (5 × ContactSubmitTest) + live verification (submit → DB row + queued mail; admin reply → chat + real Gmail send; IMAP connect) DONE
 - **Current status:** DONE v1. 30/30 tests pass. Deploy notes: server `.env` needs Gmail SMTP (`MAIL_*`) + `CONTACT_IMAP_*`; two crons — `php artisan queue:work --stop-when-empty --tries=3 --max-time=55` and `php artisan contact:fetch-inbound`.
+
+### Plan: Reparatie aanmelden (wizard + backend) — DONE
+- **Goal:** a real, working reparatie-aanmelden flow — 5-step wizard on the site, validation (JS + backend), stored submissions, customer + owner emails, and an admin inbox in the Diensten dropdown.
+- **Steps:**
+  1. Standalone page `resources/views/landing/service-reparatie.blade.php` (CMS-styled, matches `step-2/Reparatie-aanmelden.html`): 5-step wizard (apparaat → probleem+foto's → apparaatgegevens → contact → controle), success screen with aanmeldnummer DONE
+  2. `repair_submissions` table (migration `2026_08_25_000001`), `RepairSubmission` model (problems/photos array cast, privacy bool, scopeNew) DONE
+  3. `StoreRepairSubmissionRequest` (Dutch messages, honeypot `website`, all required except `serial`/photos) + `RepairController@submit` (CSRF + throttle:5,1, stores photos, queues `RepairReceived` + `AdminRepairNotification`, returns 201 `{message, repair_number}`) DONE
+  4. Public form wired: `#repairForm` action/`@csrf`/fetch submit + per-field red errors returning to earliest invalid step DONE
+  5. Admin inbox `Admin\RepairInboxController` (8 routes `admin.reparatie-aanmeldingen.*`) + two-pane view + `public/assets/js/admin/reparatie-aanmeldingen.js`; sidebar "Aanmeldingen" link inside the Diensten dropdown (opens it, red new-count badge); dashboard "Reparaties" stat + recent-repairs table DONE
+  6. Email templates `emails/repair-received.blade.php` + `emails/admin-repair-notification.blade.php` (the latter carries `+reply-repair-{id}` Reply-To so owner replies thread back) DONE
+- **Current status:** DONE. Submissions land in `repair_submissions`, both emails send (Reply-To alias routes owner replies), admin can change status / delete / view photos. Deployment needs `MAIL_*` (Gmail SMTP) + `CONTACT_NOTIFY_EMAIL` in `.env`.
 
 ### Plan: Landing page CMS (DONE v1)
 - **Goal:** Convert `step-1/home.html` to Blade + DB-driven content with admin editing.
@@ -693,3 +754,11 @@ esize-none, so long replies were clipped inside a box that never grew — it rea
   - **Data Recovery** (`/diensten/data-recovery`): light design from `step-2/datarecovery.html` (7 sections: hero `c2bf5922...png` + 4 USP + 4 media, devices 6 (`hdd.jpeg`, `SSD-hard.jpg`, `group_1477...`, `micro-sd...`, `external...`, `windows-apple...`), process 5+trust, recover 7, cases 3, trust+cta+faq 3 cols, bottom 5). `service-datarecovery.blade.php` + `$datarecoverySectionDef` (hero, devices, process, recover, cases, trust_cta_faq, benefits). Buttons fixed. Home link was `/datarecovery.html` → fixed to `/diensten/data-recovery`.
   - **PC Reparatie** (`/diensten/pc-reparatie`): light `from-white via-[#f8fbff] to-[#edf5ff]` design from `step-2/pc.html` (8 sections: hero PC `0bdab181...png` + 7 floating components `cpu.png`/`pc/*` `hidden xl:block`, benefits 4, help 2 cards, choice 6 + center PC + cooling, problems 3, upgrades 4 (`pc/hdd.png`/`pc/nvme.png` subfolder), builds 4+CTA, why 6, faq+cta). `service-pcreparatie.blade.php` (note pageKey `pcreparatie` → view `service-pcreparatie`) + `$pcSectionDef` (hero, benefits, help, choice, problems, upgrades, builds, why, faq_cta). **Subfolder images** (`pc/hdd.png`) handled via `str_starts_with` in `json-row.blade.php` + `service-pcreparatie` (preserves `pc/`). Home link was `/pc.html` → fixed to `/diensten/pc-reparatie`.
   - **Systemic fixes applied across all services**: **(a) Image doubling** — single `asset($value)` vs json `asset('assets/img/landing/'.basename($value))` mismatch + `pc/*` subfolder; fixed `json-row.blade.php` to `asset(str_starts_with($value,'assets/') ? $value : 'assets/img/landing/'.ltrim($value,'/'))`, `content.js:updateSavedImages` to `fv.indexOf('/')!==-1 ? '/'+fv : '/assets/img/landing/'+fv`, `ContentController@normalizeItems` now stores json images as **full path** `assets/img/landing/.$name`. **(b) Header/footer duplication** via alias `macbook-reparatie` → de-duplicated `service_slugs` by `pageKey` in `header.blade.php` + `components/admin/layout.blade.php` (`$uniqueServicePages`/`$seenFooter`). **(c) Footer dynamic** — was 6 hardcoded links (`Onderhoud & upgrade` → 404, `Netwerk & WiFi` outdated) → now dynamic `service_slugs` de-duplicated + `ContentBlock::exists()` (like header). **(d) Admin route `whereAlpha` → `where('[A-Za-z0-9_]+')`** so `home_business` doesn't 404. **(e) Breadcrumb** `Home > Diensten > {label}` added to `service-mac`/`service-console` (`pt-5 pb-14` + `mb-5 mt-3`), then to all new pages with `pt-5/6` + `mb-5 mt-3` tuning (Mac `pt-5`, Console `pt-5` after `pt-4` too close). **(f) Moederbord `process.items` locked** (`'fixed'=>true`). **(g) Moederbord CTA phone editable** (`cta.phone`). **(h) PC `pc/*` subfolder** preserved. Deployed via `scripts/deploy.sh` + `seed --force` + `optimize:clear` (server `slimmepc.kulshy.online`, `ASSET_URL=https://slimmepc.kulshy.online` to prevent `127.0.0.1` poison). All 9 services now 200, header/footer/admin all dynamic, full-page cache guest-only, version-busted.
+
+- [2026-08-25] — **Footer social icons restored (dual lucide load)**: the footer brand icons (facebook/instagram/youtube) had stopped rendering because `lucide@latest` (v1.x) removed brand icons while the page head only loaded the latest build. Fixed by loading **both** the vendored `public/assets/js/vendor/lucide.min.js` (v0.469.0, still has brand icons) AND the unpkg `@latest` build in the head, exposing `window.__lucideOld` and `window.__lucideLatest`, plus a `window.__lucideRefresh()` helper that calls `lucide.createIcons()` (old build, brand icons) and `lucideLatest.createIcons()` (new build, newer form icons). The repair/landing pages call `window.__lucideRefresh()` after dynamic content. Verified: footer icons appear again. Note: do NOT switch the vendored copy to `@latest` — it would lose the brand icons.
+
+- [2026-08-25] — **Hero (landing) now CMS-editable images + badge**: `config/cms.php` `pages.home.sections.hero` gained `visual_main` (image), `visual_devices` (image), `badge_icon` (icon), `badge_title` (text), `badge_subtitle` (text). `resources/views/landing/partials/hero.blade.php` now renders an `<img>` for `visual_main` when set (falling back to the SVG orbit + `data-lucide="badge_icon"` icon badge in the header chip) and a devices `<img>` for `visual_devices`. `ContentBlockSeeder` seeds defaults (`shield-check`, "Veilig aanmelden", "Binnen ongeveer 2 minuten", and the existing hero images). Verified: edits in the admin Hero section update the landing hero without code changes.
+
+- [2026-08-25] — **Reparatie-aanmelden: full working flow (wizard + backend + admin inbox)**. Standalone `landing/service-reparatie.blade.php` (5-step wizard from `step-2/Reparatie-aanmelden.html`): apparaat → probleem + foto's → apparaatgegevens → contact & voorkeur → controle, with a success screen showing the `Aanmeldnummer`. Backend: `repair_submissions` table + `RepairSubmission` model, `StoreRepairSubmissionRequest` (Dutch, honeypot `website`, all required except `serial`/photos) + `RepairController@submit` (CSRF + `throttle:5,1`, stores ≤5 photos to `repair/{id}/`, queues `RepairReceived` + `AdminRepairNotification` with `+reply-repair-{id}` Reply-To, returns 201 `{message, repair_number}` = `SP-YYYY-#####`). Frontend `#repairForm` wired with `@csrf` + `fetch` + per-field red errors returning to the earliest invalid step. Admin inbox (`admin.reparatie-aanmeldingen.*`, 8 routes) under the Diensten dropdown with list/search/status(`new`/`in_progress`/`completed`)/detail/delete + photo streaming, plus a dashboard "Reparaties" stat + recent-repairs table. See the "Plan: Reparatie aanmelden" section for the full breakdown. Deployment needs `MAIL_*` (Gmail SMTP) + `CONTACT_NOTIFY_EMAIL` in `.env`.
+
+- [2026-08-25] — **Admin Diensten dropdown: Reparatie aanmelden first + Aanmeldingen link**: in `components/admin/layout.blade.php` the "Reparatie aanmelden" block is listed first under Diensten (sections editor link) and now also contains an **"Aanmeldingen"** link → `admin.reparatie-aanmeldingen.index` (opens the dropdown when active, red new-count badge from `RepairSubmission::where('status','new')->count()`).

@@ -65,35 +65,54 @@
     {{-- Recent activity --}}
     <div class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-3">
         <div class="xl:col-span-2">
-            <x-admin.card title="Recente bestellingen">
+            <x-admin.card title="Recente reparatie-aanmeldingen">
                 <x-slot name="action">
-                    <span class="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">Nog geen gegevens</span>
+                    <a href="{{ route('admin.reparatie-aanmeldingen.index') }}" class="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">Alles bekijken</a>
                 </x-slot>
                 <div class="overflow-x-auto -m-6">
-                    <table class="w-full min-w-[560px] text-start text-sm">
+                    <table class="w-full min-w-[640px] text-start text-sm">
                         <thead>
                             <tr style="color: var(--c-muted)">
-                                <th class="px-6 py-3 text-start text-xs font-bold uppercase tracking-wider">Bestelling</th>
+                                <th class="px-6 py-3 text-start text-xs font-bold uppercase tracking-wider">Nummer</th>
                                 <th class="px-6 py-3 text-start text-xs font-bold uppercase tracking-wider">Klant</th>
+                                <th class="px-6 py-3 text-start text-xs font-bold uppercase tracking-wider">Apparaat</th>
                                 <th class="px-6 py-3 text-start text-xs font-bold uppercase tracking-wider">Datum</th>
                                 <th class="px-6 py-3 text-start text-xs font-bold uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-end text-xs font-bold uppercase tracking-wider">Totaal</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td colspan="5" class="px-6 py-14 text-center">
-                                    <div class="flex flex-col items-center gap-3">
-                                        <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-7 w-7">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z" />
-                                            </svg>
+                            @forelse ($recentRepairs as $r)
+                                <tr class="border-t" style="border-color: rgba(148,163,184,0.12)">
+                                    <td class="px-6 py-3 font-semibold" style="color: var(--c-heading)">{{ $r->repair_number }}</td>
+                                    <td class="px-6 py-3">
+                                        <div class="font-semibold" style="color: var(--c-heading)">{{ $r->name }}</div>
+                                        <div class="text-xs" style="color: var(--c-muted)">{{ $r->email }}</div>
+                                    </td>
+                                    <td class="px-6 py-3" style="color: var(--c-heading)">{{ $r->brand }} {{ $r->model }}
+                                        <div class="text-xs" style="color: var(--c-muted)">{{ $r->device }}</div>
+                                    </td>
+                                    <td class="px-6 py-3" style="color: var(--c-muted)">{{ $r->created_at->format('d-m-Y H:i') }}</td>
+                                    <td class="px-6 py-3">
+                                        <span class="rounded-full px-2.5 py-1 text-xs font-bold {{ $r->status === 'new' ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300' : ($r->status === 'in_progress' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' : 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300') }}">
+                                            {{ $r->status === 'new' ? 'Nieuw' : ($r->status === 'in_progress' ? 'In behandeling' : 'Afgerond') }}
                                         </span>
-                                        <p class="font-semibold" style="color: var(--c-heading)">Nog geen bestellingen</p>
-                                        <p class="text-xs" style="color: var(--c-muted)">Zodra klanten bestellen, verschijnen ze hier.</p>
-                                    </div>
-                                </td>
-                            </tr>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="px-6 py-14 text-center">
+                                        <div class="flex flex-col items-center gap-3">
+                                            <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-7 w-7">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.348 14.652a3.75 3.75 0 0 1 0-5.304m5.304 0a3.75 3.75 0 0 1 0 5.304m-7.425 2.121a6.75 6.75 0 0 1 0-9.546m9.546 0a6.75 6.75 0 0 1 0 9.546M5.106 18.894c-3.808-3.807-3.808-9.98 0-13.788m13.788 0c3.808 3.807 3.808 9.98 0 13.788" />
+                                                </svg>
+                                            </span>
+                                            <p class="font-semibold" style="color: var(--c-heading)">Nog geen reparatie-aanmeldingen</p>
+                                            <p class="text-xs" style="color: var(--c-muted)">Aanmeldingen via het formulier verschijnen hier.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>

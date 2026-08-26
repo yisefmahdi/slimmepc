@@ -67,8 +67,8 @@
 
     {{-- Table card --}}
     <x-admin.card>
-        <div class="overflow-x-auto -m-6">
-            <table class="w-full min-w-[820px] text-start text-sm">
+        <div class="overflow-x-auto" style="overflow-x:auto">
+                <table class="w-full min-w-[820px] text-start text-sm" style="min-width:820px">
                 <thead>
                     <tr style="color: var(--c-muted)">
                         <th class="px-6 py-3.5 text-start text-xs font-bold uppercase tracking-wider">Klant</th>

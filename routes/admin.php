@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\ContactInboxController;
 use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\Admin\KlantController;
+use App\Http\Controllers\Admin\RepairInboxController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')
@@ -109,6 +110,32 @@ Route::prefix('admin')
                     ->name('reply.attachment');
 
                 Route::delete('/{contactSubmission}', [ContactInboxController::class, 'destroy'])
+                    ->name('destroy');
+            });
+
+        // Repair submissions (reparatie aanmelden)
+        Route::prefix('reparatie-aanmeldingen')
+            ->name('reparatie-aanmeldingen.')
+            ->group(function () {
+                Route::get('/', [RepairInboxController::class, 'index'])
+                    ->name('index');
+
+                Route::get('/data', [RepairInboxController::class, 'data'])
+                    ->name('data');
+
+                Route::get('/new-count', [RepairInboxController::class, 'newCount'])
+                    ->name('new-count');
+
+                Route::get('/{repairSubmission}', [RepairInboxController::class, 'show'])
+                    ->name('show');
+
+                Route::post('/{repairSubmission}/status', [RepairInboxController::class, 'status'])
+                    ->name('status');
+
+                Route::get('/{repairSubmission}/photo/{file}', [RepairInboxController::class, 'photo'])
+                    ->name('photo');
+
+                Route::delete('/{repairSubmission}', [RepairInboxController::class, 'destroy'])
                     ->name('destroy');
             });
     });

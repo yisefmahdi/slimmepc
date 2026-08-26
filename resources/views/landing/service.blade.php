@@ -101,7 +101,7 @@
                     </div>
 
                     <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-7 sm:mt-9">
-                        <a href="{{ $s['hero']['cta1_url'] ?? '#reparatie-aanmelden' }}"
+                        <a href="{{ $s['hero']['cta1_url'] ?? '/reparatie-aanmelden' }}"
                            class="inline-flex justify-center items-center gap-2 sm:gap-5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg px-5 py-2.5 sm:px-7 sm:py-4 text-[14px] sm:text-[15px] shadow-[0_16px_35px_rgba(37,99,235,.22)] hover:shadow-[0_20px_45px_rgba(37,99,235,.32)] hover:-translate-y-1 transition duration-300">
 
                             {{ $s['hero']['cta1_text'] ?? 'Reparatie aanmelden' }}
@@ -344,7 +344,7 @@
                         </div>
                     </div>
 
-                    <div id="reparatie-aanmelden" class="relative overflow-hidden bg-gradient-to-r from-[#0752ae] to-[#063f96] rounded-xl min-h-[270px]">
+                    <div id="repair-cta-section" class="relative overflow-hidden bg-gradient-to-r from-[#0752ae] to-[#063f96] rounded-xl min-h-[270px]">
                         <div class="relative z-10 px-6 py-7 lg:px-10 lg:py-10 max-w-full lg:max-w-[65%]">
                             <h2 class="text-white font-black text-[24px] lg:text-[38px] leading-tight">
                                 {{ $s['faq']['cta_title'] ?? 'Laptop' }}
@@ -356,7 +356,7 @@
                             </p>
 
                                 <div class="flex flex-wrap gap-3 sm:gap-4 mt-5 sm:mt-7">
-                                    <a href="#reparatie-aanmelden"
+                                    <a href="/reparatie-aanmelden"
                                        class="bg-[#ff7200] hover:bg-[#ed6900] text-white rounded-lg px-4 py-2.5 sm:px-6 sm:py-3.5 font-bold text-[12px] sm:text-[13px] flex items-center gap-2 sm:gap-5 transition">
                                         Reparatie aanmelden
                                         <i data-lucide="chevron-right" class="w-4 h-4"></i>

@@ -212,6 +212,7 @@
                 {{-- 1c. Contact Dropdown --}}
                 @php
                     $inboxNewCount = \App\Models\ContactSubmission::where('status', 'new')->count();
+                    $repairNewCount = \App\Models\RepairSubmission::where('status', 'new')->count();
                 @endphp
                 <div x-data="{ open: {{ request()->routeIs('admin.contact-inbox.*') || (request()->routeIs('admin.content.section.edit') && request()->route('page') === 'contact') ? 'true' : 'false' }} }" class="space-y-1">
                     <button type="button" @click="open = !open"
@@ -309,7 +310,7 @@
                 {{-- 2. Diensten Dropdown --}}
                 @php
                     $activeSvcPage = request()->route('page');
-                    $isSvcPage = in_array($activeSvcPage, array_values(config('cms.service_slugs')), true);
+                    $isSvcPage = in_array($activeSvcPage, array_values(config('cms.service_slugs')), true) || $activeSvcPage === 'reparatie';
                     // Only show service pages that have actual content (so unbuilt services stay out of the admin nav).
                     // De-duplicate by pageKey so alias slugs (e.g. macbook-reparatie -> mac) don't create duplicate sidebar entries.
                     $svcVisiblePages = [];
@@ -337,6 +338,39 @@
                         </svg>
                     </button>
                     <div x-show="open" x-cloak x-transition class="border-l-2 border-white/30 ml-6 pl-4 space-y-1 py-1 text-[13px] text-white">
+                        {{-- Reparatie aanmelden — always first --}}
+                        @php
+                            $repPageKey = 'reparatie';
+                            $repPage = config("cms.pages.{$repPageKey}");
+                            $repLabel = $repPage['label'] ?? 'Reparatie aanmelden';
+                            $repSections = $repPage['sections'] ?? [];
+                        @endphp
+                             <div x-data="{ svc: {{ ($activeSvcPage === $repPageKey || request()->routeIs('admin.reparatie-aanmeldingen.*')) ? 'true' : 'false' }}, init() { if (localStorage.getItem('nav-svc-{{$repPageKey}}') !== null) { this.svc = localStorage.getItem('nav-svc-{{$repPageKey}}') === '1'; } }, toggle() { this.svc = !this.svc; localStorage.setItem('nav-svc-{{$repPageKey}}', this.svc ? '1' : '0'); } }" class="space-y-1">
+                            <a href="{{ route('admin.reparatie-aanmeldingen.index') }}"
+                               class="flex items-center justify-between gap-2 rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.reparatie-aanmeldingen.*') ? 'bg-white/15 text-white font-bold' : 'text-white hover:bg-white/10 hover:text-white' }}">
+                                <span>Aanmeldingen</span>
+                                <span id="sidebarRepairBadge" class="{{ $repairNewCount > 0 ? '' : 'hidden' }} inline-flex min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm">{{ min($repairNewCount, 99) }}</span>
+                            </a>
+                             <button type="button" @click="toggle()"
+                                    class="flex w-full items-center justify-between gap-2 rounded-lg px-3 py-1.5 text-left font-semibold text-white hover:bg-white/10 hover:text-white">
+                                <span>{{ $repLabel }}</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                     class="h-3.5 w-3.5 shrink-0 transition-transform duration-200" :class="svc ? 'rotate-180' : ''">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                </svg>
+                            </button>
+                            <div x-show="svc" x-cloak x-transition class="space-y-1 border-l border-white/15 ml-1 pl-3">
+                                @foreach ($repSections as $sectionKey => $sectionCfg)
+                                    <a href="{{ route('admin.content.section.edit', ['page' => $repPageKey, 'section' => $sectionKey]) }}"
+                                       class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === $repPageKey && request()->route('section') === $sectionKey ? 'bg-white/15 text-white font-bold' : 'text-white hover:bg-white/10 hover:text-white' }}">
+                                        {{ $sectionCfg['label'] ?? $sectionKey }}
+                                    </a>
+                                @endforeach
+                            </div>
+
+
+                        </div>
+
                         @foreach ($svcVisiblePages as $pageKey)
                             @php
                                 $svcPage = config("cms.pages.{$pageKey}");
@@ -358,11 +392,11 @@
                                            class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === $pageKey && request()->route('section') === $sectionKey ? 'bg-white/15 text-white font-bold' : 'text-white hover:bg-white/10 hover:text-white' }}">
                                             {{ $sectionCfg['label'] ?? $sectionKey }}
                                         </a>
-                                    @endforeach
-                                </div>
+                                @endforeach
                             </div>
-                        @endforeach
-                    </div>
+                        </div>
+                    @endforeach
+                </div>
                 </div>
 
 

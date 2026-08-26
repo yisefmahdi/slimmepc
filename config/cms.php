@@ -1437,6 +1437,94 @@ $pcSectionDef = [
     ],
 ];
 
+$reparatieSectionDef = [
+    'hero' => [
+        'label' => 'Hero',
+        'blocks' => [
+            'badge' => ['label' => 'Badge (boven titel)', 'type' => 'text'],
+            'title1' => ['label' => 'Titel regel 1 (Meld je reparatie)', 'type' => 'text'],
+            'title2' => ['label' => 'Titel regel 2 (eenvoudig aan)', 'type' => 'text'],
+            'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+            'visual_main' => ['label' => 'Hero afbeelding — bovenste kaart (rechts)', 'type' => 'image', 'hint' => 'Optioneel. Als je geen afbeelding kiest, blijft het pictogram staan.'],
+            'visual_devices' => ['label' => 'Hero afbeelding — middelste kaart (links)', 'type' => 'image', 'hint' => 'Optioneel. Vervangt de laptop/gamepad-pictogrammen.'],
+            'badge_icon' => ['label' => 'Hero badge-pictogram (rechtsonder)', 'type' => 'icon', 'hint' => 'Pictogram van de badge "Veilig aanmelden".'],
+            'badge_title' => ['label' => 'Hero badge-titel (Veilig aanmelden)', 'type' => 'text'],
+            'badge_subtitle' => ['label' => 'Hero badge-ondertitel (Binnen ongeveer 2 minuten)', 'type' => 'text'],
+        ],
+    ],
+    'devices' => [
+        'label' => 'Stap 1 — Kies je apparaat',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Apparaten (toevoegen / verwijderen / bewerken)',
+                'type' => 'json',
+                'columns' => 3,
+                'fields' => [
+                    ['key' => 'id', 'label' => 'ID (kleine letters, geen spaties — bepaalt de probleem-opties)', 'type' => 'text'],
+                    ['key' => 'label', 'label' => 'Naam', 'type' => 'text'],
+                    ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                ],
+            ],
+        ],
+    ],
+    'why' => [
+        'label' => 'Zijbalk — Waarom aanmelden?',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Punten (4)',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                ],
+            ],
+            'contact_title' => ['label' => 'Contacttitel (Liever direct contact?)', 'type' => 'text'],
+            'contact_subtitle' => ['label' => 'Contact ondertitel', 'type' => 'text'],
+            'whatsapp_label' => ['label' => 'WhatsApp label', 'type' => 'text'],
+            'whatsapp_number' => ['label' => 'WhatsApp nummer (zonder +, bijv. 31552032145)', 'type' => 'text'],
+            'phone_label' => ['label' => 'Telefoon label', 'type' => 'text'],
+            'phone_number' => ['label' => 'Telefoonnummer (met landcode, bijv. +31552032145)', 'type' => 'text'],
+        ],
+    ],
+    'trust' => [
+        'label' => 'Trust-strip (onderaan)',
+        'blocks' => [
+            'items' => [
+                'label' => 'Items (4)',
+                'type' => 'json',
+                'columns' => 2,
+                'fields' => [
+                    ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+    'process' => [
+        'label' => 'Hoe werkt het? (5 stappen)',
+        'blocks' => [
+            'title' => ['label' => 'Titel', 'type' => 'text'],
+            'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'items' => [
+                'label' => 'Stappen (5)',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                ],
+            ],
+        ],
+    ],
+];
+
 return [
 
     'cache_version_key' => 'cache_version',
@@ -1921,6 +2009,7 @@ return [
         'software' => ['label' => 'Software & Windows', 'sections' => $softwareSectionDef],
         'netwerk' => ['label' => 'Netwerkoplossingen', 'sections' => $netwerkSectionDef],
         'console' => ['label' => 'Playstation / Xbox', 'sections' => $consoleSectionDef],
+        'reparatie' => ['label' => 'Reparatie aanmelden', 'sections' => $reparatieSectionDef],
     ],
 
     /*
