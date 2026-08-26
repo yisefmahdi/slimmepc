@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class RepairInboxController extends Controller
@@ -126,13 +127,16 @@ class RepairInboxController extends Controller
     /**
      * Stream a stored photo for display in the admin detail pane.
      */
-    public function photo(RepairSubmission $repairSubmission, string $file): StreamedResponse
+    public function photo(RepairSubmission $repairSubmission, string $file): BinaryFileResponse
     {
         $path = 'repair/'.$repairSubmission->id.'/'.$file;
 
         abort_unless(Storage::disk('local')->exists($path), 404);
 
-        return response()->file(Storage::disk('local')->path($path));
+        return response()->file(
+            Storage::disk('local')->path($path),
+            ['Content-Disposition' => 'inline']
+        );
     }
 
     /**
