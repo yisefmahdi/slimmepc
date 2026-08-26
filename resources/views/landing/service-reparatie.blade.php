@@ -433,6 +433,7 @@
                                         </label>
                                     </div>
                                 </div>
+                                <p id="err-data_importance" class="mt-3 hidden text-xs font-semibold text-red-600"></p>
                             </fieldset>
 
                             <fieldset id="fieldset-opened_before" class="rounded-[24px] border border-slate-200 p-5">
@@ -463,6 +464,7 @@
                                         </label>
                                     </div>
                                 </div>
+                                <p id="err-opened_before" class="mt-3 hidden text-xs font-semibold text-red-600"></p>
                             </fieldset>
                         </div>
 
@@ -567,6 +569,7 @@
                                         </label>
                                     </div>
                                 </div>
+                                <p id="err-delivery_method" class="mt-3 hidden text-xs font-semibold text-red-600"></p>
                             </fieldset>
 
                             <fieldset id="fieldset-contact_preference" class="rounded-[24px] border border-slate-200 p-5">
@@ -595,6 +598,7 @@
                                         </label>
                                     </div>
                                 </div>
+                                <p id="err-contact_preference" class="mt-3 hidden text-xs font-semibold text-red-600"></p>
                             </fieldset>
                         </div>
 
@@ -1067,108 +1071,129 @@
             document.getElementById('mobileProgressFill').style.width = `${state.currentStep * 20}%`;
         }
 
+        function markInputError(el, msgEl, message) {
+            if (el) { el.style.borderColor = '#ef4444'; el.style.boxShadow = '0 0 0 4px rgba(239,68,68,0.12)'; }
+            if (msgEl) { msgEl.textContent = message; msgEl.classList.remove('hidden'); }
+        }
+        function clearInputError(el, msgEl) {
+            if (el) { el.style.borderColor = ''; el.style.boxShadow = ''; }
+            if (msgEl) { msgEl.classList.add('hidden'); }
+        }
+        function markFieldsetError(fs, msgEl, message) {
+            if (fs) { fs.style.borderColor = '#ef4444'; fs.style.boxShadow = '0 0 0 4px rgba(239,68,68,0.12)'; }
+            if (msgEl) { msgEl.textContent = message; msgEl.classList.remove('hidden'); }
+        }
+        function clearFieldsetError(fs, msgEl) {
+            if (fs) { fs.style.borderColor = ''; fs.style.boxShadow = ''; }
+            if (msgEl) { msgEl.classList.add('hidden'); }
+        }
+
         function validateStep(step) {
-            if (step === 1 && !state.device) {
-                document.getElementById('deviceError').classList.remove('hidden');
-                return false;
+            let ok = true;
+
+            if (step === 1) {
+                const devErr = document.getElementById('deviceError');
+                const devGrid = document.getElementById('deviceGrid');
+                devErr.classList.add('hidden');
+                devGrid.style.border = '';
+                if (!state.device) {
+                    ok = false;
+                    devErr.textContent = 'Kies eerst een apparaat.';
+                    devErr.classList.remove('hidden');
+                    devGrid.style.border = '2px solid #ef4444';
+                }
+                return ok;
             }
 
             if (step === 2) {
+                const probErr = document.getElementById('problemError');
+                const probGrid = document.getElementById('problemGrid');
+                probErr.classList.add('hidden');
+                probGrid.style.border = '';
                 if (state.problems.length === 0) {
-                    document.getElementById('problemError').classList.remove('hidden');
-                    return false;
+                    ok = false;
+                    probErr.textContent = 'Kies minimaal één probleem.';
+                    probErr.classList.remove('hidden');
+                    probGrid.style.border = '2px solid #ef4444';
                 }
 
                 const desc = document.getElementById('description');
                 const descErr = document.getElementById('err-description');
-                desc.classList.remove('border-red-400', 'ring-4', 'ring-red-100');
-                descErr.classList.add('hidden');
+                clearInputError(desc, descErr);
                 if (!desc.value.trim()) {
-                    desc.classList.add('border-red-400', 'ring-4', 'ring-red-100');
-                    descErr.textContent = 'Vul een beschrijving in van het probleem.';
-                    descErr.classList.remove('hidden');
-                    return false;
+                    ok = false;
+                    markInputError(desc, descErr, 'Vul een beschrijving in van het probleem.');
                 }
+                return ok;
             }
 
             if (step === 3) {
                 const brand = document.getElementById('brand');
-                const model = document.getElementById('model');
-                brand.classList.remove('border-red-400', 'ring-4', 'ring-red-100');
-                model.classList.remove('border-red-400', 'ring-4', 'ring-red-100');
-                let valid = true;
-
+                const brandErr = document.getElementById('err-brand');
+                clearInputError(brand, brandErr);
                 if (!brand.value.trim()) {
-                    valid = false;
-                    brand.classList.add('border-red-400', 'ring-4', 'ring-red-100');
+                    ok = false;
+                    markInputError(brand, brandErr, 'Vul het merk in.');
                 }
                 // Model is optional — no validation
 
                 const dataFs = document.getElementById('fieldset-data_importance');
+                const dataErr = document.getElementById('err-data_importance');
                 const openedFs = document.getElementById('fieldset-opened_before');
-                dataFs.classList.add('border-slate-200');
-                dataFs.classList.remove('border-red-400', 'ring-4', 'ring-red-100');
-                openedFs.classList.add('border-slate-200');
-                openedFs.classList.remove('border-red-400', 'ring-4', 'ring-red-100');
-
-                const data = document.querySelector('input[name="data_importance"]:checked');
-                const opened = document.querySelector('input[name="opened_before"]:checked');
-                if (!data) { valid = false; dataFs.classList.remove('border-slate-200'); dataFs.classList.add('border-red-400', 'ring-4', 'ring-red-100'); }
-                if (!opened) { valid = false; openedFs.classList.remove('border-slate-200'); openedFs.classList.add('border-red-400', 'ring-4', 'ring-red-100'); }
-
-                const error = document.getElementById('detailsError');
-                if (!valid) {
-                    error.textContent = 'Vul het merk in en maak bij beide vragen een keuze.';
-                    error.classList.remove('hidden');
-                    return false;
+                const openedErr = document.getElementById('err-opened_before');
+                clearFieldsetError(dataFs, dataErr);
+                clearFieldsetError(openedFs, openedErr);
+                if (!document.querySelector('input[name="data_importance"]:checked')) {
+                    ok = false;
+                    markFieldsetError(dataFs, dataErr, 'Kies een optie bij "Belangrijke gegevens".');
                 }
-                error.classList.add('hidden');
+                if (!document.querySelector('input[name="opened_before"]:checked')) {
+                    ok = false;
+                    markFieldsetError(openedFs, openedErr, 'Kies een optie bij "Eerder geopend".');
+                }
+                return ok;
             }
 
             if (step === 4) {
-                const contactFields = [
-                    document.getElementById('name'),
-                    document.getElementById('email'),
-                    document.getElementById('phone'),
-                    document.getElementById('postcode')
+                const fields = [
+                    ['name', 'Vul je naam in.'],
+                    ['email', 'Vul je e-mailadres in.'],
+                    ['phone', 'Vul je telefoonnummer in.'],
+                    ['postcode', 'Vul je postcode in.']
                 ];
-                let valid = true;
-                let message = '';
-
-                contactFields.forEach(field => {
-                    field.classList.remove('border-red-400', 'ring-4', 'ring-red-100');
-                    if (!field.value.trim()) {
-                        valid = false;
-                        field.classList.add('border-red-400', 'ring-4', 'ring-red-100');
+                fields.forEach(function (pair) {
+                    const id = pair[0], msg = pair[1];
+                    const el = document.getElementById(id);
+                    const err = document.getElementById('err-' + id);
+                    clearInputError(el, err);
+                    if (!el.value.trim()) {
+                        ok = false;
+                        markInputError(el, err, msg);
                     }
                 });
 
                 const email = document.getElementById('email');
+                const emailErr = document.getElementById('err-email');
                 if (email.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
-                    valid = false;
-                    email.classList.add('border-red-400', 'ring-4', 'ring-red-100');
-                    message = 'Vul een geldig e-mailadres in.';
+                    ok = false;
+                    markInputError(email, emailErr, 'Vul een geldig e-mailadres in.');
                 }
 
                 const deliveryFs = document.getElementById('fieldset-delivery_method');
+                const deliveryErr = document.getElementById('err-delivery_method');
                 const contactFs = document.getElementById('fieldset-contact_preference');
-                deliveryFs.classList.add('border-slate-200');
-                deliveryFs.classList.remove('border-red-400', 'ring-4', 'ring-red-100');
-                contactFs.classList.add('border-slate-200');
-                contactFs.classList.remove('border-red-400', 'ring-4', 'ring-red-100');
-
-                const delivery = document.querySelector('input[name="delivery_method"]:checked');
-                const contact = document.querySelector('input[name="contact_preference"]:checked');
-                if (!delivery) { valid = false; deliveryFs.classList.remove('border-slate-200'); deliveryFs.classList.add('border-red-400', 'ring-4', 'ring-red-100'); }
-                if (!contact) { valid = false; contactFs.classList.remove('border-slate-200'); contactFs.classList.add('border-red-400', 'ring-4', 'ring-red-100'); }
-
-                const error = document.getElementById('contactError');
-                if (!valid) {
-                    error.textContent = message || 'Vul alle verplichte contactgegevens in en maak beide keuzes.';
-                    error.classList.remove('hidden');
-                    return false;
+                const contactErr = document.getElementById('err-contact_preference');
+                clearFieldsetError(deliveryFs, deliveryErr);
+                clearFieldsetError(contactFs, contactErr);
+                if (!document.querySelector('input[name="delivery_method"]:checked')) {
+                    ok = false;
+                    markFieldsetError(deliveryFs, deliveryErr, 'Kies hoe je verder wilt.');
                 }
-                error.classList.add('hidden');
+                if (!document.querySelector('input[name="contact_preference"]:checked')) {
+                    ok = false;
+                    markFieldsetError(contactFs, contactErr, 'Kies je contactvoorkeur.');
+                }
+                return ok;
             }
 
             return true;
@@ -1416,54 +1441,60 @@
         });
 
         function clearServerErrors() {
-            ['deviceError','problemError','photoError','detailsError','contactError','privacyError','err-brand','err-model','err-name','err-email','err-phone','err-postcode','err-description']
+            ['deviceError','problemError','photoError','detailsError','contactError','privacyError',
+             'err-brand','err-model','err-name','err-email','err-phone','err-postcode','err-description',
+             'err-data_importance','err-opened_before','err-delivery_method','err-contact_preference']
                 .forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('hidden'); });
-            ['brand','model','name','email','phone','postcode']
-                .forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('border-red-400','ring-4','ring-red-100'); });
+            ['brand','model','name','email','phone','postcode','description']
+                .forEach(id => { const el = document.getElementById(id); if (el) { el.style.borderColor = ''; el.style.boxShadow = ''; } });
             ['fieldset-data_importance','fieldset-opened_before','fieldset-delivery_method','fieldset-contact_preference']
-                .forEach(id => { const el = document.getElementById(id); if (el) { el.classList.add('border-slate-200'); el.classList.remove('border-red-400','ring-4','ring-red-100'); } });
+                .forEach(id => { const el = document.getElementById(id); if (el) { el.style.borderColor = ''; el.style.boxShadow = ''; } });
+            ['deviceGrid','problemGrid']
+                .forEach(id => { const el = document.getElementById(id); if (el) el.style.border = ''; });
         }
 
         function showServerErrors(errors) {
-            const map = {
-                device: 'deviceError',
-                problems: 'problemError',
-                description: 'err-description',
-                photos: 'photoError',
-                brand: 'err-brand',
-                model: 'err-model',
-                serial: 'err-model',
-                data_importance: 'detailsError',
-                opened_before: 'detailsError',
-                name: 'err-name',
-                email: 'err-email',
-                phone: 'err-phone',
-                postcode: 'err-postcode',
-                delivery_method: 'contactError',
-                contact_preference: 'contactError',
-                privacy: 'privacyError'
-            };
+            const textFields = ['brand','model','name','email','phone','postcode','description'];
+            const radioFields = ['data_importance','opened_before','delivery_method','contact_preference'];
+            const genericMap = { device: 'deviceError', problems: 'problemError', photos: 'photoError', privacy: 'privacyError', serial: 'err-model' };
             const stepFor = { device:1, problems:2, description:2, photos:2, brand:3, model:3, serial:3, data_importance:3, opened_before:3, name:4, email:4, phone:4, postcode:4, delivery_method:4, contact_preference:4, privacy:5 };
             let earliest = 99;
 
             Object.keys(errors).forEach(key => {
                 const flat = key.replace(/\.\d+$/, '').replace(/\[\]$/, '');
-                const elId = map[flat] || map[key];
                 const msgs = errors[key];
                 const message = Array.isArray(msgs) ? msgs[0] : msgs;
 
-                if (elId) {
-                    const el = document.getElementById(elId);
-                    if (el) { el.textContent = message; el.classList.remove('hidden'); }
-                }
-                if (['brand','model','name','email','phone','postcode'].includes(flat)) {
+                if (textFields.includes(flat)) {
                     const inp = document.getElementById(flat);
-                    if (inp) inp.classList.add('border-red-400','ring-4','ring-red-100');
-                }
-                if (['data_importance','opened_before','delivery_method','contact_preference'].includes(flat)) {
+                    const err = document.getElementById('err-' + flat);
+                    if (inp) { inp.style.borderColor = '#ef4444'; inp.style.boxShadow = '0 0 0 4px rgba(239,68,68,0.12)'; }
+                    if (err) { err.textContent = message; err.classList.remove('hidden'); }
+                } else if (radioFields.includes(flat)) {
                     const fs = document.getElementById('fieldset-' + flat);
-                    if (fs) { fs.classList.remove('border-slate-200'); fs.classList.add('border-red-400','ring-4','ring-red-100'); }
+                    const err = document.getElementById('err-' + flat);
+                    if (fs) { fs.style.borderColor = '#ef4444'; fs.style.boxShadow = '0 0 0 4px rgba(239,68,68,0.12)'; }
+                    if (err) { err.textContent = message; err.classList.remove('hidden'); }
+                    else {
+                        const box = document.getElementById(flat === 'data_importance' || flat === 'opened_before' ? 'detailsError' : 'contactError');
+                        if (box) { box.textContent = message; box.classList.remove('hidden'); }
+                    }
+                } else {
+                    const elId = genericMap[flat] || genericMap[key];
+                    if (elId) {
+                        const el = document.getElementById(elId);
+                        if (el) { el.textContent = message; el.classList.remove('hidden'); }
+                    }
+                    if (flat === 'device') {
+                        const g = document.getElementById('deviceGrid');
+                        if (g) g.style.border = '2px solid #ef4444';
+                    }
+                    if (flat === 'problems') {
+                        const g = document.getElementById('problemGrid');
+                        if (g) g.style.border = '2px solid #ef4444';
+                    }
                 }
+
                 if (stepFor[flat] && stepFor[flat] < earliest) earliest = stepFor[flat];
             });
 
