@@ -1137,6 +1137,8 @@
                 const openedOk = radioCheckedInForm('opened_before');
                 markFieldset(document.getElementById('fieldset-data_importance'), !dataOk);
                 markFieldset(document.getElementById('fieldset-opened_before'), !openedOk);
+                if (!dataOk) ok = false;
+                if (!openedOk) ok = false;
 
                 const error = document.getElementById('detailsError');
                 error.classList.toggle('hidden', ok);
@@ -1166,6 +1168,8 @@
                 const contactOk = radioCheckedInForm('contact_preference');
                 markFieldset(document.getElementById('fieldset-delivery_method'), !deliveryOk);
                 markFieldset(document.getElementById('fieldset-contact_preference'), !contactOk);
+                if (!deliveryOk) valid = false;
+                if (!contactOk) valid = false;
 
                 const error = document.getElementById('contactError');
                 error.classList.toggle('hidden', valid);
