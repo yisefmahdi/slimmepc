@@ -433,7 +433,6 @@
                                         </label>
                                     </div>
                                 </div>
-                                <p id="err-data_importance" class="mt-3 hidden text-xs font-semibold text-red-600"></p>
                             </fieldset>
 
                             <fieldset id="fieldset-opened_before" class="rounded-[24px] border border-slate-200 p-5">
@@ -464,7 +463,6 @@
                                         </label>
                                     </div>
                                 </div>
-                                <p id="err-opened_before" class="mt-3 hidden text-xs font-semibold text-red-600"></p>
                             </fieldset>
                         </div>
 
@@ -569,7 +567,6 @@
                                         </label>
                                     </div>
                                 </div>
-                                <p id="err-delivery_method" class="mt-3 hidden text-xs font-semibold text-red-600"></p>
                             </fieldset>
 
                             <fieldset id="fieldset-contact_preference" class="rounded-[24px] border border-slate-200 p-5">
@@ -598,7 +595,6 @@
                                         </label>
                                     </div>
                                 </div>
-                                <p id="err-contact_preference" class="mt-3 hidden text-xs font-semibold text-red-600"></p>
                             </fieldset>
                         </div>
 
@@ -633,7 +629,7 @@
 
                         <div class="mt-6">
                             <input id="privacy" name="privacy" type="checkbox" class="peer sr-only">
-                            <label for="privacy"
+                            <label for="privacy" id="privacyLabel"
                                    class="flex cursor-pointer items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 text-sm leading-6 transition hover:bg-blue-50">
                                 <span class="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded border border-blue-300 text-white peer-checked:bg-slimme-600">
                                     <i data-lucide="check" class="h-3.5 w-3.5"></i>
@@ -943,7 +939,8 @@
             device: null,
             problems: [],
             files: [],
-            repairNumber: null
+            repairNumber: null,
+            attempted: {}
         };
 
         const deviceGrid = document.getElementById('deviceGrid');
@@ -980,6 +977,7 @@
                     document.querySelectorAll('[data-device]').forEach(card => card.classList.remove('selected'));
                     button.classList.add('selected');
                     document.getElementById('deviceError').classList.add('hidden');
+                    markBox(deviceGrid, false);
                     renderProblems();
                 });
             });
@@ -1021,6 +1019,7 @@
                     }
 
                     document.getElementById('problemError').classList.add('hidden');
+                    markBox(problemGrid, false);
                 });
             });
         }
@@ -1071,128 +1070,109 @@
             document.getElementById('mobileProgressFill').style.width = `${state.currentStep * 20}%`;
         }
 
-        function markInputError(el, msgEl, message) {
-            if (el) { el.style.borderColor = '#ef4444'; el.style.boxShadow = '0 0 0 4px rgba(239,68,68,0.12)'; }
-            if (msgEl) { msgEl.textContent = message; msgEl.classList.remove('hidden'); }
-        }
-        function clearInputError(el, msgEl) {
-            if (el) { el.style.borderColor = ''; el.style.boxShadow = ''; }
-            if (msgEl) { msgEl.classList.add('hidden'); }
-        }
-        function markFieldsetError(fs, msgEl, message) {
-            if (fs) { fs.style.borderColor = '#ef4444'; fs.style.boxShadow = '0 0 0 4px rgba(239,68,68,0.12)'; }
-            if (msgEl) { msgEl.textContent = message; msgEl.classList.remove('hidden'); }
-        }
-        function clearFieldsetError(fs, msgEl) {
-            if (fs) { fs.style.borderColor = ''; fs.style.boxShadow = ''; }
-            if (msgEl) { msgEl.classList.add('hidden'); }
+        function markInput(field, hasError) {
+            field.classList.remove('border-red-400', 'ring-4', 'ring-red-100');
+            if (hasError) field.classList.add('border-red-400', 'ring-4', 'ring-red-100');
         }
 
+        function markFieldset(fs, hasError) {
+            if (!fs) return;
+            fs.classList.add('border-slate-200');
+            fs.classList.remove('border-red-400', 'ring-4', 'ring-red-100');
+            if (hasError) {
+                fs.classList.remove('border-slate-200');
+                fs.classList.add('border-red-400', 'ring-4', 'ring-red-100');
+            }
+        }
+
+        function markBox(el, hasError) {
+            if (!el) return;
+            el.classList.remove('ring-4', 'ring-red-200');
+            if (hasError) el.classList.add('rounded-2xl', 'ring-4', 'ring-red-200');
+        }
+
+        // Marks are only shown AFTER the user tried to advance past a step
+        // (state.attempted), and they clear live as soon as the field is fixed.
         function validateStep(step) {
-            let ok = true;
+            if (!state.attempted[step]) return true;
 
             if (step === 1) {
-                const devErr = document.getElementById('deviceError');
-                const devGrid = document.getElementById('deviceGrid');
-                devErr.classList.add('hidden');
-                devGrid.style.border = '';
-                if (!state.device) {
-                    ok = false;
-                    devErr.textContent = 'Kies eerst een apparaat.';
-                    devErr.classList.remove('hidden');
-                    devGrid.style.border = '2px solid #ef4444';
-                }
+                const ok = Boolean(state.device);
+                markBox(deviceGrid, !ok);
+                document.getElementById('deviceError').classList.toggle('hidden', ok);
                 return ok;
             }
 
             if (step === 2) {
-                const probErr = document.getElementById('problemError');
-                const probGrid = document.getElementById('problemGrid');
-                probErr.classList.add('hidden');
-                probGrid.style.border = '';
-                if (state.problems.length === 0) {
-                    ok = false;
-                    probErr.textContent = 'Kies minimaal één probleem.';
-                    probErr.classList.remove('hidden');
-                    probGrid.style.border = '2px solid #ef4444';
-                }
+                let ok = true;
+
+                const problemsOk = state.problems.length > 0;
+                markBox(problemGrid, !problemsOk);
+                document.getElementById('problemError').classList.toggle('hidden', problemsOk);
+                if (!problemsOk) ok = false;
 
                 const desc = document.getElementById('description');
                 const descErr = document.getElementById('err-description');
-                clearInputError(desc, descErr);
-                if (!desc.value.trim()) {
-                    ok = false;
-                    markInputError(desc, descErr, 'Vul een beschrijving in van het probleem.');
-                }
+                const descOk = Boolean(desc.value.trim());
+                markInput(desc, !descOk);
+                descErr.textContent = 'Vul een beschrijving in van het probleem.';
+                descErr.classList.toggle('hidden', descOk);
+                if (!descOk) ok = false;
+
                 return ok;
             }
 
             if (step === 3) {
-                const brand = document.getElementById('brand');
-                const brandErr = document.getElementById('err-brand');
-                clearInputError(brand, brandErr);
-                if (!brand.value.trim()) {
-                    ok = false;
-                    markInputError(brand, brandErr, 'Vul het merk in.');
-                }
-                // Model is optional — no validation
+                let ok = true;
 
-                const dataFs = document.getElementById('fieldset-data_importance');
-                const dataErr = document.getElementById('err-data_importance');
-                const openedFs = document.getElementById('fieldset-opened_before');
-                const openedErr = document.getElementById('err-opened_before');
-                clearFieldsetError(dataFs, dataErr);
-                clearFieldsetError(openedFs, openedErr);
-                if (!document.querySelector('input[name="data_importance"]:checked')) {
-                    ok = false;
-                    markFieldsetError(dataFs, dataErr, 'Kies een optie bij "Belangrijke gegevens".');
-                }
-                if (!document.querySelector('input[name="opened_before"]:checked')) {
-                    ok = false;
-                    markFieldsetError(openedFs, openedErr, 'Kies een optie bij "Eerder geopend".');
-                }
+                const brandOk = Boolean(document.getElementById('brand').value.trim());
+                markInput(document.getElementById('brand'), !brandOk);
+                if (!brandOk) ok = false;
+
+                const dataOk = Boolean(document.querySelector('input[name="data_importance"]:checked'));
+                const openedOk = Boolean(document.querySelector('input[name="opened_before"]:checked'));
+                markFieldset(document.getElementById('fieldset-data_importance'), !dataOk);
+                markFieldset(document.getElementById('fieldset-opened_before'), !openedOk);
+
+                const error = document.getElementById('detailsError');
+                error.classList.toggle('hidden', ok);
+                if (!ok) error.textContent = 'Vul het merk in en maak bij beide vragen een keuze.';
                 return ok;
             }
 
             if (step === 4) {
-                const fields = [
-                    ['name', 'Vul je naam in.'],
-                    ['email', 'Vul je e-mailadres in.'],
-                    ['phone', 'Vul je telefoonnummer in.'],
-                    ['postcode', 'Vul je postcode in.']
-                ];
-                fields.forEach(function (pair) {
-                    const id = pair[0], msg = pair[1];
-                    const el = document.getElementById(id);
-                    const err = document.getElementById('err-' + id);
-                    clearInputError(el, err);
-                    if (!el.value.trim()) {
-                        ok = false;
-                        markInputError(el, err, msg);
-                    }
+                let valid = true;
+                let message = '';
+
+                ['name', 'email', 'phone', 'postcode'].forEach(id => {
+                    const field = document.getElementById(id);
+                    const fieldOk = Boolean(field.value.trim());
+                    markInput(field, !fieldOk);
+                    if (!fieldOk) valid = false;
                 });
 
                 const email = document.getElementById('email');
-                const emailErr = document.getElementById('err-email');
-                if (email.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
-                    ok = false;
-                    markInputError(email, emailErr, 'Vul een geldig e-mailadres in.');
+                if (email.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+                    markInput(email, true);
+                    valid = false;
+                    message = 'Vul een geldig e-mailadres in.';
                 }
 
-                const deliveryFs = document.getElementById('fieldset-delivery_method');
-                const deliveryErr = document.getElementById('err-delivery_method');
-                const contactFs = document.getElementById('fieldset-contact_preference');
-                const contactErr = document.getElementById('err-contact_preference');
-                clearFieldsetError(deliveryFs, deliveryErr);
-                clearFieldsetError(contactFs, contactErr);
-                if (!document.querySelector('input[name="delivery_method"]:checked')) {
-                    ok = false;
-                    markFieldsetError(deliveryFs, deliveryErr, 'Kies hoe je verder wilt.');
-                }
-                if (!document.querySelector('input[name="contact_preference"]:checked')) {
-                    ok = false;
-                    markFieldsetError(contactFs, contactErr, 'Kies je contactvoorkeur.');
-                }
+                const deliveryOk = Boolean(document.querySelector('input[name="delivery_method"]:checked'));
+                const contactOk = Boolean(document.querySelector('input[name="contact_preference"]:checked'));
+                markFieldset(document.getElementById('fieldset-delivery_method'), !deliveryOk);
+                markFieldset(document.getElementById('fieldset-contact_preference'), !contactOk);
+
+                const error = document.getElementById('contactError');
+                error.classList.toggle('hidden', valid);
+                if (!valid) error.textContent = message || 'Vul alle verplichte contactgegevens in en maak beide keuzes.';
+                return valid;
+            }
+
+            if (step === 5) {
+                const ok = document.getElementById('privacy').checked;
+                markBox(document.getElementById('privacyLabel'), !ok);
+                document.getElementById('privacyError').classList.toggle('hidden', ok);
                 return ok;
             }
 
@@ -1201,6 +1181,7 @@
 
         document.querySelectorAll('[data-next]').forEach(button => {
             button.addEventListener('click', () => {
+                state.attempted[state.currentStep] = true;
                 if (!validateStep(state.currentStep)) return;
 
                 if (state.currentStep === 4) buildSummary();
@@ -1213,6 +1194,11 @@
                 goToStep(Math.max(1, state.currentStep - 1));
             });
         });
+
+        // Live re-validation: once a step was attempted, its error marks clear
+        // the moment the user fixes the field (no page reload needed).
+        form.addEventListener('input', () => validateStep(state.currentStep));
+        form.addEventListener('change', () => validateStep(state.currentStep));
 
         function getRadioValue(name) {
             return document.querySelector(`input[name="${name}"]:checked`)?.value || 'Niet ingevuld';
@@ -1373,14 +1359,8 @@
 
             clearServerErrors();
 
-            if (!document.getElementById('privacy').checked) {
-                document.getElementById('privacyError').classList.remove('hidden');
-                goToStep(5);
-                return;
-            }
-            document.getElementById('privacyError').classList.add('hidden');
-
-            for (let s = 1; s <= 4; s++) {
+            for (let s = 1; s <= 5; s++) {
+                state.attempted[s] = true;
                 if (!validateStep(s)) {
                     goToStep(s);
                     return;
@@ -1441,60 +1421,56 @@
         });
 
         function clearServerErrors() {
-            ['deviceError','problemError','photoError','detailsError','contactError','privacyError',
-             'err-brand','err-model','err-name','err-email','err-phone','err-postcode','err-description',
-             'err-data_importance','err-opened_before','err-delivery_method','err-contact_preference']
+            ['deviceError','problemError','photoError','detailsError','contactError','privacyError','err-brand','err-model','err-name','err-email','err-phone','err-postcode','err-description']
                 .forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('hidden'); });
-            ['brand','model','name','email','phone','postcode','description']
-                .forEach(id => { const el = document.getElementById(id); if (el) { el.style.borderColor = ''; el.style.boxShadow = ''; } });
+            ['brand','model','name','email','phone','postcode']
+                .forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('border-red-400','ring-4','ring-red-100'); });
             ['fieldset-data_importance','fieldset-opened_before','fieldset-delivery_method','fieldset-contact_preference']
-                .forEach(id => { const el = document.getElementById(id); if (el) { el.style.borderColor = ''; el.style.boxShadow = ''; } });
-            ['deviceGrid','problemGrid']
-                .forEach(id => { const el = document.getElementById(id); if (el) el.style.border = ''; });
+                .forEach(id => { const el = document.getElementById(id); if (el) { el.classList.add('border-slate-200'); el.classList.remove('border-red-400','ring-4','ring-red-100'); } });
+            ['deviceGrid', 'problemGrid', 'privacyLabel']
+                .forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('ring-4', 'ring-red-200'); });
         }
 
         function showServerErrors(errors) {
-            const textFields = ['brand','model','name','email','phone','postcode','description'];
-            const radioFields = ['data_importance','opened_before','delivery_method','contact_preference'];
-            const genericMap = { device: 'deviceError', problems: 'problemError', photos: 'photoError', privacy: 'privacyError', serial: 'err-model' };
+            const map = {
+                device: 'deviceError',
+                problems: 'problemError',
+                description: 'err-description',
+                photos: 'photoError',
+                brand: 'err-brand',
+                model: 'err-model',
+                serial: 'err-model',
+                data_importance: 'detailsError',
+                opened_before: 'detailsError',
+                name: 'err-name',
+                email: 'err-email',
+                phone: 'err-phone',
+                postcode: 'err-postcode',
+                delivery_method: 'contactError',
+                contact_preference: 'contactError',
+                privacy: 'privacyError'
+            };
             const stepFor = { device:1, problems:2, description:2, photos:2, brand:3, model:3, serial:3, data_importance:3, opened_before:3, name:4, email:4, phone:4, postcode:4, delivery_method:4, contact_preference:4, privacy:5 };
             let earliest = 99;
 
             Object.keys(errors).forEach(key => {
                 const flat = key.replace(/\.\d+$/, '').replace(/\[\]$/, '');
+                const elId = map[flat] || map[key];
                 const msgs = errors[key];
                 const message = Array.isArray(msgs) ? msgs[0] : msgs;
 
-                if (textFields.includes(flat)) {
-                    const inp = document.getElementById(flat);
-                    const err = document.getElementById('err-' + flat);
-                    if (inp) { inp.style.borderColor = '#ef4444'; inp.style.boxShadow = '0 0 0 4px rgba(239,68,68,0.12)'; }
-                    if (err) { err.textContent = message; err.classList.remove('hidden'); }
-                } else if (radioFields.includes(flat)) {
-                    const fs = document.getElementById('fieldset-' + flat);
-                    const err = document.getElementById('err-' + flat);
-                    if (fs) { fs.style.borderColor = '#ef4444'; fs.style.boxShadow = '0 0 0 4px rgba(239,68,68,0.12)'; }
-                    if (err) { err.textContent = message; err.classList.remove('hidden'); }
-                    else {
-                        const box = document.getElementById(flat === 'data_importance' || flat === 'opened_before' ? 'detailsError' : 'contactError');
-                        if (box) { box.textContent = message; box.classList.remove('hidden'); }
-                    }
-                } else {
-                    const elId = genericMap[flat] || genericMap[key];
-                    if (elId) {
-                        const el = document.getElementById(elId);
-                        if (el) { el.textContent = message; el.classList.remove('hidden'); }
-                    }
-                    if (flat === 'device') {
-                        const g = document.getElementById('deviceGrid');
-                        if (g) g.style.border = '2px solid #ef4444';
-                    }
-                    if (flat === 'problems') {
-                        const g = document.getElementById('problemGrid');
-                        if (g) g.style.border = '2px solid #ef4444';
-                    }
+                if (elId) {
+                    const el = document.getElementById(elId);
+                    if (el) { el.textContent = message; el.classList.remove('hidden'); }
                 }
-
+                if (['brand','model','name','email','phone','postcode'].includes(flat)) {
+                    const inp = document.getElementById(flat);
+                    if (inp) inp.classList.add('border-red-400','ring-4','ring-red-100');
+                }
+                if (['data_importance','opened_before','delivery_method','contact_preference'].includes(flat)) {
+                    const fs = document.getElementById('fieldset-' + flat);
+                    if (fs) { fs.classList.remove('border-slate-200'); fs.classList.add('border-red-400','ring-4','ring-red-100'); }
+                }
                 if (stepFor[flat] && stepFor[flat] < earliest) earliest = stepFor[flat];
             });
 
@@ -1553,6 +1529,7 @@
 @include('landing.partials.footer')
 
 <script src="{{ asset('assets/js/vendor/jquery.min.js') }}"></script>
+<script src="{{ asset('assets/js/vendor/axios.min.js') }}"></script>
 <script src="{{ asset('assets/js/design.js') }}?v={{ filemtime(public_path('assets/js/design.js')) }}"></script>
 <script src="{{ asset('assets/js/landing.js') }}?v={{ filemtime(public_path('assets/js/landing.js')) }}"></script>
 </body>

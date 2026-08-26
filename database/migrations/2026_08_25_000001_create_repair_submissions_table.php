@@ -18,7 +18,7 @@ return new class extends Migration
             $table->text('problems'); // JSON array of problem ids/labels
             $table->text('description');
             $table->string('brand');
-            $table->string('model');
+            $table->string('model')->nullable();
             $table->string('serial')->nullable();
             $table->string('data_importance');
             $table->string('opened_before');
