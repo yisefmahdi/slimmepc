@@ -1181,11 +1181,13 @@
 
         document.querySelectorAll('[data-next]').forEach(button => {
             button.addEventListener('click', () => {
-                state.attempted[state.currentStep] = true;
-                if (!validateStep(state.currentStep)) return;
+                // Authoritative step = the section the clicked button lives in
+                const step = Number(button.closest('.step-panel').dataset.step);
+                state.attempted[step] = true;
+                if (!validateStep(step)) return;
 
-                if (state.currentStep === 4) buildSummary();
-                goToStep(Math.min(5, state.currentStep + 1));
+                if (step === 4) buildSummary();
+                goToStep(Math.min(5, step + 1));
             });
         });
 
