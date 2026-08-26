@@ -212,9 +212,9 @@
                 <h3 class="mb-3 mt-6 text-sm font-black" style="color: var(--c-heading)">Foto's</h3>
                 <div class="grid grid-cols-3 gap-3 sm:grid-cols-4">
                     ${photos.map(p => `
-                        <a href="${p.url}" target="_blank" class="block overflow-hidden rounded-xl border" style="border-color: rgba(148,163,184,0.25)">
-                            <img src="${p.url}" alt="" class="aspect-square w-full object-cover">
-                        </a>`).join('')}
+                        <button type="button" class="repair-photo-zoom block overflow-hidden rounded-xl border" data-zoom-src="${p.url}" style="border-color: rgba(148,163,184,0.25); cursor:zoom-in; padding:0">
+                            <img src="${p.url}" alt="Foto" class="aspect-square w-full object-cover">
+                        </button>`).join('')}
                 </div>`;
         }
 
@@ -297,6 +297,39 @@
         openModal('repairDeleteModal');
     });
     deleteConfirmBtn.addEventListener('click', confirmDelete);
+
+    // Photo lightbox
+    const lightbox = document.getElementById('repairPhotoLightbox');
+    const lightboxImg = document.getElementById('repairPhotoImg');
+
+    function openLightbox(src) {
+        lightboxImg.src = src;
+        lightbox.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+    function closeLightbox() {
+        lightbox.style.display = 'none';
+        lightboxImg.src = '';
+        document.body.style.overflow = '';
+    }
+
+    lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox || e.target.id === 'repairPhotoClose') {
+            closeLightbox();
+        }
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && lightbox.style.display === 'flex') {
+            closeLightbox();
+        }
+    });
+
+    document.addEventListener('click', (e) => {
+        const zoomBtn = e.target.closest('.repair-photo-zoom');
+        if (zoomBtn) {
+            openLightbox(zoomBtn.getAttribute('data-zoom-src'));
+        }
+    });
 
     load();
 })();

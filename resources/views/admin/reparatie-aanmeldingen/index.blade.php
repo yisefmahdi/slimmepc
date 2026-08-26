@@ -138,5 +138,16 @@
         </x-slot>
     </x-admin.modal>
 
+    {{-- Photo lightbox --}}
+    <div id="repairPhotoLightbox" role="dialog" aria-modal="true" style="display:none; position:fixed; inset:0; z-index:100; align-items:center; justify-content:center; background:rgba(0,0,0,0.85); padding:1rem;">
+        <button type="button" id="repairPhotoClose" title="Sluiten (Esc)"
+                style="position:absolute; top:1rem; right:1rem; height:2.75rem; width:2.75rem; border-radius:9999px; background:rgba(255,255,255,0.12); color:#fff; display:flex; align-items:center; justify-content:center; border:none; cursor:pointer; transition:background .2s">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="height:1.5rem; width:1.5rem">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
+        </button>
+        <img id="repairPhotoImg" src="" alt="" style="max-height:90vh; max-width:95vw; border-radius:0.75rem; object-fit:contain; box-shadow:0 25px 50px rgba(0,0,0,0.5)">
+    </div>
+
     <script src="{{ asset('assets/js/admin/reparatie-aanmeldingen.js') }}?v={{ filemtime(public_path('assets/js/admin/reparatie-aanmeldingen.js')) }}"></script>
 </x-admin.layout>
