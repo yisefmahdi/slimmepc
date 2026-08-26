@@ -1378,9 +1378,50 @@
             }
 
             const submitButton = document.getElementById('submitButton');
-            const originalLabel = submitButton.querySelector('span').textContent;
+            const btnLabel = submitButton.querySelector('span');
+            const btnIcon = submitButton.querySelector('i');
+            const originalLabel = btnLabel.textContent;
+
+            // Inject a self-contained spinner keyframe once
+            if (!document.getElementById('repairSpinKeyframes')) {
+                const style = document.createElement('style');
+                style.id = 'repairSpinKeyframes';
+                style.textContent = '@keyframes repairSpin{to{transform:rotate(360deg)}}';
+                document.head.appendChild(style);
+            }
+
+            // Loading state (spinner + disabled) like the login button
             submitButton.disabled = true;
-            submitButton.querySelector('span').textContent = 'Aanvraag verzenden...';
+            submitButton.classList.add('cursor-wait');
+            const spinner = document.createElement('span');
+            spinner.id = 'repairSubmitSpinner';
+            spinner.setAttribute('aria-hidden', 'true');
+            spinner.style.cssText = 'display:inline-block;width:1.05rem;height:1.05rem;border:2px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;animation:repairSpin .7s linear infinite;margin-right:.5rem;vertical-align:-2px';
+            submitButton.insertBefore(spinner, btnLabel);
+            if (btnIcon) btnIcon.style.display = 'none';
+
+            // Cycle through friendly status messages every 2s so the wait feels alive
+            const loadingMessages = [
+                'Bezig met verzenden…',
+                'Gegevens worden gecontroleerd…',
+                'Aanvraag wordt geregistreerd…'
+            ];
+            let msgIndex = 0;
+            btnLabel.textContent = loadingMessages[0];
+            const msgTimer = setInterval(() => {
+                msgIndex = (msgIndex + 1) % loadingMessages.length;
+                btnLabel.textContent = loadingMessages[msgIndex];
+            }, 2000);
+
+            const stopLoading = () => {
+                clearInterval(msgTimer);
+                const sp = document.getElementById('repairSubmitSpinner');
+                if (sp) sp.remove();
+                if (btnIcon) btnIcon.style.display = '';
+                btnLabel.textContent = originalLabel;
+                submitButton.disabled = false;
+                submitButton.classList.remove('cursor-wait');
+            };
 
             const fd = new FormData(form);
             fd.delete('photos[]');
@@ -1425,8 +1466,7 @@
                     }
                 })
                 .finally(() => {
-                    submitButton.disabled = false;
-                    submitButton.querySelector('span').textContent = originalLabel;
+                    stopLoading();
                 });
         });
 
