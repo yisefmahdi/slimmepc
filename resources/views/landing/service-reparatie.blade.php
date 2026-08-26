@@ -389,7 +389,7 @@
                                     <p id="err-brand" class="mt-2 hidden text-xs font-semibold text-red-600"></p>
                                 </div>
                                 <div>
-                                    <label for="model" class="mb-2 block text-sm font-bold text-slate-800">Model *</label>
+                                    <label for="model" class="mb-2 block text-sm font-bold text-slate-800">Model <span class="font-normal text-slate-400">— optioneel</span></label>
                                     <input id="model" name="model" type="text" placeholder="Bijv. MacBook Pro A2338"
                                            class="field w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slimme-500 focus:ring-4 focus:ring-blue-100">
                                     <p id="err-model" class="mt-2 hidden text-xs font-semibold text-red-600"></p>
@@ -530,7 +530,7 @@
                         </div>
 
                         <div class="mt-5 grid gap-5 xl:grid-cols-2">
-                            <fieldset class="rounded-[24px] border border-slate-200 p-5">
+                            <fieldset id="fieldset-delivery_method" class="rounded-[24px] border border-slate-200 p-5">
                                 <legend class="px-2 text-sm font-black text-slate-900">Hoe wil je verder?</legend>
 
                                 <div class="mt-3 space-y-2">
@@ -569,7 +569,7 @@
                                 </div>
                             </fieldset>
 
-                            <fieldset class="rounded-[24px] border border-slate-200 p-5">
+                            <fieldset id="fieldset-contact_preference" class="rounded-[24px] border border-slate-200 p-5">
                                 <legend class="px-2 text-sm font-black text-slate-900">Voorkeur voor contact</legend>
 
                                 <div class="mt-3 grid gap-2">
@@ -1092,27 +1092,33 @@
             }
 
             if (step === 3) {
-                const deviceFields = [
-                    document.getElementById('brand'),
-                    document.getElementById('model')
-                ];
+                const brand = document.getElementById('brand');
+                const model = document.getElementById('model');
+                brand.classList.remove('border-red-400', 'ring-4', 'ring-red-100');
+                model.classList.remove('border-red-400', 'ring-4', 'ring-red-100');
                 let valid = true;
 
-                deviceFields.forEach(field => {
-                    field.classList.remove('border-red-400', 'ring-4', 'ring-red-100');
-                    if (!field.value.trim()) {
-                        valid = false;
-                        field.classList.add('border-red-400', 'ring-4', 'ring-red-100');
-                    }
-                });
+                if (!brand.value.trim()) {
+                    valid = false;
+                    brand.classList.add('border-red-400', 'ring-4', 'ring-red-100');
+                }
+                // Model is optional — no validation
+
+                const dataFs = document.getElementById('fieldset-data_importance');
+                const openedFs = document.getElementById('fieldset-opened_before');
+                dataFs.classList.add('border-slate-200');
+                dataFs.classList.remove('border-red-400', 'ring-4', 'ring-red-100');
+                openedFs.classList.add('border-slate-200');
+                openedFs.classList.remove('border-red-400', 'ring-4', 'ring-red-100');
 
                 const data = document.querySelector('input[name="data_importance"]:checked');
                 const opened = document.querySelector('input[name="opened_before"]:checked');
-                if (!data || !opened) valid = false;
+                if (!data) { valid = false; dataFs.classList.remove('border-slate-200'); dataFs.classList.add('border-red-400', 'ring-4', 'ring-red-100'); }
+                if (!opened) { valid = false; openedFs.classList.remove('border-slate-200'); openedFs.classList.add('border-red-400', 'ring-4', 'ring-red-100'); }
 
                 const error = document.getElementById('detailsError');
                 if (!valid) {
-                    error.textContent = 'Vul merk en model in en maak bij beide vragen een keuze.';
+                    error.textContent = 'Vul het merk in en maak bij beide vragen een keuze.';
                     error.classList.remove('hidden');
                     return false;
                 }
@@ -1144,9 +1150,17 @@
                     message = 'Vul een geldig e-mailadres in.';
                 }
 
+                const deliveryFs = document.getElementById('fieldset-delivery_method');
+                const contactFs = document.getElementById('fieldset-contact_preference');
+                deliveryFs.classList.add('border-slate-200');
+                deliveryFs.classList.remove('border-red-400', 'ring-4', 'ring-red-100');
+                contactFs.classList.add('border-slate-200');
+                contactFs.classList.remove('border-red-400', 'ring-4', 'ring-red-100');
+
                 const delivery = document.querySelector('input[name="delivery_method"]:checked');
                 const contact = document.querySelector('input[name="contact_preference"]:checked');
-                if (!delivery || !contact) valid = false;
+                if (!delivery) { valid = false; deliveryFs.classList.remove('border-slate-200'); deliveryFs.classList.add('border-red-400', 'ring-4', 'ring-red-100'); }
+                if (!contact) { valid = false; contactFs.classList.remove('border-slate-200'); contactFs.classList.add('border-red-400', 'ring-4', 'ring-red-100'); }
 
                 const error = document.getElementById('contactError');
                 if (!valid) {
@@ -1406,7 +1420,7 @@
                 .forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('hidden'); });
             ['brand','model','name','email','phone','postcode']
                 .forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('border-red-400','ring-4','ring-red-100'); });
-            ['fieldset-data_importance','fieldset-opened_before']
+            ['fieldset-data_importance','fieldset-opened_before','fieldset-delivery_method','fieldset-contact_preference']
                 .forEach(id => { const el = document.getElementById(id); if (el) { el.classList.add('border-slate-200'); el.classList.remove('border-red-400','ring-4','ring-red-100'); } });
         }
 
@@ -1446,7 +1460,7 @@
                     const inp = document.getElementById(flat);
                     if (inp) inp.classList.add('border-red-400','ring-4','ring-red-100');
                 }
-                if (flat === 'data_importance' || flat === 'opened_before') {
+                if (['data_importance','opened_before','delivery_method','contact_preference'].includes(flat)) {
                     const fs = document.getElementById('fieldset-' + flat);
                     if (fs) { fs.classList.remove('border-slate-200'); fs.classList.add('border-red-400','ring-4','ring-red-100'); }
                 }
