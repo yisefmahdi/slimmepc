@@ -407,7 +407,7 @@
                         <div class="mt-5 grid gap-5 xl:grid-cols-2">
                             <fieldset id="fieldset-data_importance" class="rounded-[24px] border border-slate-200 p-5">
                                 <legend class="px-2 text-sm font-black text-slate-900">
-                                    Staan er belangrijke gegevens op?
+                                    Staan er belangrijke gegevens op? <span class="text-red-500">*</span>
                                 </legend>
 
                                 <div class="mt-3 space-y-2">
@@ -437,7 +437,7 @@
 
                             <fieldset id="fieldset-opened_before" class="rounded-[24px] border border-slate-200 p-5">
                                 <legend class="px-2 text-sm font-black text-slate-900">
-                                    Eerder geopend of gerepareerd?
+                                    Eerder geopend of gerepareerd? <span class="text-red-500">*</span>
                                 </legend>
 
                                 <div class="mt-3 space-y-2">
@@ -531,7 +531,7 @@
 
                         <div class="mt-5 grid gap-5 xl:grid-cols-2">
                             <fieldset id="fieldset-delivery_method" class="rounded-[24px] border border-slate-200 p-5">
-                                <legend class="px-2 text-sm font-black text-slate-900">Hoe wil je verder?</legend>
+                                <legend class="px-2 text-sm font-black text-slate-900">Hoe wil je verder? <span class="text-red-500">*</span></legend>
 
                                 <div class="mt-3 space-y-2">
                                     <div>
@@ -570,7 +570,7 @@
                             </fieldset>
 
                             <fieldset id="fieldset-contact_preference" class="rounded-[24px] border border-slate-200 p-5">
-                                <legend class="px-2 text-sm font-black text-slate-900">Voorkeur voor contact</legend>
+                                <legend class="px-2 text-sm font-black text-slate-900">Voorkeur voor contact <span class="text-red-500">*</span></legend>
 
                                 <div class="mt-3 grid gap-2">
                                     <div>
@@ -1093,6 +1093,10 @@
 
         // Marks are only shown AFTER the user tried to advance past a step
         // (state.attempted), and they clear live as soon as the field is fixed.
+        // Radio checks are scoped to THIS form only — never the whole document,
+        // so stray/duplicate inputs elsewhere can never satisfy them.
+        const radioCheckedInForm = (name) => Boolean(form.querySelector(`input[name="${name}"]:checked`));
+
         function validateStep(step) {
             if (!state.attempted[step]) return true;
 
@@ -1129,8 +1133,8 @@
                 markInput(document.getElementById('brand'), !brandOk);
                 if (!brandOk) ok = false;
 
-                const dataOk = Boolean(document.querySelector('input[name="data_importance"]:checked'));
-                const openedOk = Boolean(document.querySelector('input[name="opened_before"]:checked'));
+                const dataOk = radioCheckedInForm('data_importance');
+                const openedOk = radioCheckedInForm('opened_before');
                 markFieldset(document.getElementById('fieldset-data_importance'), !dataOk);
                 markFieldset(document.getElementById('fieldset-opened_before'), !openedOk);
 
@@ -1158,8 +1162,8 @@
                     message = 'Vul een geldig e-mailadres in.';
                 }
 
-                const deliveryOk = Boolean(document.querySelector('input[name="delivery_method"]:checked'));
-                const contactOk = Boolean(document.querySelector('input[name="contact_preference"]:checked'));
+                const deliveryOk = radioCheckedInForm('delivery_method');
+                const contactOk = radioCheckedInForm('contact_preference');
                 markFieldset(document.getElementById('fieldset-delivery_method'), !deliveryOk);
                 markFieldset(document.getElementById('fieldset-contact_preference'), !contactOk);
 
@@ -1203,7 +1207,7 @@
         form.addEventListener('change', () => validateStep(state.currentStep));
 
         function getRadioValue(name) {
-            return document.querySelector(`input[name="${name}"]:checked`)?.value || 'Niet ingevuld';
+            return form.querySelector(`input[name="${name}"]:checked`)?.value || 'Niet ingevuld';
         }
 
         function buildSummary() {
@@ -1525,6 +1529,7 @@
 
         renderDevices();
         updateProgress();
+        console.info('[repair-form] JS v6 loaded — radios/checkbox validation active');
     });
 </script>
 
