@@ -407,6 +407,49 @@
 
 
 
+                {{-- Afspraak aan huis Dropdown --}}
+                <div x-data="{ open: {{ (request()->routeIs('admin.afspraak-aanvragen.*') || (request()->routeIs('admin.content.section.edit') && request()->route('page') === 'afspraak')) ? 'true' : 'false' }}, init() { if (localStorage.getItem('nav-afspraak') !== null) { this.open = localStorage.getItem('nav-afspraak') === '1'; } }, toggle() { this.open = !this.open; localStorage.setItem('nav-afspraak', this.open ? '1' : '0'); } }" class="space-y-1">
+                    @php
+                        $afspraakNewCount = \App\Models\AfspraakSubmission::where('status', 'new')->count();
+                        $afspraakPage = config('cms.pages.afspraak');
+                        $afspraakSections = $afspraakPage['sections'] ?? [];
+                    @endphp
+                    <button type="button" @click="toggle()"
+                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
+                            style="color: rgba(255,255,255,0.95)">
+                        <span class="flex items-center gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                                <path d="M16 2v4M8 2v4M3 10h18"></path>
+                                <path d="M9 16l2 2 4-4"></path>
+                            </svg>
+                            <span>Afspraak</span>
+                        </span>
+                        <svg class="h-4 w-4 transition-transform" :class="open ? 'rotate-180' : ''" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path d="M6 9l6 6 6-6"></path>
+                        </svg>
+                    </button>
+                    <div x-show="open" x-cloak x-transition class="ml-6 space-y-1.5 border-l-2 border-white/30 pl-4 py-1 text-xs">
+                        <a href="{{ route('admin.afspraak-aanvragen.index') }}"
+                           class="flex items-center justify-between gap-2 rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.afspraak-aanvragen.*') ? 'bg-white/10 font-bold text-white shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            <span class="flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path d="M22 12h-6l-2 3h-4l-2-3H2"></path>
+                                    <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
+                                </svg>
+                                Aanvragen
+                            </span>
+                            <span id="sidebarAfspraakBadge" class="{{ $afspraakNewCount > 0 ? '' : 'hidden' }} inline-flex min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm">{{ min($afspraakNewCount, 99) }}</span>
+                        </a>
+                        @foreach ($afspraakSections as $sectionKey => $sectionCfg)
+                            <a href="{{ route('admin.content.section.edit', ['page' => 'afspraak', 'section' => $sectionKey]) }}"
+                               class="block rounded-lg px-3 py-2 transition {{ (request()->routeIs('admin.content.section.edit') && request()->route('page') === 'afspraak' && request()->route('section') === $sectionKey) ? 'bg-white/15 font-bold text-white' : 'text-white hover:bg-white/10 hover:text-white' }}">
+                                {{ $sectionCfg['label'] ?? $sectionKey }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+
                 {{-- 11. Users-beheren Dropdown (Active: Klanten) --}}
                 <div x-data="{ open: {{ request()->routeIs('admin.users.*') ? 'true' : 'false' }} }" class="space-y-1">
                     <button type="button" @click="open = !open"

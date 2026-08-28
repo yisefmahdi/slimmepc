@@ -2010,6 +2010,61 @@ return [
         'netwerk' => ['label' => 'Netwerkoplossingen', 'sections' => $netwerkSectionDef],
         'console' => ['label' => 'Playstation / Xbox', 'sections' => $consoleSectionDef],
         'reparatie' => ['label' => 'Reparatie aanmelden', 'sections' => $reparatieSectionDef],
+        'afspraak' => ['label' => 'Afspraak aan huis', 'sections' => [
+            'hero' => [
+                'label' => 'Hero',
+                'blocks' => [
+                    'badge' => ['label' => 'Badge', 'type' => 'text'],
+                    'title1' => ['label' => 'Titel', 'type' => 'text'],
+                    'subtitle' => ['label' => 'Ondertitel', 'type' => 'textarea'],
+                    'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+                    'hero_image' => ['label' => 'Hero afbeelding', 'type' => 'image'],
+                    'hero_image_alt' => ['label' => 'Hero afbeelding alt', 'type' => 'text'],
+                    'benefits' => [
+                        'label' => 'Hero voordelen',
+                        'type' => 'json',
+                        'columns' => 1,
+                        'fields' => [
+                            ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                            ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                            ['key' => 'text', 'label' => 'Tekst', 'type' => 'text'],
+                        ],
+                    ],
+                ],
+            ],
+            'help' => [
+                'label' => 'Waar kunnen we mee helpen?',
+                'blocks' => [
+                    'heading' => ['label' => 'Kop', 'type' => 'text'],
+                    'subtitle' => ['label' => 'Ondertitel', 'type' => 'textarea'],
+                    'devices' => [
+                        'label' => 'Apparaten',
+                        'type' => 'json',
+                        'columns' => 2,
+                        'fields' => [
+                            ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                            ['key' => 'label', 'label' => 'Naam', 'type' => 'text'],
+                        ],
+                    ],
+                ],
+            ],
+            'benefits' => [
+                'label' => 'Voordelen',
+                'blocks' => [
+                    'heading' => ['label' => 'Kop', 'type' => 'text'],
+                    'items' => [
+                        'label' => 'Voordelen',
+                        'type' => 'json',
+                        'columns' => 2,
+                        'fields' => [
+                            ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                            ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                            ['key' => 'description', 'label' => 'Beschrijving', 'type' => 'text'],
+                        ],
+                    ],
+                ],
+            ],
+        ]],
     ],
 
     /*

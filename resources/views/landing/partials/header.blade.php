@@ -252,6 +252,11 @@
                         <i data-lucide="clipboard-list" class="h-5 w-5"></i>
                         Reparatie aanmelden
                     </a>
+
+                    <a href="{{ url('/afspraak') }}" class="mt-2 flex items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-brand-700">
+                        <i data-lucide="calendar-check" class="h-5 w-5"></i>
+                        Afspraak aan huis
+                    </a>
                 </div>
             </div>
 

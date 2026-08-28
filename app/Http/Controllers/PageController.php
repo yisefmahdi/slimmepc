@@ -135,6 +135,22 @@ class PageController extends Controller
             ->header('Pragma', 'no-cache');
     }
 
+    /**
+     * Afspraak aan huis page.
+     */
+    public function afspraak()
+    {
+        $c = Cms::page('home');
+        $s = Cms::page('afspraak');
+
+        $html = view('landing.service-afspraak', compact('c', 's'))->render();
+
+        return response($html)
+            ->header('Content-Type', 'text/html; charset=UTF-8')
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache');
+    }
+
     public function service(string $slug)
     {
         $map = config('cms.service_slugs', []);

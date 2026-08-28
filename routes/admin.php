@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\ContactInboxController;
 use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\Admin\KlantController;
 use App\Http\Controllers\Admin\RepairInboxController;
+use App\Http\Controllers\Admin\AfspraakInboxController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')
@@ -137,6 +138,18 @@ Route::prefix('admin')
 
                 Route::delete('/{repairSubmission}', [RepairInboxController::class, 'destroy'])
                     ->name('destroy');
+            });
+
+        // Afspraak aan huis (afspraak aanvragen)
+        Route::prefix('afspraak-aanvragen')
+            ->name('afspraak-aanvragen.')
+            ->group(function () {
+                Route::get('/', [AfspraakInboxController::class, 'index'])->name('index');
+                Route::get('/data', [AfspraakInboxController::class, 'data'])->name('data');
+                Route::get('/new-count', [AfspraakInboxController::class, 'newCount'])->name('new-count');
+                Route::get('/{afspraakSubmission}', [AfspraakInboxController::class, 'show'])->name('show');
+                Route::post('/{afspraakSubmission}/status', [AfspraakInboxController::class, 'status'])->name('status');
+                Route::delete('/{afspraakSubmission}', [AfspraakInboxController::class, 'destroy'])->name('destroy');
             });
     });
 
