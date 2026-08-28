@@ -533,6 +533,7 @@
         try {
             const res = await fetch('{{ route('afspraak.submit') }}', {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
@@ -540,7 +541,7 @@
                 },
                 body: JSON.stringify(json),
             });
-            const data = await res.json();
+            const data = await res.json().catch(() => ({}));
             clearInterval(msgTimer);
 
             if (res.ok && data.success) {
@@ -549,15 +550,52 @@
                 const numEl = document.getElementById('afspraakNumber');
                 if (numEl) numEl.textContent = data.afspraak_number;
                 if (window.__lucideRefresh) window.__lucideRefresh();
-            } else {
-                throw new Error(data.message || 'Er ging iets mis.');
+                return;
             }
+
+            // Validation errors (422) — show field errors
+            if (res.status === 422 && data.errors) {
+                const firstField = Object.keys(data.errors)[0];
+                const firstMsg = data.errors[firstField]?.[0] || data.message || 'Controleer de gemarkeerde velden.';
+                // clear previous inline errors
+                form.querySelectorAll('.field-error').forEach(el => el.remove());
+                form.querySelectorAll('.field').forEach(el => el.classList.remove('!border-red-500'));
+                Object.entries(data.errors).forEach(([field, msgs]) => {
+                    const input = form.querySelector(`[name="${field}"]`);
+                    if (input) {
+                        input.classList.add('!border-red-500');
+                        const err = document.createElement('p');
+                        err.className = 'field-error mt-1 text-xs font-semibold text-red-600';
+                        err.textContent = msgs[0];
+                        input.insertAdjacentElement('afterend', err);
+                    }
+                });
+                if (firstField) {
+                    const firstInput = form.querySelector(`[name="${firstField}"]`);
+                    if (firstInput) firstInput.focus();
+                }
+                throw new Error(firstMsg);
+            }
+
+            if (res.status === 419) {
+                throw new Error('Sessie verlopen. Vernieuw de pagina en probeer het opnieuw.');
+            }
+
+            throw new Error(data.message || 'Er ging iets mis. Probeer het opnieuw.');
         } catch (err) {
             clearInterval(msgTimer);
             if (btn) btn.disabled = false;
             if (btnSpinner) btnSpinner.classList.add('hidden');
             if (btnLabel) btnLabel.textContent = 'Afspraak aanvragen';
-            alert(err.message || 'Er ging iets mis. Probeer het opnieuw.');
+            // don't double-alert if we already showed inline errors for 422
+            if (err.message && !document.querySelector('.field-error')) {
+                alert(err.message);
+            } else if (err.message && document.querySelector('.field-error')) {
+                // also show toast for 422 first error
+                console.warn('Validation:', err.message);
+            } else if (!document.querySelector('.field-error')) {
+                alert('Er ging iets mis. Probeer het opnieuw.');
+            }
         }
     });
     }
