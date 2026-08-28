@@ -762,3 +762,63 @@ esize-none, so long replies were clipped inside a box that never grew — it rea
 - [2026-08-25] — **Reparatie-aanmelden: full working flow (wizard + backend + admin inbox)**. Standalone `landing/service-reparatie.blade.php` (5-step wizard from `step-2/Reparatie-aanmelden.html`): apparaat → probleem + foto's → apparaatgegevens → contact & voorkeur → controle, with a success screen showing the `Aanmeldnummer`. Backend: `repair_submissions` table + `RepairSubmission` model, `StoreRepairSubmissionRequest` (Dutch, honeypot `website`, all required except `serial`/photos) + `RepairController@submit` (CSRF + `throttle:5,1`, stores ≤5 photos to `repair/{id}/`, queues `RepairReceived` + `AdminRepairNotification` with `+reply-repair-{id}` Reply-To, returns 201 `{message, repair_number}` = `SP-YYYY-#####`). Frontend `#repairForm` wired with `@csrf` + `fetch` + per-field red errors returning to the earliest invalid step. Admin inbox (`admin.reparatie-aanmeldingen.*`, 8 routes) under the Diensten dropdown with list/search/status(`new`/`in_progress`/`completed`)/detail/delete + photo streaming, plus a dashboard "Reparaties" stat + recent-repairs table. See the "Plan: Reparatie aanmelden" section for the full breakdown. Deployment needs `MAIL_*` (Gmail SMTP) + `CONTACT_NOTIFY_EMAIL` in `.env`.
 
 - [2026-08-25] — **Admin Diensten dropdown: Reparatie aanmelden first + Aanmeldingen link**: in `components/admin/layout.blade.php` the "Reparatie aanmelden" block is listed first under Diensten (sections editor link) and now also contains an **"Aanmeldingen"** link → `admin.reparatie-aanmeldingen.index` (opens the dropdown when active, red new-count badge from `RepairSubmission::where('status','new')->count()`).
+
+---
+
+## 15. Afspraak aan huis feature (added 2026-08-28)
+
+### Overview
+Standalone CMS page `/afspraak` ("Afspraak aan huis") where customers book an in-home appointment. **The page design matches `D:\sm 2026\slimmepc2026nieuwe\afspraak.html` exactly** (user requirement), while **the form controls — inputs, textarea, select, red validation errors, buttons and loading UX — reuse the reparatie form style** (user requirement: "الفورم خليه الخي زي الانبوت الحقول التكست اريا والاخطاء تضوي احمر الازرار كلها نفس التصميم لودنق"). Backend stores submissions and notifies both the customer and the admin; the admin gets an inbox under a new "Afspraak" sidebar dropdown.
+
+### Routes (`routes/web.php`)
+- `GET /afspraak` → `PageController::afspraak`
+- `POST /afspraak/submit` → `AfspraakController::submit` (CSRF + `throttle:5,1`)
+
+### Routes (`routes/admin.php`) — `admin.afspraak-aanvragen.*` (middleware `auth`)
+- `GET index` → `AfspraakInboxController::index` (list + filters + counts)
+- `GET data` → `AfspraakInboxController::data` (DataTables JSON, returns `counts` for sidebar badge)
+- `GET new-count` → `AfspraakInboxController::newCount`
+- `GET show/{id}` → `AfspraakInboxController::show` (detail drawer/modal)
+- `POST status/{id}` → `AfspraakInboxController::status` (`new` / `contacted` / `planned` / `completed` / `cancelled`)
+- `DELETE destroy/{id}` → `AfspraakInboxController::destroy`
+
+### Database
+- `afspraak_submissions` table (migration `2026_08_28_000001_create_afspraak_submissions_table.php`): `id`, `afspraak_number` (unique, `AF-YYYY-#####`), `name`, `email`, `phone`, `address`, `postcode`, `city`, `device` (plain text — **no FK**, per user), `service_type` (`in:[Computer / Laptop reparatie, iMac / Mac reparatie, Printer / Netwerk, Data recovery, Onderhoud & upgrade]`), `preferred_date` (date), `preferred_time` (`in:[09:00 - 11:00, 11:00 - 13:00, 13:00 - 15:00, 15:00 - 17:00, 17:00 - 19:00]`), `message` (textarea, nullable), `status` (enum default `new`), `ip_address`, `created_at` / `updated_at`.
+- `app/Models/AfspraakSubmission.php`: fillable + casts (`preferred_date` → date, `status` → enum cast), `scopeNew()`.
+
+### CMS content
+- `config/cms.php` `pages.afspraak` (standalone — **NOT** in `service_slugs`): `sections` = `hero`, `help` (2 cards "Waar kunnen we mee helpen?"), `benefits` with `benefits` (text cards), `devices` (4 device cards: Computer/Laptop, iMac/Mac, Printer/Netwerk, Data/Backup — lucide icons, editable image/icon/title/text) and `items` (bottom 3 benefit items).
+- `database/data/afspraak.php` (defaults) + `database/seeders/AfspraakContentSeeder.php` (`firstOrCreate`, safe — `ContentBlock::firstOrCreate`), 12 blocks.
+
+### Controllers / Requests / Mail
+- `app/Http/Controllers/AfspraakController.php`: `submit` validates via `StoreAfspraakSubmissionRequest`, generates `AF-YYYY-#####` (locks table, `whereYear`), stores row, `afterResponse` queues `AfspraakReceived` (customer) + `AdminAfspraakNotification` (to `config('contact-inbox.notify_email')`, `replyTo` = customer), returns `201 {message, afspraak_number}`.
+- `app/Http/Requests/StoreAfspraakSubmissionRequest.php`: Dutch messages; `device` is **plain string** (no `in:`); `preferred_time` `in:[...]`; `message` nullable; **NO privacy checkbox** (per user); protection = CSRF + throttle only.
+- `app/Http/Controllers/Admin/AfspraakInboxController.php`: `index` / `data` (returns `counts`) / `newCount` / `show` / `status` / `destroy`.
+- `app/Mail/AfspraakReceived.php` + `app/Mail/AdminAfspraakNotification.php`; templates `resources/views/emails/afspraak-received.blade.php` + `admin-afspraak-notification.blade.php`.
+
+### Views
+- `resources/views/landing/service-afspraak.blade.php`:
+  - `@include('landing.partials.header')`. Tailwind config CDN with BOTH palettes: `brand` (`#0759f5` / `#1264ff`, from afspraak.html) and `slimme` (reparatie), plus `boxShadow.soft/card/blue`.
+  - **Page design = afspraak.html exact**: hero (badge "Direct een afspraak" + heading "Afspraak aan huis" + subtext + CTA + stats), "Waar kunnen we mee helpen?" 2 cards, benefits section, device cards from CMS (`devices`), bottom 3 benefit items — markup/copy mirror afspraak.html. Hero benefits + bottom benefits use hardcoded inline SVGs (matching afspraak.html) with CMS text fallbacks.
+  - **Form = reparatie style**: `@csrf` form `#afspraakForm` with `field`-class inputs (name/email/phone/address/postcode/city), `device` text input, `service_type` select, `preferred_date` date input, `preferred_time` select, `message` textarea. `.field:user-invalid` adds a red border; server errors render red. Submit button `#afspraakSubmitBtn` shows an inline spinner cycling NL messages (`Bezig met verzenden…` / `Gegevens worden gecontroleerd…` / `Afspraak wordt ingepland…`); on `201` shows a success screen with the `AF-YYYY-#####` number. Vendored lucide (`assets/js/vendor/lucide.min.js`) + `window.__lucideRefresh()`.
+  - **NO privacy checkbox** (per user).
+- `resources/views/admin/afspraak-aanvragen/index.blade.php` + `public/assets/js/admin/afspraak-aanvragen.js`: admin inbox mirroring the reparatie inbox (list / search / status / filters / detail drawer / delete) minus photos; refresh badge `#sidebarAfspraakBadge`.
+
+### Sidebar / Header
+- `resources/views/components/admin/layout.blade.php`: new "Afspraak" sidebar dropdown with "Aanvragen" → `admin.afspraak-aanvragen.index` (red new-count badge from `AfspraakSubmission::where('status','new')->count()`) + section-editor links (Hero / Waar kunnen we mee helpen? / Voordelen).
+- `resources/views/landing/partials/header.blade.php`: desktop Diensten dropdown gained an "Afspraak aan huis" link → `/afspraak` (~line 251). Mobile menu already linked.
+- Home hero "Afspraak maken" button → `/afspraak` already present in `ContentBlockSeeder` (line ~55).
+
+### Email / env
+- Requires `MAIL_*` (Gmail SMTP) + `CONTACT_NOTIFY_EMAIL` in `.env` (customer copy + admin notification).
+
+### Verification (local, 2026-08-28)
+- `php -l` clean on all new PHP; `route:list` lists afspraak routes; `migrate` created `afspraak_submissions`; `AfspraakContentSeeder` created 12 blocks; `GET /afspraak` → 200; `POST /afspraak/submit` (with session) → 201 `{afspraak_number: AF-2026-00001}` (test row deleted); `GET /admin/afspraak-aanvragen` → 302 (login redirect, compiles fine).
+
+---
+
+- [2026-08-28] — **Afspraak aan huis feature (full)**: new standalone CMS page `/afspraak` whose design matches `afspraak.html` exactly with reparatie-style form controls (red errors, loading UX, no privacy checkbox). Backend = `afspraak_submissions` table + `AfspraakSubmission` model + `AfspraakController@submit` (CSRF + `throttle:5,1`, number `AF-YYYY-#####`, dual emails `AfspraakReceived` + `AdminAfspraakNotification`) + `StoreAfspraakSubmissionRequest` (Dutch, `device` plain string, `preferred_time` enum, no privacy). CMS via `config/cms.php` `pages.afspraak` + `AfspraakContentSeeder` (12 blocks). Admin inbox `admin.afspraak-aanvragen.*` (6 routes) + `resources/views/admin/afspraak-aanvragen/index.blade.php` + `public/assets/js/admin/afspraak-aanvragen.js`, under a new "Afspraak" sidebar dropdown (red new-count badge). Desktop Diensten dropdown gained "Afspraak aan huis" → `/afspraak`. PageController `afspraak()` added. Local verify: page 200, submit 201 (`AF-2026-00001`), admin route 302. Needs `MAIL_*` + `CONTACT_NOTIFY_EMAIL` in `.env`; deploy = `scripts/deploy.sh` + `db:seed --class=AfspraakContentSeeder --force` + `cache:clear`.
+
+- [2026-08-28] — **Afspraak CMS ↔ front alignment + content fixes**: `config/cms.php` `pages.afspraak` aligned so every editable field renders on the front (removed dead `hero.subtitle`/`hero.benefits.icon`+`text`+`benefits.heading`; `hero.benefits` now `title` only; `help` now renders `heading` in the "2. Waar kunnen we mee helpen?" title + `subtitle` paragraph below it; `benefits.items` is now `icon`+`title`+`description` dynamic). `service-afspraak.blade.php` loops made dynamic so added items show: hero benefits loop iterates over CMS `benefits` (fallback 3 defaults with fixed SVGs when empty; new items use  `title` directly), device cards from `$s['help']['devices']` (lucide `icon` + `label`), bottom voordelen strip iterates over `$s['benefits']['items'] ?: $bottomDefaults` (dynamic count) with `icon` (lucide via `window.__lucideRefresh`) + `title` + `description`; the 4th "5/5 beoordeling" item now exactly matches `afspraak.html` — thumbs-up SVG (`M7 10v10...`) in the `48px` blue circle and stars `★★★★★` + `op Google` in the text column (detected via `icon==='star'` or `title` contains `beoordeling`). Sidebar/header/hero button unchanged. Verified: `GET /afspraak` 200 (73437 bytes, contains `M7 10v10`, `★★★★★`, `op Google`, `Kies het apparaat…`), hero edits and added json rows now reflect immediately ( `Cms::bust()` bumps `cms.version`).
+
+- [2026-08-28] — **Afspraak favicon (tab icon) fix**: `service-afspraak.blade.php` head gained `<link rel="icon" href="{{ asset($c['header']['logo_image'] ?? 'assets/img/landing/logo.webp') }}">` + `<link rel="shortcut icon" href="{{ asset('favicon.ico') }}">` (same as `layouts/app.blade.php` line 11) so the browser tab now shows the logo like the other landing pages. `$c` is `Cms::page('home')` passed by `PageController::afspraak()`. Verified: `GET /afspraak` 200 contains both `rel="icon"` links.

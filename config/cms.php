@@ -2016,7 +2016,6 @@ return [
                 'blocks' => [
                     'badge' => ['label' => 'Badge', 'type' => 'text'],
                     'title1' => ['label' => 'Titel', 'type' => 'text'],
-                    'subtitle' => ['label' => 'Ondertitel', 'type' => 'textarea'],
                     'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
                     'hero_image' => ['label' => 'Hero afbeelding', 'type' => 'image'],
                     'hero_image_alt' => ['label' => 'Hero afbeelding alt', 'type' => 'text'],
@@ -2025,9 +2024,7 @@ return [
                         'type' => 'json',
                         'columns' => 1,
                         'fields' => [
-                            ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
                             ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
-                            ['key' => 'text', 'label' => 'Tekst', 'type' => 'text'],
                         ],
                     ],
                 ],
@@ -2042,7 +2039,7 @@ return [
                         'type' => 'json',
                         'columns' => 2,
                         'fields' => [
-                            ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                            ['key' => 'icon', 'label' => 'Pictogram (lucide)', 'type' => 'icon'],
                             ['key' => 'label', 'label' => 'Naam', 'type' => 'text'],
                         ],
                     ],
@@ -2051,13 +2048,12 @@ return [
             'benefits' => [
                 'label' => 'Voordelen',
                 'blocks' => [
-                    'heading' => ['label' => 'Kop', 'type' => 'text'],
                     'items' => [
                         'label' => 'Voordelen',
                         'type' => 'json',
                         'columns' => 2,
                         'fields' => [
-                            ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                            ['key' => 'icon', 'label' => 'Pictogram (lucide)', 'type' => 'icon'],
                             ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
                             ['key' => 'description', 'label' => 'Beschrijving', 'type' => 'text'],
                         ],

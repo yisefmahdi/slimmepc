@@ -1,129 +1,124 @@
-﻿<!DOCTYPE html>
-<html lang="nl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reparatie aanmelden | Slimme-PC</title>
+@extends('landing.layouts.app')
 
-    <!-- Tailwind CSS -->
+@section('content')
+    @include('landing.partials.header')
+
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Lucide Icons: vendored build has brand icons (facebook/instagram/youtube),
-         latest build has newer icons. Load both and refresh from each registry. -->
     <script src="{{ asset('assets/js/vendor/lucide.min.js') }}"></script>
+
     <script>window.__lucideOld = window.lucide;</script>
+
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script>window.__lucideLatest = window.lucide;</script>
-    <script>
-        window.__lucideRefresh = function () {
-            try { if (window.__lucideOld && window.__lucideOld.createIcons) window.__lucideOld.createIcons(); } catch (e) {}
-            try { if (window.__lucideLatest && window.__lucideLatest.createIcons) window.__lucideLatest.createIcons(); } catch (e) {}
-        };
-    </script>
 
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        slimme: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            200: '#bfdbfe',
-                            300: '#93c5fd',
-                            400: '#60a5fa',
-                            500: '#2563eb',
-                            600: '#1557d6',
-                            700: '#0f46b7',
-                            800: '#0b358e',
-                            900: '#071f56',
-                            950: '#04132f'
+            window.__lucideRefresh = function () {
+                try { if (window.__lucideOld && window.__lucideOld.createIcons) window.__lucideOld.createIcons(); } catch (e) {}
+                try { if (window.__lucideLatest && window.__lucideLatest.createIcons) window.__lucideLatest.createIcons(); } catch (e) {}
+            };
+        </script>
+
+    <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            slimme: {
+                                50: '#eff6ff',
+                                100: '#dbeafe',
+                                200: '#bfdbfe',
+                                300: '#93c5fd',
+                                400: '#60a5fa',
+                                500: '#2563eb',
+                                600: '#1557d6',
+                                700: '#0f46b7',
+                                800: '#0b358e',
+                                900: '#071f56',
+                                950: '#04132f'
+                            }
+                        },
+                        boxShadow: {
+                            soft: '0 18px 60px rgba(15, 70, 183, 0.10)',
+                            card: '0 10px 35px rgba(15, 70, 183, 0.08)',
+                            blue: '0 16px 35px rgba(37, 99, 235, 0.24)'
                         }
-                    },
-                    boxShadow: {
-                        soft: '0 18px 60px rgba(15, 70, 183, 0.10)',
-                        card: '0 10px 35px rgba(15, 70, 183, 0.08)',
-                        blue: '0 16px 35px rgba(37, 99, 235, 0.24)'
                     }
                 }
-            }
-        };
-    </script>
+            };
+        </script>
 
     <link rel="stylesheet" href="{{ asset('assets/css/landing.css') }}">
 
     <style>
-        html { scroll-behavior: smooth; }
+            html { scroll-behavior: smooth; }
+    
+            body {
+                background:
+                    radial-gradient(circle at 85% 4%, rgba(96, 165, 250, .18), transparent 27rem),
+                    radial-gradient(circle at 4% 20%, rgba(219, 234, 254, .85), transparent 25rem),
+                    #f8fbff;
+            }
+    
+            .step-panel { display: none; }
+            .step-panel.active { display: block; animation: fadeUp .35s ease; }
+    
+            @keyframes fadeUp {
+                from { opacity: 0; transform: translateY(8px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+    
+            .choice-card.selected,
+            .problem-card.selected {
+                border-color: #2563eb;
+                background: linear-gradient(145deg, #ffffff 0%, #eff6ff 100%);
+                box-shadow: 0 12px 28px rgba(37, 99, 235, .14);
+                transform: translateY(-2px);
+            }
+    
+            .choice-card.selected .select-check,
+            .problem-card.selected .select-check {
+                opacity: 1;
+                transform: scale(1);
+            }
+    
+            .select-check {
+                opacity: 0;
+                transform: scale(.7);
+                transition: .2s ease;
+            }
+    
+            .progress-step.active .progress-number {
+                color: white;
+                background: #1557d6;
+                box-shadow: 0 8px 20px rgba(21, 87, 214, .26);
+            }
+    
+            .progress-step.completed .progress-number {
+                color: white;
+                background: #16a34a;
+            }
+    
+            .progress-step.active .progress-label {
+                color: #0f46b7;
+            }
+    
+            .progress-line.completed {
+                background: #2563eb;
+            }
+    
+            input[type="radio"]:checked + label,
+            input[type="checkbox"]:checked + label {
+                border-color: #2563eb;
+                background: #eff6ff;
+            }
+    
+            .file-drop.dragging {
+                border-color: #2563eb;
+                background: #eff6ff;
+            }
+        </style>
 
-        body {
-            background:
-                radial-gradient(circle at 85% 4%, rgba(96, 165, 250, .18), transparent 27rem),
-                radial-gradient(circle at 4% 20%, rgba(219, 234, 254, .85), transparent 25rem),
-                #f8fbff;
-        }
-
-        .step-panel { display: none; }
-        .step-panel.active { display: block; animation: fadeUp .35s ease; }
-
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .choice-card.selected,
-        .problem-card.selected {
-            border-color: #2563eb;
-            background: linear-gradient(145deg, #ffffff 0%, #eff6ff 100%);
-            box-shadow: 0 12px 28px rgba(37, 99, 235, .14);
-            transform: translateY(-2px);
-        }
-
-        .choice-card.selected .select-check,
-        .problem-card.selected .select-check {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .select-check {
-            opacity: 0;
-            transform: scale(.7);
-            transition: .2s ease;
-        }
-
-        .progress-step.active .progress-number {
-            color: white;
-            background: #1557d6;
-            box-shadow: 0 8px 20px rgba(21, 87, 214, .26);
-        }
-
-        .progress-step.completed .progress-number {
-            color: white;
-            background: #16a34a;
-        }
-
-        .progress-step.active .progress-label {
-            color: #0f46b7;
-        }
-
-        .progress-line.completed {
-            background: #2563eb;
-        }
-
-        input[type="radio"]:checked + label,
-        input[type="checkbox"]:checked + label {
-            border-color: #2563eb;
-            background: #eff6ff;
-        }
-
-        .file-drop.dragging {
-            border-color: #2563eb;
-            background: #eff6ff;
-        }
-    </style>
-</head>
-
-<body class="min-h-screen text-slate-950 antialiased">
-@include('landing.partials.header')
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
 <main class="overflow-hidden">
 
@@ -1580,8 +1575,9 @@
 @include('landing.partials.footer')
 
 <script src="{{ asset('assets/js/vendor/jquery.min.js') }}"></script>
+
 <script src="{{ asset('assets/js/vendor/axios.min.js') }}"></script>
+
 <script src="{{ asset('assets/js/design.js') }}?v={{ filemtime(public_path('assets/js/design.js')) }}"></script>
-<script src="{{ asset('assets/js/landing.js') }}?v={{ filemtime(public_path('assets/js/landing.js')) }}"></script>
-</body>
-</html>
+
+@endsection
