@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\Admin\KlantController;
 use App\Http\Controllers\Admin\RepairInboxController;
 use App\Http\Controllers\Admin\AfspraakInboxController;
+use App\Http\Controllers\Admin\ManualInvoiceController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')
@@ -150,6 +151,22 @@ Route::prefix('admin')
                 Route::get('/{afspraakSubmission}', [AfspraakInboxController::class, 'show'])->name('show');
                 Route::post('/{afspraakSubmission}/status', [AfspraakInboxController::class, 'status'])->name('status');
                 Route::delete('/{afspraakSubmission}', [AfspraakInboxController::class, 'destroy'])->name('destroy');
+            });
+
+        // Bevestiging-mail - Hardware facturen
+        Route::prefix('bevestiging-mail')
+            ->name('bevestiging-mail.')
+            ->group(function () {
+                Route::prefix('hardware')
+                    ->name('hardware.')
+                    ->group(function () {
+                        Route::get('/', [ManualInvoiceController::class, 'index'])->name('index');
+                        Route::get('/data', [ManualInvoiceController::class, 'data'])->name('data');
+                        Route::get('/create', [ManualInvoiceController::class, 'create'])->name('create');
+                        Route::post('/', [ManualInvoiceController::class, 'store'])->name('store');
+                        Route::get('/{invoice}/download', [ManualInvoiceController::class, 'download'])->name('download');
+                        Route::delete('/{invoice}', [ManualInvoiceController::class, 'destroy'])->name('destroy');
+                    });
             });
     });
 

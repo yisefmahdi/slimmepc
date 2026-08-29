@@ -450,6 +450,30 @@
                     </div>
                 </div>
 
+                {{-- Bevestiging-mail Dropdown --}}
+                <div x-data="{ open: {{ request()->routeIs('admin.bevestiging-mail.*') ? 'true' : 'false' }}, init() { if (localStorage.getItem('nav-bevestiging') !== null) { this.open = localStorage.getItem('nav-bevestiging') === '1'; } }, toggle() { this.open = !this.open; localStorage.setItem('nav-bevestiging', this.open ? '1' : '0'); } }" class="space-y-1">
+                    <button type="button" @click="toggle()"
+                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
+                            style="color: rgba(255,255,255,0.95)">
+                        <span class="flex items-center gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5 text-blue-100">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                            </svg>
+                            <span>Bevestiging-mail</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+                    <div x-show="open" x-cloak x-transition class="border-l-2 border-white/30 ml-6 pl-4 space-y-1.5 py-1 text-xs">
+                        <a href="{{ route('admin.bevestiging-mail.hardware.index') }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.bevestiging-mail.hardware.*') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Hardware
+                        </a>
+                    </div>
+                </div>
+
                 {{-- 11. Users-beheren Dropdown (Active: Klanten) --}}
                 <div x-data="{ open: {{ request()->routeIs('admin.users.*') ? 'true' : 'false' }} }" class="space-y-1">
                     <button type="button" @click="open = !open"
