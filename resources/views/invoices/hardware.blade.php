@@ -28,22 +28,34 @@
 <body>
 
 @php
-    // Try to find a PNG/JPG logo for dompdf (webp requires imagecreatefromwebp which may be missing)
+    // Use SVG logo if available (dompdf handles SVG via php-svg-lib, no GD needed)
+    // Fallback to PNG/JPG, then webp if GD supports it
     $logoSrc = '';
-    $candidates = [
-        public_path('assets/img/logo.png'),
-        public_path('assets/img/landing/logo.png'),
-        public_path('assets/img/logo.jpg'),
-        public_path('assets/img/landing/logo.jpg'),
+    $svgCandidates = [
+        public_path('assets/img/logo.svg'),
+        public_path('assets/img/landing/logo.svg'),
     ];
-    foreach ($candidates as $p) {
-        if (file_exists($p) && in_array(strtolower(pathinfo($p, PATHINFO_EXTENSION)), ['png','jpg','jpeg'])) {
-            $mime = strtolower(pathinfo($p, PATHINFO_EXTENSION)) === 'png' ? 'png' : 'jpeg';
-            $logoSrc = 'data:image/'.$mime.';base64,'.base64_encode(file_get_contents($p));
+    foreach ($svgCandidates as $p) {
+        if (file_exists($p)) {
+            $logoSrc = 'data:image/svg+xml;base64,'.base64_encode(file_get_contents($p));
             break;
         }
     }
-    // Fallback: if only webp exists and GD supports webp, use it
+    if (!$logoSrc) {
+        $candidates = [
+            public_path('assets/img/logo.png'),
+            public_path('assets/img/landing/logo.png'),
+            public_path('assets/img/logo.jpg'),
+            public_path('assets/img/landing/logo.jpg'),
+        ];
+        foreach ($candidates as $p) {
+            if (file_exists($p) && in_array(strtolower(pathinfo($p, PATHINFO_EXTENSION)), ['png','jpg','jpeg'])) {
+                $mime = strtolower(pathinfo($p, PATHINFO_EXTENSION)) === 'png' ? 'png' : 'jpeg';
+                $logoSrc = 'data:image/'.$mime.';base64,'.base64_encode(file_get_contents($p));
+                break;
+            }
+        }
+    }
     if (!$logoSrc) {
         $webp = public_path('assets/img/logo.webp');
         if (!file_exists($webp)) $webp = public_path('assets/img/landing/logo.webp');
