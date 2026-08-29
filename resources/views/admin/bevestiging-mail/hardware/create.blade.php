@@ -67,12 +67,19 @@
                 </div>
                 <div class="sm:col-span-2">
                     <label class="mb-1.5 flex items-center gap-2 text-sm font-semibold" style="color: var(--c-heading)">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-4 w-4 text-slate-500"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414-.336.75-.75.75h-.75m-18 0v9m18-10.5v6m-18 0v9m18 0v.75c0 .414-.336.75-.75.75h-.75m-18 0v9m18 0v.75c0 .414-.336.75-.75.75H5.25m13.5 0v-9" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-4 w-4 text-slate-500"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414-.336.75-.75.75h-.75m-18 0v9m18-10.5v6m-18 0v9m18 0v.75c0 .414-.336.75-.75.75H5.25m13.5 0v-9" /></svg>
                         Totaal (€) *
                     </label>
-                    <input type="number" name="total" id="total" required min="0" step="0.01" placeholder="Bijv. 400.00"
-                           class="form-input h-11 w-full text-sm font-bold">
-                    <p class="mt-1 text-xs" style="color: var(--c-muted)">Inclusief BTW — kan handmatig worden aangepast</p>
+                    <div class="flex gap-2">
+                        <input type="number" name="total" id="total" required min="0" step="0.01" placeholder="Bijv. 500.00"
+                               class="form-input h-11 w-full text-sm font-bold">
+                        <button type="button" id="calcTaxBtn"
+                                class="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-xl bg-blue-600 px-4 text-sm font-bold text-white shadow transition hover:bg-blue-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7.5h3m-3 3h3m-6.375.625h.75m-2.625-1.5v2.5m6.375 0v2.5m-10.125-3h10.125m-10.125 3h4.5m-4.5-3h.008v.008H6.375v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" /></svg>
+                            Calc
+                        </button>
+                    </div>
+                    <p class="mt-1 text-xs" style="color: var(--c-muted)">Inclusief BTW — vul Totaal in en klik Calc om BTW &amp; Subtotaal te berekenen</p>
                     <p class="field-error hidden mt-1 text-xs font-semibold text-red-600"></p>
                 </div>
             </div>
@@ -88,21 +95,25 @@
 
     <script>
         (function(){
-            // Totaal is volledig handmatig - geen automatische berekening
-            // BTW wordt alleen ter info berekend, maar Totaal blijft zoals ingevuld
             const subtotalEl = document.getElementById('subtotal');
             const taxEl = document.getElementById('tax_percentage');
             const totalEl = document.getElementById('total');
-            let totalManuallyEdited = false;
-            if (totalEl) {
-                totalEl.addEventListener('input', () => { totalManuallyEdited = true; });
+            const calcBtn = document.getElementById('calcTaxBtn');
+
+            if (calcBtn) {
+                calcBtn.addEventListener('click', () => {
+                    const totalVal = parseFloat(totalEl.value);
+                    const taxPct = parseInt(taxEl.value) || 0;
+                    if (!totalVal || totalVal <= 0) {
+                        alert('Vul eerst een Totaal-bedrag in.');
+                        totalEl.focus();
+                        return;
+                    }
+                    const taxAmount = taxPct > 0 ? totalVal * taxPct / (100 + taxPct) : 0;
+                    const subtotalNet = totalVal - taxAmount;
+                    subtotalEl.value = subtotalNet.toFixed(2);
+                });
             }
-            function recalc(){
-                // NIETS automatisch invullen - Totaal is volledig handmatig
-                // Laat de gebruiker zelf het totaal (inclusief BTW) invullen
-            }
-            if (subtotalEl) subtotalEl.addEventListener('input', recalc);
-            if (taxEl) taxEl.addEventListener('input', recalc);
 
             const form = document.getElementById('hardwareInvoiceForm');
             const btn = document.getElementById('hardwareSubmitBtn');
