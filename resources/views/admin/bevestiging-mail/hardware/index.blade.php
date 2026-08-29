@@ -34,20 +34,20 @@
             </div>
 
             {{-- Table --}}
-            <div class="min-h-0 flex-1 overflow-auto">
+            <div class="min-h-0 flex-1 overflow-auto overflow-x-auto w-full" style="-webkit-overflow-scrolling: touch;">
                 <table class="w-full min-w-[1280px] border-collapse text-left" style="min-width:1280px">
-                    <thead class="sticky top-0 z-10" style="background-color: var(--c-card)">
+                    <thead class="sticky top-0 z-20" style="background-color: var(--c-card)">
                         <tr class="border-b" style="border-color: rgba(148,163,184,.15)">
-                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide" style="color: var(--c-muted)">Datum</th>
-                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide" style="color: var(--c-muted)">Order ID</th>
-                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide" style="color: var(--c-muted)">Naam klant</th>
-                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide" style="color: var(--c-muted)">E-mailadres</th>
-                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide" style="color: var(--c-muted)">Apparaat info</th>
-                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide" style="color: var(--c-muted)">Probleembeschrijving</th>
-                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide" style="color: var(--c-muted)">Subtotaal</th>
-                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide" style="color: var(--c-muted)">Totaal</th>
-                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide" style="color: var(--c-muted)">Download</th>
-                            <th class="px-3 py-3 text-right text-xs font-bold uppercase tracking-wide" style="color: var(--c-muted)">Actie</th>
+                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Datum</th>
+                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Order ID</th>
+                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Naam klant</th>
+                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">E-mailadres</th>
+                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Apparaat info</th>
+                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Probleembeschrijving</th>
+                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Subtotaal</th>
+                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Totaal</th>
+                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Download</th>
+                            <th class="px-3 py-3 text-right text-xs font-bold uppercase tracking-wide whitespace-nowrap sticky right-0 z-10" style="color: var(--c-muted); background-color: var(--c-card); box-shadow: -8px 0 12px -4px rgba(15,23,42,.06);">Actie</th>
                         </tr>
                     </thead>
                     <tbody id="hardwareTableBody"></tbody>

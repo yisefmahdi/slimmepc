@@ -27,10 +27,39 @@
 </head>
 <body>
 
+@php
+    // Try to find a PNG/JPG logo for dompdf (webp requires imagecreatefromwebp which may be missing)
+    $logoSrc = '';
+    $candidates = [
+        public_path('assets/img/logo.png'),
+        public_path('assets/img/landing/logo.png'),
+        public_path('assets/img/logo.jpg'),
+        public_path('assets/img/landing/logo.jpg'),
+    ];
+    foreach ($candidates as $p) {
+        if (file_exists($p) && in_array(strtolower(pathinfo($p, PATHINFO_EXTENSION)), ['png','jpg','jpeg'])) {
+            $mime = strtolower(pathinfo($p, PATHINFO_EXTENSION)) === 'png' ? 'png' : 'jpeg';
+            $logoSrc = 'data:image/'.$mime.';base64,'.base64_encode(file_get_contents($p));
+            break;
+        }
+    }
+    // Fallback: if only webp exists and GD supports webp, use it
+    if (!$logoSrc) {
+        $webp = public_path('assets/img/logo.webp');
+        if (!file_exists($webp)) $webp = public_path('assets/img/landing/logo.webp');
+        if (file_exists($webp) && function_exists('imagecreatefromwebp')) {
+            $logoSrc = 'data:image/webp;base64,'.base64_encode(file_get_contents($webp));
+        }
+    }
+@endphp
 <table class="header">
 <tr>
-    <td style="vertical-align: top; width: 60px;">
-        {{-- Optional cartoon - keep empty or use text placeholder --}}
+    <td style="vertical-align: top; width: 110px;">
+        @if($logoSrc)
+            <img src="{{ $logoSrc }}" style="width: 92px; height: auto;" alt="Slimme-PC">
+        @else
+            <div style="width: 82px; height: 42px; background: #2563eb; color: white; font-weight: 800; font-size: 10px; text-align: center; line-height: 42px; border-radius: 6px;">Slimme-PC</div>
+        @endif
     </td>
     <td class="header-right">
         <p class="brand">Slimme-PC</p>
