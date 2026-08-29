@@ -77,6 +77,7 @@ class ManualInvoiceController extends Controller
         // Inclusief: Totaal is handmatig ingevuld (bron van waarheid)
         $total = isset($validated['total']) && $validated['total'] !== '' && $validated['total'] !== null ? round((float) $validated['total'], 2) : round((float) $validated['subtotal'], 2);
         // BTW wordt uit Totaal berekend: bij 21% is BTW = totaal * 21 / 121
+        $taxPct = $validated['tax_percentage'] ?? 0;
         $taxAmount = $taxPct > 0 ? round($total * $taxPct / (100 + $taxPct), 2) : 0.00;
         // Subtotaal is netto (excl. btw) = totaal - btw
         $subtotal = round($total - $taxAmount, 2);
