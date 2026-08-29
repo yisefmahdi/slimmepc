@@ -88,6 +88,8 @@
 
     <script>
         (function(){
+            // Totaal is volledig handmatig - geen automatische berekening
+            // BTW wordt alleen ter info berekend, maar Totaal blijft zoals ingevuld
             const subtotalEl = document.getElementById('subtotal');
             const taxEl = document.getElementById('tax_percentage');
             const totalEl = document.getElementById('total');
@@ -96,14 +98,8 @@
                 totalEl.addEventListener('input', () => { totalManuallyEdited = true; });
             }
             function recalc(){
-                // Inclusief: Totaal wordt niet automatisch berekend (handmatig aanpasbaar)
-                // Als Totaal nog leeg is en niet handmatig aangepast, vul met Subtotaal als suggestie
-                const sub = parseFloat(subtotalEl.value) || 0;
-                if (totalEl && !totalManuallyEdited) {
-                    if (!totalEl.value || totalEl.value === '') {
-                        totalEl.value = sub ? sub.toFixed(2) : '';
-                    }
-                }
+                // NIETS automatisch invullen - Totaal is volledig handmatig
+                // Laat de gebruiker zelf het totaal (inclusief BTW) invullen
             }
             if (subtotalEl) subtotalEl.addEventListener('input', recalc);
             if (taxEl) taxEl.addEventListener('input', recalc);
@@ -120,7 +116,7 @@
                 btn.disabled = true;
                 spinner.classList.remove('hidden');
                 label.textContent = 'Bezig met verzenden…';
-                msg.className = 'mt-3 hidden text-sm font-semibold';
+                msg.className = 'mt-4 hidden text-sm font-semibold';
                 msg.textContent = '';
                 // clear previous errors
                 form.querySelectorAll('.field-error').forEach(el=>{ el.textContent=''; el.classList.add('hidden'); });
@@ -147,7 +143,6 @@
                         msg.classList.remove('hidden');
                         form.reset();
                         taxEl.value = '21';
-                        recalc();
                         // keep message visible, redirect after 1.8s so user can read it
                         setTimeout(()=>{ window.location.href = '{{ route('admin.bevestiging-mail.hardware.index') }}'; }, 1800);
                         return;
