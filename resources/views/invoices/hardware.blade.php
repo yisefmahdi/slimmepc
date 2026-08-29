@@ -28,40 +28,17 @@
 <body>
 
 @php
-    // Prefer PNG logo (dompdf supports it natively)
-    // Fallback to JPG, then SVG, then webp
-    $logoSrc = '';
-    $candidates = [
-        public_path('assets/img/logo.png'),
-        public_path('assets/img/landing/logo.png'),
-        public_path('assets/img/logo.jpg'),
-        public_path('assets/img/landing/logo.jpg'),
-    ];
-    foreach ($candidates as $p) {
-        if (file_exists($p) && in_array(strtolower(pathinfo($p, PATHINFO_EXTENSION)), ['png','jpg','jpeg'])) {
-            $mime = strtolower(pathinfo($p, PATHINFO_EXTENSION)) === 'png' ? 'png' : 'jpeg';
-            $logoSrc = 'data:image/'.$mime.';base64,'.base64_encode(file_get_contents($p));
-            break;
-        }
-    }
-    if (!$logoSrc) {
-        $svgCandidates = [
-            public_path('assets/img/logo.svg'),
-            public_path('assets/img/landing/logo.svg'),
-        ];
-        foreach ($svgCandidates as $p) {
-            if (file_exists($p)) {
-                $logoSrc = 'data:image/svg+xml;base64,'.base64_encode(file_get_contents($p));
-                break;
-            }
-        }
+    $logoPath = public_path('assets/img/logo.png');
+    if (!file_exists($logoPath)) {
+        $logoPath = public_path('assets/img/landing/logo.png');
     }
 @endphp
+
 <table class="header">
 <tr>
     <td style="vertical-align: top; width: 130px; padding-right: 16px;">
-        @if($logoSrc)
-            <img src="{{ $logoSrc }}" style="width: 120px; height: auto; display: block;" alt="Slimme-PC">
+        @if(file_exists($logoPath))
+            <img src="{{ $logoPath }}" style="width: 120px; height: auto; display: block;" alt="Slimme-PC">
         @else
             <div style="width: 110px; height: 38px; background: #2563eb; color: white; font-weight: 800; font-size: 13px; text-align: center; line-height: 38px; border-radius: 6px;">Slimme-PC</div>
         @endif
