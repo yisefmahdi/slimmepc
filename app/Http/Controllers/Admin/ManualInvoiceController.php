@@ -76,8 +76,10 @@ class ManualInvoiceController extends Controller
 
         $subtotal = round((float) $validated['subtotal'], 2);
         $taxPct = (int) $validated['tax_percentage'];
+        // Inclusive: Totaal is handmatig in te vullen (default = subtotal), BTW wordt apart berekend maar niet opgeteld
+        $totalInput = isset($validated['total']) && $validated['total'] !== '' && $validated['total'] !== null ? round((float) $validated['total'], 2) : $subtotal;
+        $total = $totalInput;
         $taxAmount = round($subtotal * $taxPct / 100, 2);
-        $total = round($subtotal + $taxAmount, 2);
 
         // Generate unique invoice number like SLM-ECZ432 (SLM- + 6 alphanum)
         $invoiceNumber = $this->generateInvoiceNumber();

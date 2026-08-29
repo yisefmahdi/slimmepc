@@ -20,6 +20,7 @@ class StoreManualInvoiceRequest extends FormRequest
             'description' => ['nullable', 'string', 'max:5000'],
             'subtotal' => ['required', 'numeric', 'min:0', 'max:999999.99'],
             'tax_percentage' => ['required', 'integer', 'min:0', 'max:100'],
+            'total' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
         ];
     }
 
