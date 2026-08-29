@@ -53,26 +53,32 @@
 
     function renderList(items) {
         if (!items.length) {
-            tableBody.innerHTML = `<tr><td colspan="8" class="px-4 py-14 text-center"><p class="font-semibold" style="color:var(--c-heading)">Geen facturen gevonden</p><p class="mt-1 text-xs" style="color:var(--c-muted)">Maak je eerste factuur aan.</p></td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="10" class="px-4 py-14 text-center"><p class="font-semibold" style="color:var(--c-heading)">Geen facturen gevonden</p><p class="mt-1 text-xs" style="color:var(--c-muted)">Maak je eerste factuur aan.</p></td></tr>`;
             return;
         }
         tableBody.innerHTML = items.map(row => {
             const date = row.created_at ? new Date(row.created_at.replace(' ', 'T')).toLocaleDateString('nl-NL') : '—';
+            // format like 08-07-2025
+            const d = row.created_at ? new Date(row.created_at.replace(' ', 'T')) : null;
+            const dateStr = d ? String(d.getDate()).padStart(2,'0')+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+d.getFullYear() : '—';
+            const desc = row.description ? escapeHtml(row.description) : '—';
+            const shortDesc = desc.length > 80 ? desc.slice(0,80)+'…' : desc;
             return `<tr class="border-b transition hover:bg-blue-50/40 dark:hover:bg-slate-800/40" style="border-color: rgba(148,163,184,.12)">
-                <td class="px-3 py-3 text-xs whitespace-nowrap" style="color:var(--c-muted)">${escapeHtml(date)}</td>
-                <td class="px-3 py-3 text-xs font-bold" style="color:var(--c-heading)">#${escapeHtml(row.invoice_number)}</td>
-                <td class="px-3 py-3"><div class="min-w-0"><p class="truncate text-sm font-semibold" style="color:var(--c-heading)">${escapeHtml(row.name)}</p></div></td>
-                <td class="px-3 py-3 text-xs truncate max-w-[160px]" style="color:var(--c-heading)">${escapeHtml(row.email)}</td>
-                <td class="px-3 py-3 text-xs truncate max-w-[140px]" style="color:var(--c-muted)">${escapeHtml(row.device_info || '—')}</td>
+                <td class="px-3 py-3 text-xs whitespace-nowrap" style="color:var(--c-muted)">${escapeHtml(dateStr)}</td>
+                <td class="px-3 py-3 text-xs font-bold whitespace-nowrap" style="color:var(--c-heading)">#${escapeHtml(row.invoice_number)}</td>
+                <td class="px-3 py-3 text-sm font-semibold whitespace-nowrap" style="color:var(--c-heading)">${escapeHtml(row.name)}</td>
+                <td class="px-3 py-3 text-xs truncate max-w-[170px]" style="color:var(--c-heading)">${escapeHtml(row.email)}</td>
+                <td class="px-3 py-3 text-xs truncate max-w-[120px]" style="color:var(--c-muted)">${escapeHtml(row.device_info || '—')}</td>
+                <td class="px-3 py-3 text-xs max-w-[260px] truncate" style="color:var(--c-muted)" title="${desc}">${shortDesc}</td>
                 <td class="px-3 py-3 text-xs font-semibold whitespace-nowrap" style="color:var(--c-heading)">${fmtEuro(row.subtotal)}</td>
                 <td class="px-3 py-3 text-xs font-extrabold whitespace-nowrap" style="color:var(--c-heading)">${fmtEuro(row.total)}</td>
+                <td class="px-3 py-3 text-center">
+                    <a href="/admin/bevestiging-mail/hardware/${row.id}/download" class="inline-flex h-7 items-center gap-1 rounded-lg bg-blue-50 px-2.5 text-[11px] font-bold text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300">Download</a>
+                </td>
                 <td class="px-3 py-3 text-right">
-                    <div class="flex justify-end gap-1">
-                        <a href="/admin/bevestiging-mail/hardware/${row.id}/download" class="inline-flex h-8 items-center gap-1 rounded-lg bg-blue-50 px-2.5 text-xs font-bold text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300">Download</a>
-                        <button type="button" data-delete="${row.id}" data-name="${escapeHtml(row.invoice_number)}" class="hardware-delete inline-flex h-8 w-8 items-center justify-center rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>
-                        </button>
-                    </div>
+                    <button type="button" data-delete="${row.id}" data-name="${escapeHtml(row.invoice_number)}" class="hardware-delete inline-flex h-8 w-8 items-center justify-center rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>
+                    </button>
                 </td>
             </tr>`;
         }).join('');

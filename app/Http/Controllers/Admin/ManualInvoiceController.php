@@ -54,7 +54,7 @@ class ManualInvoiceController extends Controller
         $paginator = $query
             ->orderByDesc('created_at')
             ->orderByDesc('id')
-            ->paginate($perPage, ['id', 'invoice_number', 'name', 'email', 'device_info', 'subtotal', 'total', 'created_at']);
+            ->paginate($perPage, ['id', 'invoice_number', 'name', 'email', 'device_info', 'description', 'subtotal', 'total', 'created_at']);
 
         return response()->json([
             'data' => $paginator->items(),
