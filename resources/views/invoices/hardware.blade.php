@@ -66,11 +66,11 @@
 @endphp
 <table class="header">
 <tr>
-    <td style="vertical-align: top; width: 110px;">
+    <td style="vertical-align: top; width: 130px; padding-right: 16px;">
         @if($logoSrc)
-            <img src="{{ $logoSrc }}" style="width: 92px; height: auto;" alt="Slimme-PC">
+            <img src="{{ $logoSrc }}" style="width: 120px; height: auto; display: block;" alt="Slimme-PC">
         @else
-            <div style="width: 82px; height: 42px; background: #2563eb; color: white; font-weight: 800; font-size: 10px; text-align: center; line-height: 42px; border-radius: 6px;">Slimme-PC</div>
+            <div style="width: 110px; height: 38px; background: #2563eb; color: white; font-weight: 800; font-size: 13px; text-align: center; line-height: 38px; border-radius: 6px;">Slimme-PC</div>
         @endif
     </td>
     <td class="header-right">

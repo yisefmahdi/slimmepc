@@ -1,4 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="320" height="100" viewBox="0 0 320 100">
-  <rect width="320" height="100" rx="18" fill="#2563eb"/>
-  <text x="160" y="58" font-family="DejaVu Sans, Arial, sans-serif" font-size="22" font-weight="800" fill="white" text-anchor="middle">Slimme-PC</text>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#10b981"/>
+      <stop offset="1" stop-color="#059669"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="100" rx="14" fill="url(#bg)"/>
+  <text x="22" y="46" font-family="DejaVu Sans, Arial, sans-serif" font-size="24" font-weight="800" fill="white">Slimme</text>
+  <text x="22" y="76" font-family="DejaVu Sans, Arial, sans-serif" font-size="24" font-weight="800" fill="white">PC</text>
+  <g transform="translate(238 22)">
+    <rect width="62" height="56" rx="8" fill="white" opacity="0.18"/>
+    <rect x="6" y="8" width="50" height="34" rx="3" fill="none" stroke="white" stroke-width="2.5"/>
+    <line x1="14" y1="48" x2="48" y2="48" stroke="white" stroke-width="2.5"/>
+    <line x1="22" y1="18" x2="40" y2="18" stroke="white" stroke-width="1.6"/>
+    <line x1="22" y1="26" x2="40" y2="26" stroke="white" stroke-width="1.6"/>
+    <line x1="22" y1="34" x2="34" y2="34" stroke="white" stroke-width="1.6"/>
+  </g>
 </svg>
