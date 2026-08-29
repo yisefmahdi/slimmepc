@@ -68,6 +68,14 @@ class ManualInvoiceController extends Controller
     }
 
     /**
+     * Preview invoice.
+     */
+    public function preview(ManualInvoice $invoice)
+    {
+        return view('invoices.hardware', ['invoice' => $invoice]);
+    }
+
+    /**
      * Store and send invoice.
      */
     public function store(StoreManualInvoiceRequest $request): JsonResponse

@@ -69,7 +69,7 @@
                 <td class="px-3 py-3 text-sm font-semibold whitespace-nowrap" style="color:var(--c-heading)">${escapeHtml(row.name)}</td>
                 <td class="px-3 py-3 text-xs truncate max-w-[170px]" style="color:var(--c-heading)">${escapeHtml(row.email)}</td>
                 <td class="px-3 py-3 text-xs truncate max-w-[120px]" style="color:var(--c-muted)">${escapeHtml(row.device_info || '—')}</td>
-                <td class="px-3 py-3 text-xs max-w-[260px] truncate" style="color:var(--c-muted)" title="${desc}">${shortDesc}</td>
+                <td class="px-3 py-3 text-[10px] max-w-[260px] truncate" style="color:var(--c-muted)" title="${desc}">${shortDesc}</td>
                 <td class="px-3 py-3 text-xs font-semibold whitespace-nowrap" style="color:var(--c-heading)">${fmtEuro(row.subtotal)}</td>
                 <td class="px-3 py-3 text-xs font-extrabold whitespace-nowrap" style="color:var(--c-heading)">${fmtEuro(row.total)}</td>
                 <td class="px-3 py-3 text-center">
@@ -77,6 +77,9 @@
                         <svg class="dl-spinner hidden h-3.5 w-3.5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
                         <span class="dl-label">Download</span>
                     </button>
+                    <a href="/admin/bevestiging-mail/hardware/${row.id}/preview" target="_blank" class="inline-flex h-7 items-center gap-1 rounded-lg bg-slate-50 px-2.5 text-[11px] font-bold text-slate-700 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 ml-1">
+                        Preview
+                    </a>
                 </td>
                 <td class="px-3 py-3 text-right sticky right-0" style="background-color: var(--c-card); box-shadow: -8px 0 12px -4px rgba(15,23,42,.06);">
                     <button type="button" data-delete="${row.id}" data-name="${escapeHtml(row.invoice_number)}" class="hardware-delete inline-flex h-8 w-8 items-center justify-center rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20">

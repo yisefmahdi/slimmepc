@@ -165,6 +165,7 @@ Route::prefix('admin')
                         Route::get('/create', [ManualInvoiceController::class, 'create'])->name('create');
                         Route::post('/', [ManualInvoiceController::class, 'store'])->name('store');
                         Route::get('/{invoice}/download', [ManualInvoiceController::class, 'download'])->name('download');
+                        Route::get('/{invoice}/preview', [ManualInvoiceController::class, 'preview'])->name('preview');
                         Route::delete('/{invoice}', [ManualInvoiceController::class, 'destroy'])->name('destroy');
                     });
             });
