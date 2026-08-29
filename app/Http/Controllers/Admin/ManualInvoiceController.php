@@ -74,12 +74,12 @@ class ManualInvoiceController extends Controller
     {
         $validated = $request->validated();
 
-        $subtotal = round((float) $validated['subtotal'], 2);
-        $taxPct = (int) $validated['tax_percentage'];
-        // Inclusief: Totaal is handmatig, BTW wordt uit Totaal berekend en apart opgeslagen
-        $total = isset($validated['total']) && $validated['total'] !== '' && $validated['total'] !== null ? round((float) $validated['total'], 2) : $subtotal;
-        // Haal BTW uit het totaal (inclusief): bij 21% is BTW = totaal * 21 / 121
+        // Inclusief: Totaal is handmatig ingevuld (bron van waarheid)
+        $total = isset($validated['total']) && $validated['total'] !== '' && $validated['total'] !== null ? round((float) $validated['total'], 2) : round((float) $validated['subtotal'], 2);
+        // BTW wordt uit Totaal berekend: bij 21% is BTW = totaal * 21 / 121
         $taxAmount = $taxPct > 0 ? round($total * $taxPct / (100 + $taxPct), 2) : 0.00;
+        // Subtotaal is netto (excl. btw) = totaal - btw
+        $subtotal = round($total - $taxAmount, 2);
 
         // Generate unique invoice number like SLM-ECZ432 (SLM- + 6 alphanum)
         $invoiceNumber = $this->generateInvoiceNumber();
