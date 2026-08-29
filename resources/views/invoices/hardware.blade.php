@@ -29,18 +29,21 @@
 
 <table class="header">
 <tr>
-    <td style="vertical-align: top; width: 130px; padding-right: 16px;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="140" height="40" viewBox="0 0 160 40">
-          <rect width="160" height="40" rx="6" fill="#000000"/>
-          <text x="8" y="16" font-family="Arial, sans-serif" font-size="12" fill="white" font-weight="bold">Slimme</text>
-          <text x="8" y="32" font-family="Arial, sans-serif" font-size="12" fill="white" font-weight="bold">PC</text>
-          <g transform="translate(110 7)">
-            <rect width="40" height="26" rx="3" fill="none" stroke="white" stroke-width="2"/>
-            <line x1="6" y1="22" x2="34" y2="22" stroke="white" stroke-width="2"/>
-            <rect x="12" y="5" width="16" height="10" fill="none" stroke="white" stroke-width="1"/>
-            <line x1="15" y1="11" x2="25" y2="11" stroke="white" stroke-width="1"/>
-          </g>
-        </svg>
+    <td style="vertical-align: top; width: 140px; padding-right: 16px;">
+        @php
+            $logoPath = public_path('assets/img/logo.png');
+            $logoSrc = '';
+            if (file_exists($logoPath)) {
+                $logoSrc = 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath));
+            }
+        @endphp
+        
+        @if($logoSrc)
+            <img src="{{ $logoSrc }}" style="width: 120px; height: auto; display: block;" alt="Slimme-PC">
+        @else
+            <!-- نص احتياطي في حال وجود مشكلة في الصورة -->
+            <div style="width: 120px; height: 40px; background: #000; color: white; font-weight: bold; text-align: center; line-height: 40px; border-radius: 6px;">Slimme-PC</div>
+        @endif
     </td>
     <td class="header-right">
         <p class="brand">Slimme-PC</p>
