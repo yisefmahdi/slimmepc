@@ -73,7 +73,10 @@
                 <td class="px-3 py-3 text-xs font-semibold whitespace-nowrap" style="color:var(--c-heading)">${fmtEuro(row.subtotal)}</td>
                 <td class="px-3 py-3 text-xs font-extrabold whitespace-nowrap" style="color:var(--c-heading)">${fmtEuro(row.total)}</td>
                 <td class="px-3 py-3 text-center">
-                    <a href="/admin/bevestiging-mail/hardware/${row.id}/download" class="inline-flex h-7 items-center gap-1 rounded-lg bg-blue-50 px-2.5 text-[11px] font-bold text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300">Download</a>
+                    <button type="button" data-download="${row.id}" data-invoice="${escapeHtml(row.invoice_number)}" class="hardware-download inline-flex h-7 items-center gap-1 rounded-lg bg-blue-50 px-2.5 text-[11px] font-bold text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 disabled:opacity-60">
+                        <svg class="dl-spinner hidden h-3.5 w-3.5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                        <span class="dl-label">Download</span>
+                    </button>
                 </td>
                 <td class="px-3 py-3 text-right sticky right-0" style="background-color: var(--c-card); box-shadow: -8px 0 12px -4px rgba(15,23,42,.06);">
                     <button type="button" data-delete="${row.id}" data-name="${escapeHtml(row.invoice_number)}" class="hardware-delete inline-flex h-8 w-8 items-center justify-center rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20">
@@ -87,6 +90,41 @@
                 currentId = parseInt(btn.dataset.delete, 10);
                 document.getElementById('hardwareDeleteName').textContent = '#' + btn.dataset.name;
                 openModal('hardwareDeleteModal');
+            });
+        });
+        tableBody.querySelectorAll('.hardware-download').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const id = btn.dataset.download;
+                const inv = btn.dataset.invoice;
+                const label = btn.querySelector('.dl-label');
+                const spinner = btn.querySelector('.dl-spinner');
+                const orig = label ? label.textContent : 'Download';
+                btn.disabled = true;
+                if (label) label.textContent = 'Laden...';
+                if (spinner) spinner.classList.remove('hidden');
+                try {
+                    const res = await fetch(`/admin/bevestiging-mail/hardware/${id}/download`, { credentials: 'same-origin' });
+                    if (!res.ok) throw new Error('Download mislukt');
+                    const blob = await res.blob();
+                    let filename = (inv || id) + '.pdf';
+                    const cd = res.headers.get('Content-Disposition') || '';
+                    const m = cd.match(/filename="?([^"]+)"?/);
+                    if (m) filename = m[1];
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    URL.revokeObjectURL(url);
+                } catch(e) {
+                    alert(e.message || 'Download mislukt');
+                } finally {
+                    btn.disabled = false;
+                    if (label) label.textContent = orig;
+                    if (spinner) spinner.classList.add('hidden');
+                }
             });
         });
     }
