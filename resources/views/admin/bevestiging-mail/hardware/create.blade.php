@@ -1,5 +1,5 @@
 <x-admin.layout title="Nieuwe factuur — Hardware">
-    <div class="mx-auto max-w-3xl">
+    <div class="w-full">
         <div class="mb-6 flex items-center justify-between">
             <div>
                 <h2 class="text-lg font-extrabold tracking-tight" style="color: var(--c-heading)">Handmatig Factuur Aanmaken</h2>
@@ -56,7 +56,7 @@
             </div>
 
             <button type="submit" id="hardwareSubmitBtn"
-                    class="mt-8 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#075be8] px-6 text-sm font-bold text-white shadow-[0_10px_25px_rgba(7,91,232,.25)] transition hover:-translate-y-0.5 hover:bg-[#064bd7] disabled:opacity-60">
+                    class="mt-8 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 text-sm font-bold text-white shadow-[0_10px_25px_rgba(37,99,235,.25)] transition hover:-translate-y-0.5 hover:bg-blue-700 disabled:opacity-60">
                 <svg id="hardwareSubmitSpinner" class="hidden h-5 w-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
                 <span id="hardwareSubmitLabel">💾 Factuur aanmaken &amp; verzenden</span>
             </button>

@@ -8,7 +8,7 @@
                 <p class="mt-0.5 text-xs" style="color: var(--c-muted)">Facturen aanmaken en verzenden naar klanten.</p>
             </div>
             <a href="{{ route('admin.bevestiging-mail.hardware.create') }}"
-               class="inline-flex h-10 items-center gap-2 rounded-xl bg-[#075be8] px-5 text-sm font-bold text-white shadow-[0_10px_25px_rgba(7,91,232,.25)] transition hover:-translate-y-0.5 hover:bg-[#064bd7]">
+               class="inline-flex h-10 items-center gap-2 rounded-xl bg-blue-600 px-5 text-sm font-bold text-white shadow-[0_10px_25px_rgba(37,99,235,.25)] transition hover:-translate-y-0.5 hover:bg-blue-700">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m15-7.5H12m0 0V4.5m0 15V12m0 0H4.5m15 0H12" />
                 </svg>
