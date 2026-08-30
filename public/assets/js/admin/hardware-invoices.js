@@ -41,7 +41,7 @@
     }
 
     function load() {
-        if (window.AdminTable) window.AdminTable.loading(tableBody, 10);
+        if (window.AdminTable) window.AdminTable.loading(tableBody, 9);
         const params = new URLSearchParams({
             search: searchEl.value.trim(),
             per_page: perPageEl.value,
@@ -57,7 +57,7 @@
 
     function renderList(items) {
         if (!items.length) {
-            tableBody.innerHTML = `<tr><td colspan="10" class="px-4 py-14 text-center"><p class="font-semibold" style="color:var(--c-heading)">Geen facturen gevonden</p><p class="mt-1 text-xs" style="color:var(--c-muted)">Maak je eerste factuur aan.</p></td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="9" class="px-4 py-14 text-center"><p class="font-semibold" style="color:var(--c-heading)">Geen facturen gevonden</p><p class="mt-1 text-xs" style="color:var(--c-muted)">Maak je eerste factuur aan.</p></td></tr>`;
             return;
         }
         tableBody.innerHTML = items.map(row => {
@@ -73,10 +73,9 @@
                 <td class="px-3 py-3 text-sm font-semibold whitespace-nowrap" style="color:var(--c-heading)">${escapeHtml(row.name)}</td>
                 <td class="px-3 py-3 text-xs truncate max-w-[170px]" style="color:var(--c-heading)">${escapeHtml(row.email)}</td>
                 <td class="px-3 py-3 text-xs truncate max-w-[120px]" style="color:var(--c-muted)">${escapeHtml(row.device_info || '—')}</td>
-                <td class="px-3 py-3 text-[10px] max-w-[260px] truncate" style="color:var(--c-muted)" title="${desc}">${shortDesc}</td>
                 <td class="px-3 py-3 text-xs font-semibold whitespace-nowrap" style="color:var(--c-heading)">${fmtEuro(row.subtotal)}</td>
                 <td class="px-3 py-3 text-xs font-extrabold whitespace-nowrap" style="color:var(--c-heading)">${fmtEuro(row.total)}</td>
-                <td class="px-3 py-3 text-center">
+                <td class="px-3 py-3 text-center whitespace-nowrap">
                     <button type="button" data-download="${row.id}" data-invoice="${escapeHtml(row.invoice_number)}" class="hardware-download inline-flex h-7 items-center gap-1 rounded-lg bg-blue-50 px-2.5 text-[11px] font-bold text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 disabled:opacity-60">
                         <svg class="dl-spinner hidden h-3.5 w-3.5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
                         <span class="dl-label">Download</span>
@@ -177,9 +176,9 @@
         }).then(r => r.json()).then(() => {
             const row = document.querySelector(`[data-delete="${deletedId}"]`)?.closest('tr');
             if (row) row.remove();
-            if (!tableBody.querySelectorAll('tr').length) {
-                tableBody.innerHTML = `<tr><td colspan="10" class="px-4 py-14 text-center"><p class="font-semibold" style="color:var(--c-heading)">Geen facturen gevonden</p><p class="mt-1 text-xs" style="color:var(--c-muted)">Maak je eerste factuur aan.</p></td></tr>`;
-            }
+                if (!tableBody.querySelectorAll('tr').length) {
+                    tableBody.innerHTML = `<tr><td colspan="9" class="px-4 py-14 text-center"><p class="font-semibold" style="color:var(--c-heading)">Geen facturen gevonden</p><p class="mt-1 text-xs" style="color:var(--c-muted)">Maak je eerste factuur aan.</p></td></tr>`;
+                }
             currentId = null;
             closeModal('hardwareDeleteModal');
         }).catch(()=>{}).finally(()=>{

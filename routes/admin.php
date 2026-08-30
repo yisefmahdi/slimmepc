@@ -177,6 +177,8 @@ Route::prefix('admin')
                         Route::get('/data', [DeviceReceiptController::class, 'data'])->name('data');
                         Route::get('/create', [DeviceReceiptController::class, 'create'])->name('create');
                         Route::post('/', [DeviceReceiptController::class, 'store'])->name('store');
+                        Route::get('/{receipt}', [DeviceReceiptController::class, 'show'])->name('show');
+                        Route::post('/{receipt}/status', [DeviceReceiptController::class, 'updateStatus'])->name('status');
                         Route::delete('/{receipt}', [DeviceReceiptController::class, 'destroy'])->name('destroy');
                     });
             });

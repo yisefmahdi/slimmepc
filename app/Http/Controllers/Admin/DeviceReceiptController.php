@@ -57,7 +57,7 @@ class DeviceReceiptController extends Controller
         $paginator = $query
             ->orderByDesc('created_at')
             ->orderByDesc('id')
-            ->paginate($perPage, ['id', 'customer_name', 'customer_email', 'device_type', 'phone_number', 'serial_number', 'notes', 'received_at', 'type', 'created_at']);
+            ->paginate($perPage, ['id', 'customer_name', 'customer_email', 'device_type', 'phone_number', 'serial_number', 'notes', 'received_at', 'type', 'status', 'created_at']);
 
         $items = collect($paginator->items())->map(function ($row) {
             $arr = $row->toArray();
@@ -76,6 +76,29 @@ class DeviceReceiptController extends Controller
         ]);
     }
 
+    public function show(DeviceReceipt $receipt): JsonResponse
+    {
+        return response()->json([
+            'receipt' => array_merge($receipt->toArray(), ['receipt_number' => $receipt->receiptNumber()])
+        ]);
+    }
+
+    public function updateStatus(Request $request, DeviceReceipt $receipt): JsonResponse
+    {
+        $request->validate(['status' => 'required|string|in:received,processing,completed']);
+        
+        $newStatus = $request->status;
+
+        $receipt->update(['status' => $newStatus]);
+
+        if ($newStatus === 'completed') {
+            // Send email immediately to ensure delivery in local/production environments
+            Mail::to($receipt->customer_email)->send(new \App\Mail\DeviceReceiptCompletedMail($receipt));
+        }
+
+        return response()->json(['message' => 'Status bijgewerkt succesvol.']);
+    }
+
     public function store(StoreDeviceReceiptRequest $request): JsonResponse
     {
         $validated = $request->validated();
@@ -89,6 +112,7 @@ class DeviceReceiptController extends Controller
             'received_at' => $validated['received_at'],
             'notes' => $validated['notes'] ?? null,
             'type' => $validated['type'],
+            'status' => 'received',
         ]);
 
         dispatch(function () use ($receipt) {

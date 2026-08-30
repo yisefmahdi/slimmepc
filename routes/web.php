@@ -43,5 +43,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Public Device Receipt Tracking
+Route::get('/track', [App\Http\Controllers\TrackingController::class, 'index'])->name('tracking.index');
+Route::post('/track', [App\Http\Controllers\TrackingController::class, 'track'])->name('tracking.track');
+
 require __DIR__.'/auth.php';
 

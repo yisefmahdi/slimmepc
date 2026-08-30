@@ -47,7 +47,6 @@
                             <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">T-nummer</th>
                             <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Apparaattype</th>
                             <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Serienummer</th>
-                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Omschrijven</th>
                             <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Datum ontvangst</th>
                             <th class="px-3 py-3 text-right text-xs font-bold uppercase tracking-wide whitespace-nowrap sticky right-0 z-10" style="color: var(--c-muted); background-color: var(--c-card); box-shadow: -8px 0 12px -4px rgba(15,23,42,.06);">Acties</th>
                         </tr>
@@ -58,6 +57,75 @@
             <div id="ontvangstPagination" class="shrink-0 border-t px-3 py-2" style="border-color: rgba(148,163,184,.15)"></div>
         </div>
     </div>
+
+    {{-- Preview modal --}}
+    <x-admin.modal id="ontvangstPreviewModal" title="Ontvangst details" size="md">
+        <div class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="p-3 rounded-xl border" style="background-color: var(--c-page); border-color: rgba(148,163,184,.2)">
+                    <p class="text-[10px] uppercase font-bold text-slate-500 mb-1">Naam klant</p>
+                    <p id="prevName" class="text-sm font-semibold" style="color: var(--c-heading)">—</p>
+                </div>
+                <div class="p-3 rounded-xl border" style="background-color: var(--c-page); border-color: rgba(148,163,184,.2)">
+                    <p class="text-[10px] uppercase font-bold text-slate-500 mb-1">E-mailadres</p>
+                    <p id="prevEmail" class="text-sm font-semibold" style="color: var(--c-heading)">—</p>
+                </div>
+                <div class="p-3 rounded-xl border" style="background-color: var(--c-page); border-color: rgba(148,163,184,.2)">
+                    <p class="text-[10px] uppercase font-bold text-slate-500 mb-1">T-nummer</p>
+                    <p id="prevTNum" class="text-sm font-bold text-blue-600">—</p>
+                </div>
+                <div class="p-3 rounded-xl border" style="background-color: var(--c-page); border-color: rgba(148,163,184,.2)">
+                    <p class="text-[10px] uppercase font-bold text-slate-500 mb-1">Apparaat</p>
+                    <p id="prevDevice" class="text-sm font-semibold" style="color: var(--c-heading)">—</p>
+                </div>
+                <div class="p-3 rounded-xl border" style="background-color: var(--c-page); border-color: rgba(148,163,184,.2)">
+                    <p class="text-[10px] uppercase font-bold text-slate-500 mb-1">Serienummer</p>
+                    <p id="prevSerial" class="text-sm font-semibold" style="color: var(--c-heading)">—</p>
+                </div>
+                <div class="p-3 rounded-xl border" style="background-color: var(--c-page); border-color: rgba(148,163,184,.2)">
+                    <p class="text-[10px] uppercase font-bold text-slate-500 mb-1">Datum ontvangst</p>
+                    <p id="prevDate" class="text-sm font-semibold" style="color: var(--c-heading)">—</p>
+                </div>
+            </div>
+            <div class="p-3 rounded-xl border" style="background-color: var(--c-page); border-color: rgba(148,163,184,.2)">
+                <p class="text-[10px] uppercase font-bold text-slate-500 mb-1">Opmerkingen</p>
+                <p id="prevNotes" class="text-sm" style="color: var(--c-heading)">—</p>
+            </div>
+            <div class="mt-6 p-4 rounded-2xl border bg-blue-50/50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/30">
+                <label class="block text-xs font-bold text-blue-700 dark:text-blue-300 mb-2 uppercase">Status wijzigen</label>
+                <div class="flex gap-2">
+                    <select id="prevStatus" class="flex-1 h-10 rounded-xl border px-3 text-sm outline-none" style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading)">
+                        <option value="received">Ontvangen</option>
+                        <option value="processing">In behandeling</option>
+                        <option value="completed">Voltooid</option>
+                    </select>
+                    <button type="button" id="prevStatusUpdateBtn" class="inline-flex h-10 items-center justify-center rounded-xl bg-blue-600 px-4 text-sm font-bold text-white hover:bg-blue-700 shadow-sm">
+                        Opslaan
+                    </button>
+                </div>
+            </div>
+        </div>
+        <x-slot name="footer">
+            <button type="button" data-modal-close class="inline-flex h-11 items-center justify-center rounded-xl border px-5 text-sm font-semibold" style="color: var(--c-heading); border-color: var(--c-input-border)">Sluiten</button>
+        </x-slot>
+    </x-admin.modal>
+
+    {{-- Confirm Status Modal --}}
+    <x-admin.modal id="ontvangstConfirmStatusModal" title="Status bevestigen" size="sm">
+        <div class="flex items-start gap-4">
+            <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-900/30">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-6 w-6"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </span>
+            <div>
+                <p class="text-sm font-semibold" style="color: var(--c-heading)">Weet je zeker dat de reparatie is voltooid?</p>
+                <p class="mt-1 text-xs leading-5" style="color: var(--c-muted)">Er wordt een bevestigingsmail naar de klant gestuurd.</p>
+            </div>
+        </div>
+        <x-slot name="footer">
+            <button type="button" data-modal-close class="inline-flex h-11 items-center justify-center rounded-xl border px-5 text-sm font-semibold" style="color: var(--c-heading); border-color: var(--c-input-border)">Annuleren</button>
+            <button type="button" id="ontvangstConfirmStatusBtn" class="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(37,99,235,.25)] hover:bg-blue-700">Ja, bevestigen</button>
+        </x-slot>
+    </x-admin.modal>
 
     {{-- Delete modal --}}
     <x-admin.modal id="ontvangstDeleteModal" title="Ontvangst verwijderen" size="sm">

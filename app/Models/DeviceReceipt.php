@@ -15,6 +15,7 @@ class DeviceReceipt extends Model
         'received_at',
         'notes',
         'type',
+        'status',
     ];
 
     protected function casts(): array

@@ -16,6 +16,10 @@ Hierbij ontvangt u van ons een bevestiging dat wij op **{{ $receipt->received_at
 
 U ontvangt morgen een update over het probleem en de reparatiekosten.
 
+<x-mail::button :url="route('tracking.index', ['t_number' => $receipt->receiptNumber()])">
+🔍 Bekijk status van mijn apparaat
+</x-mail::button>
+
 Met vriendelijke groet,<br>
 **Het Slimme-PC Team**
 

@@ -27,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'register/',
             'logout/',
             'contact/submit',
+            'track/',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
