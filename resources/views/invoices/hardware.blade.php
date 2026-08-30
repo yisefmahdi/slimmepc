@@ -31,17 +31,47 @@
 <tr>
     <td style="vertical-align: top; width: 140px; padding-right: 16px;">
         @php
-            $logoPath = public_path('assets/img/logo.png');
+            $candidates = [];
+            $cmsLogo = \App\Support\Cms::page('home')['header']['logo_image'] ?? null;
+            if ($cmsLogo) { $candidates[] = public_path($cmsLogo); }
+            $candidates[] = public_path('assets/img/logo.png');
+            $candidates[] = public_path('assets/img/landing/logo.png');
+            $candidates[] = public_path('assets/img/logo.webp');
+            $candidates[] = public_path('assets/img/landing/logo.webp');
             $logoSrc = '';
-            if (file_exists($logoPath)) {
-                $logoSrc = 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath));
+            foreach ($candidates as $cand) {
+                if ($cand && file_exists($cand) && is_file($cand)) {
+                    $ext = strtolower(pathinfo($cand, PATHINFO_EXTENSION));
+                    // Voor PDF: converteer webp naar png zodat dompdf geen imagecreatefromwebp nodig heeft
+                    if ($ext === 'webp' && function_exists('imagecreatefromwebp')) {
+                        $img = @imagecreatefromwebp($cand);
+                        if ($img) {
+                            ob_start();
+                            imagepng($img);
+                            $pngData = ob_get_clean();
+                            imagedestroy($img);
+                            $logoSrc = 'data:image/png;base64,'.base64_encode($pngData);
+                            break;
+                        }
+                        // als conversie faalt, probeer volgende kandidaat
+                        continue;
+                    }
+                    // webp zonder GD support -> skip
+                    if ($ext === 'webp') { continue; }
+                    $mime = match($ext) {
+                        'svg' => 'image/svg+xml',
+                        'jpg','jpeg' => 'image/jpeg',
+                        'png' => 'image/png',
+                        default => mime_content_type($cand) ?: 'image/png',
+                    };
+                    $logoSrc = 'data:'.$mime.';base64,'.base64_encode(file_get_contents($cand));
+                    break;
+                }
             }
         @endphp
-        
         @if($logoSrc)
             <img src="{{ $logoSrc }}" style="width: 120px; height: auto; display: block;" alt="Slimme-PC">
         @else
-            <!-- نص احتياطي في حال وجود مشكلة في الصورة -->
             <div style="width: 120px; height: 40px; background: #000; color: white; font-weight: bold; text-align: center; line-height: 40px; border-radius: 6px;">Slimme-PC</div>
         @endif
     </td>
