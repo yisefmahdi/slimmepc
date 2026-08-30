@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\Admin\KlantController;
 use App\Http\Controllers\Admin\RepairInboxController;
 use App\Http\Controllers\Admin\AfspraakInboxController;
+use App\Http\Controllers\Admin\DeviceReceiptController;
 use App\Http\Controllers\Admin\ManualInvoiceController;
 use Illuminate\Support\Facades\Route;
 
@@ -153,7 +154,7 @@ Route::prefix('admin')
                 Route::delete('/{afspraakSubmission}', [AfspraakInboxController::class, 'destroy'])->name('destroy');
             });
 
-        // Bevestiging-mail - Hardware facturen
+        // Bevestiging-mail - Hardware facturen + Apparaat ontvangst
         Route::prefix('bevestiging-mail')
             ->name('bevestiging-mail.')
             ->group(function () {
@@ -167,6 +168,16 @@ Route::prefix('admin')
                         Route::get('/{invoice}/download', [ManualInvoiceController::class, 'download'])->name('download');
                         Route::get('/{invoice}/preview', [ManualInvoiceController::class, 'preview'])->name('preview');
                         Route::delete('/{invoice}', [ManualInvoiceController::class, 'destroy'])->name('destroy');
+                    });
+
+                Route::prefix('ontvangst')
+                    ->name('ontvangst.')
+                    ->group(function () {
+                        Route::get('/', [DeviceReceiptController::class, 'index'])->name('index');
+                        Route::get('/data', [DeviceReceiptController::class, 'data'])->name('data');
+                        Route::get('/create', [DeviceReceiptController::class, 'create'])->name('create');
+                        Route::post('/', [DeviceReceiptController::class, 'store'])->name('store');
+                        Route::delete('/{receipt}', [DeviceReceiptController::class, 'destroy'])->name('destroy');
                     });
             });
     });

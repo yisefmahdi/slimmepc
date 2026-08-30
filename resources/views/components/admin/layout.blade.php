@@ -471,6 +471,18 @@
                            class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.bevestiging-mail.hardware.*') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
                             Hardware
                         </a>
+                        <a href="{{ route('admin.bevestiging-mail.ontvangst.index', ['type' => 'laptop']) }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.bevestiging-mail.ontvangst.*') && request()->input('type', 'laptop') === 'laptop' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Laptops-PC
+                        </a>
+                        <a href="{{ route('admin.bevestiging-mail.ontvangst.index', ['type' => 'ipad_iphone']) }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.bevestiging-mail.ontvangst.*') && request()->input('type') === 'ipad_iphone' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            iPad-iPhone
+                        </a>
+                        <a href="{{ route('admin.bevestiging-mail.ontvangst.index', ['type' => 'playstation_xbox']) }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.bevestiging-mail.ontvangst.*') && request()->input('type') === 'playstation_xbox' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            PlayStation-Xbox
+                        </a>
                     </div>
                 </div>
 
