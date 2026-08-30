@@ -37,6 +37,7 @@
         <script src="{{ asset('assets/js/vendor/jquery.min.js') }}"></script>
         <script src="{{ asset('assets/js/vendor/axios.min.js') }}"></script>
         <script src="{{ asset('assets/js/vendor/alpine.min.js') }}"></script>
+        <script src="{{ asset('assets/js/admin/table-loading.js') }}?v={{ filemtime(public_path('assets/js/admin/table-loading.js')) }}"></script>
         <script src="{{ asset('assets/js/design.js') }}?v={{ filemtime(public_path('assets/js/design.js')) }}"></script>
         <script src="{{ asset('assets/js/admin/klanten.js') }}?v={{ filemtime(public_path('assets/js/admin/klanten.js')) }}"></script>
         <script src="{{ asset('assets/js/admin/contact-inbox.js') }}?v={{ filemtime(public_path('assets/js/admin/contact-inbox.js')) }}"></script>
@@ -432,13 +433,7 @@
                     <div x-show="open" x-cloak x-transition class="ml-6 space-y-1.5 border-l-2 border-white/30 pl-4 py-1 text-xs">
                         <a href="{{ route('admin.afspraak-aanvragen.index') }}"
                            class="flex items-center justify-between gap-2 rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.afspraak-aanvragen.*') ? 'bg-white/10 font-bold text-white shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
-                            <span class="flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                                    <path d="M22 12h-6l-2 3h-4l-2-3H2"></path>
-                                    <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
-                                </svg>
-                                Aanvragen
-                            </span>
+                            <span>Aanvragen</span>
                             <span id="sidebarAfspraakBadge" class="{{ $afspraakNewCount > 0 ? '' : 'hidden' }} inline-flex min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm">{{ min($afspraakNewCount, 99) }}</span>
                         </a>
                         @foreach ($afspraakSections as $sectionKey => $sectionCfg)
@@ -510,14 +505,39 @@
                     </div>
                 </div>
 
-
-
             </nav>
-                    </div>
-                </div>
 
-            </nav>
-            </nav>
+            <script>
+                // Sidebar accordion: open one dropdown closes others, keeps active page open
+                    document.addEventListener('DOMContentLoaded', () => {
+                    const nav = document.querySelector('nav.sidebar-scroll');
+                    if (!nav || typeof Alpine === 'undefined') return;
+                    nav.addEventListener('click', (e) => {
+                        const btn = e.target.closest('button');
+                        if (!btn) return;
+                        const dropdown = btn.closest('[x-data]');
+                        if (!dropdown) return;
+                        if (!dropdown.matches('nav.sidebar-scroll > [x-data]')) return;
+                        // check if this button toggles open (contains open or toggle)
+                        const clickAttr = btn.getAttribute('@click') || btn.getAttribute('x-on:click') || '';
+                        if (!clickAttr.includes('open') && !clickAttr.includes('toggle')) return;
+                        setTimeout(() => {
+                            try {
+                                const data = Alpine.$data(dropdown);
+                                if (data && data.open) {
+                                    document.querySelectorAll('nav.sidebar-scroll > [x-data]').forEach(el => {
+                                        if (el === dropdown) return;
+                                        try {
+                                            const d = Alpine.$data(el);
+                                            if (d && typeof d.open !== 'undefined') d.open = false;
+                                        } catch {}
+                                    });
+                                }
+                            } catch {}
+                        }, 0);
+                    });
+                });
+            </script>
 
             {{-- Sidebar footer --}}
             <div class="border-t border-white/10 p-4">

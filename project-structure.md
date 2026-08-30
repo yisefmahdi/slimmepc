@@ -43,15 +43,17 @@ slimmepc/
 │   │       ├── Auth/          # Breeze form requests (LoginRequest, RegisterRequest, ...)
 │   │       ├── Admin/         # StoreKlantRequest, UpdateKlantRequest (Dutch messages)
 │   │       ├── StoreManualInvoiceRequest.php # Hardware factuur validatie (total nullable, inclusief)
+│   │       ├── StoreDeviceReceiptRequest.php # Ontvangst validatie (type in: laptop/ipad_iphone/playstation_xbox)
 │   │       └── ProfileUpdateRequest.php
 │   ├── Models/
 │   │   ├── ContentBlock.php   # CMS block: page/section/block_key/type/value/json_value (cast array)/sort_order
 │   │   ├── ContentMeta.php    # CMS meta: meta_key/meta_value (design JSON + cache_version) — table `content_meta`
 │   │   ├── ManualInvoice.php  # Hardware factuur: invoice_number SLM-XXXXXX, subtotal/tax_amount/total decimals
+│   │   ├── DeviceReceipt.php  # Ontvangst: DR-00001, customer_name/email/device_type/phone/serial/received_at/notes/type
 │   │   ├── AfspraakSubmission.php # Afspraak: AF-YYYY-#####, device/service_type/preferred_date...
 │   │   ├── User.php           # Customized: phone, is_blocked, address fields, role, klantnummer + isAdmin()/isTechnician()/isCustomer()
 │   │   └── RepairSubmission.php # Reparatie submission: repair_number, device, problems[]/photos[] (array cast), privacy (bool), status enum, scopeNew(), photoUrls()
-│   ├── Mail/                     # RepairReceived (customer confirmation), AdminRepairNotification (owner notify, +reply-repair-{id} Reply-To)
+│   ├── Mail/                     # RepairReceived, AdminRepairNotification, ManualInvoiceMail, DeviceReceiptMail (Bevestiging Ontvangst)
 │   ├── Providers/
 │   │   └── AppServiceProvider.php
 │   ├── Support/
@@ -89,7 +91,10 @@ slimmepc/
 │       │   ├── design.js            # global JS: theme, loading states, password toggle, toasts, modals, confirm, axios defaults
 │       │   ├── landing.js           # landing page JS: lucide icons, mobile drawer, search overlay, accordion, process orbit, shop carousel
 │       │   ├── admin/
-│       │   │   ├── klanten.js       # Users CRUD (axios, no page refresh) — endpoints target /admin/users
+│       │   │   ├── klanten.js       # Users CRUD — now unified Hardware-style + window.AdminTable.loading (6 cols) + row.remove() delete
+│       │   │   ├── hardware-invoices.js # Hardware facturen — window.AdminTable.loading (10 cols) + row.remove() + preview popup
+│       │   │   ├── device-receipts.js # Ontvangst — 8 cols + window.AdminTable.loading + row.remove()
+│       │   │   ├── table-loading.js # Shared table loading: window.AdminTable.loading(tbody, cols) SVG spinner Gegevens laden...
 │       │   │   ├── content.js       # CMS editor: section forms (axios, no reload on save), json row add/remove, color sync, file preview
 │       │   │   ├── icon-picker.js   # CMS icon picker: searchable dropdown of all lucide icons (icon+name), kebab/pascal conversion, MutationObserver re-renders new rows
 │       │   │   ├── loader.js        # admin page-navigation loader: intercepts internal links/forms (sessionStorage flag adminPageNav)
@@ -910,3 +915,78 @@ Handmatige factuur-flow voor hardware: admin vult klant + apparaat + bedragen in
 
 ### Verification (2026-08-29)
 - `php -l` alle PHP; `php artisan route:list` toont 6 hardware routes; `migrate` OK; `GET /admin/bevestiging-mail/hardware` 200 (via admin login); `POST /` 201 `{invoice_number: SLM-XXXXXX}` met `total=500` → `subtotal 413.22 / tax 86.78` correct; `GET /{id}/download` → PDF blob; `GET /{id}/preview` → HTML 200; `DELETE /{id}` → 200 en PDF verwijderd. Deploy: `git push origin main` (16 commits) + `scp` + `optimize:clear` + `scripts/deploy.sh` gesynced.
+
+- [2026-08-30] — **PDF logo definitief gefixt (GD + webp→png)**:
+  - `C:\php8.2\php.ini` `;extension=gd` → `extension=gd` (bundled 2.1.0, WebP Support 1, PNG Support 1) — `php -m` toont `gd`, `imagecreatefromwebp()` bestaat; `php artisan serve` opnieuw gestart.
+  - `public/assets/img/logo.png` + `landing/logo.png` (was 240B placeholder) → geconverteerd van `logo.webp` (165KB) via `imagecreatefromwebp` → `imagepng` → 722KB echte logo via `convert_webp.php`.
+  - `invoices/hardware.blade.php:33-56` dynamisch: `Cms::page('home')['header']['logo_image']` + fallback chain `logo.png`/`landing/logo.png`/`logo.webp`; webp wordt in-memory naar `image/png;base64` geconverteerd via `imagecreatefromwebp` + `ob_start/imagepng` om `dompdf` `imagecreatefromwebp not found` op `ca_*.tmp` te omzeilen. View 966KB, PDF 1.5MB, `php -l` ok, `optimize:clear`.
+
+- [2026-08-30] — **Hardware preview popup met Laden**:
+  - `admin/bevestiging-mail/hardware/index.blade.php:60` nieuwe `hardwarePreviewModal` `size=xl` met `#hardwarePreviewLoader` (svg spinner + Laden...) + `iframe#hardwarePreviewFrame h:72vh` + footer `Sluiten`/`Printen`.
+  - `hardware-invoices.js:80` Preview van `<a target=_blank>` → `<button data-preview>`; click toont loader, `iframe.src=/admin/bevestiging-mail/hardware/{id}/preview`, `onload` verbergt loader, Printen via `contentWindow.print()`.
+
+- [2026-08-30] — **Apparaat Ontvangst (device_receipts) onder Bevestiging-mail — nieuw feature** (`501e94f`):
+  - **DB** `device_receipts` (`2026_08_30_000001`): `id`, `customer_name`, `customer_email`, `device_type`, `phone_number`, `serial_number` nullable, `received_at` datetime, `notes` nullable, `type` default `laptop` (`laptop`/`ipad_iphone`/`playstation_xbox`), `timestamps`.
+  - **Model** `DeviceReceipt` casts `received_at` datetime, `receiptNumber()` → `DR-00001`.
+  - **Request** `StoreDeviceReceiptRequest` NL messages, `type` in:`laptop,ipad_iphone,playstation_xbox`.
+  - **Mail** `DeviceReceiptMail` + `emails/device-receipt.blade.php` verticaal: `| Type | HP | / Serienummer | dsds | / Opmerking | sd |` + header `Bevestiging Ontvangst Apparaat` met `received_at d-m-Y H:i`.
+  - **Controller** `DeviceReceiptController` 5 routes: `index`/`create` (met `?type` filter, default laptop), `data` (search/pagination 15/25/50 + `type` filter), `store` (`afterResponse` mail), `destroy` (alleen verwijderen).
+  - **Routes** `admin.bevestiging-mail.ontvangst.*` (5) in `routes/admin.php`.
+  - **Views** `ontvangst/index.blade.php` (8 kolommen: Naam klant/E-mail/T-nummer DR-…/Apparaattype/Serienummer/Omschrijven/Datum ontvangst/Acties) + `ontvangst/create.blade.php` (7 velden: Naam/E-mail/Telefoon/Type apparaat/Serienummer/Opmerkingen/Datum & tijd datetime-local default now + hidden type).
+  - **JS** `device-receipts.js` (kopie hardware-invoices, 8 kolommen, `window.ONTVANGST_TYPE`).
+  - **Sidebar** `components/admin/layout.blade.php` Bevestiging-mail → 3 items `Laptops-PC`/`iPad-iPhone`/`PlayStation-Xbox` (zonder `Ontvangst —` prefix, `request()->input('type','laptop')` active).
+  - **Verificatie**: `migrate` 645ms DONE, `route:list` 5 ontvangst routes, `optimize:clear`.
+
+- [2026-08-30] — **Dashboard tabellen unificatie + loading**:
+  - `klanten/index.blade.php` herbouwd naar Hardware-stijl: `flex h-[calc(100dvh-108px)]` + card `rounded-2xl border shadow` + toolbar `shrink-0 border-b px-4 py-3` met search `flex-1` groot + role-filter `h-9 sm:w-32` klein + perPage `h-9 sm:w-[110px]` + stats chips + tabel `min-w-[1100px] overflow-auto sticky header px-3 py-3` + pagination `shrink-0 border-t`.
+  - Nieuw `public/assets/js/admin/table-loading.js` → `window.AdminTable.loading(tbody, cols)` met SVG spinner `Gegevens laden... / Even geduld` (gedeeld door alle tabellen).
+  - `layout.blade.php` laadt `table-loading.js` voor `design.js`; `klanten.js` (`loading(...,6)`), `hardware-invoices.js` (`...,10`), `device-receipts.js` (`...,8`) tonen loading voor fetch.
+  - Spinner fix: `span border` → `svg animate-spin text-blue-600` (Tailwind `animate-spin` werkt nu).
+  - Search/filter sizing: `klantSearch flex-1`, `klantRoleFilter h-9 sm:w-32`, `klantPerPage sm:w-[110px]`.
+
+- [2026-08-30] — **Sidebar & interactie fixes**:
+  - `layout.blade.php` Afspraak `Aanvragen` icoon verwijderd (alleen tekst + badge).
+  - Delete zonder reload: `klanten.js`/`hardware-invoices.js`/`device-receipts.js` `confirmDelete` nu `row.remove()` direct, geen `load()`; lege tabel toont `Geen ... gevonden` zonder `Gegevens laden...` flikkering.
+  - Sidebar accordion: nieuw script `nav.sidebar-scroll > [x-data]` met `Alpine.$data` dat bij openen één dropdown alle andere top-level dropdowns sluit (`open=false`), blijft open op actieve pagina.
+  - Landing header `landing/partials/header.blade.php` dropdown: `Beheer` link (`layout-dashboard` icoon → `route('admin.dashboard')`) alleen voor `@if(auth()->user()->isAdmin())`, boven `Mijn account`.
+
+- [2026-08-30] — **Over-ons reviews carousel**:
+  - `overons-reviews.blade.php` header met navigatieknoppen `reviewPrev`/`reviewNext` (`h-10 w-10 rounded-full border shadow` met `chevron-left/right`), `reviewTrack` id, JS `scrollBy({left: cardWidth+16, behavior:'smooth'})` + `lucide.createIcons()`; duplicaat `<h2>Wat klanten zeggen</h2>` onder badge verwijderd (alleen badge boven blijft).
+
+---
+
+## 17. Apparaat Ontvangst (Bevestiging-mail → Ontvangst) — feature detail (2026-08-30)
+
+### Overzicht
+Handmatige ontvangstbevestiging per categorie. Admin kiest type via sidebar (Laptops-PC / iPad-iPhone / PlayStation-Xbox), vult 7 velden in, klant krijgt bevestigingsmail. Zie Changelog 2026-08-30.
+
+### Database
+- `device_receipts` (migration `2026_08_30_000001_create_device_receipts_table.php`) — zie Changelog.
+
+### Model / Request / Mail
+- `DeviceReceipt` + `StoreDeviceReceiptRequest` + `DeviceReceiptMail` + `emails/device-receipt.blade.php` verticaal.
+
+### Controller / Routes
+- `DeviceReceiptController` + `routes/admin.php` `bevestiging-mail.ontvangst.*` (5 routes).
+
+### Views / JS
+- `admin/bevestiging-mail/ontvangst/index.blade.php` + `create.blade.php` + `device-receipts.js`.
+
+### Sidebar
+- `components/admin/layout.blade.php` Bevestiging-mail → 3 Ontvangst items.
+
+### Verification (2026-08-30)
+- `php -l` ok, `route:list` 5 routes, `migrate` DONE, `GET /admin/bevestiging-mail/ontvangst?type=laptop` 200, `POST /` 201 + mail, `DELETE`.
+
+---
+
+## 18. Dashboard tabellen & UX — unificatie (2026-08-30)
+
+### Overzicht
+Alle admin tabellen nu zelfde design + gedeelde loading + rij-verwijdering zonder reload + sidebar accordion.
+
+### Wijzigingen
+- `klanten/index.blade.php` → Hardware-stijl; `table-loading.js` gedeeld; `klanten.js`/`hardware-invoices.js`/`device-receipts.js` loading + direct `row.remove()`; `layout.blade.php` accordion script; `header.blade.php` Beheer-link; `overons-reviews.blade.php` carousel knoppen.
+
+### Verification
+- `optimize:clear` + `view:clear` OK; alle tabellen tonen `Gegevens laden...` met draaiende SVG, zoeken blijft groot, filters klein, Afspraak Aanvragen zonder icoon, sidebar sluit anderen correct, over-ons reviews scrollt per kaart.

@@ -32,6 +32,7 @@
     }
 
     function load() {
+        if (window.AdminTable) window.AdminTable.loading(tableBody, 8);
         const params = new URLSearchParams({
             search: searchEl.value.trim(),
             per_page: perPageEl.value,
@@ -100,13 +101,18 @@
         const origHtml = btn.innerHTML;
         btn.disabled = true;
         btn.innerHTML = '<svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Laden...';
-        fetch('/admin/bevestiging-mail/ontvangst/' + currentId, {
+        const deletedId = currentId;
+        fetch('/admin/bevestiging-mail/ontvangst/' + deletedId, {
             method: 'DELETE',
             headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': getToken(), 'X-Requested-With': 'XMLHttpRequest' },
         }).then(r => r.json()).then(() => {
+            const row = document.querySelector(`[data-delete="${deletedId}"]`)?.closest('tr');
+            if (row) row.remove();
+            if (!tableBody.querySelectorAll('tr').length) {
+                tableBody.innerHTML = `<tr><td colspan="8" class="px-4 py-14 text-center"><p class="font-semibold" style="color:var(--c-heading)">Geen ontvangsten gevonden</p><p class="mt-1 text-xs" style="color:var(--c-muted)">Maak je eerste ontvangst aan.</p></td></tr>`;
+            }
             currentId = null;
             closeModal('ontvangstDeleteModal');
-            load();
         }).catch(()=>{}).finally(()=>{
             btn.disabled = false;
             btn.innerHTML = origHtml;

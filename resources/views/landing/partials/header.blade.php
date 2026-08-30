@@ -380,6 +380,18 @@
                             bg-white p-1.5
                             shadow-[0_20px_50px_rgba(15,23,42,.18)]
                         ">
+                        @if(auth()->user()->isAdmin())
+                            <a href="{{ route('admin.dashboard') }}" class="
+                                    flex items-center gap-2.5
+                                    rounded-xl px-3.5 py-2.5
+                                    text-sm font-semibold text-slate-700
+                                    transition hover:bg-blue-50 hover:text-blue-700
+                                ">
+                                <i data-lucide="layout-dashboard" class="h-4 w-4 text-brand-primary"></i>
+                                Beheer
+                            </a>
+                            <div class="my-1 h-px bg-slate-200"></div>
+                        @endif
                         <a href="{{ route('profile.edit') }}" class="
                                 flex items-center gap-2.5
                                 rounded-xl px-3.5 py-2.5

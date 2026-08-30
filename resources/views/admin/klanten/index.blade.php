@@ -1,93 +1,77 @@
 <x-admin.layout title="Klanten">
-    {{-- Header row --}}
-    <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <h2 class="text-xl font-extrabold tracking-tight sm:text-2xl" style="color: var(--c-heading)">Klantenbeheer</h2>
-            <p class="mt-1 text-sm" style="color: var(--c-muted)">
-                Beheer alle klanten, techniciens en beheerders van Slimme-PC.
-            </p>
+    <div class="flex h-[calc(100dvh-108px)] min-h-[24rem] flex-col overflow-hidden lg:h-[calc(100dvh-9rem)] lg:min-h-[26rem]">
+
+        {{-- Header --}}
+        <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h2 class="text-base font-extrabold tracking-tight sm:text-lg" style="color: var(--c-heading)">Klantenbeheer</h2>
+                <p class="mt-0.5 text-xs" style="color: var(--c-muted)">Beheer alle klanten, techniciens en beheerders van Slimme-PC.</p>
+            </div>
+            <button type="button" data-open-create
+                    class="inline-flex h-10 items-center gap-2 rounded-xl bg-blue-600 px-5 text-sm font-bold text-white shadow-[0_10px_25px_rgba(37,99,235,.25)] transition hover:-translate-y-0.5 hover:bg-blue-700">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Nieuwe klant
+            </button>
         </div>
 
-        <button type="button" data-open-create
-                class="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#075be8] to-[#064bd7] px-5 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(0,91,234,0.25)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(0,91,234,0.32)]">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-5 w-5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-            Nieuwe klant
-        </button>
-    </div>
-
-    {{-- Toolbar: search + filters + stats --}}
-    <div class="mb-5 flex flex-col gap-4">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-            {{-- Search --}}
-            <div class="relative flex-1">
-                <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                    </svg>
-                </span>
-                <input type="text" id="klantSearch" placeholder="Zoek op naam, e-mail, klantnummer, stad..."
-                       class="form-input pl-12" style="height: 48px">
+        <div class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border" style="background-color: var(--c-card); border-color: rgba(148,163,184,.2); box-shadow: 0 14px 35px rgba(15,23,42,.06)">
+            {{-- Toolbar --}}
+            <div class="shrink-0 border-b px-4 py-3" style="border-color: rgba(148,163,184,.15)">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <div class="relative flex-1">
+                        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                            </svg>
+                        </span>
+                        <input type="text" id="klantSearch" placeholder="Zoek op naam, e-mail, klantnummer, stad..."
+                               class="form-input h-10 w-full pl-12 text-sm" style="background-color: var(--c-page)">
+                    </div>
+                    <select id="klantRoleFilter"
+                            class="h-9 shrink-0 rounded-lg border px-2 text-xs outline-none sm:w-32"
+                            style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading)">
+                        <option value="">Alle rollen</option>
+                        <option value="user">Klanten</option>
+                        <option value="technician">Techniciens</option>
+                        <option value="admin">Beheerders</option>
+                    </select>
+                    <select id="klantPerPage"
+                            class="h-9 shrink-0 rounded-lg border px-2 text-xs outline-none sm:w-[110px]"
+                            style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading)">
+                        <option value="10">10 per pagina</option>
+                        <option value="25">25 per pagina</option>
+                        <option value="50">50 per pagina</option>
+                    </select>
+                </div>
+                {{-- Stats chips --}}
+                <div class="mt-3 flex flex-wrap items-center gap-2 text-xs">
+                    <span class="rounded-full bg-blue-50 px-3 py-1.5 font-bold text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" id="countUsers">Klanten: 0</span>
+                    <span class="rounded-full bg-indigo-50 px-3 py-1.5 font-bold text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400" id="countTechnicians">Techniciens: 0</span>
+                    <span class="rounded-full bg-purple-50 px-3 py-1.5 font-bold text-purple-600 dark:bg-purple-900/30 dark:text-purple-400" id="countAdmins">Beheerders: 0</span>
+                </div>
             </div>
 
-            {{-- Role filter --}}
-            <select id="klantRoleFilter"
-                    class="h-12 w-full rounded-xl border px-4 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/40 sm:w-52"
-                    style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading)">
-                <option value="">Alle rollen</option>
-                <option value="user">Klanten</option>
-                <option value="technician">Techniciens</option>
-                <option value="admin">Beheerders</option>
-            </select>
-
-            {{-- Per page --}}
-            <select id="klantPerPage"
-                    class="h-12 w-full rounded-xl border px-4 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/40 sm:w-32"
-                    style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading)">
-                <option value="10">10 per pagina</option>
-                <option value="25">25 per pagina</option>
-                <option value="50">50 per pagina</option>
-            </select>
-        </div>
-
-        {{-- Stats chips --}}
-        <div class="flex flex-wrap items-center gap-2 text-xs">
-            <span class="rounded-full bg-blue-50 px-3 py-1.5 font-bold text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" id="countUsers">
-                Klanten: 0
-            </span>
-            <span class="rounded-full bg-indigo-50 px-3 py-1.5 font-bold text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400" id="countTechnicians">
-                Techniciens: 0
-            </span>
-            <span class="rounded-full bg-purple-50 px-3 py-1.5 font-bold text-purple-600 dark:bg-purple-900/30 dark:text-purple-400" id="countAdmins">
-                Beheerders: 0
-            </span>
+            {{-- Table --}}
+            <div class="min-h-0 flex-1 overflow-auto overflow-x-auto w-full" style="-webkit-overflow-scrolling: touch;">
+                <table class="w-full min-w-[1100px] border-collapse text-left" style="min-width:1100px">
+                    <thead class="sticky top-0 z-20" style="background-color: var(--c-card)">
+                        <tr class="border-b" style="border-color: rgba(148,163,184,.15)">
+                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Klant</th>
+                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Klantnummer</th>
+                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Adres</th>
+                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Rol</th>
+                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Status</th>
+                            <th class="px-3 py-3 text-right text-xs font-bold uppercase tracking-wide whitespace-nowrap sticky right-0 z-10" style="color: var(--c-muted); background-color: var(--c-card); box-shadow: -8px 0 12px -4px rgba(15,23,42,.06);">Acties</th>
+                        </tr>
+                    </thead>
+                    <tbody id="klantTableBody"></tbody>
+                </table>
+            </div>
+            <div id="klantPagination" class="shrink-0 border-t px-3 py-2" style="border-color: rgba(148,163,184,.15)"></div>
         </div>
     </div>
-
-    {{-- Table card --}}
-    <x-admin.card>
-        <div class="overflow-x-auto" style="overflow-x:auto">
-                <table class="w-full min-w-[820px] text-start text-sm" style="min-width:820px">
-                <thead>
-                    <tr style="color: var(--c-muted)">
-                        <th class="px-6 py-3.5 text-start text-xs font-bold uppercase tracking-wider">Klant</th>
-                        <th class="px-6 py-3.5 text-start text-xs font-bold uppercase tracking-wider">Klantnummer</th>
-                        <th class="px-6 py-3.5 text-start text-xs font-bold uppercase tracking-wider">Adres</th>
-                        <th class="px-6 py-3.5 text-start text-xs font-bold uppercase tracking-wider">Rol</th>
-                        <th class="px-6 py-3.5 text-start text-xs font-bold uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3.5 text-end text-xs font-bold uppercase tracking-wider">Acties</th>
-                    </tr>
-                </thead>
-                <tbody id="klantTableBody">
-                    {{-- Filled by JS --}}
-                </tbody>
-            </table>
-        </div>
-    </x-admin.card>
-
-    {{-- Pagination --}}
-    <div id="klantPagination" class="mt-5"></div>
 
     {{-- ============ Create / Edit modal ============ --}}
     <x-admin.modal id="klantFormModal" title="Nieuwe klant" subtitle="Voeg een nieuwe klant toe aan Slimme-PC" size="lg">
