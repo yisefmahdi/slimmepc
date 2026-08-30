@@ -8,6 +8,9 @@
     const perPageEl = document.getElementById('hardwarePerPage');
     const deleteModal = document.getElementById('hardwareDeleteModal');
     const deleteConfirmBtn = document.getElementById('hardwareDeleteConfirmBtn');
+    const previewFrame = document.getElementById('hardwarePreviewFrame');
+    const previewLoader = document.getElementById('hardwarePreviewLoader');
+    const previewPrintBtn = document.getElementById('hardwarePreviewPrintBtn');
 
     let currentId = null;
     let currentPage = 1;
@@ -77,9 +80,9 @@
                         <svg class="dl-spinner hidden h-3.5 w-3.5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
                         <span class="dl-label">Download</span>
                     </button>
-                    <a href="/admin/bevestiging-mail/hardware/${row.id}/preview" target="_blank" class="inline-flex h-7 items-center gap-1 rounded-lg bg-slate-50 px-2.5 text-[11px] font-bold text-slate-700 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 ml-1">
+                    <button type="button" data-preview="${row.id}" class="hardware-preview inline-flex h-7 items-center gap-1 rounded-lg bg-slate-50 px-2.5 text-[11px] font-bold text-slate-700 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-300 ml-1">
                         Preview
-                    </a>
+                    </button>
                 </td>
                 <td class="px-3 py-3 text-right sticky right-0" style="background-color: var(--c-card); box-shadow: -8px 0 12px -4px rgba(15,23,42,.06);">
                     <button type="button" data-delete="${row.id}" data-name="${escapeHtml(row.invoice_number)}" class="hardware-delete inline-flex h-8 w-8 items-center justify-center rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20">
@@ -130,6 +133,21 @@
                 }
             });
         });
+        tableBody.querySelectorAll('.hardware-preview').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.dataset.preview;
+                if (previewLoader) previewLoader.classList.remove('hidden');
+                if (previewFrame) { previewFrame.classList.add('hidden'); previewFrame.removeAttribute('src'); }
+                openModal('hardwarePreviewModal');
+                if (previewFrame) {
+                    previewFrame.onload = () => {
+                        if (previewLoader) previewLoader.classList.add('hidden');
+                        previewFrame.classList.remove('hidden');
+                    };
+                    previewFrame.src = `/admin/bevestiging-mail/hardware/${id}/preview`;
+                }
+            });
+        });
     }
 
     function renderPagination(p) {
@@ -167,6 +185,11 @@
     searchEl.addEventListener('input', () => { clearTimeout(searchTimer); searchTimer = setTimeout(()=>{ currentPage=1; load(); }, 300); });
     perPageEl.addEventListener('change', ()=>{ currentPage=1; load(); });
     deleteConfirmBtn.addEventListener('click', confirmDelete);
+    if (previewPrintBtn && previewFrame) {
+        previewPrintBtn.addEventListener('click', () => {
+            try { previewFrame.contentWindow.focus(); previewFrame.contentWindow.print(); } catch(e) {}
+        });
+    }
 
     load();
 })();

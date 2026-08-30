@@ -57,6 +57,22 @@
         </div>
     </div>
 
+    {{-- Preview modal --}}
+    <x-admin.modal id="hardwarePreviewModal" title="Factuur preview" size="xl">
+        <div id="hardwarePreviewLoader" class="flex flex-col items-center justify-center gap-3 py-16">
+            <svg class="h-8 w-8 animate-spin text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+            <p class="text-sm font-semibold" style="color:var(--c-muted)">Laden...</p>
+        </div>
+        <iframe id="hardwarePreviewFrame" class="hidden w-full rounded-xl border" style="height:72vh; border-color: rgba(148,163,184,.2)" title="Factuur preview"></iframe>
+        <x-slot name="footer">
+            <button type="button" data-modal-close class="inline-flex h-11 items-center justify-center rounded-xl border px-5 text-sm font-semibold" style="color: var(--c-heading); border-color: var(--c-input-border)">Sluiten</button>
+            <button type="button" id="hardwarePreviewPrintBtn" class="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(37,99,235,.25)] hover:bg-blue-700">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V6M6 6h12"/></svg>
+                Printen
+            </button>
+        </x-slot>
+    </x-admin.modal>
+
     {{-- Delete modal --}}
     <x-admin.modal id="hardwareDeleteModal" title="Factuur verwijderen" size="sm">
         <div class="flex items-start gap-4">
