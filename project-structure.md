@@ -12,7 +12,7 @@
 - JS libraries: jQuery (^3, installed, exposed as `window.$` / `window.jQuery`) + axios (default Laravel, with X-CSRF-TOKEN header)
 - Database: MySQL `slimmepc_2026` in `.env` (local Laragon, root/no password); SQLite remains the default in `.env.example` (`database/database.sqlite` exists)
 - Auth: Laravel Breeze (Blade stack) — routes/controllers/views present, views redesigned
-- Key libraries: laravel/tinker, @tailwindcss/forms; dev: pestphp/pest ^3, laravel/pint, laravel/sail, mockery, fakerphp, collision, laravel/pail; npm: `lucide` (icons, vendored locally)
+- Key libraries: laravel/tinker, @tailwindcss/forms, **barryvdh/laravel-dompdf ^3** (PDF facturen); dev: pestphp/pest ^3, laravel/pint, laravel/sail, mockery, fakerphp, collision, laravel/pail; npm: `lucide` (icons, vendored locally)
 - Deployment environment: not defined yet
 - Composer scripts: `composer setup` (fresh install), `composer dev` (serve + queue + logs + vite concurrently), `composer test`
 - Node: v18.18.0 (vite warns it wants >= 20.19 — build still works)
@@ -25,6 +25,8 @@ slimmepc/
 │   │   ├── Controllers/
 │   │   │   ├── Admin/
 │   │   │   │   ├── AdminController.php   # dashboard() → admin.dashboard view with stats
+│   │   │   │   ├── ManualInvoiceController.php # Hardware facturen: index/data/create/store/download/preview/destroy (SLM-XXXXXX, Pdf, Mail)
+│   │   │   │   ├── AfspraakInboxController.php # Afspraak inbox (6 routes)
 │   │   │   │   ├── ContentController.php # CMS: index (editor per page), updateSection (save one section),
 │   │   │   │   │                         #   updateDesign (design settings JSON) + image upload per block
 │   │   │   │   └── KlantController.php   # Users-beheren CRUD (JSON) — served under /admin/users (admin.users.*)
@@ -40,10 +42,13 @@ slimmepc/
 │   │   └── Requests/
 │   │       ├── Auth/          # Breeze form requests (LoginRequest, RegisterRequest, ...)
 │   │       ├── Admin/         # StoreKlantRequest, UpdateKlantRequest (Dutch messages)
+│   │       ├── StoreManualInvoiceRequest.php # Hardware factuur validatie (total nullable, inclusief)
 │   │       └── ProfileUpdateRequest.php
 │   ├── Models/
 │   │   ├── ContentBlock.php   # CMS block: page/section/block_key/type/value/json_value (cast array)/sort_order
 │   │   ├── ContentMeta.php    # CMS meta: meta_key/meta_value (design JSON + cache_version) — table `content_meta`
+│   │   ├── ManualInvoice.php  # Hardware factuur: invoice_number SLM-XXXXXX, subtotal/tax_amount/total decimals
+│   │   ├── AfspraakSubmission.php # Afspraak: AF-YYYY-#####, device/service_type/preferred_date...
 │   │   ├── User.php           # Customized: phone, is_blocked, address fields, role, klantnummer + isAdmin()/isTechnician()/isCustomer()
 │   │   └── RepairSubmission.php # Reparatie submission: repair_number, device, problems[]/photos[] (array cast), privacy (bool), status enum, scopeNew(), photoUrls()
 │   ├── Mail/                     # RepairReceived (customer confirmation), AdminRepairNotification (owner notify, +reply-repair-{id} Reply-To)
@@ -440,6 +445,30 @@ slimmepc/
 | created_at / updated_at | timestamp | Timestamps |
 | **indexes** | status, email, created_at | Filtering + dashboard count |
 
+### Table: `manual_invoices` (2026-08-29)
+| Column | Type | Description |
+|--------|------|--------------|
+| id | bigint PK | — |
+| invoice_number | string unique | `SLM-XXXXXX` (6 alphanum) |
+| name / email | string | Klant |
+| device_info / description | string/text nullable | Apparaat / omschrijving |
+| subtotal | decimal 10,2 | Netto (excl. btw) — berekend `total - tax_amount` |
+| tax_percentage | integer default 21 | BTW % |
+| tax_amount | decimal 10,2 | BTW bedrag — `total * pct/(100+pct)` (inclusief) |
+| total | decimal 10,2 | Totaal inclusief (handmatig) |
+| pdf_path | string nullable | `invoices/SLM-XXXXXX.pdf` in `storage/app` |
+| created_at / updated_at | timestamp | — |
+| **index** | invoice_number unique | — |
+
+### Table: `afspraak_submissions` (2026-08-28)
+| Column | Type | Description |
+|--------|------|--------------|
+| id | bigint PK | — |
+| afspraak_number | string unique | `AF-YYYY-#####` |
+| name/email/phone/address/postcode/city | string | Klant + adres |
+| device / service_type / preferred_date / preferred_time / message | string/date/enum/text | Boeking |
+| status | enum new/contacted/planned/completed/cancelled | — |
+
 ## 10. Models/Entities & Relationships
 ```
 User ──→ (sessions via user_id, owned)
@@ -822,3 +851,62 @@ Standalone CMS page `/afspraak` ("Afspraak aan huis") where customers book an in
 - [2026-08-28] — **Afspraak CMS ↔ front alignment + content fixes**: `config/cms.php` `pages.afspraak` aligned so every editable field renders on the front (removed dead `hero.subtitle`/`hero.benefits.icon`+`text`+`benefits.heading`; `hero.benefits` now `title` only; `help` now renders `heading` in the "2. Waar kunnen we mee helpen?" title + `subtitle` paragraph below it; `benefits.items` is now `icon`+`title`+`description` dynamic). `service-afspraak.blade.php` loops made dynamic so added items show: hero benefits loop iterates over CMS `benefits` (fallback 3 defaults with fixed SVGs when empty; new items use  `title` directly), device cards from `$s['help']['devices']` (lucide `icon` + `label`), bottom voordelen strip iterates over `$s['benefits']['items'] ?: $bottomDefaults` (dynamic count) with `icon` (lucide via `window.__lucideRefresh`) + `title` + `description`; the 4th "5/5 beoordeling" item now exactly matches `afspraak.html` — thumbs-up SVG (`M7 10v10...`) in the `48px` blue circle and stars `★★★★★` + `op Google` in the text column (detected via `icon==='star'` or `title` contains `beoordeling`). Sidebar/header/hero button unchanged. Verified: `GET /afspraak` 200 (73437 bytes, contains `M7 10v10`, `★★★★★`, `op Google`, `Kies het apparaat…`), hero edits and added json rows now reflect immediately ( `Cms::bust()` bumps `cms.version`).
 
 - [2026-08-28] — **Afspraak favicon (tab icon) fix**: `service-afspraak.blade.php` head gained `<link rel="icon" href="{{ asset($c['header']['logo_image'] ?? 'assets/img/landing/logo.webp') }}">` + `<link rel="shortcut icon" href="{{ asset('favicon.ico') }}">` (same as `layouts/app.blade.php` line 11) so the browser tab now shows the logo like the other landing pages. `$c` is `Cms::page('home')` passed by `PageController::afspraak()`. Verified: `GET /afspraak` 200 contains both `rel="icon"` links.
+
+- [2026-08-29] — **Hardware handmatige facturen (Bevestiging-mail → Hardware) — volledig feature** (`/admin/bevestiging-mail/hardware`):
+  - **DB**: `manual_invoices` (`2026_08_29_000001_create_manual_invoices_table.php`): `id`, `invoice_number` unique (`SLM-XXXXXX`, 6 alphanum), `name`, `email`, `device_info` nullable, `description` nullable, `subtotal` decimal 10,2, `tax_percentage` int default 21, `tax_amount` decimal 10,2, `total` decimal 10,2, `pdf_path` nullable, `timestamps`. Model `ManualInvoice` casts decimals.
+  - **Validatie**: `StoreManualInvoiceRequest` (NL messages): `name`/`email` required, `device_info`/`description` nullable, `subtotal` required numeric, `tax_percentage` 0-100, `total` nullable numeric. **Inclusief-logica**: Totaal is handmatig (inclusief BTW); backend leest `total` (fallback `subtotal`), berekent `tax_amount = total × btw% / (100+btw%)` (bv 500×21/121=86.78) en `subtotal(netto)= total - tax_amount` (413.22). Bewaart `subtotal`/`tax_amount`/`total`.
+  - **Routes** `admin.bevestiging-mail.hardware.*` (6): `GET /` index, `GET /data` (search/pagination JSON 15/25/50, doorzoekt naam/email/factuurnummer/apparaat), `GET /create` form, `POST /` store (201 JSON), `GET /{invoice}/download` (PDF blob download), `GET /{invoice}/preview` (HTML preview voor browser-print), `DELETE /{invoice}` (verwijdert DB + PDF file). Middleware `auth,verified,admin,inbound.sync`.
+  - **Controller** `ManualInvoiceController`: `index`/`data`/`create`/`store` (genereert uniek `SLM-XXXXXX` met retry, slaat op, `Pdf::loadView('invoices.hardware')` → `storage/app/invoices/{number}.pdf`, `update pdf_path`, `afterResponse` `Mail::to(email)->send(ManualInvoiceMail)`), `download` (Storage response), `preview` (view `invoices.hardware`), `destroy` (unlink PDF + delete row). `Pdf` = `barryvdh/laravel-dompdf` (`composer.json`).
+  - **Mail**: `ManualInvoiceMail` + `emails/manual-invoice.blade.php` (NL, "Geachte {name}", factuurdetails + Google review button, from `Slimmepc@gmail.com`).
+  - **PDF** `invoices/hardware.blade.php`: header Slimme-PC rechts (adres/KVK/BTW/IBAN), meta Factuurnummer SLM-XXXXXX/Datum/Klant/Email/Apparaat/Omschrijving, tabel Subtotaal/BTW(%)/Totaal (number_format `,`/`.`). Logo: SVG base64 met PNG fallback (via `public/assets/img/logo.svg`/`.png` → `data:image/...;base64`); fallback blauwe badge `Slimme-PC` als geen bestand. `@page margin 28px 32px`, `DejaVu Sans`, kleuren `#1e293b`/`#f1f5f9`.
+  - **Admin UI**:
+    - `admin/bevestiging-mail/hardware/index.blade.php`: layout `<x-admin.layout title="Hardware Facturen">`, header "Hardware — Handmatige facturen" + blauwe `+ Nieuwe factuur` knop (`bg-blue-600` `shadow-[0_10px_25px_rgba(37,99,235,.25)]`), toolbar search + perPage (15/25/50), tabel 10 kolommen exact (**Datum dd-mm-yyyy / Order ID #SLM-… / Naam klant / E-mailadres / Apparaat info / Probleembeschrijving truncated 80 chars + tooltip / Subtotaal / Totaal / Download / Actie**), wrapper `min-w-[1280px] overflow-auto w-full -webkit-overflow-scrolling:touch`, sticky `Actie` kolom `right-0` met shadow, Download knop `bg-blue-50 text-blue-700` met spinner/`Laden...`, delete prullenbak rood. `hardwarePagination` onder.
+    - `admin/bevestiging-mail/hardware/create.blade.php`: `<x-admin.layout title="Nieuwe factuur — Hardware">`, `Handmatig Factuur Aanmaken` kaart `rounded-2xl p-6 sm:p-8 shadow[0_14px_35px]`, grid 2 cols: Naam*/Email* (icon user/envelope) + Apparaat/Probleem + Subtotaal €*/BTW %* + **Totaal €* `type=number` + Calc knop** `bg-blue-600` `Calc` (icon calculator) `h-11` naast input (flex gap-2), helper `Inclusief BTW — vul Totaal in en klik Calc om BTW & Subtotaal te berekenen`. Submit `Factuur aanmaken & verzenden` `h-12 bg-blue-600` met spinner `Bezig met verzenden…`, msg `mt-4` groen/rood, `fetch POST json` met `credentials:same-origin` + `X-CSRF-TOKEN`, `reportValidity`, field-errors rood, success na 1.8s redirect naar index. **Calc JS**: `tax = total * pct/(100+pct)` → `subtotal = total - tax` → vult `#subtotal`. Geen auto-calc op input. **Emojis vervangen** door heroicons: user/envelope/computer/wrench/euro/percent/banknotes (blauwe/grijze icons). `form-input h-11 text-sm`.
+    - `public/assets/js/admin/hardware-invoices.js`: `renderList` 10 kolommen exact zoals hierboven, `fmtEuro` `€ X,XX`, `escapeHtml`, `shortDesc` 80 chars, datum `dd-mm-yyyy`, download via `fetch blob` + `ObjectURL` + `<a download>` (geen pagina-`Laden...`), label `Laden...` + spinner per knop, delete via `DELETE` met spinner `Laden...` op confirm knop, search debounce 300ms, perPage change, pagination.
+  - **Sidebar**: `components/admin/layout.blade.php` — dropdown **Bevestiging-mail** → **Hardware** (`localStorage` key, badge), icon mail.
+  - **Deploy**: `barryvdh/laravel-dompdf` geïnstalleerd, `composer install --no-dev`, `migrate --force` (manual_invoices), `optimize:clear`. Push `origin/main` (99b9034..7588566) + server `scripts/deploy.sh` (cron 5min) → `fetch/reset --hard`, `composer install`, `migrate`, `optimize:clear`, log `storage/logs/deploy.log`.
+
+- [2026-08-29] — **Hardware factuur fixes — tabel, PDF logo, download, validatie**:
+  - Tabel 100% breed (`flex-1 flex-col overflow-hidden`, geen `mx-auto max-w-3xl`), horizon gevoelige kolommen zichtbaar met scroll, Actie sticky + shadow, Download als aparte kolom.
+  - PDF logo fallback robuust (SVG → PNG/JPG → webp met `function_exists('imagecreatefromwebp')` guard) — fixt `imagecreatefromwebp not found` in CLI (GD zonder webp).
+  - Download knop: van `location.href` (hele pagina Laden...) naar `fetch(.../download)` blob + `URL.createObjectURL` + hidden `<a download>` — geen navigatie, per-knop `Laden...` + spinner.
+  - Delete confirm knop: spinner + `Laden...` + disabled tijdens DELETE (was geen loading).
+  - Create validatie: `Fetch` met `credentials:'same-origin'` + `input[name=_token]` fallback voor X-CSRF (fixt gast-422 zonder sessie cookie), inline field-errors.
+  - Gesprek: gebruiker wilde Totaal **inclusief** (500×21/121) + Calc knop naast Totaal om BTW/Subtotaal te berekenen; emojis weg, officiële icons.
+
+- [2026-08-29] — **Hardware create — definitieve Calc & inclusief-fix + preview route**:
+  - `StoreManualInvoiceRequest` accepteert `total` nullable; controller gebruikt `total` als bron, `tax_amount = total*bTw/(100+btw)`, `subtotal = total - tax`.
+  - Create view: Totaal `required type=number step 0.01 placeholder 500.00 font-bold` + blauwe `Calc` knop `h-11` (calculator icon) naast input; klik `calcTaxBtn` → `taxAmount = total*pct/(100+pct)` → `subtotal.value = (total-tax).toFixed(2)`; geen auto-on-input meer (volledig handmatig). Helper `Inclusief BTW — vul Totaal in en klik Calc…`. Submit label zonder emoji.
+  - PDF email: `afterResponse` + `ManualInvoiceMail` met PDF attach; download + preview beide.
+  - Preview route `GET admin/bevestiging-mail/hardware/{invoice}/preview` → `ManualInvoiceController@preview` (= `view('invoices.hardware')`) voor browser-print (`Ctrl+P`) als GD/backup voor PDF.
+  - Push/sync: 16 commits `99b9034..7588566` gepusht (`git add . && git push origin main` werkte vanaf lokale PowerShell na credential-clear), server handmatig `scp` 4 bestanden + `php artisan optimize:clear && migrate --force` (Nothing to migrate) en uiteindelijk `bash scripts/deploy.sh` → `fetch origin/main` + `reset --hard` gesynced. Logo nog groene/oranje placeholder discussie (SVG vs PNG) — PDF gebruikt SVG/PNG base64, preview via `asset()`.
+
+---
+
+## 16. Hardware handmatige facturen (Bevestiging-mail → Hardware) — feature detail (2026-08-29)
+
+### Overzicht
+Handmatige factuur-flow voor hardware: admin vult klant + apparaat + bedragen in, systeem berekent BTW inclusief, genereert PDF en mailt de klant. Inbox/tabel met zoeken/paginatie/download/verwijderen. Zie Changelog 2026-08-29 voor volledige opsomming.
+
+### Database
+- `manual_invoices` (migration `2026_08_29_000001_create_manual_invoices_table.php`): zie Changelog; `invoice_number` `SLM-XXXXXX`, `subtotal`/`tax_amount`/`total` decimals 10,2.
+
+### Model
+- `App\Models\ManualInvoice`: fillable alle velden, casts `subtotal`/`tax_amount`/`total` decimal:2.
+
+### Requests / Mail / PDF
+- `StoreManualInvoiceRequest`: NL messages, `total` nullable.
+- `ManualInvoiceMail` + `resources/views/emails/manual-invoice.blade.php` (Google review button).
+- `resources/views/invoices/hardware.blade.php`: zie Changelog; full-page cache **niet** van toepassing (admin only).
+
+### Controller / Routes
+- `ManualInvoiceController` + `routes/admin.php` `bevestiging-mail.hardware.*` (6 routes) — zie Changelog.
+
+### Views / JS
+- `admin/bevestiging-mail/hardware/index.blade.php` + `admin/bevestiging-mail/hardware/create.blade.php` + `public/assets/js/admin/hardware-invoices.js` — zie Changelog.
+
+### Sidebar / Permissions
+- `components/admin/layout.blade.php` Bevestiging-mail → Hardware; middleware `auth,verified,admin`.
+
+### Verification (2026-08-29)
+- `php -l` alle PHP; `php artisan route:list` toont 6 hardware routes; `migrate` OK; `GET /admin/bevestiging-mail/hardware` 200 (via admin login); `POST /` 201 `{invoice_number: SLM-XXXXXX}` met `total=500` → `subtotal 413.22 / tax 86.78` correct; `GET /{id}/download` → PDF blob; `GET /{id}/preview` → HTML 200; `DELETE /{id}` → 200 en PDF verwijderd. Deploy: `git push origin main` (16 commits) + `scp` + `optimize:clear` + `scripts/deploy.sh` gesynced.
