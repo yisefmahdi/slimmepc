@@ -131,7 +131,12 @@
                                             </span>
                                         @endif
 
-                                        <img src="{{ asset('assets/img/landing/' . basename($product['image'] ?? '')) }}"
+                                        @php
+                                            $imgSrc = !empty($product['is_db_image'])
+                                                ? $product['image']
+                                                : asset('assets/img/landing/' . basename($product['image'] ?? ''));
+                                        @endphp
+                                        <img src="{{ $imgSrc }}"
                                             alt="{{ $product['title'] ?? '' }}" class="product-image" loading="lazy" decoding="async">
                                     </div>
 

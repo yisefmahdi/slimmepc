@@ -8,6 +8,9 @@ use App\Http\Controllers\Admin\RepairInboxController;
 use App\Http\Controllers\Admin\AfspraakInboxController;
 use App\Http\Controllers\Admin\DeviceReceiptController;
 use App\Http\Controllers\Admin\ManualInvoiceController;
+use App\Http\Controllers\Admin\Shop\AiProductController;
+use App\Http\Controllers\Admin\Shop\CategoryController as ShopCategoryController;
+use App\Http\Controllers\Admin\Shop\ProductController as ShopProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')
@@ -181,6 +184,35 @@ Route::prefix('admin')
                         Route::post('/{receipt}/status', [DeviceReceiptController::class, 'updateStatus'])->name('status');
                         Route::delete('/{receipt}', [DeviceReceiptController::class, 'destroy'])->name('destroy');
                     });
+            });
+
+        // 🛒 Webshop - Categories & Products
+        Route::prefix('webshop')
+            ->name('webshop.')
+            ->group(function () {
+                Route::prefix('categories')->name('categories.')->group(function () {
+                    Route::get('/', [ShopCategoryController::class, 'index'])->name('index');
+                    Route::get('/data', [ShopCategoryController::class, 'data'])->name('data');
+                    Route::post('/', [ShopCategoryController::class, 'store'])->name('store');
+                    Route::get('/{category}', [ShopCategoryController::class, 'show'])->name('show');
+                    Route::put('/{category}', [ShopCategoryController::class, 'update'])->name('update');
+                    Route::delete('/{category}', [ShopCategoryController::class, 'destroy'])->name('destroy');
+                    Route::post('/{category}/toggle', [ShopCategoryController::class, 'toggleStatus'])->name('toggle');
+                });
+
+                Route::prefix('products')->name('products.')->group(function () {
+                    Route::get('/', [ShopProductController::class, 'index'])->name('index');
+                    Route::get('/create', [ShopProductController::class, 'create'])->name('create');
+                    Route::get('/data', [ShopProductController::class, 'data'])->name('data');
+                    Route::post('/', [ShopProductController::class, 'store'])->name('store');
+                    Route::get('/{product}', [ShopProductController::class, 'show'])->name('show');
+                    Route::get('/{product}/edit', [ShopProductController::class, 'edit'])->name('edit');
+                    Route::put('/{product}', [ShopProductController::class, 'update'])->name('update');
+                    Route::delete('/{product}', [ShopProductController::class, 'destroy'])->name('destroy');
+                    Route::post('/{product}/toggle', [ShopProductController::class, 'toggleStatus'])->name('toggle');
+                    Route::post('/{product}/toggle-featured', [ShopProductController::class, 'toggleFeatured'])->name('toggle-featured');
+                    Route::post('/generate-description', [AiProductController::class, 'generateDescription'])->name('generate-description');
+                });
             });
     });
 

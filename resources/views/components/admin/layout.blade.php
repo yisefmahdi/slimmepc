@@ -408,6 +408,35 @@
 
 
 
+                {{-- 🛒 Webshop Dropdown --}}
+                <div x-data="{ open: {{ request()->routeIs('admin.webshop.*') ? 'true' : 'false' }}, init() { if (localStorage.getItem('nav-webshop') !== null) { this.open = localStorage.getItem('nav-webshop') === '1'; } }, toggle() { this.open = !this.open; localStorage.setItem('nav-webshop', this.open ? '1' : '0'); } }" class="space-y-1">
+                    <button type="button" @click="toggle()"
+                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
+                            style="color: rgba(255,255,255,0.95)">
+                        <span class="flex items-center gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5 text-blue-100">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 00-3.75-3.75v0A3.75 3.75 0 008.25 6v4.5m11.25 0h-15A2.25 2.25 0 002.25 12.75v6A2.25 2.25 0 004.5 21h15a2.25 2.25 0 002.25-2.25v-6A2.25 2.25 0 0019.5 10.5z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75h6" />
+                            </svg>
+                            <span>Webshop</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+                    <div x-show="open" x-cloak x-transition class="border-l-2 border-white/30 ml-6 pl-4 space-y-1.5 py-1 text-xs">
+                        <a href="{{ route('admin.webshop.categories.index') }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.webshop.categories.*') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Categorieën
+                        </a>
+                        <a href="{{ route('admin.webshop.products.index') }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.webshop.products.*') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Producten
+                        </a>
+                    </div>
+                </div>
+
                 {{-- Afspraak aan huis Dropdown --}}
                 <div x-data="{ open: {{ (request()->routeIs('admin.afspraak-aanvragen.*') || (request()->routeIs('admin.content.section.edit') && request()->route('page') === 'afspraak')) ? 'true' : 'false' }}, init() { if (localStorage.getItem('nav-afspraak') !== null) { this.open = localStorage.getItem('nav-afspraak') === '1'; } }, toggle() { this.open = !this.open; localStorage.setItem('nav-afspraak', this.open ? '1' : '0'); } }" class="space-y-1">
                     @php
@@ -632,6 +661,28 @@
             </footer>
             @endif
         </div>
+        @stack('scripts')
+
+        {{-- Global Flash Messages (Toast) --}}
+        @if (session('success') || session('status'))
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const msg = @json(session('success') ?? session('status'));
+                    if (window.SlimmePC && window.SlimmePC.toast) {
+                        window.SlimmePC.toast.success(msg);
+                    }
+                });
+            </script>
+        @endif
+        @if (session('error'))
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    if (window.SlimmePC && window.SlimmePC.toast) {
+                        window.SlimmePC.toast.error(@json(session('error')));
+                    }
+                });
+            </script>
+        @endif
     </body>
 </html>
 

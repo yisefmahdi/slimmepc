@@ -29,7 +29,11 @@ slimmepc/
 │   │   │   │   ├── AfspraakInboxController.php # Afspraak inbox (6 routes)
 │   │   │   │   ├── ContentController.php # CMS: index (editor per page), updateSection (save one section),
 │   │   │   │   │                         #   updateDesign (design settings JSON) + image upload per block
-│   │   │   │   └── KlantController.php   # Users-beheren CRUD (JSON) — served under /admin/users (admin.users.*)
+│   │   │   │   ├── KlantController.php   # Users-beheren CRUD (JSON) — served under /admin/users (admin.users.*)
+│   │   │   │   └── Shop/
+│   │   │   │       ├── CategoryController.php # Webshop categorieën: index/data/store/show/update/destroy/toggle
+│   │   │   │       ├── ProductController.php  # Webshop producten: index/data/create/store/edit/update/show/destroy/toggleStatus/toggleFeatured
+│   │   │   │       └── AiProductController.php # AJAX AI productbeschrijving generator endpoint
 │   │   │   ├── Auth/          # Breeze: AuthenticatedSession (role-based redirect), ConfirmablePassword,
 │   │   │   │                  #   EmailVerificationNotification, EmailVerificationPrompt,
 │   │   │   │                  #   NewPassword, Password, PasswordResetLink, RegisteredUser, VerifyEmail
@@ -46,6 +50,8 @@ slimmepc/
 │   │       ├── StoreDeviceReceiptRequest.php # Ontvangst validatie (type in: laptop/ipad_iphone/playstation_xbox)
 │   │       └── ProfileUpdateRequest.php
 │   ├── Models/
+│   │   ├── Category.php       # Webshop categorie: name, slug, image, status, sort_order, hasMany(Product)
+│   │   ├── Product.php        # Webshop product: title, slug, brand, sku, price, stock, is_featured, gallery_images[], TinyMCE description
 │   │   ├── ContentBlock.php   # CMS block: page/section/block_key/type/value/json_value (cast array)/sort_order
 │   │   ├── ContentMeta.php    # CMS meta: meta_key/meta_value (design JSON + cache_version) — table `content_meta`
 │   │   ├── ManualInvoice.php  # Hardware factuur: invoice_number SLM-XXXXXX, subtotal/tax_amount/total decimals
@@ -56,6 +62,22 @@ slimmepc/
 │   ├── Mail/                     # RepairReceived, AdminRepairNotification, ManualInvoiceMail, DeviceReceiptMail (Bevestiging Ontvangst)
 │   ├── Providers/
 │   │   └── AppServiceProvider.php
+│   ├── Services/
+│   │   └── Ai/                # Enterprise AI Subsystem
+│   │       ├── AiService.php                  # Central facade (swapable for testing)
+│   │       ├── Contracts/
+│   │       │   ├── AiClientInterface.php      # Driver contract (chat, models)
+│   │       │   └── SearchDriverInterface.php  # Search driver contract (search)
+│   │       ├── Clients/
+│   │       │   └── OpenAiClient.php           # OpenAI/AIML/Groq compatible HTTP client
+│   │       ├── Search/
+│   │       │   ├── WebSearchService.php       # Smart query builder for specs & benchmarks
+│   │       │   └── Drivers/
+│   │       │       └── DuckDuckGoDriver.php   # Free, zero-key DDG + Instant Answer + Wikipedia fallback
+│   │       ├── Prompts/
+│   │       │   └── ProductPromptBuilder.php   # Slimme-PC Dutch e-commerce marketing copy prompts
+│   │       └── Features/
+│   │           └── ProductDescriptionGenerator.php # Search + AI orchestration & clean HTML output
 │   ├── Support/
 │   │   └── Cms.php            # version()/page()/get()/design()/designValue()/bust() — cached reads keyed by cache_version
 │   └── View/
@@ -990,3 +1012,107 @@ Alle admin tabellen nu zelfde design + gedeelde loading + rij-verwijdering zonde
 
 ### Verification
 - `optimize:clear` + `view:clear` OK; alle tabellen tonen `Gegevens laden...` met draaiende SVG, zoeken blijft groot, filters klein, Afspraak Aanvragen zonder icoon, sidebar sluit anderen correct, over-ons reviews scrollt per kaart.
+
+---
+
+## 19. Webshop & Store Management System (Categories & Products) — (added 2026-09-01)
+
+### Overview
+A comprehensive e-commerce store management system integrated into the admin dashboard (`/admin/webshop/...`), managing product categories and products with advanced image handling (multi-upload gallery with live previews and selective deletion, 10MB upload limit), SKU/stock management, and legacy data mapping from the provided SQL dump (`STORE_ANALYSIS.md`).
+
+### Routes (`routes/admin.php`) — `admin.webshop.*` (middleware `auth,verified,admin`)
+- Categories CRUD (`admin.webshop.categories.*`): index, data, store, show, update, destroy.
+- Products CRUD (`admin.webshop.products.*`): index, data, create, store, edit, update, show, destroy, toggleStatus.
+
+### Database Migrations
+- `2026_09_01_000001_create_categories_table.php`: `id`, `name`, `slug` (unique), `description` nullable, `image` nullable, `sort_order` default 0, `timestamps`.
+- `2026_09_01_000002_create_products_table.php`: `id`, `category_id` (foreignId categories cascade), `title`, `slug` (unique), `brand` nullable, `sku` unique nullable, `price` decimal 10,2, `old_price` decimal 10,2 nullable, `stock_quantity` integer default 999, `stock_status` enum('in_stock','out_of_stock'), `status` boolean default true, `description` text nullable, `features` json nullable, `colors` json nullable, `sizes` json nullable, `main_image` nullable, `gallery_images` json nullable, `external_link` nullable, `delivery_time` nullable, `discount_type` nullable, `discount_value` decimal 10,2 nullable, `discount_start_date` datetime nullable, `discount_end_date` datetime nullable, `download_32bit_url` nullable, `download_64bit_url` nullable, `manual_url` nullable, `timestamps`.
+
+### Models & Logic
+- `App\Models\Category`: fillable, slug generation on boot, hasMany `Product`.
+- `App\Models\Product`: fillable, slug generation on boot, belongsTo `Category`, casts `features`, `colors`, `sizes`, `gallery_images` as array, `discount_start_date`/`discount_end_date` as datetime.
+- `App\Http\Controllers\Admin\Shop\CategoryController`: JSON data endpoint with search/pagination, CRUD operations.
+- `App\Http\Controllers\Admin\Shop\ProductController`: comprehensive filtering (search, category, brand, status, stock status, price range), paginated data endpoint, store & update with **smart gallery merging & selective deletion** (retains `existing_gallery`, deletes removed ones from Storage, appends new files up to max 10 total), 10MB validation per image.
+
+### Admin UI & Components
+- **Sidebar Integration**: Added "Webshop" dropdown to admin sidebar (`components/admin/layout.blade.php`), linking to Categories (`/admin/webshop/categories`) and Products (`/admin/webshop/products`).
+- **Back Button Component**: Reusable `<x-admin.back-button>` component (`resources/views/components/admin/back-button.blade.php`) featuring Lucide `arrow-left` icon and "Overzicht" text, positioned on the right side of headers (matching the Hardware/Ontvangst pattern).
+- **Product Create & Edit Pages**: Refactored from modals to dedicated full-pages (`admin/shop/products/create.blade.php` and `edit.blade.php`).
+- **Image Gallery Upload & Live Preview**: 
+  - Main Image: live preview with replace/remove capability.
+  - Gallery Images: Multi-upload input with JavaScript `FileReader` and `DataTransfer` API support, rendering image preview cards with individual remove buttons and a "remove all" trash button. Selective deletion on update (`existing_gallery[]`).
+
+### Analysis & Migration Plan
+- Created `STORE_ANALYSIS.md` outlining legacy database table mapping (`categories` & `products` from `h_00094667_slimmepc.sql`) and idempotency strategy for synchronization.
+
+### Verification (2026-09-01)
+- `php -l` clean on models, controllers, requests, views.
+- Migrations executed successfully without data loss.
+- Admin shop views verified compiling correctly with Tailwind design system (`#0b1638`, `var(--c-card)`, `rounded-2xl`, etc.).
+
+---
+
+## 20. AI Subsystem, WYSIWYG Editor (TinyMCE 6), Home Display Logic & Global UX (added 2026-09-01)
+
+### Overview
+A modular, multi-provider AI subsystem engineered for automated Dutch e-commerce product description generation with real-time web search grounding. Solved typography conflicts via TinyMCE 6 WYSIWYG editor, added homepage featured product toggle with intelligent fallback, unified table loading states across the webshop, and hooked session flash messages to the global toast notification system.
+
+### 1. AI Service Architecture (`app/Services/Ai`)
+- **Core Design**: Follows SOLID design principles with driver interfaces, prompt builders, web search integration, and facade orchestration.
+- **`Contracts/AiClientInterface.php`**: Contract defining `chat(array $messages, array $options = []): string` and `models(): array`.
+- **`Contracts/SearchDriverInterface.php`**: Pluggable interface defining `search(string $query, int $maxResults = 5): array`.
+- **`Clients/OpenAiClient.php`**: Unified HTTP client supporting any OpenAI-compatible API endpoint (OpenAI, AIML API, Groq, OpenRouter, Perplexity, etc.) via configurable `.env` parameters:
+  - `OPENAI_API_URL`: target endpoint (default `https://api.openai.com/v1/chat/completions`, tested live with AIML API `https://api.aimlapi.com/v1/chat/completions`).
+  - `OPENAI_API_KEY`: API authentication bearer token.
+  - `OPENAI_MODEL`: model identifier (default `gpt-4o-mini`).
+  - `OPENAI_TIMEOUT`: request timeout in seconds (default 60s).
+- **`Search/Drivers/DuckDuckGoDriver.php`**: Free, zero-API-key search engine driver querying DuckDuckGo HTML and Instant Answer API with automatic Wikipedia summary fallback.
+- **`Search/WebSearchService.php`**: Constructs search queries targeting hardware specs, benchmarks, and details (`{title} {brand} specs specificaties review`).
+- **`Prompts/ProductPromptBuilder.php`**: Assembles comprehensive system and user prompts in Dutch specifically tailored to Slimme-PC's brand voice (SEO introduction paragraph, `<h3>Belangrijkste kenmerken & specificaties</h3>`, `<ul><li>` hardware bullet points, and concluding reassurance).
+- **`Features/ProductDescriptionGenerator.php`**: Coordinates web search + prompt assembly + AI completion, and post-processes HTML by stripping markdown code blocks and collapsing extra newlines between tags.
+- **`AiService.php`**: Main facade exposing `generateProductDescription()` and `chat()`, with `swap()` support for mock testing.
+- **`App\Http\Controllers\Admin\Shop\AiProductController.php`**: AJAX endpoint (`POST /admin/webshop/products/generate-description`) with step-by-step UI loading feedback ("Zoeken naar specificaties op het internet..." → "AI schrijft een professionele SEO-beschrijving...").
+
+### 2. WYSIWYG / Rich Text Editor Integration (TinyMCE 6)
+- **Problem**: Tailwind CSS Preflight (reset stylesheet) stripped browser default styling for `<b>`, `<strong>`, headings (`<h3>`), and bullet lists (`<ul><li>`), while Quill and Summernote suffered from jQuery 4.0 incompatibilities or DOM mutation issues.
+- **Solution**: Integrated **TinyMCE 6 Community Edition** (`https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js`) into Product Create (`create.blade.php`) and Edit (`edit.blade.php`).
+- **Benefits**:
+  - **Iframe Sandboxing**: Renders in an isolated iframe immune to Tailwind CSS Preflight resets.
+  - **Toolbar**: Undo, Redo, Heading selector (`blocks`), Bold (`B`), Italic (`I`), Underline (`U`), Bullet list, Numbered list, Clear format, and Code view (`</>`).
+  - **Zero API Key**: Open-source community build on cdnjs without warning banners or license prompts.
+  - **Form & AI Sync**: Direct two-way synchronization with hidden textarea on form submit and real-time injection via `editor.setContent(data.description)`.
+
+### 3. Home Featured Products & Fallback Logic
+- **Database**: Migration `2026_09_01_000003_add_is_featured_to_products_table.php` added `is_featured` boolean column.
+- **Interactive Switch**: Apple-style toggle switch in the admin products table (`/admin/webshop/products`) with instant AJAX toggle (`POST /admin/webshop/products/{id}/toggle-featured`).
+- **Home Carousel (`PageController@home`)**:
+  - Checks if any active product has `is_featured = 1`.
+  - If featured products exist: loads only featured products for the Home shop carousel.
+  - If NO featured products exist: gracefully falls back to loading the first 4 active products, ensuring the carousel never displays dummy placeholder data.
+
+### 4. Global Toast Flash Feedback
+- **Problem**: Admin forms redirecting with `->with('success', ...)` or `->with('error', ...)` did not trigger the existing toast notification system in `design.js`.
+- **Solution**: Added global flash listeners in `<x-admin.layout>` (`components/admin/layout.blade.php`) checking `session('success')`, `session('status')`, and `session('error')`, calling `window.SlimmePC.toast.success()` / `.error()` automatically on `DOMContentLoaded`.
+- **Coverage**: Product creation, product updates, product deletes, category CRUD, and switch toggles now provide immediate bottom-right feedback.
+
+### 5. Standardized Table Loading (`window.AdminTable.loading`)
+- Standardized the loading experience across Webshop management tables:
+  - **Products Table** (`/admin/webshop/products`): 11 columns with spinner and "Gegevens laden... Even geduld" on initial load, search input debouncing, and filter changes.
+  - **Categories Table** (`/admin/webshop/categories`): 6 columns with spinner on initial load, search, and pagination.
+
+### 6. Automated Verification & Tests
+- `tests/Unit/AiServiceTest.php`: 3 unit tests verifying Dutch prompt structure, mocked client description generation, and facade swap. All 3 tests passed with 10 assertions.
+
+---
+
+## 21. Changelog Additions
+- [2026-09-01] — **Webshop & Store Management System implemented**: added full database migrations for `categories` and `products` with robust schema (SKU, stock quantity, multi-image gallery JSON, features/colors/sizes, discount handling). Created `Category` and `Product` models with relationships and automatic slug generation. Implemented `CategoryController` and `ProductController` (Admin/Shop namespace) supporting advanced filtering, AJAX table pagination, 10MB image upload limit, and smart gallery merging with selective file deletion. Redesigned Product Create/Edit into dedicated full-pages matching the admin design system. Added `<x-admin.back-button>` component with Lucide icon and "Overzicht" text on the right side. Implemented dynamic JavaScript live preview and card-based removal for gallery multi-uploads using `DataTransfer`. Added Webshop dropdown to the admin sidebar. Documented the legacy data mapping and synchronization plan in `STORE_ANALYSIS.md`.
+- [2026-09-01] — **AI Product Description Generator, TinyMCE 6 Editor, Home Fallback & UX Improvements**:
+  - Implemented modular `App\Services\Ai` subsystem supporting any OpenAI-compatible API (AIML API, OpenAI, Groq, OpenRouter) and DuckDuckGo/Wikipedia live search grounding.
+  - Created `AiProductController` with AJAX endpoint (`/admin/webshop/products/generate-description`) providing real-time multi-step search & generation feedback.
+  - Integrated **TinyMCE 6** WYSIWYG editor into Product Create & Edit, eliminating Tailwind preflight styling resets, enabling working Bold/Italic/Heading/List tools and code view modal.
+  - Added `is_featured` column to `products` table with Apple-switch AJAX toggle in admin and smart fallback on the homepage (shows featured items or defaults to first 4 active products).
+  - Hooked Laravel session flash messages (`session('success')`, `session('error')`) in `layout.blade.php` to `window.SlimmePC.toast` for automatic toast alerts upon redirecting after store/update operations.
+  - Standardized `AdminTable.loading` across Products (11 cols) and Categories (6 cols) tables.
+  - Wrote comprehensive unit tests (`tests/Unit/AiServiceTest.php`) with 100% pass rate.
+

@@ -27,4 +27,6 @@ Thumbs.db
 /deploy-credentials.local.md
 /public/assets/img/landing/u1qSDe03fSIxgt4RglUepSLi6vwU7X5fJEg2k1oZ.png
 /public/assets/img/landing/AtBGD7faMlfVUjtvQfSgr5K7CsKtd8Pw4861PPAI.png
+/storage/framework/*.php
+
 

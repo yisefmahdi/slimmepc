@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
 use App\Support\Cms;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -27,6 +28,62 @@ class PageController extends Controller
 
         $c = Cms::page('home');
         $design = Cms::design();
+
+        $homeProducts = Product::where('status', true)
+            ->where('is_featured', true)
+            ->with('category')
+            ->latest()
+            ->take(12)
+            ->get();
+
+        // If no products are explicitly selected for Home, fallback to latest 4 active products
+        if ($homeProducts->isEmpty()) {
+            $homeProducts = Product::where('status', true)
+                ->with('category')
+                ->latest()
+                ->take(4)
+                ->get();
+        }
+
+        if ($homeProducts->isNotEmpty()) {
+            $mappedProducts = [];
+            foreach ($homeProducts as $fp) {
+                $specs = '';
+                if (!empty($fp->features) && is_array($fp->features)) {
+                    $specs = implode(' · ', array_slice($fp->features, 0, 3));
+                } elseif ($fp->brand) {
+                    $specs = $fp->brand . ($fp->category ? ' · ' . $fp->category->name : '');
+                }
+
+                $badge = '';
+                $badgeColor = 'blue';
+                if ($fp->discount_value && $fp->discounted_price < $fp->price) {
+                    $badge = $fp->discount_type === 'percentage' ? "-{$fp->discount_value}%" : 'Korting';
+                    $badgeColor = 'amber';
+                } elseif ($fp->is_featured) {
+                    $badge = 'Populair';
+                    $badgeColor = 'blue';
+                }
+
+                $imageUrl = $fp->main_image
+                    ? asset('storage/' . $fp->main_image)
+                    : asset('assets/img/landing/laptop-fallback.png');
+
+                $mappedProducts[] = [
+                    'id' => $fp->id,
+                    'title' => $fp->title,
+                    'specs' => $specs,
+                    'price' => '€' . number_format($fp->price, 2),
+                    'in_stock' => $fp->stock_status === 'in_stock',
+                    'image' => $imageUrl,
+                    'is_db_image' => true,
+                    'link' => '/webshop',
+                    'badge' => $badge,
+                    'badge_color' => $badgeColor,
+                ];
+            }
+            $c['shop']['products'] = $mappedProducts;
+        }
 
         $html = view('landing.home', compact('c', 'design'))->render();
 
