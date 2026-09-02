@@ -31,7 +31,7 @@ slimmepc/
 │   │   │   │   │                         #   updateDesign (design settings JSON) + image upload per block
 │   │   │   │   ├── KlantController.php   # Users-beheren CRUD (JSON) — served under /admin/users (admin.users.*)
 │   │   │   │   └── Shop/
-│   │   │   │       ├── CategoryController.php # Webshop categorieën: index/data/store/show/update/destroy/toggle
+│   │   │   │       ├── CategoryController.php # Webshop categorieën: index/data/store/show/update/destroy/toggle — nu met icon (lucide picker, kebab) + description + search op beide
 │   │   │   │       ├── ProductController.php  # Webshop producten: index/data/create/store/edit/update/show/destroy/toggleStatus/toggleFeatured
 │   │   │   │       └── AiProductController.php # AJAX AI productbeschrijving generator endpoint
 │   │   │   ├── Auth/          # Breeze: AuthenticatedSession (role-based redirect), ConfirmablePassword,
@@ -39,6 +39,7 @@ slimmepc/
 │   │   │   │                  #   NewPassword, Password, PasswordResetLink, RegisteredUser, VerifyEmail
 │   │   │   ├── Controller.php
 │   │   │   ├── PageController.php    # home() → landing.home with Cms::page('home') + flat Cms::design(); serves the full-page HTML cache for guests only (auth users always render fresh — personalized header)
+│   │   │   ├── WebshopController.php # Webshop categoriepagina: index(slug) → landing.webshop met Cms header/footer + Category/Product filtering (brand/price/sort/pagination)
 │   │   │   ├── RepairController.php   # reparatie-aanmelden submit → repair_submissions + emails (repair.submit)
 │   │   │   └── ProfileController.php
 │   │   ├── Middleware/
@@ -50,7 +51,7 @@ slimmepc/
 │   │       ├── StoreDeviceReceiptRequest.php # Ontvangst validatie (type in: laptop/ipad_iphone/playstation_xbox)
 │   │       └── ProfileUpdateRequest.php
 │   ├── Models/
-│   │   ├── Category.php       # Webshop categorie: name, slug, image, status, sort_order, hasMany(Product)
+│   │   ├── Category.php       # Webshop categorie: name, slug, icon (lucide kebab), description, image, status, sort_order, hasMany(Product)
 │   │   ├── Product.php        # Webshop product: title, slug, brand, sku, price, stock, is_featured, gallery_images[], TinyMCE description
 │   │   ├── ContentBlock.php   # CMS block: page/section/block_key/type/value/json_value (cast array)/sort_order
 │   │   ├── ContentMeta.php    # CMS meta: meta_key/meta_value (design JSON + cache_version) — table `content_meta`
@@ -61,7 +62,7 @@ slimmepc/
 │   │   └── RepairSubmission.php # Reparatie submission: repair_number, device, problems[]/photos[] (array cast), privacy (bool), status enum, scopeNew(), photoUrls()
 │   ├── Mail/                     # RepairReceived, AdminRepairNotification, ManualInvoiceMail, DeviceReceiptMail (Bevestiging Ontvangst)
 │   ├── Providers/
-│   │   └── AppServiceProvider.php
+│   │   └── AppServiceProvider.php # View::composer landing.partials.header → webshopCategories (actieve categorieën, cached 3600, bust bij Category mutate)
 │   ├── Services/
 │   │   └── Ai/                # Enterprise AI Subsystem
 │   │       ├── AiService.php                  # Central facade (swapable for testing)
@@ -94,7 +95,10 @@ slimmepc/
 │   │   ├── 0001_01_01_000002_create_jobs_table.php    # jobs + job_batches + failed_jobs
 │   │   └── 2026_08_11_000001_create_content_blocks_table.php  # page+section+block_key unique; json_value LONGTEXT
 │   │   ├── 2026_08_11_000002_create_content_meta_table.php    # meta_key unique
-│   │   └── 2026_08_25_000001_create_repair_submissions_table.php  # repair_submissions (SP-##### ref, device/problems json, photos json, status enum, ip)
+│   │   ├── 2026_08_25_000001_create_repair_submissions_table.php  # repair_submissions (SP-##### ref, device/problems json, photos json, status enum, ip)
+│   │   ├── 2026_09_01_000001_create_categories_table.php      # categories (name, slug, icon, description, status, image, sort_order)
+│   │   ├── 2026_09_01_000002_create_products_table.php        # products (category FK, sku, price, stock, is_featured, gallery_images json...)
+│   │   └── 2026_09_02_000001_add_icon_description_to_categories_table.php # categories: adds icon (kebab, nullable) + description (text, nullable) after slug
 │   └── seeders/
 │       ├── DatabaseSeeder.php         # calls AdminUserSeeder + ContentBlockSeeder
 │       ├── AdminUserSeeder.php        # creates slimmepc@admin.com admin account
@@ -116,9 +120,10 @@ slimmepc/
 │       │   │   ├── klanten.js       # Users CRUD — now unified Hardware-style + window.AdminTable.loading (6 cols) + row.remove() delete
 │       │   │   ├── hardware-invoices.js # Hardware facturen — window.AdminTable.loading (10 cols) + row.remove() + preview popup
 │       │   │   ├── device-receipts.js # Ontvangst — 8 cols + window.AdminTable.loading + row.remove()
+│       │   │   ├── categories.js    # Webshop categorieën — 8 cols (Afbeelding, Naam, Icoon, Beschrijving, Slug, Producten, Status, Acties) + icon picker + window.AdminTable.loading
 │       │   │   ├── table-loading.js # Shared table loading: window.AdminTable.loading(tbody, cols) SVG spinner Gegevens laden...
 │       │   │   ├── content.js       # CMS editor: section forms (axios, no reload on save), json row add/remove, color sync, file preview
-│       │   │   ├── icon-picker.js   # CMS icon picker: searchable dropdown of all lucide icons (icon+name), kebab/pascal conversion, MutationObserver re-renders new rows
+│       │   │   ├── icon-picker.js   # CMS icon picker: searchable dropdown of all lucide icons (icon+name), kebab/pascal conversion, MutationObserver re-renders new rows — hergebruikt nu ook voor categorieën
 │       │   │   ├── loader.js        # admin page-navigation loader: intercepts internal links/forms (sessionStorage flag adminPageNav)
 │       │   │   └── reparatie-aanmeldingen.js # Reparatie inbox: table rows + detail modal + inline status change (Bijgewerkt ✓ message) + delete/photo (axios, SlimmePC toast, polls new-count)
 │       │   └── vendor/
@@ -150,12 +155,16 @@ slimmepc/
 │       │   │   └── partials/
 │       │   │       └── json-row.blade.php  # repeatable item row for type=json blocks (index param, __INDEX__ for templates)
 │       │   ├── klanten/index.blade.php # Users-beheren (AJAX table + modals) — route admin.users.index
+│       │   ├── shop/
+│       │   │   ├── categories/index.blade.php # Webshop categorieën — 8 cols + icon picker (lucide) + description textarea + modals (create/edit/details/delete)
+│       │   │   └── products/index.blade.php   # Webshop producten — 11 cols + AI describe + TinyMCE + gallery
 │       │   ├── dashboard.blade.php     # admin dashboard (Dutch, responsive)
 │       │   └── reparatie-aanmeldingen/index.blade.php # Reparatie inbox (table + detail modal, search/filter/per-page/pagination, inline status change, delete modal)
 │       ├── components/       # design-system blade components (see section 11)
 │       │   └── admin/        # admin-only components: layout, sidebar-link, stat-card, card, modal
-│       ├── landing/          # CMS-driven landing page (rebuilt from step-1/home.html) + 9 dedicated service pages
+│       ├── landing/          # CMS-driven landing page + webshop categoriepagina
 │       │   ├── layouts/app.blade.php   # head: Bunny Fonts, landing.css, CSS vars from $design, lucide + landing.js
+│       │   ├── webshop.blade.php       # Webshop categoriepagina — exact copy van D:/sm 2026/slimmepc2026nieuwe/products.html (Inter font, chips, filters, grid 4 cols, pagination, trust/advice) — extends landing.layouts.app + header/footer
 │       │   ├── home.blade.php          # includes the partials below
 │       │   ├── service.blade.php       # shared laptop/pc fallback (pageKey `laptopreparatie`/`pcreparatie` use this when no dedicated view exists — now all have dedicated views)
 │       │   ├── service-console.blade.php  # PlayStation/Xbox (pageKey `console`) — own unique design mirroring step-2/playstation.html; auto-selected by PageController per-pageKey fallback
@@ -168,7 +177,7 @@ slimmepc/
 │       │   ├── service-pcreparatie.blade.php  # PC Reparatie (pageKey `pcreparatie`) — light `from-white via-[#f8fbff] to-[#edf5ff]` design from step-2/pc.html, 8 sections + pc/* subfolder images
 │       │   └── service-reparatie.blade.php     # Standalone reparatie-aanmelden 5-step wizard (pageKey `reparatie`, not a service page) — CMS-styled, matches step-2/Reparatie-aanmelden.html
 │       │   └── partials/
-│       │       ├── header.blade.php    # nav (desktop + mobile drawer + search overlay) from $c['header']; order = $navBefore (Home, Over ons) → Webshop ▾ → Diensten ▾ → $navAfter (Lid worden, Tarieven, Contact); **Diensten dropdown is dynamic** — reads `service_slugs` de-duplicated by pageKey (`$uniqueServicePages`) + `ContentBlock::where(page)->exists()` + `config(pages.{pageKey}.label)` + `$svcIcons` (includes `mac` alias); `mac-reparatie` ↔ `macbook-reparatie` alias kept for old links. Account area is AUTH-AWARE: guest → Account button (login), logged-in → user name + dropdown (native <details>, no JS) with Mijn account → /profile + Uitloggen (POST /logout); mobile drawer shows the name tile + full-width logout button
+│       │       ├── header.blade.php    # nav (desktop + mobile drawer + search overlay) from $c['header']; order = $navBefore (Home, Over ons) → Webshop ▾ (nu **dynamisch categories** via View::composer `webshopCategories` — icon+description, `Cache::remember(3600)` + bust bij Category mutate, **zonder** "Bekijk alle producten" knop) → Diensten ▾ → $navAfter; **Diensten dropdown is dynamic** — reads `service_slugs` de-duplicated by pageKey + `ContentBlock::exists()` + `config(pages.{pageKey}.label)` + `$svcIcons`; `mac-reparatie` ↔ `macbook-reparatie` alias kept. **Diensten ‘Reparatie aanmelden’ + ‘Afspraak aan huis’ knoppen verwijderd** (desktop + mobile) per client. Account area is AUTH-AWARE: guest → Account button (login), logged-in → user name + dropdown (native <details>, no JS) with Mijn account → /profile + Uitloggen (POST /logout); mobile drawer shows the name tile + full-width logout button
 │       │       ├── hero.blade.php      # badge/title/description/buttons/trust + desktop orbit visual + mobile steps
 │       │       ├── why.blade.php       # benefits hub + stats from $c['why']
 │       │       ├── services.blade.php  # service cards from $c['services']
@@ -281,6 +290,7 @@ slimmepc/
 | 20 | Service-page: Data Recovery | `/diensten/data-recovery` (`service.show`, pageKey `datarecovery`) + `/admin/content/datarecovery/section/{...}` | Dedicated light design from `step-2/datarecovery.html` (7 sections: hero `c2bf5922...png` + 4 USP + 4 media, devices 6 (`hdd.jpeg`, `SSD-hard.jpg`, `group_1477...`, `micro-sd...`, `external...`, `windows-apple...`), process 5+trust, recover 7, cases 3, trust+cta+faq 3 cols, bottom 5). `service-datarecovery.blade.php` + `$datarecoverySectionDef` (hero, devices, process, recover, cases, trust_cta_faq, benefits). **Buttons fixed**, hero `text-[30px] sm:text-[52px] lg:text-[40px]`. Home link was `/datarecovery.html` → fixed to `/diensten/data-recovery`. |
 | 21 | Service-page: PC Reparatie | `/diensten/pc-reparatie` (`service.show`, pageKey `pcreparatie`) + `/admin/content/pcreparatie/section/{...}` | Dedicated light `from-white via-[#f8fbff] to-[#edf5ff]` design from `step-2/pc.html` (8 sections: hero PC `0bdab181...png` + 7 floating components `cpu.png`/`pc/*` `hidden xl:block`, benefits 4, help 2 cards `Mijn PC is kapot`/`Ik wil een PC`, choice 6 + center PC + cooling, problems 3, upgrades 4 (`pc/hdd.png`/`pc/nvme.png` subfolder), builds 4+CTA, why 6, faq+cta). `service-pcreparatie.blade.php` (note pageKey `pcreparatie` → view `service-pcreparatie`) + `$pcSectionDef` (hero, benefits, help, choice, problems, upgrades, builds, why, faq_cta). **Buttons fixed**, hero `text-[30px] sm:text-[52px] lg:text-[40px]`. **Subfolder images** (`pc/hdd.png`) handled via `str_starts_with` in `json-row.blade.php` + `service-pcreparatie` (preserves `pc/`). Home link was `/pc.html` → fixed to `/diensten/pc-reparatie`. |
 
+| 23 | Webshop categoriepagina | `/webshop/{slug}` (`WebshopController@index`, name `webshop.category`) — **alleen categoriepagina, geen algemene `/webshop`** (route verwijderd) — 100% identiek aan `D:/sm 2026/slimmepc2026nieuwe/products.html` (Inter font op hele webshop-root, hero 34%_42%_24% met drop-shadow-hero en glow cirkel, Quick Filter Chips: Alle laptops/Zakelijk/Gaming/Student/Onder €700/Nieuw binnen met realtime client filtering, filters sidebar met Merk counts, Prijs slider + presets, Processor, RAM, Opslag, grid 4 cols met product-card hover lift + rating + badge + heart toggle + cart button, Grid/List view switcher met horizontale list cards, pagination + 12/24/48, Advice CTA "Hulp nodig bij het kiezen?", Trust Bar 4 items, en Mobile Filter Drawer met backdrop blur) — erft `landing.layouts.app` + `header/footer` via `AppServiceProvider` View::composer `webshopCategories` (actieve categorieën, icon+description). Geseede data via `WebshopProductsSeeder` (8 complete laptops uit products.html met Unsplash foto's, prijzen, aanbieding, specs en ratings). Slug fallback ondersteunt `laptops` en `labtop`. |
 | 22 | Reparatie aanmelden (wizard + backend) | `/reparatie-aanmelden` (`PageController@reparatie`, name `reparatie`) + `POST /reparatie/submit` (`RepairController@submit`, name `reparatie.submit`) + admin `/admin/reparatie-aanmeldingen/*` | Standalone CMS-styled page rebuilt from `step-2/Reparatie-aanmelden.html`: a 5-step wizard (apparaat → probleem + foto's → apparaatgegevens → contact & voorkeur → controle). All fields required except `Serienummer` + foto's (optional). Per-step JS validation + backend `StoreRepairSubmissionRequest` (Dutch messages, honeypot `website`, `throttle:5,1`). On submit: stores `RepairSubmission` (status `new`), uploads ≤5 photos to `repair/{id}/` (local disk); **emails (`RepairReceived` customer confirmation + `AdminRepairNotification` owner → `CONTACT_NOTIFY_EMAIL`) are dispatched via `dispatch(function(){...})->afterResponse()` so the `201 {message, repair_number}` (`SP-YYYY-#####`) returns to the browser instantly and SMTP latency never blocks the user** (`.env` `MAIL_MAILER` stays `smtp` for real delivery; locally an unreachable Gmail SMTP can be temporarily set to `log` to test the instant submit path — do not commit that). Frontend `repairForm`: `@csrf` + `fetch` submit + **per-field error display (red border + message) that jumps back to the earliest invalid step** + **success/error toast via `window.SlimmePC.toast`** (replaces the old `alert()`; `design.js` + jQuery are now loaded at the bottom of the standalone reparatie page so the toast works); final success screen shows the `aanmeldnummer`. **Stap 2 was compacted** (description rows 5→4, dropzone smaller/horizontal `py-5`, smaller icon). The frontend **header Diensten dropdown** now includes a **"Reparatie aanmelden"** link to `/reparatie-aanmelden`. Admin inbox (`reparatie-aanmeldingen`, reached from the **Diensten → Reparatie sub-dropdown** in the sidebar — note the **"Aanmeldingen" link is the FIRST item there and has NO icon**, only the red new-count badge): redesigned from the old two-pane into a **table + detail modal** (`reparatie-aanmeldingen/index.blade.php` + `public/assets/js/admin/reparatie-aanmeldingen.js`): columns Aanmeldnr · Naam · Apparaat · Merk/Model · Status · Ontvangen · Actie (Bekijk); search + status filter + per-page + pagination; **inline status `<select>` in the Status column (colored: new/red, in_progress/amber, completed/green) — changing it posts `.../status`, shows a "Bijgewerkt ✓" message under the select for 2.5s, disables during the request, and updates the header Nieuw/Totaal counts without a full reload**; clicking "Bekijk" opens a detail modal (all fields + streamed photos) and there is a delete-confirm modal. The table uses **inline `style="min-width:780px"` + `style="overflow:auto"` on its scroll container** (the compiled admin Tailwind CSS lacks arbitrary `min-w-[...]`/`overflow-x-auto` — see gotchas). Dashboard keeps a live "Reparaties" stat + recent-repairs table. |
 
 ## 8. Complete Routes
@@ -294,6 +304,7 @@ slimmepc/
 | GET | `/contact` | `PageController@contact` → `landing.contact` (full-page cache `cms.page.html.contact.{version}`) | none |
 | POST | `/contact/submit` | `ContactController@submit` → `contact.submit` (JSON, 201; **CSRF-exempt** in bootstrap/app.php + honeypot `website` + `throttle:5,1`; queues `ContactReceived`) | none |
 | GET | `/reparatie-aanmelden` | `PageController@reparatie` → `landing.service-reparatie` (CMS-styled 5-step wizard page, **name `reparatie`**) | none (guest-only full-page HTML cache `cms.page.html.reparatie.{version}`, auth renders fresh) |
+| GET | `/webshop/{slug}` | `WebshopController@index` → `landing.webshop` (exact copy van `products.html`, Inter font, chips, filters, grid, pagination) — **name `webshop.category`** — alleen categoriepagina, geen algemene `/webshop` (verwijderd) — 404 als categorie niet actief/bestaat | none |
 | POST | `/reparatie/submit` | `RepairController@submit` → `reparatie.submit` (JSON, 201 `{message, repair_number}`; **CSRF-protected** + honeypot `website` + `throttle:5,1`; queues `RepairReceived` + `AdminRepairNotification`) | none |
 | GET | `/profile` | `ProfileController@edit` | auth |
 | PATCH | `/profile` | `ProfileController@update` | auth |
@@ -496,6 +507,48 @@ slimmepc/
 | device / service_type / preferred_date / preferred_time / message | string/date/enum/text | Boeking |
 | status | enum new/contacted/planned/completed/cancelled | — |
 
+### Table: `categories` (2026-09-01 + 2026-09-02)
+| Column | Type | Description |
+|--------|------|--------------|
+| id | bigint PK | — |
+| name | string | Naam categorie |
+| slug | string unique | Auto `Str::slug(name)` |
+| icon | string nullable | Lucide icon kebab-case (`shopping-bag`, `laptop`...) — nullable, max 100 |
+| description | text nullable | Korte omschrijving — nullable, max 1000 |
+| status | boolean default 1 | Actief/inactief — indexed |
+| image | string nullable | Pad `categories/*` op disk `public` |
+| sort_order | integer default 0 | Volgorde |
+| created_at / updated_at | timestamp | — |
+| **index** | status | — |
+
+> **Migrations — الجدول الرئيسي `categories`:**
+> - `2026_09_01_000001_create_categories_table.php` (create) — يحتوي مباشرة:
+> ```php
+> $table->string('icon')->nullable();      // بعد slug حسب ترتيب الإعلان
+> $table->text('description')->nullable(); // بعد icon
+> ```
+> - `2026_09_02_000001_add_icon_description_to_categories_table.php` (alter, idempotent backfill) — للـ DB القديمة:
+> ```php
+> $table->string('icon')->nullable()->after('slug');
+> $table->text('description')->nullable()->after('icon');
+> ```
+
+### Table: `products` (2026-09-01)
+| Column | Type | Description |
+|--------|------|--------------|
+| id | bigint PK | — |
+| category_id | foreignId cascade | FK → categories |
+| title / slug | string / string unique | Titel + auto slug |
+| brand / sku | string nullable / string unique nullable | Merk / SKU |
+| price / old_price | decimal 10,2 | Prijs / oude prijs |
+| discount_type / discount_value / discount_start/end | enum(percentage,fixed) / decimal / datetime | Korting |
+| stock_status / status / is_featured | enum(in_stock,out_of_stock) / boolean / boolean | Voorraad / actief / op home |
+| description | text | TinyMCE HTML |
+| features / colors / sizes | json | Arrays |
+| main_image / gallery_images | string / json | Afbeeldingen |
+| external_link / delivery_time / download_*_url / manual_url | string nullable | Externe / digitale links |
+| created_at / updated_at | timestamp | — |
+
 ## 10. Models/Entities & Relationships
 ```
 User ──→ (sessions via user_id, owned)
@@ -509,6 +562,8 @@ ContentBlock / ContentMeta ──→ standalone CMS tables (no FKs)
 | ContactSubmission | contact_submissions | HasMany `ContactReply` (replies), HasOne `latestReply` (latestOfMany), scope `new`; casts `status`; `attachmentPath()` resolves the stored file |
 | ContactReply | contact_replies | BelongsTo `ContactSubmission`; casts `sender`/`source` |
 | RepairSubmission | repair_submissions | Standalone. Casts `problems`/`photos` → array, `privacy` → bool; `scopeNew()`; status enum; `photoUrls()` returns `route('admin.reparatie-aanmeldingen.photo', [...])` per photo |
+| Category | categories | HasMany `Product`; fillable `name,slug,icon,description,status,image,sort_order`; casts `status` boolean; auto `slug` from `name` on create/update |
+| Product | products | BelongsTo `Category`; fillable `title,slug,brand,sku,price,old_price,discount_*,stock_status,status,is_featured,description,features,colors,sizes,main_image,gallery_images,external_link,...`; casts arrays/decimals/booleans; `discounted_price` accessor |
 
 ### Support helper: `App\Support\Cms`
 | Method | Purpose |
@@ -555,6 +610,10 @@ ContentBlock / ContentMeta ──→ standalone CMS tables (no FKs)
 | Admin\ContactInboxController | index, data, show, reply, status, attachment, destroy, newCount | Admin contact inbox: `data` = search (name/email/message/phone) + status-filtered pagination + new/total counts; `show` = submission + replies + has_attachment; `reply` creates `ContactReply` (sender=admin, source=dashboard), sets status `replied` if `new`, queues `ContactReplyMail`; `status` whitelists enum; `attachment` = StreamedResponse download; `destroy` deletes storage folder + row; `newCount` for the sidebar badge |
 | RepairController | submit | Public reparatie form POST: validates `StoreRepairSubmissionRequest` (Dutch messages, honeypot `website`, throttle 5,1), creates `RepairSubmission` (status `new`, `repair_number` = `SP-{year}-{5-digit}`), stores ≤5 photos via `storeAs('repair/{id}', hashName, 'local')`, queues `RepairReceived` (customer) + `AdminRepairNotification` (owner → `config('contact-inbox.notify_email')`), returns 201 JSON `{message, repair_number}` |
 | Admin\RepairInboxController | index, data, newCount, show, status, photo, destroy | Admin reparatie inbox (mirrors ContactInboxController): `data` = search (name/email/device/brand) + status-filtered pagination + new/total counts; `show` = submission + `photoUrls()`; `status` whitelists enum new/in_progress/completed; `photo` = `Storage::response` for `repair/{id}/{file}`; `destroy` deletes storage folder + row; `newCount` for the sidebar badge |
+| Admin\Shop\CategoryController | index, data, store, show, update, destroy, toggleStatus | Webshop categorieën CRUD (JSON). `data` = search (name/slug/description/icon) + status filter + pagination + counts; `store/update` validate `name, icon (kebab, max 100), description (max 1000), status, image (10MB)` + auto `slug`; `toggleStatus` + guards (no deactivate/delete if has products → 422); image `store('categories','public')`; na elke mutate `Cache::forget('webshop.header.categories')` + `Cms::bust()` voor header dropdown |
+| Admin\Shop\ProductController | index, data, create, store, edit, update, show, destroy, toggleStatus, toggleFeatured | Webshop producten CRUD + AI describe. `data` filtered JSON (search/title/brand/slug, category, status, stock, price range, per_page) + counts; `store/update` validate 16 velden (TinyMCE, gallery 10 files, discount dates), `Cms::bust()` on mutate |
+| WebshopController | index(slug) | Publieke categoriepagina `GET /webshop/{slug}` → `landing.webshop` (exact `products.html` via `landing.layouts.app` + `View::composer` header). Laadt `allCategories` (actief) + `currentCategory` (404 indien niet actief) + `Product::where(status, category_id)` met filters `brand/price/sort` + `paginate(12|24|48)` + `availableBrands` counts. Verwijdert algemene `/webshop` route — alleen categoriepagina bestaat. Fallback images via unsplash indien `main_image` null. |
+| Admin\Shop\AiProductController | generateDescription | AJAX `POST /admin/webshop/products/generate-description` → `AiService::generateProductDescription` (search + AI) → `description, search_results, search_count` |
 
 ### Console commands
 | Command | Purpose |
@@ -601,7 +660,9 @@ ContentBlock / ContentMeta ──→ standalone CMS tables (no FKs)
 | `design.js` | Global SlimmePC lib: theme (localStorage + system pref), loading states (spinner + disabled), password toggle, auto-dismiss alerts, `SlimmePC.modal` (open/close/overlay/Escape), `SlimmePC.toast` (success/error), `SlimmePC.confirm` (dynamic confirm dialog), axios defaults (CSRF + X-Requested-With) |
 | `admin/klanten.js` | Users-beheren: load/render table (search debounced, role filter, per-page, pagination), create/edit modal (PUT/POST, field errors inline), details modal, delete confirm, block/unblock, inline role change with confirm. Endpoints target `/admin/users`. Auto-inits only when `#klantTableBody` exists |
 | `admin/content.js` | CMS editor: submit each section form via axios (FormData, **no page refresh — the old `window.location.reload()` was removed**), add/remove json rows (replaces `__INDEX__`), color picker ↔ hex sync, live image preview via FileReader, per-form success/error status text |
-| `admin/icon-picker.js` | CMS icon picker: builds the dropdown grid from `Object.keys(lucide.icons)` (~1743 icons, displayed/stored in kebab-case via pascal↔kebab conversion with roundtrip safety), renders SVGs from the icon spec directly (no global `createIcons` re-scan), case-insensitive live search, kebab→pascal lookup for rendering, `MutationObserver` renders previews in dynamically added JSON rows. Requires `lucide.min.js` (loaded first in the admin layout) |
+| `admin/icon-picker.js` | CMS icon picker: builds the dropdown grid from `Object.keys(lucide.icons)` (~1743 icons, displayed/stored in kebab-case via pascal↔kebab conversion with roundtrip safety), renders SVGs from the icon spec directly (no global `createIcons` re-scan), case-insensitive live search, kebab→pascal lookup for rendering, `MutationObserver` renders previews in dynamically added JSON rows. Requires `lucide.min.js` (loaded first in the admin layout) — **hergebruikt nu ook voor Webshop categorieën** (`admin/shop/categories/index.blade.php` `data-icon-picker` + `categories.js` `setIconPickerValue`) |
+| `admin/categories.js` | Webshop categorieën: load/render 8-col table (Afbeelding, Naam, **Icoon (lucide `data-lucide`)**, **Beschrijving (truncate + title tooltip)**, Slug, Producten, Status, Acties sticky), `lucide.createIcons()` after render, `setIconPickerValue()` + `window.AdminTable.loading(tbody,8)`, search (name/slug/description/icon) + status + pagination + details modal (icon badge + description); auto-inits when `#categoryTableBody` exists |
+| `admin/products.js` | Webshop producten: load/render 11-col table (Afbeelding, Naam, Merk, Categorie, Prijs, Oude prijs, Korting, Voorraad, Home, Status, Acties), `apple-switch` toggles (`/toggle`, `/toggle-featured`), `window.AdminTable.loading`; auto-inits when producten table exists |
 | `landing.js` | Landing page: lucide icons, mobile drawer + overlay, search overlay, accordions, Escape/resize handling, process orbit pause on hover, shop carousel (responsive perPage + dots) |
 | `contact-form.js` | Public contact form (`#contactForm` on /contact): vanilla `fetch` POST to `/contact/submit` with FormData + `Accept: application/json`; on 201 resets the form + shows success popup (`.cf-popup-*`); on 422 shows the first validation error; button loading state "Verzenden..." |
 | `reparatie-aanmeldingen.js` | Admin reparatie inbox: load/render list (debounced search, status filter, per-page, pagination), open detail (fields + photo grid), change status (select → POST), delete confirm modal, `updateBadge` polls `/new-count`. Uses `window.SlimmePC.toast` + `window.SlimmePC.modal`. Auto-inits when `#repairList` exists. The public wizard (`#repairForm` in `landing/service-reparatie.blade.php`) is wired inline in the page script: `fetch` POST to `/reparatie/submit` with FormData (`_token`, `device`, `problems[]`, `photos[]`, all step fields) + `Accept: application/json`; on 201 shows `#successScreen` with `#repairNumber`; on 422 maps errors to per-field red messages and returns to the earliest invalid step |
@@ -818,6 +879,9 @@ esize-none, so long replies were clipped inside a box that never grew — it rea
 - [2026-08-25] — **Reparatie-aanmelden: full working flow (wizard + backend + admin inbox)**. Standalone `landing/service-reparatie.blade.php` (5-step wizard from `step-2/Reparatie-aanmelden.html`): apparaat → probleem + foto's → apparaatgegevens → contact & voorkeur → controle, with a success screen showing the `Aanmeldnummer`. Backend: `repair_submissions` table + `RepairSubmission` model, `StoreRepairSubmissionRequest` (Dutch, honeypot `website`, all required except `serial`/photos) + `RepairController@submit` (CSRF + `throttle:5,1`, stores ≤5 photos to `repair/{id}/`, queues `RepairReceived` + `AdminRepairNotification` with `+reply-repair-{id}` Reply-To, returns 201 `{message, repair_number}` = `SP-YYYY-#####`). Frontend `#repairForm` wired with `@csrf` + `fetch` + per-field red errors returning to the earliest invalid step. Admin inbox (`admin.reparatie-aanmeldingen.*`, 8 routes) under the Diensten dropdown with list/search/status(`new`/`in_progress`/`completed`)/detail/delete + photo streaming, plus a dashboard "Reparaties" stat + recent-repairs table. See the "Plan: Reparatie aanmelden" section for the full breakdown. Deployment needs `MAIL_*` (Gmail SMTP) + `CONTACT_NOTIFY_EMAIL` in `.env`.
 
 - [2026-08-25] — **Admin Diensten dropdown: Reparatie aanmelden first + Aanmeldingen link**: in `components/admin/layout.blade.php` the "Reparatie aanmelden" block is listed first under Diensten (sections editor link) and now also contains an **"Aanmeldingen"** link → `admin.reparatie-aanmeldingen.index` (opens the dropdown when active, red new-count badge from `RepairSubmission::where('status','new')->count()`).
+
+- [2026-09-02] — **Categorieën: icon + description naar hoofd migratie**: `2026_09_01_000001_create_categories_table.php` nu direct met `icon` + `description` (volgorde via declaratie, zonder `after`) + tweede migratie `2026_09_02_000001` idempotent (`hasColumn` check) voor bestaande DBs; `Category.php` fillable + `CategoryController` search/validatie + `Cache::forget` + `Cms::bust()`; tabel 6→8 kolommen + icon picker in modal + JS `setIconPickerValue` + details badge; header `landing.partials.header` Webshop dropdown dynamisch via `View::composer` (`Cache::remember 3600`) — **zonder** “Bekijk alle producten” knop; Diensten knoppen “Reparatie aanmelden” + “Afspraak aan huis” **verwijderd** per client.
+- [2026-09-02] — **Webshop categoriepagina exact products.html**: nieuwe `WebshopController@index(slug)` (enkel `GET /webshop/{slug}` → `webshop.category`, algemene `/webshop` **verwijderd** → 404) erft `landing.layouts.app`; exact copy van `D:/sm 2026/slimmepc2026nieuwe/products.html` (Inter font binnen `main.webshop-main`, hero `34%_42%_24%`, chips, filters sidebar brand/prijs/processor/RAM/storage, grid `sm:grid-cols-2 xl:grid-cols-4`, product-card hover, pagination + `12/24/48` in zelfde flex, trust/advice, mobile drawer); controller filtert `brand/price/sort` + `paginate` + `availableBrands`; fallback images roteren per `id % 4` (unsplash) wegens store-interieur uploads; `npm run css:landing` rebuilt voor `max-h-[205px]` etc.; product media nu `bg-white overflow-hidden rounded-xl` + `p-1 object-contain`; brands `hp`/`hp1` → `HP` genormaliseerd.
 
 ---
 
@@ -1098,7 +1162,7 @@ A modular, multi-provider AI subsystem engineered for automated Dutch e-commerce
 ### 5. Standardized Table Loading (`window.AdminTable.loading`)
 - Standardized the loading experience across Webshop management tables:
   - **Products Table** (`/admin/webshop/products`): 11 columns with spinner and "Gegevens laden... Even geduld" on initial load, search input debouncing, and filter changes.
-  - **Categories Table** (`/admin/webshop/categories`): 6 columns with spinner on initial load, search, and pagination.
+  - **Categories Table** (`/admin/webshop/categories`): 8 columns (Afbeelding, Naam, Icoon, Beschrijving, Slug, Producten, Status, Acties) with spinner on initial load, search (name/slug/description/icon + status), and pagination.
 
 ### 6. Automated Verification & Tests
 - `tests/Unit/AiServiceTest.php`: 3 unit tests verifying Dutch prompt structure, mocked client description generation, and facade swap. All 3 tests passed with 10 assertions.
@@ -1113,6 +1177,10 @@ A modular, multi-provider AI subsystem engineered for automated Dutch e-commerce
   - Integrated **TinyMCE 6** WYSIWYG editor into Product Create & Edit, eliminating Tailwind preflight styling resets, enabling working Bold/Italic/Heading/List tools and code view modal.
   - Added `is_featured` column to `products` table with Apple-switch AJAX toggle in admin and smart fallback on the homepage (shows featured items or defaults to first 4 active products).
   - Hooked Laravel session flash messages (`session('success')`, `session('error')`) in `layout.blade.php` to `window.SlimmePC.toast` for automatic toast alerts upon redirecting after store/update operations.
-  - Standardized `AdminTable.loading` across Products (11 cols) and Categories (6 cols) tables.
+  - Standardized `AdminTable.loading` across Products (11 cols) and Categories (8 cols) tables.
   - Wrote comprehensive unit tests (`tests/Unit/AiServiceTest.php`) with 100% pass rate.
+- [2026-09-02] — **Categorieën: icon + description + tabel-update**: migration `2026_09_02_000001_add_icon_description_to_categories_table.php` voegt `icon` (VARCHAR 255, nullable, kebab-case, max 100) + `description` (TEXT, nullable, max 1000) toe na `slug`; hoofd migratie `2026_09_01_000001_create_categories_table.php` nu ook direct met beide kolommen (zonder `after`, volgorde via declaratie) + tweede migratie idempotent (`hasColumn` check). Model `Category.php:10` fillable uitgebreid. Controller `CategoryController.php:19` search nu op `name/slug/description/icon`; `store`/`update` valideren beide velden (nullable) + `Cache::forget('webshop.header.categories')` + `Cms::bust()` bij elke mutate. Blade `admin/shop/categories/index.blade.php:56` tabel van 6 → **8 kolommen** (Afbeelding, Naam, **Icoon** `w-[70px]` lucide, **Beschrijving** `max-w-[260px] truncate + title tooltip`, Slug, Producten, Status, Acties sticky); modal form krijgt **icon picker** (`data-icon-picker` hergebruikt `admin/icon-picker.js` + `lucide.min.js` uit `layout.blade.php:46`, kebab opslag, `setIconPickerValue()` helper) + `textarea` beschrijving; JS `admin/categories.js:94` `renderTable()` rendert icon als `data-lucide` badge + `lucide.createIcons()`, beschrijving truncate, `loading(tbody,8)`, `openEdit/openDetails/openCreate` vullen/resetten beide velden. Details modal toont icon badge + beschrijving. Verificatie: `php artisan migrate` [15] Ran, `DESCRIBE categories` toont kolommen, CRUD + search getest.
+- [2026-09-02] — **Webshop header dynamisch + Diensten cleanup**: `AppServiceProvider::boot` View::composer `landing.partials.header` levert `webshopCategories` (actief, `Cache::remember(3600)`, bust bij Category mutate) — desktop dropdown `grid grid-cols-2` toont nu categorieën met `icon/description` + mobiel drawer idem; **“Bekijk alle producten” knop verwijderd** + **Diensten “Reparatie aanmelden” + “Afspraak aan huis” knoppen verwijderd** (desktop, beide) per client. `project-structure.md:179` header beschrijving bijgewerkt.
+- [2026-09-02] — **Webshop categoriepagina (products.html exact)**: nieuwe `WebshopController@index(slug)` (enkel `GET /webshop/{slug}` → `webshop.category`, algemene `/webshop` route **verwijderd** → 404 per client) erft `landing.layouts.app` + header/footer; exact copy van `D:/sm 2026/slimmepc2026nieuwe/products.html` (Inter font binnen `main.webshop-main`, hero `34%_42%_24%`, chips, filters sidebar brand/prijs/processor/RAM/storage, grid `sm:grid-cols-2 xl:grid-cols-4`, product-card hover, pagination + `12/24/48` per pagina binnen zelfde flex, trust/advice, mobile drawer). Controller filtert `brand/price/sort` + `paginate(12|24|48)` + `availableBrands` counts, fallback images via 4 unsplash variants indien `main_image` null, `npm run css:landing` rebuilt voor arbitrary `max-h-[205px]` etc. Verificatie: `GET /webshop/labtop` → 200 (82541 bytes, chips + grid), `GET /webshop` → 404.
+- [2026-09-02] — **Webshop productcards tidy + brand normalisatie**: `landing/webshop.blade.php:208` media nu `bg-white overflow-hidden rounded-xl` + `p-1 object-contain`; fallback images roteren per `id % 4` (4 unsplash laptops) i.p.v. store-interieur; `hp`/`hp1` → `HP` genormaliseerd (HP (2) Lenovo (1)). `php artisan view:clear` + `cache:clear`.
 

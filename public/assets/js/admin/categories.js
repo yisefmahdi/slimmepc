@@ -94,7 +94,7 @@
   function renderTable(categories) {
     currentData = categories.data;
     if (!categories.data.length) {
-      els.tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-16 text-center"><div class="flex flex-col items-center gap-3"><span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-7 w-7"><path stroke-linecap="round" stroke-linejoin="round" d="M6 13.5V3.75a.75.75 0 01.75-.75h9a.75.75 0 01.75.75v9.75m-10.5 0a3.75 3.75 0 003.75 3.75h3a3.75 3.75 0 003.75-3.75M6 13.5h12" /></svg></span><p class="text-sm font-semibold" style="color:var(--c-heading)">Geen categorieën gevonden</p><p class="text-xs" style="color:var(--c-muted)">Probeer een andere zoekterm of voeg een nieuwe categorie toe.</p></div></td></tr>`;
+      els.tbody.innerHTML = `<tr><td colspan="8" class="px-6 py-16 text-center"><div class="flex flex-col items-center gap-3"><span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-7 w-7"><path stroke-linecap="round" stroke-linejoin="round" d="M6 13.5V3.75a.75.75 0 01.75-.75h9a.75.75 0 01.75.75v9.75m-10.5 0a3.75 3.75 0 003.75 3.75h3a3.75 3.75 0 003.75-3.75M6 13.5h12" /></svg></span><p class="text-sm font-semibold" style="color:var(--c-heading)">Geen categorieën gevonden</p><p class="text-xs" style="color:var(--c-muted)">Probeer een andere zoekterm of voeg een nieuwe categorie toe.</p></div></td></tr>`;
       return;
     }
     els.tbody.innerHTML = categories.data.map(cat => {
@@ -102,9 +102,17 @@
       const statusBadge = cat.status
         ? `<span class="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2.5 py-1 text-[11px] font-bold text-green-600 dark:bg-green-900/30 dark:text-green-400"><span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>Actief</span>`
         : `<span class="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-1 text-[11px] font-bold text-red-600 dark:bg-red-900/30 dark:text-red-400"><span class="h-1.5 w-1.5 rounded-full bg-red-500"></span>Inactief</span>`;
+      const iconCell = cat.icon
+        ? `<span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"><i data-lucide="${escapeHtml(cat.icon)}" class="h-4 w-4"></i></span>`
+        : `<span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-400 dark:bg-slate-800" title="Geen pictogram">—</span>`;
+      const descCell = cat.description
+        ? `<span class="block max-w-[240px] truncate text-xs" style="color:var(--c-muted)" title="${escapeHtml(cat.description)}">${escapeHtml(cat.description)}</span>`
+        : `<span class="text-xs" style="color:var(--c-muted)">—</span>`;
       return `<tr class="border-b transition hover:bg-blue-50/40 dark:hover:bg-slate-800/40" style="border-color:rgba(148,163,184,.12)">
         <td class="px-3 py-3">${img}</td>
         <td class="px-3 py-3"><span class="text-sm font-semibold" style="color:var(--c-heading)">${escapeHtml(cat.name)}</span></td>
+        <td class="px-3 py-3 text-center">${iconCell}</td>
+        <td class="px-3 py-3">${descCell}</td>
         <td class="px-3 py-3"><span class="text-xs" style="color:var(--c-muted)">${escapeHtml(cat.slug)}</span></td>
         <td class="px-3 py-3 text-center"><span class="inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">${cat.products_count ?? 0}</span></td>
         <td class="px-3 py-3">${statusBadge}</td>
@@ -119,7 +127,7 @@
       </tr>`;
     }).join('');
 
-    $$('[data-toggle]').forEach(btn => {
+     $$('[data-toggle]').forEach(btn => {
       btn.addEventListener('click', async () => {
         const id = btn.getAttribute('data-toggle');
         const current = parseInt(btn.getAttribute('data-status'), 10);
@@ -144,6 +152,10 @@
     $$('[data-view]').forEach(btn => btn.addEventListener('click', () => openDetails(btn.getAttribute('data-view'))));
     $$('[data-edit]').forEach(btn => btn.addEventListener('click', () => openEdit(btn.getAttribute('data-edit'))));
     $$('[data-delete]').forEach(btn => btn.addEventListener('click', () => openDelete(btn.getAttribute('data-delete'))));
+
+    if (window.lucide && window.lucide.createIcons) {
+      try { window.lucide.createIcons(); } catch(e) {}
+    }
   }
 
   function renderPagination(p) {
@@ -165,14 +177,14 @@
   }
 
   async function load() {
-    if (window.AdminTable && els.tbody) window.AdminTable.loading(els.tbody, 6);
+    if (window.AdminTable && els.tbody) window.AdminTable.loading(els.tbody, 8);
     try {
       const json = await fetchData();
       renderTable(json.categories);
       renderPagination(json.categories);
       renderCounts(json.counts);
     } catch (e) {
-      els.tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-sm" style="color:var(--c-muted)">Fout bij laden: ${escapeHtml(e.message)}</td></tr>`;
+      els.tbody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-sm" style="color:var(--c-muted)">Fout bij laden: ${escapeHtml(e.message)}</td></tr>`;
     }
   }
 
@@ -185,15 +197,64 @@
   els.status?.addEventListener('change', (e) => { state.status = e.target.value; state.page = 1; load(); });
   els.perPage?.addEventListener('change', (e) => { state.per_page = e.target.value; state.page = 1; load(); });
 
+  function setIconPickerValue(name) {
+    const hidden = $('#c-icon');
+    if (hidden) hidden.value = name || '';
+    const picker = $('#c-icon-picker');
+    if (!picker) return;
+    const nameEl = picker.querySelector('.icon-picker-name');
+    if (nameEl) nameEl.textContent = name || 'Kies een pictogram';
+    const preview = picker.querySelector('.icon-picker-preview');
+    if (preview) {
+      preview.setAttribute('data-lucide', name || 'circle');
+      preview.textContent = '';
+      // re-render via icon-picker helper if available, else try lucide
+      if (window.lucide && window.lucide.createIcons) {
+        try {
+          const ns = 'http://www.w3.org/2000/svg';
+          const pascal = name ? name.replace(/(^\w|-\w)/g, m => m.replace(/-/,'').toUpperCase()) : 'Circle';
+          // fallback: let icon-picker.js MutationObserver handle it; force by re-creating element
+          const icon = window.lucide.icons[pascal] || window.lucide.icons['Circle'];
+          if (icon) {
+            const svg = document.createElementNS(ns, 'svg');
+            svg.setAttribute('viewBox','0 0 24 24');
+            svg.setAttribute('fill','none');
+            svg.setAttribute('stroke','currentColor');
+            svg.setAttribute('stroke-width','2');
+            svg.setAttribute('stroke-linecap','round');
+            svg.setAttribute('stroke-linejoin','round');
+            svg.setAttribute('class','icon-picker-preview h-4 w-4');
+            svg.setAttribute('data-lucide', name || 'circle');
+            (icon[2]||[]).forEach(child => {
+              const el = document.createElementNS(ns, child[0]);
+              Object.entries(child[1]||{}).forEach(([k,v]) => el.setAttribute(k,v));
+              (child[2]||[]).forEach(gc => {
+                const cel = document.createElementNS(ns, gc[0]);
+                Object.entries(gc[1]||{}).forEach(([k,v]) => cel.setAttribute(k,v));
+                el.appendChild(cel);
+              });
+              svg.appendChild(el);
+            });
+            preview.replaceWith(svg);
+          }
+        } catch(e) {}
+      }
+    }
+  }
+
   // Create
   $('#openCreateCategory')?.addEventListener('click', () => {
     editId = null;
     const form = $('#categoryForm');
     form.reset();
     $('#categoryId').value = '';
+    setIconPickerValue('');
+    const descEl = $('#c-description');
+    if (descEl) descEl.value = '';
     $('#c-image-preview').classList.add('hidden');
     clearErrors(form);
-    $('#modal-categoryFormModal').querySelector('h3').textContent = 'Nieuwe categorie';
+    const tEl = $('#modal-categoryFormModal').querySelector('h3');
+    if (tEl) tEl.textContent = 'Nieuwe categorie';
     showModal('modal-categoryFormModal');
   });
 
@@ -205,6 +266,9 @@
       editId = cat.id;
       $('#categoryId').value = cat.id;
       $('#c-name').value = cat.name;
+      setIconPickerValue(cat.icon || '');
+      const descEl = $('#c-description');
+      if (descEl) descEl.value = cat.description || '';
       $('#c-status').value = cat.status ? '1' : '0';
       const preview = $('#c-image-preview');
       if (cat.image) {
@@ -214,7 +278,8 @@
         preview.classList.add('hidden');
       }
       clearErrors($('#categoryForm'));
-      $('#modal-categoryFormModal').querySelector('h3').textContent = 'Categorie bewerken';
+      const titleEl = $('#modal-categoryFormModal').querySelector('h3');
+      if (titleEl) titleEl.textContent = 'Categorie bewerken';
       showModal('modal-categoryFormModal');
     } catch (e) { alert('Fout bij laden'); }
   }
@@ -225,15 +290,20 @@
       const json = await res.json();
       const cat = json.category;
       deleteId = cat.id;
+      const iconBadge = cat.icon ? `<span class="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"><i data-lucide="${escapeHtml(cat.icon)}" class="h-3.5 w-3.5"></i>${escapeHtml(cat.icon)}</span>` : `<span class="text-xs" style="color:var(--c-muted)">Geen pictogram</span>`;
+      const descBlock = cat.description ? `<p class="mt-2 text-sm leading-5" style="color:var(--c-body)">${escapeHtml(cat.description)}</p>` : `<p class="mt-2 text-xs" style="color:var(--c-muted)">Geen beschrijving</p>`;
       const html = `
         <div class="flex gap-4">
           ${cat.image ? `<img src="/storage/${cat.image}" class="h-20 w-28 rounded-xl border object-cover" style="border-color:rgba(148,163,184,.2)">` : `<span class="flex h-20 w-28 items-center justify-center rounded-xl border bg-slate-50 text-xs" style="border-color:rgba(148,163,184,.2)">Geen afbeelding</span>`}
-          <div>
+          <div class="flex-1 min-w-0">
             <h3 class="text-lg font-extrabold" style="color:var(--c-heading)">${escapeHtml(cat.name)}</h3>
             <p class="text-xs" style="color:var(--c-muted)">${escapeHtml(cat.slug)} — ${cat.status ? 'Actief' : 'Inactief'} — ${cat.products_count ?? 0} producten</p>
+            <div class="mt-2">${iconBadge}</div>
+            ${descBlock}
           </div>
         </div>`;
       $('#categoryDetailsContent').innerHTML = html;
+      if (window.lucide && window.lucide.createIcons) { try { window.lucide.createIcons(); } catch(e) {} }
       showModal('modal-categoryDetailsModal');
     } catch (e) { alert('Fout'); }
   }

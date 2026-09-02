@@ -58,6 +58,8 @@
                         <tr class="border-b" style="border-color: rgba(148,163,184,.15)">
                             <th class="w-[100px] px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Afbeelding</th>
                             <th class="min-w-[160px] px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Naam</th>
+                            <th class="w-[70px] px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap text-center" style="color: var(--c-muted)">Icoon</th>
+                            <th class="min-w-[200px] max-w-[260px] px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Beschrijving</th>
                             <th class="min-w-[120px] px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Slug</th>
                             <th class="w-[90px] px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap text-center" style="color: var(--c-muted)">Producten</th>
                             <th class="w-[120px] px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Status</th>
@@ -85,6 +87,25 @@
                 </div>
 
                 <div>
+                    <x-input-label for="c-icon">Pictogram</x-input-label>
+                    <div class="icon-picker" data-icon-picker id="c-icon-picker">
+                        <input type="hidden" name="icon" id="c-icon" value="">
+                        <button type="button" class="icon-picker-trigger">
+                            <i data-lucide="circle" class="icon-picker-preview h-4 w-4"></i>
+                            <span class="icon-picker-name">Kies een pictogram</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4 shrink-0 opacity-50">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                            </svg>
+                        </button>
+                        <div class="icon-picker-dropdown" hidden>
+                            <input type="search" class="icon-picker-search" placeholder="Zoek pictogram...">
+                            <div class="icon-picker-grid" data-icon-grid></div>
+                        </div>
+                    </div>
+                    <p class="field-error mt-1 hidden text-xs font-medium text-red-500"></p>
+                </div>
+
+                <div>
                     <x-input-label for="c-status">Status <span class="text-red-500">*</span></x-input-label>
                     <select id="c-status" name="status"
                             class="h-[52px] w-full rounded-xl border px-4 text-[15px] outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/40"
@@ -95,7 +116,14 @@
                     <p class="field-error mt-1 hidden text-xs font-medium text-red-500"></p>
                 </div>
 
-                <div>
+                <div class="sm:col-span-2">
+                    <x-input-label for="c-description">Beschrijving</x-input-label>
+                    <textarea id="c-description" name="description" rows="3" placeholder="Korte omschrijving van de categorie..."
+                              class="form-input min-h-[96px] py-3 text-sm"></textarea>
+                    <p class="field-error mt-1 hidden text-xs font-medium text-red-500"></p>
+                </div>
+
+                <div class="sm:col-span-2">
                     <x-input-label for="c-image">Afbeelding</x-input-label>
                     <input type="file" id="c-image" name="image" accept=".jpg,.jpeg,.png,.webp"
                            class="block w-full cursor-pointer rounded-xl border text-sm file:mr-3 file:rounded-xl file:border-0 file:bg-blue-50 file:px-4 file:py-2.5 file:text-sm file:font-bold file:text-blue-700 hover:file:bg-blue-100"

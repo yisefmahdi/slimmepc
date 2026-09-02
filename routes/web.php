@@ -6,6 +6,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RepairController;
 use App\Http\Controllers\AfspraakController;
 use App\Http\Controllers\VideoStreamController;
+use App\Http\Controllers\WebshopController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/stream/video/{file}', [VideoStreamController::class, 'show'])
@@ -36,6 +37,9 @@ Route::get('/afspraak', [PageController::class, 'afspraak'])->name('afspraak');
 Route::post('/afspraak/submit', [AfspraakController::class, 'submit'])
     ->middleware('throttle:5,1')
     ->name('afspraak.submit');
+
+// Webshop — category page (only /webshop/{slug}, no general /webshop)
+Route::get('/webshop/{slug}', [WebshopController::class, 'index'])->name('webshop.category');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

@@ -153,36 +153,40 @@
                         bg-white p-3
                         shadow-menu
                     ">
-                    <div class="grid grid-cols-2 gap-2">
-                        @foreach ($c['header']['webshop_dropdown'] ?? [] as $item)
-                            <a href="{{ $item['url'] ?? '#' }}" class="
-                                    flex items-center gap-3
-                                    rounded-xl p-3
-                                    transition
-                                    hover:bg-brand-50
-                                ">
-                                <span class="
-                                        flex h-10 w-10
-                                        items-center justify-center
-                                        rounded-xl
-                                        bg-brand-100
-                                        text-brand-700
+                    @if(($webshopCategories ?? collect())->isNotEmpty())
+                        <div class="grid grid-cols-2 gap-2">
+                            @foreach ($webshopCategories as $cat)
+                                <a href="{{ url('/webshop/'.$cat->slug) }}" class="
+                                        flex items-center gap-3
+                                        rounded-xl p-3
+                                        transition
+                                        hover:bg-brand-50
                                     ">
-                                    <i data-lucide="{{ $item['icon'] ?? 'shopping-bag' }}" class="h-5 w-5"></i>
-                                </span>
+                                    <span class="
+                                            flex h-10 w-10 shrink-0
+                                            items-center justify-center
+                                            rounded-xl
+                                            bg-brand-100
+                                            text-brand-700
+                                        ">
+                                        <i data-lucide="{{ $cat->icon ?: 'shopping-bag' }}" class="h-5 w-5"></i>
+                                    </span>
 
-                                <span>
-                                    <strong class="block text-sm text-slate-900">
-                                        {{ $item['label'] ?? '' }}
-                                    </strong>
+                                    <span class="min-w-0">
+                                        <strong class="block truncate text-sm text-slate-900">
+                                            {{ $cat->name }}
+                                        </strong>
 
-                                    <small class="text-xs text-slate-500">
-                                        {{ $item['subtitle'] ?? '' }}
-                                    </small>
-                                </span>
-                            </a>
-                        @endforeach
-                    </div>
+                                        <small class="block truncate text-xs text-slate-500">
+                                            {{ \Illuminate\Support\Str::limit($cat->description ?: $cat->slug, 36) }}
+                                        </small>
+                                    </span>
+                                </a>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="px-3 py-8 text-center text-sm text-slate-500">Geen categorieën beschikbaar</p>
+                    @endif
                 </div>
             </div>
 
@@ -247,16 +251,6 @@
                             @endif
                         @endforeach
                     </div>
-
-                    <a href="{{ url('/reparatie-aanmelden') }}" class="mt-2 flex items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-brand-700">
-                        <i data-lucide="clipboard-list" class="h-5 w-5"></i>
-                        Reparatie aanmelden
-                    </a>
-
-                    <a href="{{ url('/afspraak') }}" class="mt-2 flex items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-brand-700">
-                        <i data-lucide="calendar-check" class="h-5 w-5"></i>
-                        Afspraak aan huis
-                    </a>
                 </div>
             </div>
 
@@ -519,12 +513,17 @@
             </button>
 
             <div id="mobileWebshop" class="hidden space-y-1 pb-2 pl-12">
-                @foreach ($c['header']['webshop_dropdown'] ?? [] as $item)
-                    <a href="{{ $item['url'] ?? '#' }}"
-                        class="block rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-100">
-                        {{ $item['label'] ?? '' }}
-                    </a>
-                @endforeach
+                @if(($webshopCategories ?? collect())->isNotEmpty())
+                    @foreach ($webshopCategories as $cat)
+                        <a href="{{ url('/webshop/'.$cat->slug) }}"
+                            class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-100">
+                            <i data-lucide="{{ $cat->icon ?: 'shopping-bag' }}" class="h-4 w-4 shrink-0 text-brand-600"></i>
+                            <span class="flex-1 truncate">{{ $cat->name }}</span>
+                        </a>
+                    @endforeach
+                @else
+                    <p class="px-3 py-2 text-sm text-slate-400">Geen categorieën</p>
+                @endif
             </div>
 
             <button type="button" data-accordion="mobileServices" class="
