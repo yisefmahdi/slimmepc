@@ -33,6 +33,17 @@ class AppServiceProvider extends ServiceProvider
             });
             $view->with('webshopCategories', $categories);
         });
+
+        // Share the same categories with the footer
+        View::composer('landing.partials.footer', function ($view) {
+            $categories = Cache::remember('webshop.header.categories', 3600, function () {
+                return Category::where('status', true)
+                    ->orderBy('sort_order')
+                    ->orderBy('name')
+                    ->get(['id', 'name', 'slug', 'icon', 'description', 'image', 'sort_order']);
+            });
+            $view->with('webshopCategories', $categories);
+        });
     }
 }
 

@@ -136,16 +136,17 @@
                 </h4>
 
                 <ul class="footer-links">
-                    @foreach ([
-                        ['label' => 'Laptops', 'url' => '/webshop'],
-                        ['label' => 'Desktops', 'url' => '/webshop'],
-                        ['label' => 'Monitoren', 'url' => '/webshop'],
-                        ['label' => 'Componenten', 'url' => '/webshop'],
-                        ['label' => 'Randapparatuur', 'url' => '/webshop'],
-                        ['label' => 'Software', 'url' => '/webshop'],
-                    ] as $link)
-                        <li><a href="{{ $link['url'] }}">{{ $link['label'] }}</a></li>
-                    @endforeach
+                    @if(!empty($webshopCategories) && $webshopCategories->isNotEmpty())
+                        @foreach($webshopCategories as $cat)
+                            <li>
+                                <a href="{{ route('webshop.category', $cat->slug) }}">
+                                    {{ $cat->name }}
+                                </a>
+                            </li>
+                        @endforeach
+                    @else
+                        <li><a href="{{ url('/webshop') }}">Webshop</a></li>
+                    @endif
                 </ul>
             </div>
 
