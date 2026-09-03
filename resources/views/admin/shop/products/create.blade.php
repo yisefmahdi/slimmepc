@@ -272,14 +272,55 @@
                     </div>
                 </div>
                 <div>
-                    <x-input-label>Features</x-input-label>
+                    <x-input-label>Specificaties (Technische gegevens) <span class="text-slate-400 font-normal text-xs">— titel + waarde</span></x-input-label>
                     <div id="features-container" class="space-y-2">
-                        @php $features = old('features', ['']); @endphp
-                        @foreach($features as $f)
-                            <div class="flex gap-2"><input type="text" name="features[]" value="{{ $f }}" placeholder="Feature" class="form-input h-10 flex-1 text-sm" style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading)"><button type="button" onclick="this.parentElement.remove()" class="rounded-lg border p-2 text-red-500 hover:bg-red-50"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+                        @php
+                            $oldF = old('features');
+                            if ($oldF === null) $oldF = [['title'=>'','value'=>'']];
+                            // Legacy string[] -> map
+                            if (!empty($oldF) && is_string($oldF[0] ?? null)) {
+                                $mapped = [];
+                                foreach (array_filter($oldF) as $i => $v) $mapped[] = ['title'=>'','value'=>trim($v)];
+                                $oldF = $mapped ?: [['title'=>'','value'=>'']];
+                            }
+                            if (empty($oldF)) $oldF = [['title'=>'','value'=>'']];
+                        @endphp
+                        @foreach($oldF as $i => $f)
+                            <div class="grid gap-2 items-center" style="grid-template-columns: 170px 1fr 40px;">
+                                <input type="text" name="features[{{ $i }}][title]" value="{{ $f['title'] ?? '' }}" placeholder="Titel (bijv. Processor)" class="form-input h-10 text-sm" style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading)">
+                                <input type="text" name="features[{{ $i }}][value]" value="{{ $f['value'] ?? '' }}" placeholder="Waarde (bijv. Intel i5-1235U)" class="form-input h-10 text-sm" style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading)">
+                                <button type="button" onclick="this.parentElement.remove()" class="h-10 w-10 flex items-center justify-center rounded-lg border text-red-500 hover:bg-red-50 shrink-0" title="Verwijderen"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                            </div>
                         @endforeach
                     </div>
-                    <button type="button" onclick="addField('features-container','features')" class="mt-2 inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-600 hover:bg-blue-100">+ Feature toevoegen</button>
+                    <button type="button" onclick="addFeatureRow()" class="mt-2 inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-600 hover:bg-blue-100">+ Specificatie toevoegen</button>
+                </div>
+                <div>
+                    <x-input-label>Highlights (4 kaarten onder "Over dit product") <span class="text-slate-400 font-normal text-xs">— icoon + titel + subtitel</span></x-input-label>
+                    <div id="highlights-container" class="space-y-3">
+                        @php $oldH = old('highlights', [['icon'=>'','title'=>'','subtitle'=>'']]); if (empty($oldH)) $oldH = [['icon'=>'','title'=>'','subtitle'=>'']]; @endphp
+                        @foreach($oldH as $i => $h)
+                            <div class="grid gap-2 items-center p-2.5 rounded-xl border" style="grid-template-columns: 140px 1fr 1fr 40px; border-color: rgba(148,163,184,.2); background-color: var(--c-card)">
+                                <div class="icon-picker" data-icon-picker>
+                                    <input type="hidden" name="highlights[{{ $i }}][icon]" value="{{ $h['icon'] ?? '' }}">
+                                    <button type="button" class="icon-picker-trigger h-10 w-full px-3 flex items-center gap-2 rounded-lg border text-xs font-semibold" style="background-color: var(--c-input-bg); border-color: var(--c-input-border);">
+                                        <i data-lucide="{{ ($h['icon'] ?? '') ?: 'smile' }}" class="icon-picker-preview h-4 w-4 shrink-0"></i>
+                                        <span class="icon-picker-name text-xs truncate">{{ ($h['icon'] ?? '') ?: 'Kies icoon' }}</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-3 w-3 opacity-50 shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+                                    </button>
+                                    <div class="icon-picker-dropdown" hidden>
+                                        <input type="search" class="icon-picker-search" placeholder="Zoek pictogram...">
+                                        <div class="icon-picker-grid" data-icon-grid></div>
+                                    </div>
+                                </div>
+                                <input type="text" name="highlights[{{ $i }}][title]" value="{{ $h['title'] ?? '' }}" placeholder="Titel (bijv. Lichtgewicht)" class="form-input h-10 text-sm" style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading)">
+                                <input type="text" name="highlights[{{ $i }}][subtitle]" value="{{ $h['subtitle'] ?? '' }}" placeholder="Subtitel (bijv. Slechts 1.70 kg)" class="form-input h-10 text-sm" style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading)">
+                                <button type="button" onclick="this.parentElement.remove()" class="h-10 w-10 flex items-center justify-center rounded-lg border text-red-500 hover:bg-red-50 shrink-0" title="Verwijderen"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                            </div>
+                        @endforeach
+                    </div>
+                    <button type="button" onclick="addHighlightRow()" class="mt-2 inline-flex items-center gap-1 rounded-lg bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-700 hover:bg-amber-100">+ Highlight toevoegen</button>
+                    <p class="mt-1 text-xs" style="color: var(--c-muted)">Max 8 highlights — leeg = sectie verborgen op productpagina.</p>
                 </div>
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
@@ -341,6 +382,27 @@
             div.className = 'flex gap-2';
             div.innerHTML = `<input type="text" name="${name}[]" placeholder="Waarde" class="form-input h-10 flex-1 text-sm" style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading)"><button type="button" onclick="this.parentElement.remove()" class="rounded-lg border p-2 text-red-500 hover:bg-red-50"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>`;
             container.appendChild(div);
+        }
+        function addFeatureRow() {
+            const container = document.getElementById('features-container');
+            const idx = container.children.length;
+            const div = document.createElement('div');
+            div.className = 'grid gap-2 items-center';
+            div.style.gridTemplateColumns = '170px 1fr 40px';
+            div.innerHTML = `<input type="text" name="features[${idx}][title]" placeholder="Titel (bijv. Processor)" class="form-input h-10 text-sm" style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading)"><input type="text" name="features[${idx}][value]" placeholder="Waarde (bijv. Intel i5-1235U)" class="form-input h-10 text-sm" style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading)"><button type="button" onclick="this.parentElement.remove()" class="h-10 w-10 flex items-center justify-center rounded-lg border text-red-500 hover:bg-red-50 shrink-0" title="Verwijderen"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>`;
+            container.appendChild(div);
+        }
+        function addHighlightRow() {
+            const container = document.getElementById('highlights-container');
+            const idx = container.children.length;
+            const div = document.createElement('div');
+            div.className = 'grid gap-2 items-center p-2.5 rounded-xl border';
+            div.style.gridTemplateColumns = '140px 1fr 1fr 40px';
+            div.style.borderColor = 'rgba(148,163,184,.2)';
+            div.style.backgroundColor = 'var(--c-card)';
+            div.innerHTML = `<div class="icon-picker" data-icon-picker><input type="hidden" name="highlights[${idx}][icon]" value=""><button type="button" class="icon-picker-trigger h-10 w-full px-3 flex items-center gap-2 rounded-lg border text-xs font-semibold" style="background-color: var(--c-input-bg); border-color: var(--c-input-border);"><i data-lucide="smile" class="icon-picker-preview h-4 w-4 shrink-0"></i><span class="icon-picker-name text-xs truncate">Kies icoon</span><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-3 w-3 opacity-50 shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg></button><div class="icon-picker-dropdown" hidden><input type="search" class="icon-picker-search" placeholder="Zoek pictogram..."><div class="icon-picker-grid" data-icon-grid></div></div></div><input type="text" name="highlights[${idx}][title]" placeholder="Titel (bijv. Lichtgewicht)" class="form-input h-10 text-sm" style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading)"><input type="text" name="highlights[${idx}][subtitle]" placeholder="Subtitel (bijv. Slechts 1.70 kg)" class="form-input h-10 text-sm" style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading)"><button type="button" onclick="this.parentElement.remove()" class="h-10 w-10 flex items-center justify-center rounded-lg border text-red-500 hover:bg-red-50 shrink-0" title="Verwijderen"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>`;
+            container.appendChild(div);
+            if (window.lucide) lucide.createIcons();
         }
 
         // -------------------------------------------------------------
@@ -669,8 +731,21 @@
                 const categorySelect = document.getElementById('category_id');
                 const categoryName = categorySelect && categorySelect.selectedIndex >= 0 ? categorySelect.options[categorySelect.selectedIndex].text : '';
                 
-                const featureInputs = [...document.querySelectorAll('input[name="features[]"]')];
-                const features = featureInputs.map(i => i.value.trim()).filter(Boolean);
+                // Collect features as "title: value" when using new title/value fields, fallback to old single input
+                let features = [];
+                const newFeatureRows = document.querySelectorAll('#features-container > div');
+                if (newFeatureRows.length > 0 && newFeatureRows[0].querySelector('input[name*="[title]"]')) {
+                    newFeatureRows.forEach(row => {
+                        const t = row.querySelector('input[name*="[title]"]')?.value.trim() || '';
+                        const v = row.querySelector('input[name*="[value]"]')?.value.trim() || '';
+                        if (t && v) features.push(`${t}: ${v}`);
+                        else if (v) features.push(v);
+                        else if (t) features.push(t);
+                    });
+                } else {
+                    const featureInputs = [...document.querySelectorAll('input[name="features[]"]')];
+                    features = featureInputs.map(i => i.value.trim()).filter(Boolean);
+                }
 
                 const editor = tinymce.get('description');
                 const contentText = editor ? editor.getContent({ format: 'text' }).trim() : '';

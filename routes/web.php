@@ -38,6 +38,9 @@ Route::post('/afspraak/submit', [AfspraakController::class, 'submit'])
     ->middleware('throttle:5,1')
     ->name('afspraak.submit');
 
+// Webshop — product details (must be before category route)
+Route::get('/webshop/{categorySlug}/{productSlug}', [WebshopController::class, 'show'])->name('webshop.product');
+Route::post('/webshop/{categorySlug}/{productSlug}/reviews', [App\Http\Controllers\WebshopReviewController::class, 'store'])->middleware('throttle:5,1')->name('webshop.reviews.store');
 // Webshop — category page (only /webshop/{slug}, no general /webshop)
 Route::get('/webshop/{slug}', [WebshopController::class, 'index'])->name('webshop.category');
 

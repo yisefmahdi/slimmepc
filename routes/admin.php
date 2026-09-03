@@ -213,6 +213,14 @@ Route::prefix('admin')
                     Route::post('/{product}/toggle-featured', [ShopProductController::class, 'toggleFeatured'])->name('toggle-featured');
                     Route::post('/generate-description', [AiProductController::class, 'generateDescription'])->name('generate-description');
                 });
+
+                Route::prefix('reviews')->name('reviews.')->group(function () {
+                    Route::get('/data', [App\Http\Controllers\Admin\Shop\ReviewController::class, 'data'])->name('data');
+                    Route::post('/{review}/approve', [App\Http\Controllers\Admin\Shop\ReviewController::class, 'approve'])->name('approve');
+                    Route::post('/{review}/reject', [App\Http\Controllers\Admin\Shop\ReviewController::class, 'reject'])->name('reject');
+                    Route::delete('/{review}', [App\Http\Controllers\Admin\Shop\ReviewController::class, 'destroy'])->name('destroy');
+                    Route::get('/product/{product}', [App\Http\Controllers\Admin\Shop\ReviewController::class, 'productReviews'])->name('product');
+                });
             });
     });
 

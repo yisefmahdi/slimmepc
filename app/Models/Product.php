@@ -9,13 +9,14 @@ class Product extends Model
 {
     protected $fillable = [
         'category_id', 'title', 'brand', 'sku', 'price', 'old_price', 'stock_status', 'status', 'is_featured',
-        'description', 'features', 'colors', 'sizes', 'main_image', 'gallery_images',
+        'description', 'features', 'highlights', 'colors', 'sizes', 'main_image', 'gallery_images',
         'external_link', 'delivery_time', 'slug', 'discount_type', 'discount_value', 'discount_start_date', 'discount_end_date',
-        'download_32bit_url', 'download_64bit_url', 'manual_url',
+        'download_32bit_url', 'download_64bit_url', 'manual_url', 'rating_avg', 'rating_count',
     ];
 
     protected $casts = [
         'features' => 'array',
+        'highlights' => 'array',
         'colors' => 'array',
         'sizes' => 'array',
         'gallery_images' => 'array',
@@ -26,6 +27,8 @@ class Product extends Model
         'price' => 'decimal:2',
         'old_price' => 'decimal:2',
         'discount_value' => 'decimal:2',
+        'rating_avg' => 'decimal:2',
+        'rating_count' => 'integer',
     ];
 
     public function getDiscountedPriceAttribute(): float
@@ -70,5 +73,23 @@ class Product extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(ProductReview::class);
+    }
+
+    public function approvedReviews()
+    {
+        return $this->hasMany(ProductReview::class)->where('is_approved', true);
+    }
+
+    public function recalcRating(): void
+    {
+        $agg = $this->reviews()->where('is_approved', true)->selectRaw('COUNT(*) as cnt, AVG(rating) as avg')->first();
+        $count = (int) ($agg->cnt ?? 0);
+        $avg = $count > 0 ? round((float) $agg->avg, 2) : 0;
+        $this->updateQuietly(['rating_avg' => $avg, 'rating_count' => $count]);
     }
 }

@@ -83,4 +83,36 @@ class WebshopController extends Controller
 
         return view('landing.webshop', compact('c', 'design', 'allCategories', 'currentCategory', 'products', 'availableBrands', 'sort'));
     }
+
+    public function show(string $categorySlug, string $productSlug)
+    {
+        $c = Cms::page('home');
+        $design = Cms::design();
+
+        $category = Category::where('slug', $categorySlug)
+            ->where('status', true)
+            ->firstOrFail();
+
+        $product = Product::where('slug', $productSlug)
+            ->where('status', true)
+            ->where('category_id', $category->id)
+            ->with('category')
+            ->firstOrFail();
+
+        // All active categories for header chips
+        $allCategories = Category::where('status', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        // Related / accessories — same category, exclude current
+        $relatedProducts = Product::where('status', true)
+            ->where('category_id', $category->id)
+            ->where('id', '!=', $product->id)
+            ->inRandomOrder()
+            ->limit(4)
+            ->get();
+
+        return view('landing.product-details', compact('c', 'design', 'category', 'product', 'allCategories', 'relatedProducts'));
+    }
 }

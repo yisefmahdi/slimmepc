@@ -137,8 +137,9 @@
                             <th class="w-[70px] px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Korting</th>
                             <th class="w-[80px] px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Voorraad</th>
                             <th class="w-[85px] px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Home</th>
+                            <th class="w-[110px] px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap text-center" style="color: var(--c-muted)"><span class="inline-flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3.5 w-3.5 text-amber-400"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.37 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.84-.197-1.54-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.34 8.719c-.783-.57-.38-1.81.588-1.81h3.462a1 1 0 00.95-.69l1.07-3.292z"/></svg>Beoordeling</span></th>
                             <th class="w-[85px] px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Status</th>
-                            <th class="w-[100px] min-w-[100px] max-w-[100px] px-3 py-3 text-right text-xs font-bold uppercase tracking-wide whitespace-nowrap sticky right-0 z-10" style="color: var(--c-muted); background-color: var(--c-card); box-shadow: -8px 0 12px -4px rgba(15,23,42,.06);">Acties</th>
+                            <th class="w-[110px] min-w-[110px] max-w-[110px] px-3 py-3 text-right text-xs font-bold uppercase tracking-wide whitespace-nowrap sticky right-0 z-10" style="color: var(--c-muted); background-color: var(--c-card); box-shadow: -8px 0 12px -4px rgba(15,23,42,.06);">Acties</th>
                         </tr>
                     </thead>
                     <tbody id="productTableBody"></tbody>
@@ -155,6 +156,17 @@
             <button type="button" data-modal-close class="inline-flex h-11 items-center justify-center rounded-xl border px-5 text-sm font-semibold hover:bg-slate-100" style="color: var(--c-heading); border-color: var(--c-input-border)">Sluiten</button>
             <button type="button" id="productDetailsDeleteBtn" class="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-red-200 px-5 text-sm font-semibold text-red-600 hover:bg-red-50">Verwijderen</button>
             <button type="button" id="productDetailsEditBtn" class="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#075be8] to-[#064bd7] px-6 text-sm font-semibold text-white">Bewerken</button>
+        </x-slot>
+    </x-admin.modal>
+
+    {{-- Reviews --}}
+    <x-admin.modal id="productReviewsModal" title="Beoordelingen" size="lg">
+        <div id="productReviewsHeader" class="mb-4 flex items-center gap-3 text-sm" style="color: var(--c-muted)"></div>
+        <div id="productReviewsStats" class="mb-4 grid grid-cols-3 gap-2 text-center text-xs"></div>
+        <div id="productReviewsList" class="space-y-3 max-h-[50vh] overflow-auto pr-1"></div>
+        <div id="productReviewsEmpty" class="hidden py-8 text-center text-sm" style="color: var(--c-muted)">Geen beoordelingen gevonden.</div>
+        <x-slot name="footer">
+            <button type="button" data-modal-close class="inline-flex h-11 items-center justify-center rounded-xl border px-5 text-sm font-semibold hover:bg-slate-100" style="color: var(--c-heading); border-color: var(--c-input-border)">Sluiten</button>
         </x-slot>
     </x-admin.modal>
 

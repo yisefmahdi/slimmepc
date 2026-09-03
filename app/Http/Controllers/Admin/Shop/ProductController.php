@@ -106,8 +106,13 @@ class ProductController extends Controller
             'status' => 'required|boolean',
             'is_featured' => 'nullable|boolean',
             'description' => 'nullable|string',
-            'features' => 'nullable|array',
-            'features.*' => 'nullable|string',
+            'features' => 'nullable|array|max:20',
+            'features.*.title' => 'required|string|max:80',
+            'features.*.value' => 'required|string|max:255',
+            'highlights' => 'nullable|array|max:8',
+            'highlights.*.icon' => 'nullable|string|max:64',
+            'highlights.*.title' => 'required|string|max:60',
+            'highlights.*.subtitle' => 'nullable|string|max:80',
             'colors' => 'nullable|array',
             'colors.*' => 'nullable|string',
             'sizes' => 'nullable|array',
@@ -129,8 +134,35 @@ class ProductController extends Controller
         $data['slug'] = Str::slug($data['title']);
         $data['is_featured'] = $request->boolean('is_featured');
 
-        // Clean arrays
-        $data['features'] = array_values(array_filter($request->input('features', [])));
+        // Clean features: keep only rows where both title and value are filled
+        $rawFeatures = $request->input('features', []);
+        // Backwards compatibility: if legacy string[] sent, map to title/value
+        if (!empty($rawFeatures) && is_string(reset($rawFeatures))) {
+            $mapped = [];
+            foreach ($rawFeatures as $i => $v) {
+                $v = trim((string)$v);
+                if ($v !== '') $mapped[] = ['title' => 'Specificatie ' . ($i + 1), 'value' => $v];
+            }
+            $rawFeatures = $mapped;
+        }
+        $data['features'] = array_values(array_filter(array_map(function ($f) {
+            $t = trim($f['title'] ?? '');
+            $v = trim($f['value'] ?? '');
+            return ($t !== '' && $v !== '') ? ['title' => $t, 'value' => $v] : null;
+        }, (array)$rawFeatures)));
+
+        // Clean highlights
+        $rawHighlights = $request->input('highlights', []);
+        $data['highlights'] = array_values(array_filter(array_map(function ($h) {
+            $t = trim($h['title'] ?? '');
+            if ($t === '') return null;
+            return [
+                'icon' => trim($h['icon'] ?? ''),
+                'title' => $t,
+                'subtitle' => trim($h['subtitle'] ?? ''),
+            ];
+        }, (array)$rawHighlights)));
+
         $data['colors'] = array_values(array_filter($request->input('colors', [])));
         $data['sizes'] = array_values(array_filter($request->input('sizes', [])));
 
@@ -184,8 +216,13 @@ class ProductController extends Controller
             'status' => 'required|boolean',
             'is_featured' => 'nullable|boolean',
             'description' => 'nullable|string',
-            'features' => 'nullable|array',
-            'features.*' => 'nullable|string',
+            'features' => 'nullable|array|max:20',
+            'features.*.title' => 'required|string|max:80',
+            'features.*.value' => 'required|string|max:255',
+            'highlights' => 'nullable|array|max:8',
+            'highlights.*.icon' => 'nullable|string|max:64',
+            'highlights.*.title' => 'required|string|max:60',
+            'highlights.*.subtitle' => 'nullable|string|max:80',
             'colors' => 'nullable|array',
             'colors.*' => 'nullable|string',
             'sizes' => 'nullable|array',
@@ -209,7 +246,26 @@ class ProductController extends Controller
 
         $data['slug'] = Str::slug($data['title']);
         $data['is_featured'] = $request->boolean('is_featured');
-        $data['features'] = array_values(array_filter($request->input('features', [])));
+        $rawFeatures = $request->input('features', []);
+        if (!empty($rawFeatures) && is_string(reset($rawFeatures))) {
+            $mapped = [];
+            foreach ($rawFeatures as $i => $v) {
+                $v = trim((string)$v);
+                if ($v !== '') $mapped[] = ['title' => 'Specificatie ' . ($i + 1), 'value' => $v];
+            }
+            $rawFeatures = $mapped;
+        }
+        $data['features'] = array_values(array_filter(array_map(function ($f) {
+            $t = trim($f['title'] ?? '');
+            $v = trim($f['value'] ?? '');
+            return ($t !== '' && $v !== '') ? ['title' => $t, 'value' => $v] : null;
+        }, (array)$rawFeatures)));
+        $rawHighlights = $request->input('highlights', []);
+        $data['highlights'] = array_values(array_filter(array_map(function ($h) {
+            $t = trim($h['title'] ?? '');
+            if ($t === '') return null;
+            return ['icon' => trim($h['icon'] ?? ''), 'title' => $t, 'subtitle' => trim($h['subtitle'] ?? '')];
+        }, (array)$rawHighlights)));
         $data['colors'] = array_values(array_filter($request->input('colors', [])));
         $data['sizes'] = array_values(array_filter($request->input('sizes', [])));
 
