@@ -83,6 +83,7 @@ class PageController extends Controller
                     $imageUrl = asset('assets/img/landing/laptop-fallback.png');
                 }
 
+                $productLink = $fp->category ? route('webshop.product', [$fp->category->slug, $fp->slug]) : '/webshop';
                 $mappedProducts[] = [
                     'id' => $fp->id,
                     'title' => $fp->title,
@@ -91,7 +92,7 @@ class PageController extends Controller
                     'in_stock' => $fp->stock_status === 'in_stock',
                     'image' => $imageUrl,
                     'is_db_image' => true,
-                    'link' => '/webshop',
+                    'link' => $productLink,
                     'badge' => $badge,
                     'badge_color' => $badgeColor,
                 ];
