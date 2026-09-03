@@ -50,8 +50,17 @@ class PageController extends Controller
             foreach ($homeProducts as $fp) {
                 $specs = '';
                 if (!empty($fp->features) && is_array($fp->features)) {
-                    $specs = implode(' · ', array_slice($fp->features, 0, 3));
-                } elseif ($fp->brand) {
+                    $featStrs = array_map(function ($f) {
+                        if (is_array($f) && isset($f['value'])) {
+                            $t = trim($f['title'] ?? ''); $v = trim($f['value']);
+                            return $t !== '' ? $t . ': ' . $v : $v;
+                        }
+                        return (string) $f;
+                    }, $fp->features);
+                    $featStrs = array_values(array_filter($featStrs));
+                    if (!empty($featStrs)) $specs = implode(' · ', array_slice($featStrs, 0, 3));
+                }
+                if ($specs === '' && $fp->brand) {
                     $specs = $fp->brand . ($fp->category ? ' · ' . $fp->category->name : '');
                 }
 
@@ -65,9 +74,14 @@ class PageController extends Controller
                     $badgeColor = 'blue';
                 }
 
-                $imageUrl = $fp->main_image
-                    ? asset('storage/' . $fp->main_image)
-                    : asset('assets/img/landing/laptop-fallback.png');
+                if ($fp->main_image) {
+                    if (str_starts_with($fp->main_image, 'http')) $imageUrl = $fp->main_image;
+                    elseif (str_starts_with($fp->main_image, 'assets/')) $imageUrl = asset($fp->main_image);
+                    elseif (str_starts_with($fp->main_image, 'storage/')) $imageUrl = asset($fp->main_image);
+                    else $imageUrl = asset('storage/' . $fp->main_image);
+                } else {
+                    $imageUrl = asset('assets/img/landing/laptop-fallback.png');
+                }
 
                 $mappedProducts[] = [
                     'id' => $fp->id,
