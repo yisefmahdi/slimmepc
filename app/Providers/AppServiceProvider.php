@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Category;
+use App\Services\CartService;
 use App\Services\InboundContactFetcher;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\View;
@@ -16,6 +17,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(InboundContactFetcher::class);
+        $this->app->singleton(CartService::class);
     }
 
     /**
@@ -43,6 +45,17 @@ class AppServiceProvider extends ServiceProvider
                     ->get(['id', 'name', 'slug', 'icon', 'description', 'image', 'sort_order']);
             });
             $view->with('webshopCategories', $categories);
+        });
+
+        // Share cart count with header (guest + auth)
+        View::composer('landing.partials.header', function ($view) {
+            try {
+                $cartService = app(CartService::class);
+                $count = $cartService->countForRequest(request());
+            } catch (\Throwable $e) {
+                $count = 0;
+            }
+            $view->with('cartCount', $count);
         });
     }
 }

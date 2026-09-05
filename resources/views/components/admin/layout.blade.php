@@ -45,6 +45,8 @@
         <script src="{{ asset('assets/js/admin/loader.js') }}?v={{ filemtime(public_path('assets/js/admin/loader.js')) }}"></script>
         <script src="{{ asset('assets/js/vendor/lucide.min.js') }}?v={{ filemtime(public_path('assets/js/vendor/lucide.min.js')) }}"></script>
         <script src="{{ asset('assets/js/admin/icon-picker.js') }}?v={{ filemtime(public_path('assets/js/admin/icon-picker.js')) }}"></script>
+        <script src="{{ asset('assets/js/admin/categories.js') }}?v={{ filemtime(public_path('assets/js/admin/categories.js')) }}"></script>
+        <script src="{{ asset('assets/js/admin/coupons.js') }}?v={{ filemtime(public_path('assets/js/admin/coupons.js')) }}"></script>
     </head>
 
     <body class="font-sans antialiased" style="background-color: var(--c-page)" x-data="{ sidebarOpen: false }">
@@ -433,6 +435,10 @@
                         <a href="{{ route('admin.webshop.products.index') }}"
                            class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.webshop.products.*') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
                             Producten
+                        </a>
+                        <a href="{{ route('admin.webshop.coupons.index') }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.webshop.coupons.*') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Kortingscodes
                         </a>
                     </div>
                 </div>

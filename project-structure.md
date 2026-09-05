@@ -1218,3 +1218,64 @@ A modular, multi-provider AI subsystem engineered for automated Dutch e-commerce
 ### Afbeeldingen — lokaal i.p.v. externe links
 - `DetailedProductsSeeder` gebruikt nu **lokale** `public/assets/img/products/{slug}.jpg` (gekopieerd van Unsplash bij seed, `asset('assets/img/products/...')` i.p.v. `https://images.unsplash.com`) zodat ze op server (Hostinger) direct zichtbaar zijn zonder externe blocking. Bij `http` URL wordt via `Storage::put` lokaal opgeslagen bij eerste seed.
 
+## 15. Cart / Coupons / Webshop Filters — 2026-09-05 Full Update
+
+### Overview Additions
+- **Cart system (DB, not session):** `carts` + `cart_items` with `cart_token` (guest UUID forever cookie) + `user_id` (auth merge), `price_snapshot` (discounted_price at add time), `coupon_id`. Optimistic UI: header badge `+qty` instantly, background `POST /cart/items` (throttle 30,1), rollback on 422, `SlimmeCart` JS via `[data-cart-add]` delegation (`public/assets/js/cart.js`).
+- **Coupons:** `coupons` (`code UNIQUE`, `discount_type percentage/fixed`, `discount_value`, `min_amount`, `start/end`, `status`, `usage_limit/used_count`, `is_single_use`) + `coupon_usages` (`UNIQUE coupon_id+user_id` + `guest_token` + `cart_id`). Admin CRUD under `Webshop -> Kortingscodes`. Timezone fix: `Europe/Amsterdam` input -> UTC storage in `CouponController`, `toLocal` in `coupons.js` uses `getHours` local, `CartService::validateCoupon` distinguishes `nog niet geldig` vs `verlopen`.
+- **Webshop filters:** `WebshopController@index` now builds `filterGroups` dynamically from `Product.features` (grouped by `strtolower(title)`, first 10 values visible + `hidden extra-value` + `Toon meer (n)` per group). Global `Toon meer filters` shows first 4 filter groups (Merk + Prijs + first 2 dynamic) then reveals rest (`extra-filter-group`). Filtering via `JSON_CONTAINS(features, JSON_OBJECT('title',?, 'value',?))` + `LOWER LIKE` fallback, `OR` within group, `AND` between groups, `brand/price` preserved. Order is now `Merk -> Prijs -> dynamic` (both desktop `hidden lg:block` and mobile drawer) as requested.
+- **Product gallery carousel:** `landing/product-details.blade.php` thumbnails changed from `grid-cols-5` (first 5 + `+N`) to `flex snap-x` carousel showing **4 at a time** `w-[calc(25%-6px)]` + `scrollbar-hide`, nav `thumbPrev/Next` (`scrollBy 160`) + drag, `selectImage` + `scrollIntoView center`, `updateImage` toggles `border-2 border-slimme-600`.
+
+### Folder Structure Additions
+```
+├── app/Http/Controllers/CartController.php # index/count/store/update/destroy/clear/applyCoupon/removeCoupon (guest+auth, CartService, Cookie forever)
+├── app/Http/Controllers/Admin/Shop/CouponController.php # index/data/store/show/update/destroy/toggleStatus (JSON, Str::upper code, Carbon Amsterdam->UTC)
+├── app/Models/Cart.php # user/coupon hasMany items, getCountAttribute
+├── app/Models/CartItem.php # cart/product, price_snapshot decimal, subtotal()
+├── app/Models/Coupon.php # isExpired/isMaxedOut/isActive/discountAmount, boot upper code
+├── app/Models/CouponUsage.php # coupon/user/cart/guest_token
+├── app/Services/CartService.php # COOKIE_NAME cart_token, SHIPPING 6.95 / FREE 75, resolveCart (auth merge guest), addItem (discounted_price), totals (subtotal-discount+shipping), countForRequest, validateCoupon (status/start/end/max/min/single_use)
+├── resources/views/components/add-to-cart.blade.php # reusable <x-add-to-cart variant=grid/details/sticky/upsell> via data-cart-add + qty source
+├── resources/views/landing/cart.blade.php # exact winkelwagen.html via landing.layouts.app + header/footer, Inter+Tailwind CDN, 2-col mobile (price/subtotal + qty/delete), Overzicht with coupon badge/input, dynamic injection buildCartRow without reload, modals clearCart/removeItem (x-admin.modal style), overflow-x clip fix, toast via SlimmePC
+├── public/assets/js/cart.js # global delegation, optimistic badge, CSRF, toast via SlimmePC.success/error fallback, CustomEvent cart:itemAdded, updateHeaderBadge (also #cartCountBadge), credentials same-origin
+├── public/assets/js/admin/coupons.js # 9-col table (Code/Naam/Type/Waarde/Min/Gebruik/Geldigheid/Status/Acties) with apple-switch, window.AdminTable.loading, search/status/pagination, modals (generate 8-char code, toLocal Amsterdam), toggleStatus, delete confirm — init wrapped DOMContentLoaded, fixed #modal- prefix
+├── resources/views/admin/shop/coupons/index.blade.php # filter toolbar + table + apple-switch CSS, modals (create/edit/delete)
+├── config tailwind: added slimme {blue #0759F5, dark #07173A, text #152A57, light #F5F8FF, border #DCE4F0, green #0BA15B} + card/soft/button shadows
+├── migrations 2026_09_05_120620_create_coupons_table, 120621_coupon_usages, 120622_carts, 120623_cart_items
+├── landing/layouts/app.blade.php # added meta csrf-token, jquery/axios/design.js before lucide, --c-card vars for toasts, cart.js
+├── landing/partials/header.blade.php # cart link route('cart.index') + data-cart-count="{{ $cartCount }}" (from AppServiceProvider CartService)
+├── AppServiceProvider # singleton CartService, View::composer header cartCount
+```
+
+### Routes Additions (web.php + admin.php)
+- `GET /cart` cart.index, `GET /cart/count` cart.count, `POST /cart/items` cart.items.store (30,1), `PATCH /cart/items/{item}` cart.items.update, `DELETE /cart/items/{item}` cart.items.destroy, `DELETE /cart` cart.clear, `POST /cart/coupon` cart.coupon.apply, `DELETE /cart/coupon` cart.coupon.remove — all with `credentials same-origin` in JS
+- `admin/webshop/coupons` prefix: `GET /`, `GET /data`, `POST /`, `GET /{coupon}`, `PUT /{coupon}`, `DELETE /{coupon}`, `POST /{coupon}/toggle` -> `admin.webshop.coupons.*` (inside Webshop dropdown as Kortingscodes)
+- Webshop category now supports `?brand`, `?price/price_min/max`, `?sort`, `?per_page` + dynamic `?Processor=...&RAM=...&Opslag=...` (any feature title) via `withQueryString()`
+
+### Database Schema Additions
+- `carts`: id, user_id FK nullable cascade, cart_token varchar(64) unique nullable, coupon_id FK nullable nullOnDelete, timestamps, index user_id
+- `cart_items`: id, cart_id FK cascade, product_id FK cascade, quantity int 1..99, price_snapshot decimal 10,2, timestamps, unique(cart_id,product_id)
+- `coupons`: id, code unique, name nullable, discount_type enum, discount_value 8,2, min_amount 10,2 nullable, start/end datetime nullable, status bool, usage_limit int nullable, used_count 0, is_single_use bool, timestamps, index status/end_date
+- `coupon_usages`: id, coupon_id FK cascade, user_id FK nullable cascade, cart_id unsignedBigInt nullable, guest_token 64 nullable, used_at datetime nullable, timestamps, unique(coupon_id,user_id), index coupon_id/guest_token
+
+### Gotchas Added
+- `cart_token` forever cookie + `credentials same-origin` on all cart fetches — missing caused "Je winkelwagen is leeg." on coupon apply
+- `coupons` timezone: `Europe/Amsterdam` input -> UTC storage, `toLocal` uses `getFullYear/getHours` local not `toISOString` (was 2h off, showed verlopen while 15:40 Amsterdam = 13:40 UTC)
+- `coupons.js` selector bug: `#${modalId}` -> `#modal-${modalId}` (x-admin.modal id prefix) + toast `success/error` not function call
+- `coupons.js` + `categories.js` loaded in `<head>` need `DOMContentLoaded` wrapper or early return if `!tbody`
+- `landing.css` lacks `bg-slate-900/60` etc. — cart page uses Tailwind CDN + Inter + inline fix for `[data-modal-overlay]` dark + `[data-toast] bg #fff` via `--c-card` vars in landing layout
+- `product-details` gallery: 4 visible `calc(25%-6px)` + snap, nav only if `count>4`, drag scroll, `selectImage` scrollIntoView center
+
+### Changelog 2026-09-05
+- Cart DB + optimistic add (header badge + background POST) + merge on login + shipping 6.95 / free >=75 + dynamic upsell injection without reload
+- Coupons admin CRUD + toggle (apple-switch) + validation (nog niet geldig vs verlopen, min_amount, single_use) + fix timezone
+- Webshop dynamic filters from features (first 10 per group + Toon meer, first 4 groups + Toon meer filters) with Prijs under Merk
+- Product gallery 4-at-a-time carousel + mobile fixes for cart (2-col price/subtotal + qty/delete, px-4 sm:px-5, centered quantity, full-width buttons) and sticky cart
+- Toast/modal transparency fixes for landing (var --c-card)
+
+## 16. Update 2026-09-05 — Coupon & Verzending moved from Cart to Checkout
+
+- **Cart page `landing/cart.blade.php`:** `couponSection` (`Kortingscode` + `Toepassen` + `couponError/Success` + `couponApplied` badge) and `discountRow` (`Korting`) and `Verzending` row (`shippingPrice` `Gratis` / `€6,95`) **removed from `Overzicht`** as per client request — `Totaal` now shows `subtotal` only (without shipping/discount). The `Trust Bar` at bottom (`Gratis verzending vanaf €75` etc.) remains as informational, not calculation. JS `applyCoupon`/`removeCoupon` + `Enter` listener + `clear stale coupon messages` + `discount/shipping` handling in `updateOverview` removed; `summaryTotal` now `moneyFormat(totals.subtotal)`.
+- **Backend kept for checkout:** `carts.coupon_id`, `coupons` / `coupon_usages` tables, `CartService::validateCoupon` + `totals` discount/shipping logic, and `routes POST /cart/coupon` / `DELETE /cart/coupon` remain in codebase for the upcoming `checkout` page — not exposed in cart UI.
+- **Reason:** Client wants coupon discount and shipping costs handled exclusively at checkout, not in cart. Cart now shows pure subtotal.
+

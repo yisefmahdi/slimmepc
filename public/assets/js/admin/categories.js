@@ -1,4 +1,5 @@
 (() => {
+  function init() {
   const $ = (s, r=document) => r.querySelector(s);
   const $$ = (s, r=document) => [...r.querySelectorAll(s)];
 
@@ -12,6 +13,7 @@
     countActive: $('#countActive'),
     countInactive: $('#countInactive'),
   };
+  if (!els.tbody) return;
 
   let state = { page: 1, search: '', status: 'all', per_page: 10 };
   let currentData = [];
@@ -393,4 +395,10 @@
   });
 
   load();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 })();

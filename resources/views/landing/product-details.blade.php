@@ -212,30 +212,25 @@
                         <span id="imageNumber">1</span> / {{ count($gallery) }}
                     </div>
                 </div>
-                <div class="grid grid-cols-5 gap-3 mt-3">
-                    @foreach($gallery as $idx => $img)
-                        @if($idx < 5)
+                <div id="thumbCarousel" class="relative mt-3 group">
+                    @if(count($gallery) > 4)
+                    <button type="button" id="thumbPrev" class="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/95 border border-slate-200 shadow-md flex items-center justify-center text-slate-600 hover:bg-white hover:text-slimme-600 hover:border-slimme-300 transition -ml-2 sm:-ml-3 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto">
+                        <i class="fa-solid fa-chevron-left text-[10px] sm:text-xs"></i>
+                    </button>
+                    <button type="button" id="thumbNext" class="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/95 border border-slate-200 shadow-md flex items-center justify-center text-slate-600 hover:bg-white hover:text-slimme-600 hover:border-slimme-300 transition -mr-2 sm:-mr-3 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto">
+                        <i class="fa-solid fa-chevron-right text-[10px] sm:text-xs"></i>
+                    </button>
+                    @endif
+                    <div id="thumbTrack" class="flex gap-2 sm:gap-3 overflow-x-auto scrollbar-hide scroll-smooth snap-x snap-mandatory pb-1" style="scrollbar-width:none;-ms-overflow-style:none;">
+                        @foreach($gallery as $idx => $img)
                             @php $thumbSrc = $resolveImg($img); @endphp
-                            <button type="button" onclick="selectImage({{ $idx }},this)" class="thumbnail {{ $idx===0 ? 'active' : '' }} bg-white {{ $idx===0 ? 'border-2' : 'border border-slate-200' }} rounded-xl h-[93px] p-2">
-                                <img src="{{ $thumbSrc }}" class="w-full h-full object-contain" alt="thumb" onerror="this.src='{{ $placeholderSrc }}'">
+                            <button type="button" onclick="selectImage({{ $idx }},this)" data-thumb-index="{{ $idx }}" class="thumbnail snap-start shrink-0 {{ $idx===0 ? 'active border-2 border-slimme-600' : 'border border-slate-200' }} bg-white rounded-xl w-[calc(25%-6px)] sm:w-[calc(25%-9px)] h-[64px] sm:h-[74px] md:h-[86px] lg:h-[93px] p-1.5 sm:p-2 flex items-center justify-center basis-[calc(25%-6px)] sm:basis-[calc(25%-9px)]">
+                                <img src="{{ $thumbSrc }}" class="w-full h-full object-contain" alt="thumb {{ $idx+1 }}" onerror="this.src='{{ $placeholderSrc }}'" loading="lazy">
                             </button>
-                        @endif
-                    @endforeach
-                    @for($i = count($gallery); $i < 5; $i++)
-                        <button type="button" class="thumbnail bg-white border border-slate-200 rounded-xl h-[93px] p-2">
-                            <div class="h-full flex items-center justify-center">
-                                @if($i === 4 && count($gallery) > 5)
-                                    <div class="relative flex items-center justify-center w-full h-full">
-                                        <i class="fa-solid fa-images text-3xl text-slate-300"></i>
-                                        <span class="absolute right-1 bottom-1 bg-slimme-600 text-white text-[9px] px-1.5 py-1 rounded-md">+{{ count($gallery)-5 }}</span>
-                                    </div>
-                                @else
-                                    <i class="fa-solid fa-image text-3xl text-slate-300"></i>
-                                @endif
-                            </div>
-                        </button>
-                    @endfor
+                        @endforeach
+                    </div>
                 </div>
+                <style>.scrollbar-hide::-webkit-scrollbar{display:none}.scrollbar-hide{-ms-overflow-style:none;scrollbar-width:none}</style>
             </div>
 
             <div class="reveal lg:pt-2" style="transition-delay:.08s">
@@ -317,15 +312,19 @@
                 </div>
                 @endif
                 <div class="flex flex-col sm:flex-row gap-3 mt-7">
-                    <div class="flex h-[58px] bg-white border border-slate-200 rounded-xl overflow-hidden">
+                    <div class="inline-flex h-[58px] bg-white border border-slate-200 rounded-xl overflow-hidden self-center sm:self-auto shrink-0">
                         <button type="button" onclick="changeQuantity(-1)" class="w-12 hover:bg-slimme-50 hover:text-slimme-600 transition"><i class="fa-solid fa-minus text-xs"></i></button>
                         <div id="quantity" class="w-12 border-x border-slate-200 flex items-center justify-center font-semibold">1</div>
                         <button type="button" onclick="changeQuantity(1)" class="w-12 hover:bg-slimme-50 hover:text-slimme-600 transition"><i class="fa-solid fa-plus text-xs"></i></button>
                     </div>
-                    <button type="button" onclick="addToCart(this)" class="cart-button flex-1 h-[58px] rounded-xl bg-gradient-to-r from-[#0647ca] via-[#0757ef] to-[#2877ff] text-white font-semibold shadow-blue flex items-center justify-center gap-3 transition" {{ !$inStock ? 'disabled' : '' }}>
-                        <i class="fa-solid fa-cart-shopping"></i>
-                        <span class="cart-text">{{ $inStock ? 'In winkelwagen' : 'Niet beschikbaar' }}</span>
-                    </button>
+                    @if($inStock)
+                        <x-add-to-cart :product="$product" variant="details" />
+                    @else
+                        <button type="button" disabled class="flex-1 h-[58px] rounded-xl bg-slate-200 text-slate-500 font-semibold flex items-center justify-center gap-3 cursor-not-allowed">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                            <span>Niet beschikbaar</span>
+                        </button>
+                    @endif
                 </div>
                 <div class="grid grid-cols-3 gap-3 mt-6 pt-5 border-t border-slate-200">
                     <div class="text-center"><i class="fa-regular fa-circle-check text-emerald-500"></i><div class="text-[11px] font-medium mt-2">2 jaar garantie</div></div>
@@ -490,7 +489,7 @@
                             <div class="mt-4"><div class="text-[18px] font-extrabold text-[#071638]">€{{ number_format($relPrice, 2, ',', '.') }}</div></div>
                             <div class="flex items-center justify-between mt-4">
                                 <div class="text-[10px] text-emerald-600 font-semibold"><i class="fa-solid fa-circle text-[6px] mr-1"></i> Op voorraad</div>
-                                <a href="{{ route('webshop.product', [$rel->category->slug, $rel->slug]) }}" class="w-9 h-9 rounded-lg bg-slimme-600 text-white flex items-center justify-center hover:bg-slimme-700 hover:scale-105 shadow-md transition"><i class="fa-solid fa-cart-shopping text-[12px]"></i></a>
+                                <x-add-to-cart :product="$rel" variant="grid" />
                             </div>
                         </div>
                     </article>
@@ -578,9 +577,13 @@
                 <strong class="text-[18px]">€{{ number_format($finalPrice, 2, ',', '.') }}</strong>
                 <div class="text-[10px] {{ $inStock ? 'text-emerald-600' : 'text-red-500' }} font-semibold mt-1">● {{ $inStock ? 'Op voorraad' : 'Niet op voorraad' }}</div>
             </div>
-            <button type="button" class="cart-button h-11 flex-1 md:flex-none md:min-w-[260px] px-6 bg-gradient-to-r from-slimme-700 to-slimme-500 text-white rounded-lg text-sm font-semibold flex items-center justify-center gap-3">
-                <i class="fa-solid fa-cart-shopping"></i> In winkelwagen
-            </button>
+            @if($inStock)
+                <x-add-to-cart :product="$product" variant="sticky" />
+            @else
+                <button type="button" disabled class="h-11 flex-1 md:flex-none md:min-w-[260px] px-6 bg-slate-200 text-slate-500 rounded-lg text-sm font-semibold flex items-center justify-center gap-3 cursor-not-allowed">
+                    <i class="fa-solid fa-cart-shopping"></i> Niet beschikbaar
+                </button>
+            @endif
             <button type="button" onclick="toggleFavorite(this)" class="heart-btn w-11 h-11 shrink-0 border border-slate-200 rounded-lg bg-white hover:text-slimme-600 transition"><i class="fa-regular fa-heart"></i></button>
         </div>
     </div>
@@ -598,15 +601,49 @@
                 if (numEl) numEl.innerText = imageIndex + 1;
                 image.style.opacity = "1"; image.style.transform = "";
             }, 180);
-            document.querySelectorAll(".thumbnail").forEach((thumb,index) => { thumb.classList.toggle("active", index === imageIndex); });
+            document.querySelectorAll(".thumbnail").forEach((thumb,index) => {
+                const isActive = index === imageIndex;
+                thumb.classList.toggle("active", isActive);
+                thumb.classList.toggle("border-2", isActive);
+                thumb.classList.toggle("border-slimme-600", isActive);
+                thumb.classList.toggle("border", !isActive);
+                thumb.classList.toggle("border-slate-200", !isActive);
+            });
+            // Scroll active thumb into view (carousel)
+            const activeThumb = document.querySelector(`[data-thumb-index="${imageIndex}"]`);
+            if (activeThumb) activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         }
         function nextImage() { imageIndex++; if(imageIndex >= images.length) imageIndex = 0; updateImage(); }
         function previousImage() { imageIndex--; if(imageIndex < 0) imageIndex = images.length - 1; updateImage(); }
         function selectImage(index){ imageIndex = index; updateImage(); }
+        // Carousel nav
+        document.getElementById('thumbPrev')?.addEventListener('click', () => {
+            const track = document.getElementById('thumbTrack');
+            if(track) track.scrollBy({ left: -160, behavior: 'smooth' });
+        });
+        document.getElementById('thumbNext')?.addEventListener('click', () => {
+            const track = document.getElementById('thumbTrack');
+            if(track) track.scrollBy({ left: 160, behavior: 'smooth' });
+        });
+        // Drag scroll for thumbnails
+        (function(){
+            const track = document.getElementById('thumbTrack');
+            if(!track) return;
+            let isDown = false, startX, scrollLeft;
+            track.addEventListener('mousedown', e => { isDown = true; track.classList.add('cursor-grabbing'); startX = e.pageX - track.offsetLeft; scrollLeft = track.scrollLeft; });
+            track.addEventListener('mouseleave', () => { isDown = false; track.classList.remove('cursor-grabbing'); });
+            track.addEventListener('mouseup', () => { isDown = false; track.classList.remove('cursor-grabbing'); });
+            track.addEventListener('mousemove', e => {
+                if(!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - track.offsetLeft;
+                const walk = (x - startX) * 1.5;
+                track.scrollLeft = scrollLeft - walk;
+            });
+        })();
         let qty = 1;
         function changeQuantity(amount) { qty += amount; if(qty < 1) qty = 1; const el=document.getElementById("quantity"); if(el) el.innerText = qty; }
         function toggleFavorite(button) { button.classList.toggle("active"); const icon = button.querySelector("i"); if(!icon) return; if(button.classList.contains("active")) { icon.classList.remove("fa-regular"); icon.classList.add("fa-solid"); } else { icon.classList.remove("fa-solid"); icon.classList.add("fa-regular"); } }
-        function addToCart(button) { const text = button.querySelector(".cart-text"); if(!text) return; const original = text.innerText; text.innerText = "Toegevoegd"; const icon = button.querySelector("i"); const origIcon = icon ? icon.className : ""; if(icon) icon.className = "fa-solid fa-check"; setTimeout(() => { text.innerText = original; if(icon) icon.className = origIcon || "fa-solid fa-cart-shopping"; }, 1500); }
         function openTab(tabId,button) { document.querySelectorAll(".tab-content").forEach(tab => tab.classList.add("hidden")); document.querySelectorAll(".tab-btn").forEach(tab => { tab.classList.remove("active"); tab.classList.add("text-slate-500"); }); const target=document.getElementById(tabId); if(target) target.classList.remove("hidden"); button.classList.add("active"); button.classList.remove("text-slate-500"); }
         const observer = new IntersectionObserver(entries => { entries.forEach(entry => { if(entry.isIntersecting){ entry.target.classList.add("visible"); observer.unobserve(entry.target); } }); }, { threshold: .1 });
         document.querySelectorAll(".reveal").forEach(element => { observer.observe(element); });

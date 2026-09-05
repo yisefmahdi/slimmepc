@@ -221,6 +221,16 @@ Route::prefix('admin')
                     Route::delete('/{review}', [App\Http\Controllers\Admin\Shop\ReviewController::class, 'destroy'])->name('destroy');
                     Route::get('/product/{product}', [App\Http\Controllers\Admin\Shop\ReviewController::class, 'productReviews'])->name('product');
                 });
+
+                Route::prefix('coupons')->name('coupons.')->group(function () {
+                    Route::get('/', [App\Http\Controllers\Admin\Shop\CouponController::class, 'index'])->name('index');
+                    Route::get('/data', [App\Http\Controllers\Admin\Shop\CouponController::class, 'data'])->name('data');
+                    Route::post('/', [App\Http\Controllers\Admin\Shop\CouponController::class, 'store'])->name('store');
+                    Route::get('/{coupon}', [App\Http\Controllers\Admin\Shop\CouponController::class, 'show'])->name('show');
+                    Route::put('/{coupon}', [App\Http\Controllers\Admin\Shop\CouponController::class, 'update'])->name('update');
+                    Route::delete('/{coupon}', [App\Http\Controllers\Admin\Shop\CouponController::class, 'destroy'])->name('destroy');
+                    Route::post('/{coupon}/toggle', [App\Http\Controllers\Admin\Shop\CouponController::class, 'toggleStatus'])->name('toggle');
+                });
             });
     });
 

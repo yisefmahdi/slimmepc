@@ -38,6 +38,16 @@ Route::post('/afspraak/submit', [AfspraakController::class, 'submit'])
     ->middleware('throttle:5,1')
     ->name('afspraak.submit');
 
+// Cart
+Route::get('/cart', [App\Http\Controllers\CartController::class, 'index'])->name('cart.index');
+Route::get('/cart/count', [App\Http\Controllers\CartController::class, 'count'])->name('cart.count');
+Route::post('/cart/items', [App\Http\Controllers\CartController::class, 'store'])->middleware('throttle:30,1')->name('cart.items.store');
+Route::patch('/cart/items/{item}', [App\Http\Controllers\CartController::class, 'update'])->middleware('throttle:30,1')->name('cart.items.update');
+Route::delete('/cart/items/{item}', [App\Http\Controllers\CartController::class, 'destroy'])->middleware('throttle:30,1')->name('cart.items.destroy');
+Route::delete('/cart', [App\Http\Controllers\CartController::class, 'clear'])->middleware('throttle:10,1')->name('cart.clear');
+Route::post('/cart/coupon', [App\Http\Controllers\CartController::class, 'applyCoupon'])->middleware('throttle:20,1')->name('cart.coupon.apply');
+Route::delete('/cart/coupon', [App\Http\Controllers\CartController::class, 'removeCoupon'])->middleware('throttle:20,1')->name('cart.coupon.remove');
+
 // Webshop — product details (must be before category route)
 Route::get('/webshop/{categorySlug}/{productSlug}', [WebshopController::class, 'show'])->name('webshop.product');
 Route::post('/webshop/{categorySlug}/{productSlug}/reviews', [App\Http\Controllers\WebshopReviewController::class, 'store'])->middleware('throttle:5,1')->name('webshop.reviews.store');

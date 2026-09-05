@@ -313,7 +313,7 @@
                 </span>
             </a>
 
-            <a href="/cart" class="
+            <a href="{{ route('cart.index') }}" class="
                     relative flex h-11 w-11
                     items-center justify-center
                     rounded-xl text-white
@@ -321,7 +321,8 @@
                 " aria-label="Winkelwagen">
                 <i data-lucide="shopping-cart" class="h-5 w-5"></i>
 
-                <span class="
+                <span data-cart-count
+                    class="
                         absolute right-0 top-0
                         flex h-4 min-w-4
                         items-center justify-center
@@ -330,7 +331,7 @@
                         font-extrabold
                         text-brand-950
                     ">
-                    {{ $c['header']['cart_count'] ?? 0 }}
+                    {{ $cartCount ?? ($c['header']['cart_count'] ?? 0) }}
                 </span>
             </a>
 
@@ -617,7 +618,7 @@
                 Favorieten
             </a>
 
-            <a href="/cart" class="
+            <a href="{{ route('cart.index') }}" class="
                     flex flex-col items-center gap-2
                     rounded-xl bg-slate-100
                     px-2 py-3 text-xs
@@ -625,6 +626,7 @@
                 ">
                 <i data-lucide="shopping-cart" class="h-5 w-5"></i>
                 Winkelwagen
+                <span data-cart-count class="text-[10px] font-bold text-blue-600">{{ $cartCount ?? 0 }}</span>
             </a>
         </div>
 

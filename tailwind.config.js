@@ -18,6 +18,14 @@ export default {
             },
 
             colors: {
+                slimme: {
+                    blue: '#0759F5',
+                    dark: '#07173A',
+                    text: '#152A57',
+                    light: '#F5F8FF',
+                    border: '#DCE4F0',
+                    green: '#0BA15B',
+                },
                 brand: {
                     50: '#eff6ff',
                     100: '#dbeafe',

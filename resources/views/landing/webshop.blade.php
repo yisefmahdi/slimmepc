@@ -497,6 +497,54 @@
                                 </div>
                             </div>
 
+                            @if(!empty($filterGroups))
+                                @foreach($filterGroups as $group)
+                                    @php
+                                        $isExtraGroup = $loop->index >= 2; // first 4 filters = Merk + Prijs + first 2 dynamic groups
+                                        $groupKey = $group['title'];
+                                        $groupSlug = $group['slug'];
+                                        $selectedVals = array_filter(array_map('trim', explode(',', request()->query($groupKey, ''))));
+                                        // Also try lowercased key fallback (e.g. processor vs Processor)
+                                        if(empty($selectedVals)){
+                                            $selectedVals = array_filter(array_map('trim', explode(',', request()->query($groupSlug, ''))));
+                                        }
+                                        $hasMore = count($group['values']) > 10;
+                                    @endphp
+                                    <div class="filter-group {{ $isExtraGroup ? 'hidden extra-filter-group' : '' }}" data-filter-group="{{ $groupKey }}">
+                                        <div class="flex items-center justify-between cursor-pointer filter-group-toggle">
+                                            <h3 class="text-[12px] font-bold">{{ $group['title'] }}</h3>
+                                            <i data-lucide="chevron-up" class="w-4 h-4 text-slate-400 transition-transform"></i>
+                                        </div>
+                                        <div class="mt-4 space-y-2.5 filter-group-values">
+                                            @foreach($group['values'] as $idx => $v)
+                                                @php $checked = in_array($v['raw'], $selectedVals) || in_array($v['display'], $selectedVals); @endphp
+                                                <label class="flex items-center gap-2 text-[12px] text-slate-600 cursor-pointer {{ $idx >= 10 ? 'hidden extra-value' : '' }}">
+                                                    <input
+                                                        type="checkbox"
+                                                        class="filter-checkbox rounded text-blue-600 focus:ring-blue-500 dynamic-filter"
+                                                        data-title="{{ $groupKey }}"
+                                                        value="{{ $v['raw'] }}"
+                                                        {{ $checked ? 'checked' : '' }}
+                                                    >
+                                                    {{ $v['display'] }}
+                                                    <span class="text-slate-400">({{ $v['count'] }})</span>
+                                                </label>
+                                            @endforeach
+                                            @if($hasMore)
+                                                <button type="button" class="toggle-more mt-1 text-[11px] font-semibold text-blue-600 hover:text-blue-700" data-target="{{ $groupKey }}">
+                                                    Toon meer ({{ count($group['values']) - 10 }})
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @endif
+
+                            @if(!empty($filterGroups) && count($filterGroups) > 2)
+                                <button type="button" id="toggleMoreFilters" class="mt-5 w-full rounded-xl border border-blue-200 bg-white py-3 text-[11px] font-semibold text-blue-600 hover:bg-blue-50 transition">
+                                    Toon meer filters
+                                </button>
+                            @endif
 
                         </div>
                     </aside>
@@ -702,9 +750,7 @@
                                                 <span class="text-slate-400">({{ $reviewCount }})</span>
                                             </div>
 
-                                            <a href="{{ route('webshop.product', [$product->category->slug, $product->slug]) }}" class="cart-btn flex w-9 h-9 items-center justify-center rounded-lg bg-blue-600 text-white">
-                                                <i data-lucide="shopping-cart" class="w-4 h-4"></i>
-                                            </a>
+                                            <x-add-to-cart :product="$product" variant="grid" />
                                         </div>
                                     </div>
                                 </article>
@@ -910,6 +956,43 @@
             >
         </div>
 
+        @if(!empty($filterGroups))
+            @foreach($filterGroups as $group)
+                @php
+                    $isExtraGroupM = $loop->index >= 2;
+                    $groupKey = $group['title'];
+                    $selectedValsM = array_filter(array_map('trim', explode(',', request()->query($groupKey, request()->query(strtolower($groupKey), '')))));
+                    $hasMoreM = count($group['values']) > 10;
+                @endphp
+                <div class="filter-group {{ $isExtraGroupM ? 'hidden extra-filter-group-m' : '' }}">
+                    <h3 class="text-[12px] font-bold">{{ $group['title'] }}</h3>
+                    <div class="mt-4 space-y-3">
+                        @foreach($group['values'] as $idx => $v)
+                            @php $checkedM = in_array($v['raw'], $selectedValsM) || in_array($v['display'], $selectedValsM); @endphp
+                            <label class="flex items-center gap-2 text-[12px] cursor-pointer {{ $idx >= 10 ? 'hidden extra-value-m' : '' }}">
+                                <input
+                                    type="checkbox"
+                                    class="filter-checkbox dynamic-filter-mobile rounded text-blue-600"
+                                    data-title="{{ $groupKey }}"
+                                    value="{{ $v['raw'] }}"
+                                    {{ $checkedM ? 'checked' : '' }}
+                                >
+                                {{ $v['display'] }} <span class="text-slate-400">({{ $v['count'] }})</span>
+                            </label>
+                        @endforeach
+                        @if($hasMoreM)
+                            <button type="button" class="toggle-more-m text-[11px] font-semibold text-blue-600" data-target-m="{{ $groupKey }}">Toon meer ({{ count($group['values']) - 10 }})</button>
+                        @endif
+                    </div>
+                </div>
+            @endforeach
+        @endif
+
+        @if(!empty($filterGroups) && count($filterGroups) > 2)
+            <button type="button" id="toggleMoreFiltersMobile" class="mt-5 w-full rounded-xl border border-blue-200 bg-white py-3 text-[11px] font-semibold text-blue-600 hover:bg-blue-50 transition lg:hidden">
+                Toon meer filters
+            </button>
+        @endif
 
         <div class="sticky bottom-0 mt-7 bg-white pt-4">
             <button
@@ -1039,6 +1122,17 @@
             return url.toString();
         }
 
+        function collectDynamicFilters() {
+            const map = {};
+            document.querySelectorAll('.dynamic-filter:checked, .dynamic-filter-mobile:checked').forEach(cb => {
+                const title = cb.getAttribute('data-title');
+                if (!title) return;
+                if (!map[title]) map[title] = new Set();
+                map[title].add(cb.value);
+            });
+            return map;
+        }
+
         function applyFilters() {
             const brands = Array.from(document.querySelectorAll('.brand-filter:checked'))
                 .map(i => i.value)
@@ -1057,6 +1151,21 @@
                 url.searchParams.delete('brand');
             }
 
+            // Dynamic features: grouped by title, e.g. ?Processor=Intel%20Core%20i5,Intel%20Core%20i7&RAM=16GB
+            const dynMap = collectDynamicFilters();
+            // Remove old dynamic params that are not in current selection (clean up)
+            document.querySelectorAll('.dynamic-filter, .dynamic-filter-mobile').forEach(cb => {
+                const t = cb.getAttribute('data-title');
+                if (t) url.searchParams.delete(t);
+                url.searchParams.delete(t.toLowerCase());
+            });
+            Object.entries(dynMap).forEach(([title, set]) => {
+                const vals = Array.from(set);
+                if (vals.length > 0) {
+                    url.searchParams.set(title, vals.join(','));
+                }
+            });
+
             if (price && Number(price) < 2000) {
                 url.searchParams.set('price', price);
             } else {
@@ -1069,6 +1178,50 @@
         document.querySelectorAll('.brand-filter').forEach(cb => {
             cb.addEventListener('change', applyFilters);
         });
+        document.querySelectorAll('.dynamic-filter, .dynamic-filter-mobile').forEach(cb => {
+            cb.addEventListener('change', applyFilters);
+        });
+        // Toon meer / Toon minder per group (desktop)
+        document.querySelectorAll('.toggle-more').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const group = btn.getAttribute('data-target');
+                const container = btn.closest('.filter-group');
+                if (!container) return;
+                const hidden = container.querySelectorAll('.extra-value');
+                const isHidden = hidden.length > 0 && hidden[0].classList.contains('hidden');
+                hidden.forEach(el => el.classList.toggle('hidden', !isHidden));
+                btn.textContent = isHidden ? 'Toon minder' : `Toon meer (${hidden.length})`;
+            });
+        });
+        document.querySelectorAll('.toggle-more-m').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const container = btn.closest('.filter-group');
+                if (!container) return;
+                const hidden = container.querySelectorAll('.extra-value-m');
+                const isHidden = hidden.length > 0 && hidden[0].classList.contains('hidden');
+                hidden.forEach(el => el.classList.toggle('hidden', !isHidden));
+                btn.textContent = isHidden ? 'Toon minder' : `Toon meer (${hidden.length})`;
+            });
+        });
+        // Global Toon meer filters (first 4 visible) — desktop & mobile
+        const moreBtn = document.getElementById('toggleMoreFilters');
+        if (moreBtn) {
+            moreBtn.addEventListener('click', () => {
+                const hiddenGroups = document.querySelectorAll('.extra-filter-group');
+                const isHidden = hiddenGroups.length > 0 && hiddenGroups[0].classList.contains('hidden');
+                hiddenGroups.forEach(el => el.classList.toggle('hidden', !isHidden));
+                moreBtn.textContent = isHidden ? 'Toon minder filters' : 'Toon meer filters';
+            });
+        }
+        const moreBtnM = document.getElementById('toggleMoreFiltersMobile');
+        if (moreBtnM) {
+            moreBtnM.addEventListener('click', () => {
+                const hiddenGroups = document.querySelectorAll('.extra-filter-group-m');
+                const isHidden = hiddenGroups.length > 0 && hiddenGroups[0].classList.contains('hidden');
+                hiddenGroups.forEach(el => el.classList.toggle('hidden', !isHidden));
+                moreBtnM.textContent = isHidden ? 'Toon minder filters' : 'Toon meer filters';
+            });
+        }
 
         document.querySelectorAll('.price-preset-btn').forEach(btn => {
             btn.addEventListener('click', () => {
