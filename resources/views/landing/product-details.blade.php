@@ -461,10 +461,13 @@
                     <h2 class="font-extrabold text-[20px] mt-1">Maak je setup compleet</h2>
                     <p class="text-[12px] text-slate-500 mt-1">Accessoires die goed passen bij deze laptop.</p>
                 </div>
+                @if($relatedProducts->isNotEmpty())
                 <a href="{{ route('webshop.category', $category->slug) }}" class="hidden sm:flex items-center gap-2 text-[11px] font-semibold text-slimme-600 hover:gap-3 transition-all">Bekijk alle accessoires <i class="fa-solid fa-arrow-right"></i></a>
+                @endif
             </div>
+            @if($relatedProducts->isNotEmpty())
             <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                @forelse($relatedProducts as $rel)
+                @foreach($relatedProducts as $rel)
                     @php
                         $relImgSrc = $resolveImg($rel->main_image ?: ($rel->gallery_images[0] ?? null));
                         $relPrice = $rel->discount_value ? $rel->discounted_price : (float)$rel->price;
@@ -494,25 +497,16 @@
                             </div>
                         </div>
                     </article>
-                @empty
-                    <article class="shop-card group relative bg-white border border-slate-200 rounded-[17px] overflow-hidden">
-                        <div class="h-[175px] m-3 rounded-[13px] bg-gradient-to-br from-[#f5f7fb] to-[#eef2f8] flex items-center justify-center"><i class="fa-solid fa-plug-circle-bolt text-[74px] text-slate-700"></i></div>
-                        <div class="px-4 pb-4"><h3 class="text-[12px] font-bold text-[#071638]">USB-C Multiport Adapter</h3><p class="text-[10px] text-slate-400">USB-C · HDMI · USB-A</p><div class="mt-4 text-[18px] font-extrabold">€39,00</div></div>
-                    </article>
-                    <article class="shop-card group relative bg-white border border-slate-200 rounded-[17px] overflow-hidden">
-                        <div class="h-[175px] m-3 rounded-[13px] bg-gradient-to-br from-[#f5f7fb] to-[#eef2f8] flex items-center justify-center"><i class="fa-solid fa-computer-mouse text-[82px] text-slate-700"></i></div>
-                        <div class="px-4 pb-4"><h3 class="text-[12px] font-bold text-[#071638]">Logitech M650 draadloze muis</h3><p class="text-[10px] text-slate-400">Bluetooth · Stil · Ergonomisch</p><div class="mt-4 text-[18px] font-extrabold">€24,00</div></div>
-                    </article>
-                    <article class="shop-card group relative bg-white border border-slate-200 rounded-[17px] overflow-hidden">
-                        <div class="h-[175px] m-3 rounded-[13px] bg-gradient-to-br from-[#f5f7fb] to-[#eef2f8] flex items-center justify-center"><i class="fa-solid fa-headphones text-[78px] text-slate-700"></i></div>
-                        <div class="px-4 pb-4"><h3 class="text-[12px] font-bold text-[#071638]">Trust GXT 491 FAYZO Headset</h3><p class="text-[10px] text-slate-400">Gaming · Microfoon · Stereo</p><div class="mt-4 text-[18px] font-extrabold">€49,00</div></div>
-                    </article>
-                    <article class="shop-card group relative bg-white border border-slate-200 rounded-[17px] overflow-hidden">
-                        <div class="h-[175px] m-3 rounded-[13px] bg-gradient-to-br from-[#f5f7fb] to-[#eef2f8] flex items-center justify-center"><img src="https://images.unsplash.com/photo-1625842268584-8f3296236761?auto=format&fit=crop&w=500&q=80" class="w-[82%] h-[82%] object-contain" alt="sleeve"></div>
-                        <div class="px-4 pb-4"><h3 class="text-[12px] font-bold text-[#071638]">Laptop sleeve 15.6 inch</h3><p class="text-[10px] text-slate-400">15.6" · Bescherming · Zwart</p><div class="mt-4 text-[18px] font-extrabold">€29,00</div></div>
-                    </article>
-                @endforelse
+                @endforeach
             </div>
+            @else
+            <div class="rounded-[13px] border-2 border-dashed border-slate-200 bg-slate-50 px-6 py-10 text-center">
+                <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white border border-slate-200 text-slate-400">
+                    <i class="fa-solid fa-box-open text-lg"></i>
+                </div>
+                <p class="mt-3 text-[13px] font-bold text-slate-600">Geen gerelateerde producten gevonden.</p>
+            </div>
+            @endif
         </section>
 
     </main>
