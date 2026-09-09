@@ -13,6 +13,7 @@ use App\Mail\DeviceReceiptCompletedMail;
 use App\Mail\DeviceReceiptMail;
 use App\Mail\ManualInvoiceMail;
 use App\Mail\OrderInvoiceMail;
+use App\Mail\OrderStatusMail;
 use App\Mail\RepairReceived;
 use App\Models\AfspraakSubmission;
 use App\Models\ContactSubmission;
@@ -26,7 +27,7 @@ use Illuminate\Support\Facades\Mail;
 
 class SendTestMails extends Command
 {
-    protected $signature = 'mail:test-all {email : Destination address for all 12 test mails}';
+    protected $signature = 'mail:test-all {email : Destination address for all test mails}';
 
     protected $description = 'Send one rendered copy of each Slimme-PC mail to the given address (design test)';
 
@@ -121,6 +122,7 @@ class SendTestMails extends Command
             'DeviceReceiptMail' => new DeviceReceiptMail($receipt),
             'DeviceReceiptCompletedMail' => new DeviceReceiptCompletedMail($receipt),
             'ManualInvoiceMail' => new ManualInvoiceMail($manual),
+            'OrderStatusMail' => new OrderStatusMail($order),
         ];
 
         foreach ($mails as $name => $mail) {
@@ -137,7 +139,7 @@ class SendTestMails extends Command
         $receipt->delete();
         $manual->delete();
 
-        $this->info('All 12 test mails sent to '.$to);
+        $this->info('All '.count($mails).' test mails sent to '.$to);
 
         return self::SUCCESS;
     }

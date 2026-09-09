@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\OrderStatusMail;
 use App\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -80,7 +82,16 @@ class OrderController extends Controller
         $data = $request->validate([
             'order_status' => 'required|in:pending,processing,shipped,completed,cancelled',
         ]);
+
+        $changed = $order->order_status !== $data['order_status'];
         $order->update(['order_status' => $data['order_status']]);
+
+        // Notify the customer by mail on every real status change (after response)
+        if ($changed) {
+            dispatch(function () use ($order) {
+                Mail::to($order->fresh()->customer_email)->send(new OrderStatusMail($order->fresh()));
+            })->afterResponse();
+        }
 
         return response()->json(['message' => 'Status bijgewerkt.', 'order_status' => $order->order_status]);
     }

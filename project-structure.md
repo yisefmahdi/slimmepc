@@ -1477,8 +1477,9 @@ Alle mails zijn synchrone `Mail::send()` (géén queue; order-mails via `->after
 | 11 | `DeviceReceiptCompletedMail` | klant | `Admin\DeviceReceiptController` (apparaat gerepareerd) | `Uw apparaat is gerepareerd! — SlimmePC` |
 | 12 | `ManualInvoiceMail` | klant (`invoice->email`) | `Admin\ManualInvoiceController` (handmatige factuur versturen) | `Uw Factuur SLM-… - Slimme-PC` |
 | 13 | Framework `ResetPassword` | klant | Breeze wachtwoord-reset (via `Notifiable`) | standaard Laravel-resetmail |
+| 14 | `OrderStatusMail` | klant (`customer_email`, ook gasten) | `Admin\OrderController@status` — alleen bij echte wijziging, via `afterResponse` | per status (bv. `Je bestelling is verzonden - Slimme-PC`) |
 
-Niet actief: e-mailverificatie (`MustVerifyEmail` staat uit in `User`-model). Ontbreekt (bekende gap): status-wijzigingsmails bij `admin.orders.status` (verzonden/klaar-voor-afhalen) — klant hoort nu niets.
+Niet actief: e-mailverificatie (`MustVerifyEmail` staat uit in `User`-model).
 
 ## 25. Update 2026-09-09 — E-mail design systeem (alle 12 mails)
 
@@ -1490,3 +1491,15 @@ Niet actief: e-mailverificatie (`MustVerifyEmail` staat uit in `User`-model). On
 - **Live-test:** `php artisan mail:test-all {email}` (`App\Console\Commands\SendTestMails`) — bouwt testrecords, verstuurt alle 12 mails echt via SMTP en ruimt de records daarna op. Geverifieerd 2026-09-09 naar owner-adres (12/12 verzonden).
 - **Fix na live-test:** `{{ }}` in korte `@section('x', '...{{...}}...')` compileert naar letterlijke `<?php echo e(...); ?>`-tekst in de e-mail → alle titels met variabelen omgezet naar `@section/@endsection`-blokken (5 views). Test-guard toegevoegd (`not->toContain('<?php')`, `not->toContain('{{')`).
 - **Logo-strategie:** eerst CID-embed, daarna op verzoek omgezet naar live URL (`asset()` op CMS-waarde, klikbaar naar `config('app.url')`) — altijd actueel bij CMS-wijzigingen, géén attachment. Vereist publiek bereikbare `APP_URL` op live (lokaal `http://localhost:8000` laadt Gmail niet).
+
+## 26. Deploy 2026-09-09 — alles live (commit `64a79f2`)
+
+- **GitHub:** 89 bestanden (checkout/Mollie/orders/wishlist/account/e-mails/admin-restyling + 7 migrations + seeders + 6 testbestanden), `email.html`-preview bewust níet meegecommit (lokaal only). `.env`/credentials genegeerd; `.env.example` alleen + lege `MOLLIE_KEY`.
+- **Server (manual via skill):** `composer install ok`, alle 7 migraties (`addresses` t/m `favorites`) DONE, `optimize:clear` ok. `ShippingRateSeeder` gedraaid (2 rates: delivery 6.95/gratis-vanaf-75 + pickup gratis). Server staat op `64a79f2`, live home = 200.
+- **Nog op server-`.env` controleren:** `APP_URL` = live-domein (nodig voor e-mail-logo + Mollie-return), `MOLLIE_KEY` = live-key, `CONTACT_NOTIFY_EMAIL` + `MAIL_*` (Gmail SMTP).
+
+## 27. Update 2026-09-09 — Status-e-mail bij bestelstatus-wijziging
+
+- **Mailable:** `App\Mail\OrderStatusMail` (subject/badge/title/intro per status via `texts()`, pickup-bewust: `shipped` + pickup = "Klaar voor afhalen", delivery = "Verzonden") + view `emails/order-status.blade.php` in het design-systeem (badge, card met nummer/status/totaal, CTA naar eigen bestelling). Werkt ook voor gast-bestellingen (`customer_email`).
+- **Trigger:** `Admin\OrderController@status` stuurt alleen bij echte wijziging (`$changed`-check → geen mail bij opnieuw opslaan van dezelfde status), via `afterResponse` zodat de admin-UI nooit wacht op SMTP.
+- **Tests:** `EmailDesignTest` +3 (render alle 6 status-varianten; POST status → `Mail::assertSent`; zelfde status → `assertNotSent`). `mail:test-all` verstuurt hem nu ook live mee (13 mails). Full suite 86 green.

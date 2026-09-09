@@ -11,6 +11,7 @@ use App\Mail\DeviceReceiptCompletedMail;
 use App\Mail\DeviceReceiptMail;
 use App\Mail\ManualInvoiceMail;
 use App\Mail\OrderInvoiceMail;
+use App\Mail\OrderStatusMail;
 use App\Mail\RepairReceived;
 use App\Models\AfspraakSubmission;
 use App\Models\ContactSubmission;
@@ -19,6 +20,8 @@ use App\Models\ManualInvoice;
 use App\Models\Order;
 use App\Models\OrderInvoice;
 use App\Models\RepairSubmission;
+use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 
 function makeMailOrder(): Order
 {
@@ -165,4 +168,55 @@ it('renders the manual invoice mail in the new design', function () {
     ]);
 
     assertMailLayout((new ManualInvoiceMail($invoice))->render(), 'SLM-2026-00001');
+});
+
+it('renders the order status mail for every status', function () {
+    $cases = [
+        // [order_status, shipping_method, expected badge/title snippet]
+        ['pending', 'delivery', 'In afwachting'],
+        ['processing', 'delivery', 'In behandeling'],
+        ['shipped', 'delivery', 'Je bestelling is verzonden!'],
+        ['shipped', 'pickup', 'Klaar voor afhalen'],
+        ['completed', 'delivery', 'Afgerond'],
+        ['cancelled', 'delivery', 'geannuleerd'],
+    ];
+
+    foreach ($cases as [$status, $method, $needle]) {
+        $order = makeMailOrder();
+        $order->update(['order_status' => $status, 'shipping_method' => $method]);
+
+        assertMailLayout((new OrderStatusMail($order->fresh()))->render(), $needle);
+    }
+});
+
+it('mails the customer when the admin changes the order status', function () {
+    Mail::fake();
+
+    $admin = User::factory()->create(['email_verified_at' => now()]);
+    $admin->role = 'admin';
+    $admin->save();
+
+    $order = makeMailOrder();
+
+    $this->actingAs($admin)
+        ->postJson('/admin/orders/'.$order->id.'/status', ['order_status' => 'shipped'])
+        ->assertOk();
+
+    Mail::assertSent(OrderStatusMail::class, fn ($mail) => $mail->order->id === $order->id);
+});
+
+it('does not mail when the status is unchanged', function () {
+    Mail::fake();
+
+    $admin = User::factory()->create(['email_verified_at' => now()]);
+    $admin->role = 'admin';
+    $admin->save();
+
+    $order = makeMailOrder(); // already processing
+
+    $this->actingAs($admin)
+        ->postJson('/admin/orders/'.$order->id.'/status', ['order_status' => 'processing'])
+        ->assertOk();
+
+    Mail::assertNotSent(OrderStatusMail::class);
 });
