@@ -181,6 +181,91 @@ class WebshopController extends Controller
         return view('landing.webshop', compact('c', 'design', 'allCategories', 'currentCategory', 'products', 'availableBrands', 'sort', 'filterGroups', 'favoriteIds'));
     }
 
+    /**
+     * Site-wide product search (?q=) — same webshop design, across all categories.
+     */
+    public function search(Request $request)
+    {
+        $c = Cms::page('home');
+        $design = Cms::design();
+
+        $allCategories = Category::where('status', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        $searchQuery = trim((string) $request->query('q', ''));
+
+        $query = Product::where('status', true)->with('category');
+
+        if ($searchQuery !== '') {
+            $query->where(function ($q) use ($searchQuery) {
+                $q->where('title', 'like', "%{$searchQuery}%")
+                    ->orWhere('brand', 'like', "%{$searchQuery}%")
+                    ->orWhere('description', 'like', "%{$searchQuery}%");
+            });
+        }
+
+        // Brand filter ?brand=HP,Lenovo (same as category mode)
+        if ($brandFilter = $request->query('brand')) {
+            $brands = is_array($brandFilter) ? $brandFilter : explode(',', $brandFilter);
+            $brands = array_filter(array_map('trim', $brands));
+            if (! empty($brands)) {
+                $query->whereIn('brand', $brands);
+            }
+        }
+
+        // Price filter ?price_min/?price_max/?price (same as category mode)
+        if (is_numeric($request->query('price_min'))) {
+            $query->where('price', '>=', (float) $request->query('price_min'));
+        }
+        if (is_numeric($request->query('price_max'))) {
+            $query->where('price', '<=', (float) $request->query('price_max'));
+        }
+        if ($request->filled('price') && ! $request->filled('price_max')) {
+            $query->where('price', '<=', (float) $request->query('price'));
+        }
+
+        $sort = $request->query('sort', 'populair');
+        match ($sort) {
+            'prijs_asc', 'price_asc' => $query->orderBy('price', 'asc'),
+            'prijs_desc', 'price_desc' => $query->orderBy('price', 'desc'),
+            'nieuwste', 'newest' => $query->latest(),
+            default => $query->orderByDesc('is_featured')->latest(),
+        };
+
+        $perPage = (int) $request->query('per_page', 12);
+        $perPage = in_array($perPage, [12, 24, 48]) ? $perPage : 12;
+
+        $products = $query->paginate($perPage)->withQueryString();
+
+        // Brand counts across the search results (fresh base query: cloning $query
+        // would carry paginate/order state and break DISTINCT under MySQL)
+        $brandBase = Product::where('status', true);
+        if ($searchQuery !== '') {
+            $brandBase->where(function ($q) use ($searchQuery) {
+                $q->where('title', 'like', "%{$searchQuery}%")
+                    ->orWhere('brand', 'like', "%{$searchQuery}%")
+                    ->orWhere('description', 'like', "%{$searchQuery}%");
+            });
+        }
+        $brandNames = (clone $brandBase)->whereNotNull('brand')->where('brand', '!=', '')
+            ->select('brand')->distinct()->orderBy('brand')->pluck('brand');
+        $availableBrands = $brandNames->map(fn ($b) => [
+            'name' => $b,
+            'count' => (clone $brandBase)->where('brand', $b)->count(),
+        ]);
+
+        $favoriteIds = $request->user()
+            ? Favorite::where('user_id', $request->user()->id)->pluck('product_id')->all()
+            : [];
+
+        $currentCategory = null;
+        $filterGroups = [];
+
+        return view('landing.webshop', compact('c', 'design', 'allCategories', 'currentCategory', 'products', 'availableBrands', 'sort', 'filterGroups', 'favoriteIds', 'searchQuery'));
+    }
+
     public function show(Request $request, string $categorySlug, string $productSlug)
     {
         $c = Cms::page('home');

@@ -55,6 +55,8 @@ Route::delete('/cart', [CartController::class, 'clear'])->middleware('throttle:1
 Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->middleware('throttle:20,1')->name('cart.coupon.apply');
 Route::delete('/cart/coupon', [CartController::class, 'removeCoupon'])->middleware('throttle:20,1')->name('cart.coupon.remove');
 
+// Product search (?q=) — site-wide across all categories, same webshop design
+Route::get('/zoeken', [WebshopController::class, 'search'])->name('zoeken');
 // Webshop — product details (must be before category route)
 Route::get('/webshop/{categorySlug}/{productSlug}', [WebshopController::class, 'show'])->name('webshop.product');
 Route::post('/webshop/{categorySlug}/{productSlug}/reviews', [WebshopReviewController::class, 'store'])->middleware('throttle:5,1')->name('webshop.reviews.store');

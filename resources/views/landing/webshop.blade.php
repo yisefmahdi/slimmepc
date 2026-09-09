@@ -3,6 +3,14 @@
 @section('content')
     @include('landing.partials.header')
 
+    @php
+        // Search mode (?q= via /zoeken): no $currentCategory — hero + reset links adapt
+        $isSearch = isset($searchQuery);
+        $resetUrl = $isSearch
+            ? route('zoeken', array_filter(['q' => $searchQuery]))
+            : route('webshop.category', $currentCategory->slug);
+    @endphp
+
     {{-- Google Fonts Inter + Exact Design System from products.html --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -308,13 +316,19 @@
                         Home
                     </a>
                     <i data-lucide="chevron-right" class="w-3 h-3"></i>
-                    <a href="{{ route('webshop.category', $currentCategory->slug) }}" class="hover:text-blue-600 transition">
-                        Webshop
-                    </a>
-                    <i data-lucide="chevron-right" class="w-3 h-3"></i>
-                    <span class="text-slate-700">
-                        {{ $currentCategory->name }}
-                    </span>
+                    @if($isSearch)
+                        <span class="text-slate-700">
+                            Zoeken{{ $searchQuery !== '' ? ' naar "'.$searchQuery.'"' : '' }}
+                        </span>
+                    @else
+                        <a href="{{ route('webshop.category', $currentCategory->slug) }}" class="hover:text-blue-600 transition">
+                            Webshop
+                        </a>
+                        <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                        <span class="text-slate-700">
+                            {{ $currentCategory->name }}
+                        </span>
+                    @endif
                 </div>
 
                 <div class="grid lg:grid-cols-[34%_42%_24%] items-center gap-5 min-h-[250px] py-7">
@@ -323,15 +337,19 @@
                     <div class="reveal">
                         <span class="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.08em] text-blue-600">
                             <span class="w-2 h-2 rounded-full bg-blue-600"></span>
-                            {{ $currentCategory->name }}
+                            {{ $isSearch ? 'Zoeken' : $currentCategory->name }}
                         </span>
 
                         <h1 class="mt-2 text-[38px] sm:text-[44px] font-black tracking-[-.04em] leading-none text-[#0b1734]">
-                            {{ $currentCategory->name }}
+                            {{ $isSearch ? 'Zoekresultaten' : $currentCategory->name }}
                         </h1>
 
                         <p class="mt-4 max-w-[360px] text-[14px] sm:text-[15px] leading-6 text-slate-500">
-                            {{ $currentCategory->description ?: 'Vind de laptop die bij jou past. Kwaliteit, snelheid en betrouwbaarheid.' }}
+                            @if($isSearch)
+                                {{ $products->total() }} {{ $products->total() === 1 ? 'resultaat' : 'resultaten' }}{{ $searchQuery !== '' ? ' voor "'.$searchQuery.'"' : '' }} in alle categorieën.
+                            @else
+                                {{ $currentCategory->description ?: 'Vind de laptop die bij jou past. Kwaliteit, snelheid en betrouwbaarheid.' }}
+                            @endif
                         </p>
                     </div>
 
@@ -340,7 +358,7 @@
                         <div class="absolute w-[360px] h-[190px] rounded-full bg-blue-50 blur-sm"></div>
 
                         @php
-                            $catImg = $currentCategory->image;
+                            $catImg = $isSearch ? null : $currentCategory->image;
                             if ($catImg) {
                                 $heroImgSrc = str_starts_with($catImg, 'http') ? $catImg : asset('storage/' . $catImg);
                             } else {
@@ -350,7 +368,7 @@
 
                         <img
                             src="{{ $heroImgSrc }}"
-                            alt="{{ $currentCategory->name }}"
+                            alt="{{ $isSearch ? 'Zoeken' : $currentCategory->name }}"
                             class="relative z-10 max-h-[205px] w-auto rounded-xl object-contain drop-shadow-hero"
                         >
                     </div>
@@ -388,7 +406,7 @@
                 <div class="flex gap-3 overflow-x-auto pb-5 scrollbar-hide">
                     @foreach($allCategories as $cat)
                         @php
-                            $isActive = $currentCategory->id === $cat->id;
+                            $isActive = !$isSearch && $currentCategory->id === $cat->id;
                             $iconName = $cat->icon ?: ($cat->slug === 'labtop' || $cat->slug === 'laptops' ? 'laptop' : ($cat->slug === 'gaming-pc' ? 'gamepad-2' : ($cat->slug === 'onderdelen' ? 'cpu' : 'folder')));
                         @endphp
                         <a
@@ -422,7 +440,7 @@
                                     Filters
                                 </h2>
                                 <a
-                                    href="{{ route('webshop.category', $currentCategory->slug) }}"
+                                    href="{{ $resetUrl }}"
                                     class="flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-700"
                                 >
                                     Wis alles

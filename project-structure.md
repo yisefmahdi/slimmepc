@@ -311,6 +311,7 @@ slimmepc/
 | GET | `/reparatie-aanmelden` | `PageController@reparatie` → `landing.service-reparatie` (CMS-styled 5-step wizard page, **name `reparatie`**) | none (guest-only full-page HTML cache `cms.page.html.reparatie.{version}`, auth renders fresh) |
 | GET | `/webshop/{slug}` | `WebshopController@index` → `landing.webshop` (exact copy van `products.html`, Inter font, chips, filters, grid, pagination) — **name `webshop.category`** — alleen categoriepagina, geen algemene `/webshop` (verwijderd) — 404 als categorie niet actief/bestaat | none |
 | GET | `/webshop/{categorySlug}/{productSlug}` | `WebshopController@show` → `landing.product-details` — **name `webshop.product`** (must be before category route) | none |
+| GET | `/zoeken` | `WebshopController@search` → `zoeken` (site-wide `?q=` over alle categorieën, zelfde webshop-design) | — |
 | POST | `/webshop/{categorySlug}/{productSlug}/reviews` | `WebshopReviewController@store` → `webshop.reviews.store` (JSON) | throttle:5,1 |
 | GET | `/wishlist` | `FavoriteController@index` → `landing.wishlist` (auth only; guests → login → back via intended) — **name `wishlist.index`** | auth |
 | POST | `/wishlist/toggle` | `FavoriteController@toggle` → `wishlist.toggle` (JSON `{status: added/removed, count}`) | auth + throttle:30,1 |
@@ -1425,7 +1426,8 @@ A modular, multi-provider AI subsystem engineered for automated Dutch e-commerce
 - **Toggles:** webshop-grid (`toggleWishlist`, optimistic + revert + `[data-wishlist-count]`-update), product-details hoofd/sticky/related (`toggleWishlistPD`, FA `fa-solid/fa-regular` swap + sync van alle harten van hetzelfde product; oude `toggleFavorite` bleef als alias). Gasten-klik → `/wishlist` (bewaakte route → login → intended terug).
 - **Header:** desktop-hart → `route('wishlist.index')` + echte `wishlistCount` via View::composer (auth-only, try/catch) + `data-wishlist-count` voor live updates; `Verlanglijstje`-item in naam-dropdown (tussen Mijn account en Uitloggen); mobiele `Favorieten` → route.
 - **Wishlist-pagina (`landing/wishlist.blade.php`):** full webshop-layout — top hero (breadcrumb + heading + description + trust card with count), category chips bar (`?category=` filter), control bar (count + sort), shared product-card grid 4-col + pagination 12/page, CTA + trust bar. Controller provides `$categories` + paginated `$products` (LengthAwarePaginator, preserves query string).
-- **Tests:** `tests/Feature/WishlistTest.php` 7 tests green (full suite 64 green). Beslissing: géén voorraad-aantallen — alleen `stock_status` in/out of stock (per client). Page fully matches webshop layout language.
+- **Tests:** `tests/Feature/EmailDesignTest.php` 7 tests green (full suite 64 green). Beslissing: géén voorraad-aantallen — alleen `stock_status` in/out of stock (per client). Page fully matches webshop layout language.
+- **Zoeken (`GET /zoeken`, `WebshopController@search`):** header-zoekformulier (was 404 — route bestond niet) zoekt nu site-wide over alle categorieën (LIKE op title/brand/description — géén `summary`-kolom, die bestaat niet) in hetzelfde webshop-design (hero "Zoekresultaten", chips, sort, brand+prijs-filters, pagination). View-guards via `$isSearch`/`$resetUrl` (geen `$currentCategory` nodig). Brand-sidebar via verse base-query (clone na `paginate()` breekt `DISTINCT` onder MySQL `ONLY_FULL_GROUP_BY`). Header-teksten productgericht ("Zoek naar producten in de webshop"). Tests: `ProductSearchTest` 3 green + live-verified 200 op MySQL.
 
 ## 20. Update 2026-09-09 — Mijn bestellingen (order history voor klanten)
 

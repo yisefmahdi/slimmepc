@@ -702,7 +702,7 @@
                 </h2>
 
                 <p class="mt-1 text-sm text-slate-500">
-                    Zoek naar producten of diensten.
+                    Zoek naar producten in de webshop.
                 </p>
             </div>
 
@@ -723,7 +723,7 @@
                         text-slate-400
                     "></i>
 
-                <input id="searchInput" type="search" name="q" placeholder="{{ $c['header']['search_placeholder'] ?? 'Bijvoorbeeld: laptop reparatie' }}" class="
+                <input id="searchInput" type="search" name="q" placeholder="{{ $c['header']['search_placeholder'] ?? 'Bijvoorbeeld: laptop, MSI, HP' }}" class="
                         h-14 w-full rounded-2xl
                         border border-slate-300
                         bg-slate-50
