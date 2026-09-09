@@ -27,7 +27,7 @@ class DeviceReceiptMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.device-receipt',
+            view: 'emails.device-receipt',
             with: ['receipt' => $this->receipt],
         );
     }

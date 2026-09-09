@@ -291,6 +291,11 @@ slimmepc/
 | 21 | Service-page: PC Reparatie | `/diensten/pc-reparatie` (`service.show`, pageKey `pcreparatie`) + `/admin/content/pcreparatie/section/{...}` | Dedicated light `from-white via-[#f8fbff] to-[#edf5ff]` design from `step-2/pc.html` (8 sections: hero PC `0bdab181...png` + 7 floating components `cpu.png`/`pc/*` `hidden xl:block`, benefits 4, help 2 cards `Mijn PC is kapot`/`Ik wil een PC`, choice 6 + center PC + cooling, problems 3, upgrades 4 (`pc/hdd.png`/`pc/nvme.png` subfolder), builds 4+CTA, why 6, faq+cta). `service-pcreparatie.blade.php` (note pageKey `pcreparatie` → view `service-pcreparatie`) + `$pcSectionDef` (hero, benefits, help, choice, problems, upgrades, builds, why, faq_cta). **Buttons fixed**, hero `text-[30px] sm:text-[52px] lg:text-[40px]`. **Subfolder images** (`pc/hdd.png`) handled via `str_starts_with` in `json-row.blade.php` + `service-pcreparatie` (preserves `pc/`). Home link was `/pc.html` → fixed to `/diensten/pc-reparatie`. |
 
 | 23 | Webshop categoriepagina | `/webshop/{slug}` (`WebshopController@index`, name `webshop.category`) — **alleen categoriepagina, geen algemene `/webshop`** (route verwijderd) — 100% identiek aan `D:/sm 2026/slimmepc2026nieuwe/products.html` (Inter font op hele webshop-root, hero 34%_42%_24% met drop-shadow-hero en glow cirkel, Quick Filter Chips: Alle laptops/Zakelijk/Gaming/Student/Onder €700/Nieuw binnen met realtime client filtering, filters sidebar met Merk counts, Prijs slider + presets, Processor, RAM, Opslag, grid 4 cols met product-card hover lift + rating + badge + heart toggle + cart button, Grid/List view switcher met horizontale list cards, pagination + 12/24/48, Advice CTA "Hulp nodig bij het kiezen?", Trust Bar 4 items, en Mobile Filter Drawer met backdrop blur) — erft `landing.layouts.app` + `header/footer` via `AppServiceProvider` View::composer `webshopCategories` (actieve categorieën, icon+description). Geseede data via `WebshopProductsSeeder` (8 complete laptops uit products.html met Unsplash foto's, prijzen, aanbieding, specs en ratings). Slug fallback ondersteunt `laptops` en `labtop`. |
+| 24 | Winkelwagen | `/cart` (`CartController@index`, name `cart.index`) | DB-winkelwagen (`carts` + `cart_items`): gast via `cart_token`-cookie, merge bij login (`CartService::mergeCarts`). AJAX qty/delete/clear met dashboard-stijl delete-modals. `Overzicht` toont **alleen subtotaal** (coupon/verzending bewust naar checkout verplaatst, §16). `Doorgaan naar afrekenen` → gast-popup (`guestCheckoutModal` in `cart.blade.php`: Inloggen met redirect vs Verder als gast) of direct naar `/checkout`. Header-badge via `AppServiceProvider` View::composer `cartCount` |
+| 25 | Checkout | `/checkout` (`CheckoutController`, names `checkout.index/totals/store`) — design 1-op-1 van `D:/sm 2026/slimmepc2026nieuwe/checkout.html` (Inter + Tailwind CDN-config + lucide, géén FontAwesome) | Contact + saved-address select bij login + Verzendadres (verborgen bij pickup) + Verzendmethode-radio's uit `shipping_rates` + live `POST /checkout/totals` herberekening + kortingscodeveld (hergebruikt `/cart/coupon`) + order-summary. Submit → `StoreCheckoutRequest` (NL postcode-regex, pickup slaat adres over) → `Order` (pending/unpaid, `ORD-` + `SLP-`) + items-snapshot → Mollie payment (303 redirect). **Validatie afspraak-stijl**: `novalidate` + rode rand (`field-error`/`!border-red-500`) + reden onder elk veld + focus/scroll naar eerste fout + live-clear bij typen |
+| 26 | Betaling (Mollie, herbruikbare gateway) | `POST /payment/webhook` + `GET /payment/return/{order}` + success/failed-pagina's (`PaymentController`, `MolliePaymentService`, `OrderPaymentService`) | Eén gateway voor het hele platform (`App\Services\Payments\MolliePaymentService::createPayment/getPayment/isPaid` — nu webshop, later lidmaatschap/monteur). `MOLLIE_KEY` in env. Webhook is source of truth (CSRF-exempt); **lokaal geen webhook** (`CheckoutController::publicWebhookUrl()` geeft null bij localhost/127.0.0.1/.test/.local — Mollie wijst localhost af met 422) → bevestiging via return-URL. `finalizeOrder` idempotent: paid/processing → `order_invoices` (`INV-`) + PDF (`invoices/order.blade.php`, dompdf) → `OrderInvoiceMail` (klant, met PDF, pas na betaling) + `AdminOrderNotificationMail` (owner → `CONTACT_NOTIFY_EMAIL` + admin-link) via `afterResponse` → winkelwagen leeg + coupon-telling. Mollie-fout → 502 JSON met NL-melding (order blijft pending). Success-pagina afspraak-stijl, 2-koloms: links check + besteloverzicht + knoppen, rechts "Wat gebeurt er nu?" + bedrijfsgegevens uit CMS (`footer.contact` — zelfde bron als footer, dus admin Footer-edit werkt overal). `payment-success/failed.blade.php` laden eigen Tailwind CDN-config (landing.css kent `bg-[#155EEF]` niet — zonder CDN zijn knoppen onzichtbaar) |
+| 27 | Verlanglijstje (favorieten) | `/wishlist` (`FavoriteController`, auth-verplicht) — zelfde kaarten als webshop | `favorites` (UNIQUE user+product) + `Favorite`-model. `landing/partials/product-card.blade.php` = gedeelde kaart (uit `webshop.blade.php` gehaald, nu in webshop-grid én wishlist gebruikt; hart met `data-product-id` + active-state uit `$favoriteIds`). Hart-toggles (webshop-grid, product-details hoofd/sticky/related) doen `POST /wishlist/toggle` (optimistic UI + revert bij fout, badge-update via `[data-wishlist-count]`); gasten → `/wishlist` → login → terug via intended. Header: desktop-hart + echte `wishlistCount` (View::composer, auth-only) + `Verlanglijstje`-item in naam-dropdown + mobiele `Favorieten` → route. Wishlist-pagina: full webshop-layout — top hero (breadcrumb + heading + trust-card count), category chips bar, control bar (count + sort), 4-col grid + pagination 12/page, CTA + trust bar; category filter via `?category=` query param; `$categories` + paginated `$products` van controller. Hart rood `#e11d48` actief / transparent+border inactief (svg fill-fix tegen zwart-na-refresh); hero-image weg; full-width grid (geen sidebar) |
+| 28 | Mijn bestellingen (order history) | `/mijn-bestellingen` (`Account\OrderController`, auth + strikt user-scoped op `order_number`) | `orders` (user_id) + `order_items` + `order_invoices`. Index: order-cards (nummer/datum/badges/aantal/totaal/Bekijken) + paginate 10; show: status-steps (Besteld→Betaald→Verzonden/Afhalen→Afgerond, cancelled-variant), artikelen + totalen, gegevens/adres-side, factuur-downloadknop (alleen met pdf). NL labels + badge-kleuren via controller-constanten. Header: `Mijn bestellingen`-item in naam-dropdown + mobiele `Bestellingen`-tegel |
 | 22 | Reparatie aanmelden (wizard + backend) | `/reparatie-aanmelden` (`PageController@reparatie`, name `reparatie`) + `POST /reparatie/submit` (`RepairController@submit`, name `reparatie.submit`) + admin `/admin/reparatie-aanmeldingen/*` | Standalone CMS-styled page rebuilt from `step-2/Reparatie-aanmelden.html`: a 5-step wizard (apparaat → probleem + foto's → apparaatgegevens → contact & voorkeur → controle). All fields required except `Serienummer` + foto's (optional). Per-step JS validation + backend `StoreRepairSubmissionRequest` (Dutch messages, honeypot `website`, `throttle:5,1`). On submit: stores `RepairSubmission` (status `new`), uploads ≤5 photos to `repair/{id}/` (local disk); **emails (`RepairReceived` customer confirmation + `AdminRepairNotification` owner → `CONTACT_NOTIFY_EMAIL`) are dispatched via `dispatch(function(){...})->afterResponse()` so the `201 {message, repair_number}` (`SP-YYYY-#####`) returns to the browser instantly and SMTP latency never blocks the user** (`.env` `MAIL_MAILER` stays `smtp` for real delivery; locally an unreachable Gmail SMTP can be temporarily set to `log` to test the instant submit path — do not commit that). Frontend `repairForm`: `@csrf` + `fetch` submit + **per-field error display (red border + message) that jumps back to the earliest invalid step** + **success/error toast via `window.SlimmePC.toast`** (replaces the old `alert()`; `design.js` + jQuery are now loaded at the bottom of the standalone reparatie page so the toast works); final success screen shows the `aanmeldnummer`. **Stap 2 was compacted** (description rows 5→4, dropzone smaller/horizontal `py-5`, smaller icon). The frontend **header Diensten dropdown** now includes a **"Reparatie aanmelden"** link to `/reparatie-aanmelden`. Admin inbox (`reparatie-aanmeldingen`, reached from the **Diensten → Reparatie sub-dropdown** in the sidebar — note the **"Aanmeldingen" link is the FIRST item there and has NO icon**, only the red new-count badge): redesigned from the old two-pane into a **table + detail modal** (`reparatie-aanmeldingen/index.blade.php` + `public/assets/js/admin/reparatie-aanmeldingen.js`): columns Aanmeldnr · Naam · Apparaat · Merk/Model · Status · Ontvangen · Actie (Bekijk); search + status filter + per-page + pagination; **inline status `<select>` in the Status column (colored: new/red, in_progress/amber, completed/green) — changing it posts `.../status`, shows a "Bijgewerkt ✓" message under the select for 2.5s, disables during the request, and updates the header Nieuw/Totaal counts without a full reload**; clicking "Bekijk" opens a detail modal (all fields + streamed photos) and there is a delete-confirm modal. The table uses **inline `style="min-width:780px"` + `style="overflow:auto"` on its scroll container** (the compiled admin Tailwind CSS lacks arbitrary `min-w-[...]`/`overflow-x-auto` — see gotchas). Dashboard keeps a live "Reparaties" stat + recent-repairs table. |
 
 ## 8. Complete Routes
@@ -305,6 +310,31 @@ slimmepc/
 | POST | `/contact/submit` | `ContactController@submit` → `contact.submit` (JSON, 201; **CSRF-exempt** in bootstrap/app.php + honeypot `website` + `throttle:5,1`; queues `ContactReceived`) | none |
 | GET | `/reparatie-aanmelden` | `PageController@reparatie` → `landing.service-reparatie` (CMS-styled 5-step wizard page, **name `reparatie`**) | none (guest-only full-page HTML cache `cms.page.html.reparatie.{version}`, auth renders fresh) |
 | GET | `/webshop/{slug}` | `WebshopController@index` → `landing.webshop` (exact copy van `products.html`, Inter font, chips, filters, grid, pagination) — **name `webshop.category`** — alleen categoriepagina, geen algemene `/webshop` (verwijderd) — 404 als categorie niet actief/bestaat | none |
+| GET | `/webshop/{categorySlug}/{productSlug}` | `WebshopController@show` → `landing.product-details` — **name `webshop.product`** (must be before category route) | none |
+| POST | `/webshop/{categorySlug}/{productSlug}/reviews` | `WebshopReviewController@store` → `webshop.reviews.store` (JSON) | throttle:5,1 |
+| GET | `/wishlist` | `FavoriteController@index` → `landing.wishlist` (auth only; guests → login → back via intended) — **name `wishlist.index`** | auth |
+| POST | `/wishlist/toggle` | `FavoriteController@toggle` → `wishlist.toggle` (JSON `{status: added/removed, count}`) | auth + throttle:30,1 |
+| DELETE | `/wishlist/{favorite}` | `FavoriteController@destroy` → `wishlist.destroy` (JSON; 403 for other users) | auth + throttle:30,1 |
+| GET | `/mijn-bestellingen` | `Account\OrderController@index` → `account.orders.index` (own orders, paginate 10) | auth |
+| GET | `/mijn-bestellingen/{orderNumber}` | `Account\OrderController@show` → `account.orders.show` (user-scoped by order_number, 404 for others) | auth |
+| GET | `/mijn-bestellingen/{orderNumber}/factuur` | `Account\OrderController@invoice` → `account.orders.invoice` (own PDF download, 404 without pdf) | auth |
+| GET | `/cart` | `CartController@index` → `landing.cart` (DB cart via `cart_token` cookie + auth merge, upsell) — **name `cart.index`** | none |
+| GET | `/cart/count` | `CartController@count` → `cart.count` (JSON count/subtotal/total for header badge) | none |
+| POST | `/cart/items` | `CartController@store` → `cart.items.store` (JSON, validates stock/status) | throttle:30,1 |
+| PATCH | `/cart/items/{item}` | `CartController@update` → `cart.items.update` (JSON quantity) | throttle:30,1 |
+| DELETE | `/cart/items/{item}` | `CartController@destroy` → `cart.items.destroy` (JSON) | throttle:30,1 |
+| DELETE | `/cart` | `CartController@clear` → `cart.clear` (JSON, empties + detaches coupon) | throttle:10,1 |
+| POST | `/cart/coupon` | `CartController@applyCoupon` → `cart.coupon.apply` (JSON, server-side `CartService::validateCoupon`) | throttle:20,1 |
+| DELETE | `/cart/coupon` | `CartController@removeCoupon` → `cart.coupon.remove` (JSON) | throttle:20,1 |
+| GET | `/checkout` | `CheckoutController@index` → `landing.checkout` (converted from `checkout.html`, redirect to cart when empty) — **name `checkout.index`** | none |
+| POST | `/checkout/totals` | `CheckoutController@totals` → `checkout.totals` (JSON live recalc per shipping_method) | throttle:30,1 |
+| POST | `/checkout` | `CheckoutController@store` → `checkout.store` (`StoreCheckoutRequest` Dutch validation, creates address+order+items, creates Mollie payment, 201 `{redirect}` to Mollie checkout) | throttle:10,1 |
+| POST | `/payment/webhook` | `PaymentController@webhook` → `payment.webhook` (Mollie server callback, source of truth, idempotent finalize) — **CSRF-exempt** in bootstrap/app.php | none |
+| GET | `/payment/return/{order}` | `PaymentController@return` → `payment.return` (live Mollie verify → success view or redirect failed) | none |
+| GET | `/payment/success` | `PaymentController@success` → `payment.success` (`landing.payment-success`, afspraak-style 2-col + CMS company data) | none |
+| GET | `/payment/failed` | `PaymentController@failed` → `payment.failed` (`landing.payment-failed`) | none |
+| GET | `/track` | `TrackingController@index` → `tracking.index` (device receipt tracking form) | none |
+| POST | `/track` | `TrackingController@track` → `tracking.track` — **CSRF-exempt** (`track/`) | none |
 | POST | `/reparatie/submit` | `RepairController@submit` → `reparatie.submit` (JSON, 201 `{message, repair_number}`; **CSRF-protected** + honeypot `website` + `throttle:5,1`; queues `RepairReceived` + `AdminRepairNotification`) | none |
 | GET | `/profile` | `ProfileController@edit` | auth |
 | PATCH | `/profile` | `ProfileController@update` | auth |
@@ -343,6 +373,19 @@ slimmepc/
 | POST | `/admin/reparatie-aanmeldingen/{repairSubmission}/status` | `Admin\RepairInboxController@status` → `admin.reparatie-aanmeldingen.status` (JSON; new/in_progress/completed) | auth, verified, admin |
 | GET | `/admin/reparatie-aanmeldingen/{repairSubmission}/photo/{index}` | `Admin\RepairInboxController@photo` → `admin.reparatie-aanmeldingen.photo` (streamed image) | auth, verified, admin |
 | DELETE | `/admin/reparatie-aanmeldingen/{repairSubmission}` | `Admin\RepairInboxController@destroy` → `admin.reparatie-aanmeldingen.destroy` (JSON; deletes row + storage folder + photos) | auth, verified, admin |
+| GET | `/admin/orders` | `Admin\OrderController@index` → `admin.orders.index` (orders table + status/payment filters) | auth, verified, admin |
+| GET | `/admin/orders/data` | `Admin\OrderController@data` → `admin.orders.data` (JSON: items + pending/paid/total counts + pagination) | auth, verified, admin |
+| GET | `/admin/orders/new-count` | `Admin\OrderController@newCount` → `admin.orders.new-count` (JSON `{count}` pending; sidebar badge + defined before wildcard) | auth, verified, admin |
+| GET | `/admin/orders/{order}` | `Admin\OrderController@show` → `admin.orders.show` (detail page: items, totals, address, status select, invoice download) | auth, verified, admin |
+| POST | `/admin/orders/{order}/status` | `Admin\OrderController@status` → `admin.orders.status` (JSON; pending/processing/shipped/completed/cancelled) | auth, verified, admin |
+| GET | `/admin/orders/{order}/invoice` | `Admin\OrderController@invoiceDownload` → `admin.orders.invoice` (PDF download) | auth, verified, admin |
+| DELETE | `/admin/orders/{order}` | `Admin\OrderController@destroy` → `admin.orders.destroy` (JSON; deletes invoice PDF + order) | auth, verified, admin |
+| GET | `/admin/shipping` | `Admin\ShippingRateController@index` → `admin.shipping.index` (rates table + modal) | auth, verified, admin |
+| GET | `/admin/shipping/data` | `Admin\ShippingRateController@data` → `admin.shipping.data` (JSON list) | auth, verified, admin |
+| POST | `/admin/shipping` | `Admin\ShippingRateController@store` → `admin.shipping.store` (JSON, 201) | auth, verified, admin |
+| PUT | `/admin/shipping/{shipping}` | `Admin\ShippingRateController@update` → `admin.shipping.update` (JSON; slug immutable after create) | auth, verified, admin |
+| DELETE | `/admin/shipping/{shipping}` | `Admin\ShippingRateController@destroy` → `admin.shipping.destroy` (JSON; 422 for built-in delivery/pickup) | auth, verified, admin |
+| POST | `/admin/shipping/{shipping}/toggle` | `Admin\ShippingRateController@toggle` → `admin.shipping.toggle` (JSON is_active) | auth, verified, admin |
 
 ### auth.php
 | Method | URI | Name/Handler | Middleware/Auth |
@@ -549,6 +592,79 @@ slimmepc/
 | external_link / delivery_time / download_*_url / manual_url | string nullable | Externe / digitale links |
 | created_at / updated_at | timestamp | — |
 
+### Table: `addresses` (2026-09-08)
+| Column | Type | Description |
+|--------|------|--------------|
+| id | bigint PK | — |
+| user_id | foreignId nullable cascade | Eigenaar (null = gast) |
+| first_name / last_name / street / house_number / addition nullable / postcode / city / country default Nederland / phone / email nullable | string | Adresvelden (bij pickup: street/house_number/postcode = `-`, city = `Apeldoorn (afhalen)`) |
+| type | enum(billing,shipping) default billing | Altijd billing in checkout (één adres voor beide, old-system gedrag) |
+| created_at / updated_at | timestamp | — |
+| **indexes** | user_id, type | Adresboek-lookup |
+
+### Table: `shipping_rates` (2026-09-08, seeded via `ShippingRateSeeder`)
+| Column | Type | Description |
+|--------|------|--------------|
+| id | bigint PK | — |
+| name / slug unique | string | bv. `Standaard verzending` / `delivery`, `Afhalen in Apeldoorn` / `pickup` |
+| price | decimal 10,2 | Verzendkosten (pickup altijd 0) |
+| free_above | decimal 10,2 nullable | Gratis vanaf bedrag (delivery 75.00; null = nooit gratis) |
+| is_active | boolean default 1 | Aan/uit in admin |
+| sort_order | integer default 0 | Volgorde |
+| created_at / updated_at | timestamp | — |
+
+### Table: `orders` (2026-09-08 + `cart_id` 2026_09_08_000006)
+| Column | Type | Description |
+|--------|------|--------------|
+| id | bigint PK | — |
+| order_number | string unique | `ORD-` + 8 random (auto in `boot()`, old-system formaat) |
+| user_id | foreignId nullable nullOnDelete | Koper (null = gast) |
+| billing_address_id / shipping_address_id | foreignId nullable nullOnDelete → addresses | Zelfde adres (old-system) |
+| cart_id | unsignedBigInteger nullable | Bron-winkelwagen (wordt geleegd na betaling) |
+| klantnummer | string nullable | `SLP-XXXXXX` (van user of random, old-system formaat) |
+| customer_email / customer_phone | string | Contact |
+| subtotal | decimal 10,2 | Excl. btw (= totaal − btw, hardware-formule) |
+| tax_percentage default 21 / tax_amount | decimal | BTW inclusief: `tax = total×21/121` |
+| discount_code nullable / coupon_id nullable FK / discount_amount | string/FK/decimal | Kortingssnapshot |
+| shipping_method default delivery / shipping_cost | string/decimal | delivery of pickup |
+| total_price | decimal 10,2 | Incl. alles (wat naar Mollie gaat) |
+| payment_status | enum(pending,paid,failed) default pending | — |
+| payment_method nullable | string | `mollie` bij aanmaak, daarna Mollie-methode (ideal/...) |
+| mollie_payment_id | string nullable unique | Mollie payment id |
+| order_status | enum(pending,processing,shipped,completed,cancelled) default pending | pending → processing bij betaling |
+| created_at / updated_at | timestamp | — |
+| **indexes** | user_id, customer_email, payment_status, order_status | — |
+
+### Table: `order_items` (2026-09-08)
+| Column | Type | Description |
+|--------|------|--------------|
+| id | bigint PK | — |
+| order_id | foreignId cascade | — |
+| product_id | foreignId nullable nullOnDelete | Product kan verdwijnen, snapshot blijft |
+| product_name / product_price / quantity / total_price | string/decimal/int/decimal | Prijssnapshot incl. btw |
+| created_at / updated_at | timestamp | — |
+
+### Table: `order_invoices` (2026-09-08, géén relatie met `manual_invoices`)
+| Column | Type | Description |
+|--------|------|--------------|
+| id | bigint PK | — |
+| order_id | foreignId cascade | — |
+| invoice_number | string unique | `INV-YYYY-XXXXXX` (apart nummerbereik van handmatige `SLM-`) |
+| invoice_date | date | Betaaldatum |
+| customer_name/email/phone, street_address, postal_code, city, klantnummer | string | Factuuradres-snapshot |
+| subtotal / tax_percentage / tax_amount / discount_amount / shipping_cost / total | decimal | Bedragen-snapshot |
+| payment_method nullable / pdf_path nullable | string | `invoices/orders/INV-....pdf` op disk `local` |
+| created_at / updated_at | timestamp | — |
+
+### Table: `favorites` (2026-09-08)
+| Column | Type | Description |
+|--------|------|--------------|
+| id | bigint PK | — |
+| user_id | foreignId cascade | Alleen ingelogde users (gasten → login) |
+| product_id | foreignId cascade | — |
+| created_at / updated_at | timestamp | — |
+| **unique + index** | UNIQUE(user_id, product_id), INDEX(product_id) | Geen dubbele favorieten |
+
 ## 10. Models/Entities & Relationships
 ```
 User ──→ (sessions via user_id, owned)
@@ -564,6 +680,14 @@ ContentBlock / ContentMeta ──→ standalone CMS tables (no FKs)
 | RepairSubmission | repair_submissions | Standalone. Casts `problems`/`photos` → array, `privacy` → bool; `scopeNew()`; status enum; `photoUrls()` returns `route('admin.reparatie-aanmeldingen.photo', [...])` per photo |
 | Category | categories | HasMany `Product`; fillable `name,slug,icon,description,status,image,sort_order`; casts `status` boolean; auto `slug` from `name` on create/update |
 | Product | products | BelongsTo `Category`; fillable `title,slug,brand,sku,price,old_price,discount_*,stock_status,status,is_featured,description,features,colors,sizes,main_image,gallery_images,external_link,...`; casts arrays/decimals/booleans; `discounted_price` accessor |
+| Address | addresses | BelongsTo `User`; `fullName()` + `fullStreet()` helpers |
+| ShippingRate | shipping_rates | Standalone; casts price/free_above/is_active; `costFor(afterDiscount)` — pickup altijd 0, gratis boven `free_above` |
+| Order | orders | BelongsTo `User/Coupon/Address(billing+shipping)`; HasMany `OrderItem(items)`; HasOne `OrderInvoice(invoice)`; auto `ORD-` nummer in `boot()`; `isPaid()` |
+| OrderItem | order_items | BelongsTo `Order/Product` (snapshots blijven bij product-delete) |
+| OrderInvoice | order_invoices | BelongsTo `Order` (met `order.items` voor PDF) |
+| Cart | carts | BelongsTo `User/Coupon`; HasMany `CartItem(items)`; `getCountAttribute()` |
+| Coupon | coupons | HasMany `CouponUsage(usages)`; `isExpired()/isMaxedOut()/isActive()/discountAmount()`; code auto-uppercase |
+| Favorite | favorites | BelongsTo `User/Product`; UNIQUE(user,product) — login vereist |
 
 ### Support helper: `App\Support\Cms`
 | Method | Purpose |
@@ -695,7 +819,7 @@ Logo (site-wide): landing header/footer, favicon, auth `<x-logo>`, logged-in nav
   3. Views under `resources/views/admin/<module>/` reusing `x-admin.layout`, `x-admin.card`, `x-admin.stat-card`
   4. DB migrations + models + relationships (documented in section 9/10 when added)
   5. Wire real stats into `AdminController@dashboard`
-- **Current status:** Users-beheren DONE (renamed from Klanten). CMS ("Home-page") DONE v3 (split into separate pages: design + section editors; JSON repeaters with 2-col layout; save without refresh). Next: Bestellingen (orders) or Reparaties, or extend the CMS to services/shop/footer sections.
+- **Current status:** Users-beheren DONE (renamed from Klanten). CMS ("Home-page") DONE v3 (split into separate pages: design + section editors; JSON repeaters with 2-col layout; save without refresh). **Bestellingen (orders) DONE 2026-09-08 (§17): `admin/orders` + `admin/shipping` + dashboard stats.** Next: extend the CMS to services/shop/footer sections, or Mollie for lidmaatschap/monteur via the reusable gateway.
 
 ### Plan: Contact formulier + inbox (DONE)
 - **Goal:** Make the static /contact form actually submit and give the admin a live inbox with a chat thread.
@@ -1279,3 +1403,90 @@ A modular, multi-provider AI subsystem engineered for automated Dutch e-commerce
 - **Backend kept for checkout:** `carts.coupon_id`, `coupons` / `coupon_usages` tables, `CartService::validateCoupon` + `totals` discount/shipping logic, and `routes POST /cart/coupon` / `DELETE /cart/coupon` remain in codebase for the upcoming `checkout` page — not exposed in cart UI.
 - **Reason:** Client wants coupon discount and shipping costs handled exclusively at checkout, not in cart. Cart now shows pure subtotal.
 
+## 17. Update 2026-09-08 — Checkout + Orders + Mollie + Shipping rates
+
+- **DB (6 migrations `2026_09_08_000001-6`):** `addresses` (billing=shipping, single address), `shipping_rates` (name/slug/price/free_above/is_active — seeded delivery 6.95/free from 75 + pickup free), `orders` (ORD- number, klantnummer SLP-, inclusive-VAT subtotal/tax, coupon snapshot, shipping_method/cost, payment_status + mollie_payment_id, order_status), `order_items` (price snapshots), `order_invoices` (INV-YYYY-XXXXXX, separate from manual SLM- invoices).
+- **Payments:** `mollie/mollie-api-php` installed, `config/services.php mollie.key` from `MOLLIE_KEY` (.env + .env.example). Reusable `App\Services\Payments\MolliePaymentService` (create/get/isPaid) for webshop now, memberships later. Webhook `POST /payment/webhook` (CSRF-exempt, source of truth) + `GET /payment/return/{order}` verify + success/failed pages. `OrderPaymentService::finalizeOrder` idempotent: paid/processing, invoice + PDF (`invoices/order.blade.php`), customer `OrderInvoiceMail` with PDF + owner `AdminOrderNotificationMail` (CONTACT_NOTIFY_EMAIL + admin link) via afterResponse, cart cleared, coupon usage counted.
+- **Checkout:** `GET /checkout` (`landing/checkout.blade.php` converted from `checkout.html`, lucide), `POST /checkout/totals` (live recalc), `POST /checkout` (`StoreCheckoutRequest`, Dutch messages, NL postcode regex, pickup skips address). Coupon field in summary (reuses `/cart/coupon`), saved-address select for logged-in users, single address used for billing+shipping (old-system behavior).
+- **Guest popup:** cart `Doorgaan naar afrekenen` button calls `goToCheckout()` — guests get `guestCheckoutModal` (dashboard modal style: Inloggen with redirect vs Verder als gast); cart persists via `cart_token` + `mergeCarts`.
+- **Admin:** `admin/orders` (index/data/show/status/destroy/invoice download, pending badge in Webshop dropdown) + `admin/shipping` CRUD (delivery/pickup protected from delete) + dashboard real order stats + recent-orders card. `CartService::totals(cart, method)` reads `shipping_rates` (fallback 6.95/75) and returns inclusive-VAT breakdown (tax = total x 21/121).
+- **Tests:** `tests/Feature/CheckoutTest.php` 7 tests green (full suite 57 green). Gotchas: JSON test requests need `->withCredentials()` or cookies are not sent (`prepareCookiesForJsonRequest`); feature tests run on sqlite :memory: so seed `shipping_rates` inside the test.
+
+## 18. Update 2026-09-08 (part 2) — Checkout validation, Mollie localhost, success-page redesign
+
+- **Checkout inline validation (afspraak-style, `landing/checkout.blade.php`):** form is `novalidate` (native bubbles blocked submit silently on hidden pickup address fields — root cause of "click does nothing"). 422 now → red border (`field-error` CSS + `!border-red-500`) + Dutch reason under each field (static `[data-err]` <p> per field + dynamic `p.field-error-dynamic` fallback for fields without one, e.g. radio group) + `Controleer de gemarkeerde velden: …` summary in `#checkoutErrors` + focus/scroll to first invalid (`block:center`) + live-clear on `input`. 419 gets its own session-expired message. New `data-err="shipping_method"` line under the shipping radios.
+- **Mollie localhost fix (`CheckoutController::publicWebhookUrl()`):** Mollie rejects `http://127.0.0.1:8000/payment/webhook` with 422 (unreachable from their side), so webhookUrl is now sent ONLY for public hosts (null for localhost/127.0.0.1/::1/*.test/*.local); `MolliePaymentService::createPayment` already omits null webhook → payment confirmed via return-URL locally, webhook takes over on the live server with zero code change. Mollie `ApiException` now caught → 502 JSON with Dutch message (order stays pending, retry possible) instead of a 500 page.
+- **Success page redesign (`landing/payment-success.blade.php`):** afspraak-style 2-column (`lg:grid-cols-2`, stacks on mobile): LEFT white card (green check + `Bestelling gelukt!` + thank-you with blue order number + items/total box + `Verder winkelen`/`Terug naar home` buttons), RIGHT (`Wat gebeurt er nu?` incl. pickup-vs-delivery text + `Slimme-PC · Apeldoorn` company card reading CMS `footer.contact` rows — same source as footer, confirmed from `ContentBlockSeeder.php:157`, so admin Footer edits update both pages; title line itself is hardcoded). Fixed invisible-buttons bug: success + failed pages now load their own Tailwind CDN config (compiled `landing.css` has no `bg-[#155EEF]`/`shadow-blue` — without it buttons render unstyled/white-on-white, see screenshot 2026-09-08).
+
+## 19. Update 2026-09-08 (part 3) — Verlanglijstje (favorieten)
+
+- **DB + backend:** migration `2026_09_08_000007_create_favorites_table.php` (`favorites`, UNIQUE user+product) + `Favorite`-model + `FavoriteController` (index/toggle/destroy, Dutch messages, 403-bescherming). Routes `GET /wishlist` (auth — gasten → login → terug via `intended`, `AuthenticatedSessionController` gebruikt `redirect()->intended()`), `POST /wishlist/toggle` + `DELETE /wishlist/{favorite}` (throttle 30,1). Inactieve producten worden stil gefilterd op de pagina.
+- **Gedeelde kaart:** `landing/partials/product-card.blade.php` uit `webshop.blade.php` gehaald (zelfde badge/prijs/rating/add-to-cart markup) — nu in webshop-grid én wishlist gebruikt. Hart-knop met `data-product-id` + active-state uit `$favoriteIds` (`WebshopController@index/show` geven `favoriteIds` mee; details geeft ook `isFavorite`).
+- **Toggles:** webshop-grid (`toggleWishlist`, optimistic + revert + `[data-wishlist-count]`-update), product-details hoofd/sticky/related (`toggleWishlistPD`, FA `fa-solid/fa-regular` swap + sync van alle harten van hetzelfde product; oude `toggleFavorite` bleef als alias). Gasten-klik → `/wishlist` (bewaakte route → login → intended terug).
+- **Header:** desktop-hart → `route('wishlist.index')` + echte `wishlistCount` via View::composer (auth-only, try/catch) + `data-wishlist-count` voor live updates; `Verlanglijstje`-item in naam-dropdown (tussen Mijn account en Uitloggen); mobiele `Favorieten` → route.
+- **Wishlist-pagina (`landing/wishlist.blade.php`):** full webshop-layout — top hero (breadcrumb + heading + description + trust card with count), category chips bar (`?category=` filter), control bar (count + sort), shared product-card grid 4-col + pagination 12/page, CTA + trust bar. Controller provides `$categories` + paginated `$products` (LengthAwarePaginator, preserves query string).
+- **Tests:** `tests/Feature/WishlistTest.php` 7 tests green (full suite 64 green). Beslissing: géén voorraad-aantallen — alleen `stock_status` in/out of stock (per client). Page fully matches webshop layout language.
+
+## 20. Update 2026-09-09 — Mijn bestellingen (order history voor klanten)
+
+- **Backend:** `Account\OrderController` (index/show/invoice) — alles strikt user-scoped (`where user_id + order_number`, 404 voor andermans orders). Index paginate 10 met `items_count`; show laadt `items.product + invoice + billingAddress`; invoice-download spiegelt admin-logica (alleen eigen pdf, 404 zonder pdf). Status-labels/kleuren als controller-constanten (pending/processing/shipped/completed/cancelled + paid/pending).
+- **Views (`landing/account/orders/`):** zelfde design-taal als wishlist/webshop (Inter, `max-w-[1450px]`, hero + trust-card, reveal, trust bar). Index: order-cards (nummer + badges + datum/aantal/methode + totaal + Bekijken-knop) + empty-state + pagination. Show: breadcrumb-hero met badges + factuur-knop, status-steps (Besteld→Betaald→Verzonden/Klaar-voor-afhalen→Afgerond; cancelled-variant), artikelen + totalen-card, gegevens/adres-side + contact-CTA.
+- **Header:** `Mijn bestellingen` in naam-dropdown (tussen Mijn account en Verlanglijstje) + mobiele `Bestellingen`-tegel (auth-only).
+- **Tests:** `tests/Feature/AccountOrdersTest.php` 7 tests green (full suite 71 green): guest-redirect, empty-state, alleen-eigen-orders, detail met items, 404 voor andermans order/factuur, invoice-download + 404-zonder-pdf.
+
+## 21. Update 2026-09-09 — Mijn account redesign (Breeze → webshop design-taal)
+
+- **Views:** `profile/edit.blade.php` omgebouwd van Breeze `x-app-layout` naar landing-layout (Inter, `max-w-[1450px]`, hero met `Hallo, {voornaam}` + trust-card met e-mail/lid-sinds, reveal). Grid: formulier-cards (Profielgegevens / Wachtwoord wijzigen / Account verwijderen) + sticky side-nav (Mijn bestellingen, Verlanglijstje, Uitloggen) + contact-CTA. Alle routes/validatie/errors/sessions ongewijzigd; Alpine lokaal (`assets/js/vendor/alpine.min.js`) ingeladen voor `x-modal` + `Saved.`-meldingen.
+- **Partials:** Nederlandse labels (Naam, E-mailadres, Opslaan/Opgeslagen., Huidig/Nieuw/Bevestig wachtwoord, Account verwijderen/Annuleren) + design-tokens (rounded-xl inputs, blue-600 knoppen, rose error-tekst, amber verificatie-box).
+- **Tests:** `tests/Feature/AccountProfileTest.php` 2 tests green (full suite 73 green): pagina toont nieuwe NL-secties + PATCH update werkt.
+- **Fix:** `ProfileController@edit` geeft nu ook `c` (`Cms::page('home')`) + `design` (`Cms::design()`) mee — zonder deze vars renderen header/footer/floating met lege `??`-fallbacks (geen nav-links, geen footer-contact/social), waardoor ze "afgesneden" lijken. Zelfde patroon als alle andere landing-controllers.
+- **Fix:** `autofocus` van naam-input gehaald (Breeze-erfenis) — browser sprong bij load naar het midden van de pagina waardoor de header buiten beeld viel.
+- **Fix:** contact-CTA ("Hulp nodig?") uit profile-side verwijderd op verzoek.
+
+## 22. Update 2026-09-09 — Wishlist layout + hart-design fixes
+
+- **Hero-afbeelding weg:** center-image kolom uit wishlist-hero gehaald (grid `lg:grid-cols-[1fr_auto]`) — alleen titel + trust-card.
+- **Sidebar-grid weg:** `lg:grid-cols-[250px_1fr]` verwijderd (wishlist heeft geen filters; lege kolom drukte kaarten samen) — control bar + grid nu full-width.
+- **Hart-design (rood i.p.v. blauw, zoals `product-details.html`-template):** inactief = transparent + 1px slate border (`#e2e8f0`) + slate icoon (`#94a3b8`); actief = rood `#e11d48` + rose bg `#fff1f2` + rose border `#fecdd3`. Toegepast op webshop-grid én wishlist (zelfde CSS in beide views) + shared `product-card` partial (inline `style="color:#e11d48"` bij fav, `text-slate-400` verwijderd).
+- **Refresh-bug:** na refresh toonde het hart zwart i.p.v. rood — oorzaak: Lucide vervangt `<i data-lucide>` door `<svg>` en `fill="currentColor"`-attribuut alleen is niet genoeg bij re-parse. Fix: expliciete CSS `.heart-btn svg { fill:none; stroke:currentColor }` + `.heart-btn.active svg { fill:#e11d48 !important; stroke:#e11d48 !important }`, en `setHeartVisual()` zet nu expliciet `button.style.color` + `icon.style.color` (`#e11d48`/leeg). `.heart-btn.active` heeft `!important` op color/border/background.
+
+## 23. Update 2026-09-09 — Admin orders + shipping restyle (producten-designtaal)
+
+Referentie: `admin/shop/products/index.blade.php` (full-height flex `h-[calc(100dvh-108px)]`, card met `0 14px 35px`-shadow, filterbar met search-icoon + h-9 selects + count-chips, sticky thead, sticky-rechter actie-kolom met icon-buttons, genummerde pagination, `x-admin.modal` delete-stijl, `apple-switch` toggles). Backends ongewijzigd (zelfde JSON-shapes/routes).
+- **`admin/orders/index`:** full-height wrapper + filterbar (search-icoon, status/betaling selects, per-page select — backend ondersteunde `per_page` al) + chips (Nieuw/Betaald/Totaal) + tabel (Nummer/Klant/Totaal/Betaling/Type/Afhalen-vs-Bezorging/Status/Datum) met dot-badges (statische Tailwind-klassen via lookup — géén dynamische `bg-${color}` i.v.m. CDN-JIT) + sticky icon-acties (oog = openen, prullenbak = wissen) + genummerde pagination + products-stijl delete-modal + empty-state met icoon. JS herschreven (zelfde endpoints; XSS-escape toegevoegd).
+- **`admin/orders/show`:** zelfde header-taal (titel + status/betaling-pills + bordered Overzicht-knop met pijl-icoon), cards met card-shadow, producten-tabel in thead-stijl, gradient PDF-knop met download-icoon. Functionaliteit ongewijzigd (status-select + factuur).
+- **`admin/shipping/index`:** full-height + primary `Nieuwe optie`-knop met plus-icoon + shadow + sticky tabel + `apple-switch` toggle (optimistic + revert + toast) + sticky icon-acties (potlood/prullenbak) + products-stijl delete-modal i.p.v. `confirm()` + empty-state. Delete-bescherming (delivery/pickup) blijft backend-side met toast-error.
+- **Tests:** `tests/Feature/AdminPagesRenderTest.php` 3 tests (orders-index/show + shipping-index renderen 200 als admin met `role=admin` + verified). Full suite 76 green.
+
+## 24. Update 2026-09-09 — E-mail inventaris (compleet, 12 + 1)
+
+Alle mails zijn synchrone `Mail::send()` (géén queue; order-mails via `->afterResponse()` zodat SMTP de response nooit blokkeert). Owner-adres = `CONTACT_NOTIFY_EMAIL`. Views in `resources/views/emails/`.
+
+| # | Mail-klasse | Naar | Trigger (code-locatie) | Onderwerp |
+|---|-------------|------|------------------------|-----------|
+| 1 | `OrderInvoiceMail` | klant (`customer_email`) | `OrderPaymentService::finalizeOrder` na Mollie-betaling, met PDF-bijlage, `afterResponse` | `Uw factuur INV-… - Slimme-PC` |
+| 2 | `AdminOrderNotificationMail` | owner (`CONTACT_NOTIFY_EMAIL`) | `OrderPaymentService::finalizeOrder` (alleen als adres gezet), `afterResponse` | `Nieuwe bestelling ORD-… - Slimme-PC` |
+| 3 | `AfspraakReceived` | klant | `AfspraakController@submit` (`POST /afspraak/submit`) | `Bevestiging van uw afspraak aan huis – AF-…` |
+| 4 | `AdminAfspraakNotification` | owner | `AfspraakController@submit` | `Nieuwe afspraak-aan-huis aanvraag – AF-…` |
+| 5 | `ContactReceived` | klant | `ContactController@submit` | `We hebben je bericht ontvangen – Slimme-PC` |
+| 6 | `AdminContactNotification` | owner | `ContactController@submit` | `Nieuwe contactaanvraag van {naam} – Slimme-PC` |
+| 7 | `ContactReplyMail` | klant | `Admin\ContactInboxController` (admin antwoordt vanuit inbox) | `Re: {subject} – Slimme-PC` |
+| 8 | `RepairReceived` | klant | `RepairController@submit` (Reply-To `+reply-repair-{id}`) | `We hebben je reparatieaanvraag ontvangen – Slimme-PC` |
+| 9 | `AdminRepairNotification` | owner | `RepairController@submit` | `Nieuwe reparatieaanvraag van {naam} – Slimme-PC` |
+| 10 | `DeviceReceiptMail` | klant | `Admin\DeviceReceiptController` (ontvangstbevestiging apparaat) | `Bevestiging Ontvangst Apparaat - Slimme-PC` |
+| 11 | `DeviceReceiptCompletedMail` | klant | `Admin\DeviceReceiptController` (apparaat gerepareerd) | `Uw apparaat is gerepareerd! — SlimmePC` |
+| 12 | `ManualInvoiceMail` | klant (`invoice->email`) | `Admin\ManualInvoiceController` (handmatige factuur versturen) | `Uw Factuur SLM-… - Slimme-PC` |
+| 13 | Framework `ResetPassword` | klant | Breeze wachtwoord-reset (via `Notifiable`) | standaard Laravel-resetmail |
+
+Niet actief: e-mailverificatie (`MustVerifyEmail` staat uit in `User`-model). Ontbreekt (bekende gap): status-wijzigingsmails bij `admin.orders.status` (verzonden/klaar-voor-afhalen) — klant hoort nu niets.
+
+## 25. Update 2026-09-09 — E-mail design systeem (alle 12 mails)
+
+- **Layout:** `resources/views/emails/layout.blade.php` — één gedeeld table-based design (Gmail/Outlook-proof, inline CSS, géén Tailwind): donkerblauwe gradient-header (navbar-stijl `#172554→#1e40af→#2563eb`) met logo + lime badge-slot, witte body (kicker + H1 `#020617` + body + optionele grijze card + optionele gradient-CTA), lichtblauwe gradient-footer (website-footer `#edf5ff→#83b9eb→#d7e8ff`) met bedrijfsgegevens. Preview in `email.html` (repo-root, statisch voorbeeld).
+- **Dynamische bedrijfsdata:** `View::composer('emails.*')` in `AppServiceProvider` deelt `$mailBrand = Cms::page('home')` (cached, try/catch) — logo/tekst/tagline uit `header.*`, contact-rijen + copyright uit `footer.*`. Zelfde bron als website → admin CMS-wijzigingen werken direct in alle mails. Logo absoluut via `asset()` (vereist correcte `APP_URL` op live). Harde contactregels uit `device-receipt`/`manual-invoice` (`Slimmepc@gmail.com | 0617…`) vervangen door CMS-data.
+- **Conversie:** alle 12 views herschreven als `@extends('emails.layout')` met secties (badge/kicker/title/body/card/cta_url/cta_label) — zelfde teksten/data/variabelen, géén emoji, géén "Met vriendelijke groet"-sluitregels (declutter per client). `DeviceReceiptCompletedMail` (was al custom HTML) ook overgezet.
+- **Pipeline:** 11 Mail-klassen van `markdown:` → `view:` (nodig: layout is volledige HTML; Markdown-parser zou tabellen/breken). Subjects, `with`-vars, attachments, `afterResponse` ongewijzigd.
+- **Tests:** `tests/Feature/EmailDesignTest.php` 7 tests — rendert alle 12 mailables met echte records en assert layout-markers (logo-tekst, gradients), kerninhoud én afwezigheid van markdown-resten (`<x-mail`, `**`). Full suite 83 green.
+- **Live-test:** `php artisan mail:test-all {email}` (`App\Console\Commands\SendTestMails`) — bouwt testrecords, verstuurt alle 12 mails echt via SMTP en ruimt de records daarna op. Geverifieerd 2026-09-09 naar owner-adres (12/12 verzonden).
+- **Fix na live-test:** `{{ }}` in korte `@section('x', '...{{...}}...')` compileert naar letterlijke `<?php echo e(...); ?>`-tekst in de e-mail → alle titels met variabelen omgezet naar `@section/@endsection`-blokken (5 views). Test-guard toegevoegd (`not->toContain('<?php')`, `not->toContain('{{')`).
+- **Logo-strategie:** eerst CID-embed, daarna op verzoek omgezet naar live URL (`asset()` op CMS-waarde, klikbaar naar `config('app.url')`) — altijd actueel bij CMS-wijzigingen, géén attachment. Vereist publiek bereikbare `APP_URL` op live (lokaal `http://localhost:8000` laadt Gmail niet).

@@ -43,7 +43,7 @@ class AfspraakReceived extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.afspraak-received',
+            view: 'emails.afspraak-received',
             with: [
                 'submission' => $this->submission,
             ],

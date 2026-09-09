@@ -48,7 +48,7 @@ class AdminContactNotification extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.admin-contact-notification',
+            view: 'emails.admin-contact-notification',
             with: [
                 'inboxUrl' => route('admin.contact-inbox.index', ['submission' => $this->submission->id]),
             ],

@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Models\Category;
+use App\Models\Favorite;
 use App\Services\CartService;
 use App\Services\InboundContactFetcher;
+use App\Support\Cms;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -57,6 +59,27 @@ class AppServiceProvider extends ServiceProvider
             }
             $view->with('cartCount', $count);
         });
+
+        // Share wishlist count with header (auth only, guests see 0)
+        View::composer('landing.partials.header', function ($view) {
+            try {
+                $user = request()->user();
+                $count = $user ? Favorite::where('user_id', $user->id)->count() : 0;
+            } catch (\Throwable $e) {
+                $count = 0;
+            }
+            $view->with('wishlistCount', $count);
+        });
+
+        // Share CMS company data (logo, contact, copyright) with all email views —
+        // same source as the website header/footer, so admin CMS edits update emails too
+        View::composer('emails.*', function ($view) {
+            try {
+                $brand = Cms::page('home');
+            } catch (\Throwable $e) {
+                $brand = [];
+            }
+            $view->with('mailBrand', $brand);
+        });
     }
 }
-

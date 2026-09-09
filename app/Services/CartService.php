@@ -92,7 +92,7 @@ class CartService
         ]);
     }
 
-    public function totals(Cart $cart): array
+    public function totals(Cart $cart, ?string $shippingMethod = null): array
     {
         $cart->loadMissing(['items', 'coupon']);
         $subtotal = 0;
@@ -119,12 +119,13 @@ class CartService
 
         $afterDiscount = round(max($subtotal - $discount, 0), 2);
 
-        $shipping = 0;
-        if ($afterDiscount > 0 && $afterDiscount < self::FREE_SHIPPING_THRESHOLD) {
-            $shipping = self::SHIPPING_COST;
-        }
+        $shipping = $this->shippingCost($afterDiscount, $shippingMethod);
 
-        $total = round($afterDiscount + $shipping, 2);
+        // Inclusive VAT 21%: tax = total * 21 / 121, subtotal excl = total - tax
+        $totalIncl = round($afterDiscount + $shipping, 2);
+        $taxRate = 21;
+        $tax = $totalIncl > 0 ? round($totalIncl * $taxRate / (100 + $taxRate), 2) : 0;
+        $subtotalExcl = round($totalIncl - $tax, 2);
 
         $count = $cart->items->sum('quantity');
 
@@ -133,10 +134,42 @@ class CartService
             'discount' => round($discount, 2),
             'after_discount' => $afterDiscount,
             'shipping' => $shipping,
-            'total' => $total,
+            'shipping_method' => $shippingMethod ?? 'delivery',
+            'total' => $totalIncl,
+            'tax_percentage' => $taxRate,
+            'tax' => $tax,
+            'subtotal_excl' => $subtotalExcl,
             'count' => (int) $count,
             'coupon' => $coupon,
         ];
+    }
+
+    public function shippingCost(float $afterDiscount, ?string $method = null): float
+    {
+        $method = $method ?? 'delivery';
+
+        if ($afterDiscount <= 0) {
+            return 0.0;
+        }
+
+        try {
+            $rate = \App\Models\ShippingRate::where('slug', $method)
+                ->where('is_active', true)
+                ->first()
+                ?? \App\Models\ShippingRate::where('slug', 'delivery')->where('is_active', true)->first();
+        } catch (\Throwable $e) {
+            $rate = null;
+        }
+
+        if ($rate) {
+            return $rate->costFor($afterDiscount);
+        }
+
+        // Fallback when table is missing (fresh installs before migrate)
+        if ($method === 'pickup') {
+            return 0.0;
+        }
+        return $afterDiscount < self::FREE_SHIPPING_THRESHOLD ? self::SHIPPING_COST : 0.0;
     }
 
     public function countForRequest(Request $request): int

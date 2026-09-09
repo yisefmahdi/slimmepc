@@ -75,7 +75,7 @@ class ContactReplyMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.contact-reply',
+            view: 'emails.contact-reply',
         );
     }
 }

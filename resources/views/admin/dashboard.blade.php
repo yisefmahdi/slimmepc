@@ -64,7 +64,43 @@
 
     {{-- Recent activity --}}
     <div class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-3">
-        <div class="xl:col-span-2">
+        <div class="xl:col-span-2 space-y-6">
+            <x-admin.card title="Recente bestellingen">
+                <x-slot name="action">
+                    <a href="{{ route('admin.orders.index') }}" class="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">Alles bekijken</a>
+                </x-slot>
+                <div class="overflow-x-auto -m-6">
+                    <table class="w-full min-w-[640px] text-start text-sm">
+                        <thead>
+                            <tr style="color: var(--c-muted)">
+                                <th class="px-6 py-3 text-start text-xs font-bold uppercase tracking-wider">Nummer</th>
+                                <th class="px-6 py-3 text-start text-xs font-bold uppercase tracking-wider">Klant</th>
+                                <th class="px-6 py-3 text-start text-xs font-bold uppercase tracking-wider">Totaal</th>
+                                <th class="px-6 py-3 text-start text-xs font-bold uppercase tracking-wider">Betaling</th>
+                                <th class="px-6 py-3 text-start text-xs font-bold uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse (($recentOrders ?? collect()) as $o)
+                                <tr class="border-t" style="border-color: rgba(148,163,184,0.12)">
+                                    <td class="px-6 py-3 font-semibold" style="color: var(--c-heading)"><a href="{{ route('admin.orders.show', $o) }}" class="hover:underline">{{ $o->order_number }}</a></td>
+                                    <td class="px-6 py-3">
+                                        <div class="font-semibold" style="color: var(--c-heading)">{{ $o->billingAddress?->fullName() ?? '—' }}</div>
+                                        <div class="text-xs" style="color: var(--c-muted)">{{ $o->customer_email }}</div>
+                                    </td>
+                                    <td class="px-6 py-3 font-semibold" style="color: var(--c-heading)">€{{ number_format($o->total_price, 2, ',', '.') }}</td>
+                                    <td class="px-6 py-3">
+                                        <span class="rounded-full px-2.5 py-1 text-xs font-bold {{ $o->payment_status === 'paid' ? 'bg-green-100 text-green-700' : ($o->payment_status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700') }}">{{ $o->payment_status === 'paid' ? 'Betaald' : ($o->payment_status === 'failed' ? 'Mislukt' : 'Open') }}</span>
+                                    </td>
+                                    <td class="px-6 py-3 text-xs font-semibold" style="color: var(--c-muted)">{{ ucfirst($o->order_status) }}</td>
+                                </tr>
+                            @empty
+                                <tr><td colspan="5" class="px-6 py-10 text-center font-semibold" style="color: var(--c-muted)">Nog geen bestellingen</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </x-admin.card>
             <x-admin.card title="Recente reparatie-aanmeldingen">
                 <x-slot name="action">
                     <a href="{{ route('admin.reparatie-aanmeldingen.index') }}" class="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">Alles bekijken</a>

@@ -37,7 +37,7 @@ class AdminRepairNotification extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.admin-repair-notification',
+            view: 'emails.admin-repair-notification',
             with: [
                 'inboxUrl' => route('admin.reparatie-aanmeldingen.show', $this->submission->id),
             ],

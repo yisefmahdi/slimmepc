@@ -16,7 +16,8 @@ class AdminController extends Controller
         $stats = [
             'customers' => \App\Models\User::where('role', 'user')->count(),
             'technicians' => \App\Models\User::where('role', 'technician')->count(),
-            'orders' => 0,
+            'orders' => \App\Models\Order::count(),
+            'orders_new' => \App\Models\Order::where('order_status', 'pending')->count(),
             'repairs' => \App\Models\RepairSubmission::count(),
             'repairs_new' => \App\Models\RepairSubmission::where('status', 'new')->count(),
             'contact_new' => \App\Models\ContactSubmission::where('status', 'new')->count(),
@@ -27,7 +28,13 @@ class AdminController extends Controller
             ->limit(5)
             ->get(['id', 'repair_number', 'name', 'email', 'device', 'brand', 'model', 'status', 'created_at']);
 
-        return view('admin.dashboard', compact('stats', 'recentRepairs'));
+        $recentOrders = \App\Models\Order::with(['billingAddress'])
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->limit(5)
+            ->get();
+
+        return view('admin.dashboard', compact('stats', 'recentRepairs', 'recentOrders'));
     }
 }
 

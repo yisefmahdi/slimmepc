@@ -43,7 +43,7 @@ class AdminAfspraakNotification extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.admin-afspraak-notification',
+            view: 'emails.admin-afspraak-notification',
             with: [
                 'submission' => $this->submission,
             ],

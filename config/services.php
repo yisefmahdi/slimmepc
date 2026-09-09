@@ -35,6 +35,10 @@ return [
         ],
     ],
 
+    'mollie' => [
+        'key' => env('MOLLIE_KEY'),
+    ],
+
     'openai' => [
         'api_key' => env('OPENAI_API_KEY'),
         'api_url' => env('OPENAI_API_URL', 'https://api.openai.com/v1/chat/completions'),

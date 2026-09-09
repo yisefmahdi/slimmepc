@@ -291,7 +291,7 @@
                 <i data-lucide="search" class="h-5 w-5"></i>
             </button>
 
-            <a href="/wishlist" class="
+            <a href="{{ route('wishlist.index') }}" class="
                     relative hidden h-11 w-11
                     items-center justify-center
                     rounded-xl text-white
@@ -300,7 +300,8 @@
                 " aria-label="Favorieten">
                 <i data-lucide="heart" class="h-5 w-5"></i>
 
-                <span class="
+                <span data-wishlist-count
+                    class="
                         absolute right-0 top-0
                         flex h-4 min-w-4
                         items-center justify-center
@@ -309,7 +310,7 @@
                         font-extrabold
                         text-brand-950
                     ">
-                    {{ $c['header']['wishlist_count'] ?? 0 }}
+                    {{ $wishlistCount ?? ($c['header']['wishlist_count'] ?? 0) }}
                 </span>
             </a>
 
@@ -395,6 +396,24 @@
                             ">
                             <i data-lucide="settings2" class="h-4 w-4 text-brand-primary"></i>
                             Mijn account
+                        </a>
+                        <a href="{{ route('account.orders.index') }}" class="
+                                flex items-center gap-2.5
+                                rounded-xl px-3.5 py-2.5
+                                text-sm font-semibold text-slate-700
+                                transition hover:bg-blue-50 hover:text-blue-700
+                            ">
+                            <i data-lucide="package" class="h-4 w-4 text-brand-primary"></i>
+                            Mijn bestellingen
+                        </a>
+                        <a href="{{ route('wishlist.index') }}" class="
+                                flex items-center gap-2.5
+                                rounded-xl px-3.5 py-2.5
+                                text-sm font-semibold text-slate-700
+                                transition hover:bg-blue-50 hover:text-blue-700
+                            ">
+                            <i data-lucide="heart" class="h-4 w-4 text-brand-primary"></i>
+                            Verlanglijstje
                         </a>
 
                         <div class="my-1 h-px bg-slate-200"></div>
@@ -608,7 +627,7 @@
                 </a>
             @endauth
 
-            <a href="/wishlist" class="
+            <a href="{{ route('wishlist.index') }}" class="
                     flex flex-col items-center gap-2
                     rounded-xl bg-slate-100
                     px-2 py-3 text-xs
@@ -617,6 +636,18 @@
                 <i data-lucide="heart" class="h-5 w-5"></i>
                 Favorieten
             </a>
+
+            @auth
+                <a href="{{ route('account.orders.index') }}" class="
+                        flex flex-col items-center gap-2
+                        rounded-xl bg-slate-100
+                        px-2 py-3 text-xs
+                        font-semibold text-slate-700
+                    ">
+                    <i data-lucide="package" class="h-5 w-5"></i>
+                    Bestellingen
+                </a>
+            @endauth
 
             <a href="{{ route('cart.index') }}" class="
                     flex flex-col items-center gap-2

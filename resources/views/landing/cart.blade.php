@@ -48,8 +48,10 @@
         /* Fix modals on landing (same as admin siblings — landing.css lacks --c-card so overlay/panel were transparent) */
         #modal-generic-confirm [data-modal-overlay],
         #modal-clearCartModal [data-modal-overlay],
+        #modal-guestCheckoutModal [data-modal-overlay],
         #modal-removeCartItemModal [data-modal-overlay] { background: rgba(15,23,42,0.62) !important; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
         #modal-generic-confirm .modal-panel-anim { background: #fff !important; border-color: rgba(148,163,184,.25) !important; }
+        #modal-guestCheckoutModal .modal-panel-anim, #modal-clearCartModal .modal-panel-anim, #modal-removeCartItemModal .modal-panel-anim { background: #fff !important; }
     </style>
 
     <main class="min-h-screen bg-white text-[#07173A]">
@@ -251,13 +253,13 @@
                         <span id="summaryTotal" class="text-[24px] font-bold tracking-tight text-[#07163B]">€{{ number_format($totals['subtotal'], 2, ',', '.') }}</span>
                     </div>
 
-                    <a href="#" onclick="event.preventDefault(); toast('Afrekenen volgt binnenkort.', 'success');" class="group mt-7 w-full h-[54px] rounded-[6px] bg-[#0759F5] hover:bg-[#064ED4] shadow-[0_8px_20px_rgba(7,89,245,.20)] px-5 flex items-center justify-between text-white transition">
+                    <button onclick="goToCheckout()" class="group mt-7 w-full h-[54px] rounded-[6px] bg-[#0759F5] hover:bg-[#064ED4] shadow-[0_8px_20px_rgba(7,89,245,.20)] px-5 flex items-center justify-between text-white transition">
                         <div class="flex items-center gap-4">
                             <i data-lucide="lock-keyhole" class="w-[20px] h-[20px]"></i>
                             <span class="text-[15px] font-semibold">Doorgaan naar afrekenen</span>
                         </div>
                         <i data-lucide="arrow-right" class="w-[19px] h-[19px] transition-transform group-hover:translate-x-1"></i>
-                    </a>
+                    </button>
 
                     <div class="space-y-4 mt-7">
                         <div class="flex items-center gap-3 text-[12px] text-[#354E78]"><i data-lucide="check" class="w-[16px] h-[16px] stroke-[2.5] text-[#059856]"></i> Veilig betalen</div>
@@ -357,9 +359,44 @@
     @include('landing.partials.footer')
     @include('landing.partials.floating')
 
+    {{-- Guest checkout choice — same dashboard modal style --}}
+    <div id="modal-guestCheckoutModal" class="fixed inset-0 z-[60] hidden" role="dialog" aria-modal="true" aria-labelledby="modal-guestCheckoutModal-title">
+        <div data-modal-overlay class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+        <div class="relative z-10 flex min-h-full items-center justify-center p-4">
+            <div class="w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+                <div class="flex items-center justify-between gap-4 border-b border-slate-200 px-6 py-4">
+                    <h3 id="modal-guestCheckoutModal-title" class="text-base font-bold text-slate-900">Hoe wil je afrekenen?</h3>
+                    <button type="button" data-modal-close aria-label="Sluiten" class="rounded-lg p-2 text-slate-400 hover:bg-slate-100"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-5 w-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg></button>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-start gap-4">
+                        <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-[#0759F5]"><i data-lucide="user" class="w-6 h-6"></i></span>
+                        <div>
+                            <p class="text-sm font-semibold text-slate-900">Inloggen of verder als gast?</p>
+                            <p class="mt-1 text-xs leading-5 text-slate-500">Je winkelwagen blijft bewaard — ook als je eerst inlogt.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-col items-stretch justify-end gap-3 border-t border-slate-200 px-6 py-4 sm:flex-row sm:items-center">
+                    <a href="{{ route('checkout.index') }}" class="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 px-5 text-sm font-semibold text-slate-700 hover:bg-slate-100">Verder als gast</a>
+                    <a href="{{ route('login', ['redirect' => route('checkout.index')]) }}" class="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#0759F5] px-6 text-sm font-semibold text-white hover:bg-[#064ED4]">Inloggen</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="cartToast" class="fixed bottom-5 right-5 z-[80] hidden max-w-sm rounded-xl px-4 py-3 text-sm font-semibold shadow-lg"></div>
 
     <script>
+        const IS_GUEST = {{ auth()->check() ? 'false' : 'true' }};
+        function goToCheckout() {
+            if (IS_GUEST) {
+                if (window.SlimmePC && window.SlimmePC.modal) window.SlimmePC.modal.open('guestCheckoutModal');
+                else window.location.href = '{{ route('checkout.index') }}';
+            } else {
+                window.location.href = '{{ route('checkout.index') }}';
+            }
+        }
         const CSRF = document.querySelector('meta[name="csrf-token"]')?.content || '';
 
         function moneyFormat(v) {

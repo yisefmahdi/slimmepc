@@ -440,6 +440,16 @@
                            class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.webshop.coupons.*') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
                             Kortingscodes
                         </a>
+                        <a href="{{ route('admin.orders.index') }}"
+                           class="flex items-center justify-between gap-2 rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.orders.*') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            <span>Bestellingen</span>
+                            @php $ordersNew = \App\Models\Order::where('order_status', 'pending')->count(); @endphp
+                            <span class="{{ $ordersNew > 0 ? '' : 'hidden' }} inline-flex min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm">{{ min($ordersNew, 99) }}</span>
+                        </a>
+                        <a href="{{ route('admin.shipping.index') }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.shipping.*') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Verzendopties
+                        </a>
                     </div>
                 </div>
 

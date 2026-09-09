@@ -29,7 +29,7 @@ class ManualInvoiceMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.manual-invoice',
+            view: 'emails.manual-invoice',
             with: ['invoice' => $this->invoice],
         );
     }

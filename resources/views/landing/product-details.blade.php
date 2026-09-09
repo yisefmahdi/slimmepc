@@ -259,8 +259,8 @@
                             <button type="button" onclick="openReviewModal()" class="text-xs font-semibold text-slimme-600 hover:underline">Schrijf een review</button>
                         </div>
                     </div>
-                    <button type="button" onclick="toggleFavorite(this)" class="heart-btn shrink-0 w-12 h-12 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-xl hover:scale-110 hover:border-slimme-300 hover:text-slimme-600">
-                        <i class="fa-regular fa-heart"></i>
+                    <button type="button" onclick="toggleWishlistPD({{ $product->id }}, this)" class="heart-btn {{ ($isFavorite ?? false) ? 'active' : '' }} shrink-0 w-12 h-12 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-xl hover:scale-110 hover:border-slimme-300 hover:text-slimme-600">
+                        <i class="{{ ($isFavorite ?? false) ? 'fa-solid' : 'fa-regular' }} fa-heart"></i>
                     </button>
                 </div>
                 @if(!empty($shortSpecs))<p class="mt-6 text-[14px] text-slate-600 font-medium">{{ $shortSpecs }}</p>@endif
@@ -473,7 +473,8 @@
                         $relBadgeClass = $rel->is_featured ? 'bg-emerald-500' : ($relHasDiscount ? 'bg-red-500' : 'bg-blue-500');
                     @endphp
                     <article class="shop-card group relative bg-white border border-slate-200 rounded-[17px] overflow-hidden">
-                        <button type="button" class="absolute z-20 top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-white/90 text-slate-400 hover:text-rose-500 shadow-sm transition"><i class="fa-regular fa-heart"></i></button>
+                        @php $relFav = in_array($rel->id, $favoriteIds ?? [], true); @endphp
+                        <button type="button" onclick="toggleWishlistPD({{ $rel->id }}, this)" class="heart-btn {{ $relFav ? 'active' : '' }} absolute z-20 top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-white/90 text-slate-400 hover:text-rose-500 shadow-sm transition"><i class="{{ $relFav ? 'fa-solid' : 'fa-regular' }} fa-heart"></i></button>
                         <div class="absolute top-3 left-3 z-20 text-[9px] font-bold text-white {{ $relBadgeClass }} px-2.5 py-1 rounded-full">{{ $relBadge }}</div>
                         <a href="{{ route('webshop.product', [$rel->category->slug, $rel->slug]) }}" class="h-[175px] m-3 rounded-[13px] bg-gradient-to-br from-[#f5f7fb] to-[#eef2f8] flex items-center justify-center overflow-hidden block">
                             <img src="{{ $relImgSrc }}" class="w-[82%] h-[82%] object-contain transition duration-300 group-hover:scale-[1.06]" alt="{{ $rel->title }}" onerror="this.src='{{ $placeholderSrc }}'">
@@ -584,7 +585,7 @@
                     <i class="fa-solid fa-cart-shopping"></i> Niet beschikbaar
                 </button>
             @endif
-            <button type="button" onclick="toggleFavorite(this)" class="heart-btn w-11 h-11 shrink-0 border border-slate-200 rounded-lg bg-white hover:text-slimme-600 transition"><i class="fa-regular fa-heart"></i></button>
+            <button type="button" onclick="toggleWishlistPD({{ $product->id }}, this)" class="heart-btn {{ ($isFavorite ?? false) ? 'active' : '' }} w-11 h-11 shrink-0 border border-slate-200 rounded-lg bg-white hover:text-slimme-600 transition"><i class="{{ ($isFavorite ?? false) ? 'fa-solid' : 'fa-regular' }} fa-heart"></i></button>
         </div>
     </div>
 
@@ -643,7 +644,52 @@
         })();
         let qty = 1;
         function changeQuantity(amount) { qty += amount; if(qty < 1) qty = 1; const el=document.getElementById("quantity"); if(el) el.innerText = qty; }
-        function toggleFavorite(button) { button.classList.toggle("active"); const icon = button.querySelector("i"); if(!icon) return; if(button.classList.contains("active")) { icon.classList.remove("fa-regular"); icon.classList.add("fa-solid"); } else { icon.classList.remove("fa-solid"); icon.classList.add("fa-regular"); } }
+        const IS_GUEST_PD = {{ auth()->check() ? 'false' : 'true' }};
+        const PD_CSRF = document.querySelector('meta[name="csrf-token"]')?.content || '';
+
+        function setPdHeartVisual(button, active) {
+            button.classList.toggle("active", active);
+            const icon = button.querySelector("i");
+            if (!icon) return;
+            icon.classList.toggle("fa-solid", active);
+            icon.classList.toggle("fa-regular", !active);
+        }
+
+        async function toggleWishlistPD(productId, button) {
+            if (IS_GUEST_PD) {
+                window.location.href = '{{ route('wishlist.index') }}';
+                return;
+            }
+            const wasActive = button.classList.contains("active");
+            setPdHeartVisual(button, !wasActive);
+            try {
+                const res = await fetch('{{ route('wishlist.toggle') }}', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'X-CSRF-TOKEN': PD_CSRF, 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    body: JSON.stringify({ product_id: productId })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.message || 'Fout');
+                const added = data.status === 'added';
+                document.querySelectorAll('.heart-btn').forEach(btn => {
+                    const card = btn.closest('[data-product-id]');
+                    const onclick = btn.getAttribute('onclick') || '';
+                    if ((card && parseInt(card.dataset.productId, 10) === productId) || onclick.includes(`toggleWishlistPD(${productId},`)) {
+                        setPdHeartVisual(btn, added);
+                    }
+                });
+                document.querySelectorAll('[data-wishlist-count]').forEach(el => el.textContent = data.count ?? 0);
+            } catch (e) {
+                setPdHeartVisual(button, wasActive);
+            }
+        }
+
+        function toggleFavorite(button) {
+            const onclick = button.getAttribute('onclick') || '';
+            const m = onclick.match(/toggleWishlistPD\((\d+),/);
+            if (m) toggleWishlistPD(parseInt(m[1], 10), button);
+        }
         function openTab(tabId,button) { document.querySelectorAll(".tab-content").forEach(tab => tab.classList.add("hidden")); document.querySelectorAll(".tab-btn").forEach(tab => { tab.classList.remove("active"); tab.classList.add("text-slate-500"); }); const target=document.getElementById(tabId); if(target) target.classList.remove("hidden"); button.classList.add("active"); button.classList.remove("text-slate-500"); }
         const observer = new IntersectionObserver(entries => { entries.forEach(entry => { if(entry.isIntersecting){ entry.target.classList.add("visible"); observer.unobserve(entry.target); } }); }, { threshold: .1 });
         document.querySelectorAll(".reveal").forEach(element => { observer.observe(element); });

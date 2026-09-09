@@ -37,7 +37,7 @@ class RepairReceived extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.repair-received',
+            view: 'emails.repair-received',
         );
     }
 

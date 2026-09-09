@@ -232,5 +232,26 @@ Route::prefix('admin')
                     Route::post('/{coupon}/toggle', [App\Http\Controllers\Admin\Shop\CouponController::class, 'toggleStatus'])->name('toggle');
                 });
             });
+
+        // 🧾 Orders (webshop bestellingen)
+        Route::prefix('orders')->name('orders.')->group(function () {
+            Route::get('/', [App\Http\Controllers\Admin\OrderController::class, 'index'])->name('index');
+            Route::get('/data', [App\Http\Controllers\Admin\OrderController::class, 'data'])->name('data');
+            Route::get('/new-count', [App\Http\Controllers\Admin\OrderController::class, 'newCount'])->name('new-count');
+            Route::get('/{order}', [App\Http\Controllers\Admin\OrderController::class, 'show'])->name('show');
+            Route::post('/{order}/status', [App\Http\Controllers\Admin\OrderController::class, 'status'])->name('status');
+            Route::get('/{order}/invoice', [App\Http\Controllers\Admin\OrderController::class, 'invoiceDownload'])->name('invoice');
+            Route::delete('/{order}', [App\Http\Controllers\Admin\OrderController::class, 'destroy'])->name('destroy');
+        });
+
+        // 🚚 Shipping rates (verzendopties)
+        Route::prefix('shipping')->name('shipping.')->group(function () {
+            Route::get('/', [App\Http\Controllers\Admin\ShippingRateController::class, 'index'])->name('index');
+            Route::get('/data', [App\Http\Controllers\Admin\ShippingRateController::class, 'data'])->name('data');
+            Route::post('/', [App\Http\Controllers\Admin\ShippingRateController::class, 'store'])->name('store');
+            Route::put('/{shipping}', [App\Http\Controllers\Admin\ShippingRateController::class, 'update'])->name('update');
+            Route::delete('/{shipping}', [App\Http\Controllers\Admin\ShippingRateController::class, 'destroy'])->name('destroy');
+            Route::post('/{shipping}/toggle', [App\Http\Controllers\Admin\ShippingRateController::class, 'toggle'])->name('toggle');
+        });
     });
 
