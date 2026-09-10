@@ -502,7 +502,7 @@
                 font-extrabold text-brand-950
             ">
             <i data-lucide="calendar-check" class="h-5 w-5"></i>
-            Afspraak maken
+            Afspraak aan huis & bedrijf
         </a>
 
         <nav class="space-y-1">
