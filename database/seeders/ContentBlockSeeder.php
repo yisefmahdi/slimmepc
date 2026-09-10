@@ -52,7 +52,7 @@ class ContentBlockSeeder extends Seeder
                 'description' => 'Van diagnose tot reparatie, testen en levering. Eerlijk, professioneel en persoonlijk vanuit onze werkplaats in Apeldoorn.',
                 'buttons' => [
                     ['label' => 'Reparatie aanmelden', 'url' => '/reparatie-aanmelden', 'icon' => 'wrench', 'variant' => 'primary'],
-                    ['label' => 'Afspraak maken', 'url' => '/afspraak', 'icon' => 'calendar-check', 'variant' => 'outline'],
+                    ['label' => 'Afspraak aan huis & bedrijf', 'url' => '/afspraak', 'icon' => 'calendar-check', 'variant' => 'outline'],
                 ],
                 'trust' => [
                     ['icon' => 'shield-check', 'title' => 'Eerlijke prijs', 'subtitle' => 'Geen verrassingen'],

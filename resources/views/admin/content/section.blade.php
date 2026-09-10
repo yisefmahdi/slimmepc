@@ -22,6 +22,11 @@
                     'desc' => 'Beheer de servicekaarten van de homepage. Voeg nieuwe diensten toe, verwijder ze of verberg een dienst tijdelijk van de homepage via de schakelaar (zonder hem te verwijderen).',
                     'location' => 'Derde sectie op de homepage'
                 ],
+                'shop' => [
+                    'title' => 'Webshop (Populaire producten) bewerken',
+                    'desc' => 'Beheer de teksten, voordelen, knop en trustbalk van de webshop-sectie. De productkaarten komen automatisch uit de webshop (uitgelichte producten).',
+                    'location' => 'Webshop-sectie op de homepage'
+                ],
                 'footer' => [
                     'title' => 'Footer bewerken',
                     'desc' => 'Beheer de bedrijfstekst, socialmedia-links, kolomlinks, contactgegevens, trustbadges, copyright en betaalmethoden onderaan elke pagina.',

@@ -17,7 +17,14 @@ class EnsureUserIsAdmin
             abort(403, 'Geen toegang.');
         }
 
-        return $next($request);
+        $response = $next($request);
+
+        // Adminpagina's nooit uit de browser-cache tonen (voorkomt verouderde
+        // knoppen/pagina's via terug-knop of bfcache na een update).
+        $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate');
+        $response->headers->set('Pragma', 'no-cache');
+
+        return $response;
     }
 }
 

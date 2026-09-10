@@ -240,7 +240,7 @@ Route::prefix('admin')
             Route::get('/new-count', [App\Http\Controllers\Admin\OrderController::class, 'newCount'])->name('new-count');
             Route::get('/{order}', [App\Http\Controllers\Admin\OrderController::class, 'show'])->name('show');
             Route::post('/{order}/status', [App\Http\Controllers\Admin\OrderController::class, 'status'])->name('status');
-            Route::get('/{order}/invoice', [App\Http\Controllers\Admin\OrderController::class, 'invoiceDownload'])->name('invoice');
+            Route::get('/{order}/invoice', [App\Http\Controllers\Admin\OrderController::class, 'invoiceRegenerate'])->name('invoice');
             Route::delete('/{order}', [App\Http\Controllers\Admin\OrderController::class, 'destroy'])->name('destroy');
         });
 

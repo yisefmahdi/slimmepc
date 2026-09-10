@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Product;
 use App\Support\Cms;
 use Illuminate\Support\Facades\Auth;
@@ -98,6 +99,24 @@ class PageController extends Controller
                 ];
             }
             $c['shop']['products'] = $mappedProducts;
+        }
+
+        /*
+         * CTA ("Bekijk All!") must point to a real webshop page. There is no
+         * general /webshop route (only /webshop/{slug}), so an empty or
+         * legacy '/webshop' URL falls back to the first active category.
+         */
+        $ctaUrl = trim((string) ($c['shop']['cta_url'] ?? ''));
+
+        if ($ctaUrl === '' || $ctaUrl === '/webshop') {
+            $firstCategory = Category::where('status', true)
+                ->orderBy('sort_order')
+                ->orderBy('id')
+                ->first();
+
+            if ($firstCategory) {
+                $c['shop']['cta_url'] = route('webshop.category', $firstCategory->slug);
+            }
         }
 
         $html = view('landing.home', compact('c', 'design'))->render();

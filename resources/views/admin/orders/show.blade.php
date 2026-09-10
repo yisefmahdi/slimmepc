@@ -98,10 +98,13 @@
                     <h3 class="text-sm font-extrabold" style="color: var(--c-heading)">Factuur</h3>
                     @if($order->invoice)
                         <p class="mt-2 text-sm" style="color: var(--c-body)">{{ $order->invoice->invoice_number }} · €{{ number_format($order->invoice->total, 2, ',', '.') }}</p>
-                        <a href="{{ route('admin.orders.invoice', $order) }}" class="mt-3 inline-flex h-10 items-center gap-2 rounded-xl bg-blue-600 px-5 text-sm font-bold text-white shadow-[0_10px_25px_rgba(37,99,235,.25)] transition hover:-translate-y-0.5 hover:bg-blue-700">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-                            PDF downloaden
-                        </a>
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            <button type="button" data-invoice-download="{{ route('admin.orders.invoice', $order) }}" data-filename="{{ $order->invoice->invoice_number }}.pdf" class="inline-flex h-10 items-center gap-2 rounded-xl bg-blue-600 px-5 text-sm font-bold text-white shadow-[0_10px_25px_rgba(37,99,235,.25)] transition hover:-translate-y-0.5 hover:bg-blue-700 disabled:opacity-60">
+                                <svg class="dl-spinner hidden h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                                <svg class="dl-icon h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                                <span class="dl-label">PDF downloaden</span>
+                            </button>
+                        </div>
                     @else
                         <p class="mt-2 text-sm" style="color: var(--c-muted)">Nog geen factuur (wordt aangemaakt na betaling).</p>
                     @endif
@@ -125,6 +128,48 @@
                 const d = await res.json().catch(() => ({}));
                 msg.textContent = res.ok ? ('✓ ' + (d.message || 'Bijgewerkt.')) : ('✗ ' + (d.message || 'Mislukt.'));
                 msg.className = 'mt-2 text-xs font-bold ' + (res.ok ? 'text-emerald-600' : 'text-red-600');
+            });
+
+            /* Factuur downloaden met loading-state (zoals hardware-facturen).
+               De ?t= cache-buster zorgt dat de browser nooit een eerder
+               gecachte (oude) PDF-response voor deze URL kan tonen. */
+            document.querySelectorAll('[data-invoice-download]').forEach((btn) => {
+                btn.addEventListener('click', async () => {
+                    const spinner = btn.querySelector('.dl-spinner');
+                    const icon = btn.querySelector('.dl-icon');
+                    const label = btn.querySelector('.dl-label');
+                    const origLabel = label ? label.textContent : '';
+                    btn.disabled = true;
+                    if (spinner) spinner.classList.remove('hidden');
+                    if (icon) icon.classList.add('hidden');
+                    if (label) label.textContent = 'Bezig...';
+                    try {
+                        const requestUrl = btn.dataset.invoiceDownload + (btn.dataset.invoiceDownload.includes('?') ? '&' : '?') + 't=' + Date.now();
+                        const res = await fetch(requestUrl, { credentials: 'same-origin', cache: 'no-store' });
+                        if (!res.ok) throw new Error('Download mislukt.');
+                        const blob = await res.blob();
+                        let filename = btn.dataset.filename || 'factuur.pdf';
+                        const disp = res.headers.get('Content-Disposition') || '';
+                        const m = disp.match(/filename="?([^";]+)"?/);
+                        if (m) filename = m[1];
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        setTimeout(() => URL.revokeObjectURL(url), 5000);
+                    } catch (e) {
+                        if (label) label.textContent = '✗ ' + (e.message || 'Mislukt.');
+                        await new Promise((r) => setTimeout(r, 2000));
+                    } finally {
+                        btn.disabled = false;
+                        if (spinner) spinner.classList.add('hidden');
+                        if (icon) icon.classList.remove('hidden');
+                        if (label) label.textContent = origLabel;
+                    }
+                });
             });
         })();
     </script>

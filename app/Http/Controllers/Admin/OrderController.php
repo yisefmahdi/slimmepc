@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Mail\OrderStatusMail;
 use App\Models\Order;
+use App\Models\OrderInvoice;
+use App\Services\OrderPaymentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -106,15 +108,42 @@ class OrderController extends Controller
         return response()->json(['message' => 'Bestelling verwijderd.']);
     }
 
-    public function invoiceDownload(Order $order): BinaryFileResponse
+    /**
+     * Download the invoice PDF, always (re)generated from the current template
+     * so the file always matches the latest design. Use this when the stored
+     * file is outdated (e.g. after a design change or when the browser keeps
+     * showing a cached copy).
+     */
+    public function invoiceRegenerate(Order $order, OrderPaymentService $payments): BinaryFileResponse
     {
         $invoice = $order->invoice;
-        abort_if(! $invoice || ! $invoice->pdf_path || ! Storage::disk('local')->exists($invoice->pdf_path), 404);
+        abort_if(! $invoice, 404);
+
+        if ($invoice->pdf_path && Storage::disk('local')->exists($invoice->pdf_path)) {
+            Storage::disk('local')->delete($invoice->pdf_path);
+        }
+
+        $invoice = $payments->ensurePdf($invoice);
+
+        return $this->downloadInvoicePdf($invoice);
+    }
+
+    private function downloadInvoicePdf(OrderInvoice $invoice): BinaryFileResponse
+    {
+        // Unieke bestandsnaam per download (met datum/tijd), zodat een nieuw
+        // gedownload exemplaar nooit verward kan worden met een eerder
+        // gedownload (oud) bestand met dezelfde naam in de Downloads-map.
+        $filename = $invoice->invoice_number.'-'.now()->format('Ymd-His').'.pdf';
 
         return response()->download(
             Storage::disk('local')->path($invoice->pdf_path),
-            $invoice->invoice_number.'.pdf',
-            ['Content-Type' => 'application/pdf']
+            $filename,
+            [
+                'Content-Type' => 'application/pdf',
+                // Nooit een verouderde PDF uit de browser-cache tonen na regeneratie
+                'Cache-Control' => 'no-store, no-cache, must-revalidate',
+                'Pragma' => 'no-cache',
+            ]
         );
     }
 

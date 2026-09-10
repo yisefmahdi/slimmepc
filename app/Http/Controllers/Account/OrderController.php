@@ -85,7 +85,12 @@ class OrderController extends Controller
 
         return response()->download(
             Storage::disk('local')->path($invoice->pdf_path),
-            $invoice->invoice_number.'.pdf'
+            $invoice->invoice_number.'.pdf',
+            [
+                // Nooit een verouderde PDF uit de browser-cache tonen na regeneratie
+                'Cache-Control' => 'no-store, no-cache, must-revalidate',
+                'Pragma' => 'no-cache',
+            ]
         );
     }
 }

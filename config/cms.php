@@ -1611,6 +1611,39 @@ return [
                     ],
                 ],
 
+                'shop' => [
+                    'label' => 'Webshop (Populaire producten)',
+                    'blocks' => [
+                        'badge' => ['label' => 'Badge (boven de titel)', 'type' => 'text'],
+                        'title_prefix' => ['label' => 'Titel (voor highlight)', 'type' => 'text'],
+                        'title_highlight' => ['label' => 'Titel (gradient deel)', 'type' => 'text'],
+                        'description' => ['label' => 'Beschrijving', 'type' => 'textarea'],
+                        'benefits' => [
+                            'label' => 'Voordelen (links, onder de beschrijving)',
+                            'type' => 'json',
+                            'columns' => 2,
+                            'fields' => [
+                                ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                                ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                                ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                            ],
+                        ],
+                        'cta_label' => ['label' => 'Knoptekst (bijv. Bekijk All!)', 'type' => 'text'],
+                        'note_title' => ['label' => 'Notitie regel 1 (naast de knop)', 'type' => 'text'],
+                        'note_subtitle' => ['label' => 'Notitie regel 2 (naast de knop)', 'type' => 'text'],
+                        'trust' => [
+                            'label' => 'Trustbalk (onderaan de sectie)',
+                            'type' => 'json',
+                            'columns' => 2,
+                            'fields' => [
+                                ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                                ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                                ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                            ],
+                        ],
+                    ],
+                ],
+
                 'footer' => [
                     'label' => 'Footer (onderkant van de website)',
                     'blocks' => [
