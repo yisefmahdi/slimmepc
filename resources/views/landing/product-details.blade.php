@@ -105,6 +105,11 @@
         .product-stage::before { content: ""; position: absolute; width: 62%; height: 62%; left: 19%; top: 19%; border-radius: 50%; background: radial-gradient(circle, rgba(67, 133, 255, .17), rgba(67, 133, 255, .07) 40%, transparent 70%); filter: blur(8px); z-index: -1; animation: breathe 4s ease-in-out infinite; }
         .product-stage::after { content: ""; position: absolute; left: 22%; right: 22%; bottom: 10%; height: 24px; border-radius: 50%; background: rgba(18, 50, 110, .15); filter: blur(18px); z-index: -1; }
         @keyframes breathe { 0%, 100% { transform: scale(.95); opacity: .75; } 50% { transform: scale(1.07); opacity: 1; } }
+        /* Vergrootglas-lens */
+        #zoomLens { display: none; position: absolute; z-index: 30; border-radius: 9999px; border: 3px solid #fff; background-repeat: no-repeat; background-color: #fff; box-shadow: 0 14px 40px rgba(15, 23, 42, .35), inset 0 0 0 1px rgba(15, 23, 42, .08); pointer-events: none; }
+        .product-stage.lens-on:hover #mainProductImage { transform: none; }
+        .product-stage.lens-on #mainProductImage { cursor: none; }
+        #lensToggleBtn.lens-btn-active { background: #0757ef; border-color: #0757ef; color: #fff; }
         #mainProductImage { transition: transform .45s cubic-bezier(.2,.8,.2,1), opacity .25s ease, filter .35s ease; filter: drop-shadow(0 25px 25px rgba(21, 40, 85, .14)); }
         .product-stage:hover #mainProductImage { transform: translateY(-6px) scale(1.025); filter: drop-shadow(0 32px 30px rgba(21,40,85,.20)); }
         .thumbnail { transition: all .25s ease; }
@@ -198,13 +203,14 @@
                         <i class="fa-solid fa-shield-halved mr-2"></i> Slimme-PC keuze
                     </div>
                     @endif
-                    <button type="button" class="absolute top-5 right-5 z-20 w-11 h-11 bg-white/90 backdrop-blur border border-slate-200 rounded-full shadow-md hover:scale-110 hover:text-slimme-600 hover:border-slimme-300 transition">
+                    <button type="button" id="lensToggleBtn" onclick="toggleImageLens()" aria-label="Vergrootglas aan/uit" title="Inzoomen" class="absolute top-5 right-5 z-20 w-11 h-11 bg-white/90 backdrop-blur border border-slate-200 rounded-full shadow-md hover:scale-110 hover:text-slimme-600 hover:border-slimme-300 transition cursor-zoom-in">
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </button>
                     <button type="button" onclick="previousImage()" class="absolute left-4 z-20 w-11 h-11 rounded-full bg-white/90 backdrop-blur border border-slate-200 shadow-md text-slimme-600 hover:bg-slimme-600 hover:text-white hover:scale-110 transition">
                         <i class="fa-solid fa-chevron-left"></i>
                     </button>
                     <img id="mainProductImage" src="{{ $resolveImg($gallery[0]) }}" class="w-[78%] max-w-[620px] h-[390px] object-contain" alt="{{ $product->title }}" onerror="this.src='{{ $placeholderSrc }}'">
+                    <div id="zoomLens" aria-hidden="true"></div>
                     <button type="button" onclick="nextImage()" class="absolute right-4 z-20 w-11 h-11 rounded-full bg-white/90 backdrop-blur border border-slate-200 shadow-md text-slimme-600 hover:bg-slimme-600 hover:text-white hover:scale-110 transition">
                         <i class="fa-solid fa-chevron-right"></i>
                     </button>
@@ -611,6 +617,61 @@
         function nextImage() { imageIndex++; if(imageIndex >= images.length) imageIndex = 0; updateImage(); }
         function previousImage() { imageIndex--; if(imageIndex < 0) imageIndex = images.length - 1; updateImage(); }
         function selectImage(index){ imageIndex = index; updateImage(); }
+        // Vergrootglas-lens op de hoofdafbeelding (knop rechtsboven)
+        let lensOn = false;
+        const LENS_SIZE = 180, LENS_ZOOM = 2.5;
+        function toggleImageLens(force) {
+            if (typeof force === 'boolean') lensOn = force;
+            else lensOn = !lensOn;
+            // Alleen met muis/trackpad (hover); op touch heeft een lens geen zin
+            if (lensOn && window.matchMedia && !window.matchMedia('(hover: hover) and (pointer: fine)').matches) lensOn = false;
+            const stage = document.querySelector('.product-stage');
+            const lens = document.getElementById('zoomLens');
+            const btn = document.getElementById('lensToggleBtn');
+            if (stage) stage.classList.toggle('lens-on', lensOn);
+            if (btn) btn.classList.toggle('lens-btn-active', lensOn);
+            if (!lensOn && lens) lens.style.display = 'none';
+        }
+        function moveLens(e) {
+            if (!lensOn) return;
+            const img = document.getElementById('mainProductImage');
+            const lens = document.getElementById('zoomLens');
+            const stage = document.querySelector('.product-stage');
+            if (!img || !lens || !stage) return;
+            const nw = img.naturalWidth, nh = img.naturalHeight;
+            if (!nw || !nh) return;
+            const rect = img.getBoundingClientRect();
+            const stageRect = stage.getBoundingClientRect();
+            // object-contain: bereken het werkelijk getoonde vlak binnen het img-element
+            const scale = Math.min(rect.width / nw, rect.height / nh);
+            const dw = nw * scale, dh = nh * scale;
+            const ox = (rect.width - dw) / 2, oy = (rect.height - dh) / 2;
+            let x = Math.max(ox, Math.min(ox + dw, e.clientX - rect.left));
+            let y = Math.max(oy, Math.min(oy + dh, e.clientY - rect.top));
+            const r = LENS_SIZE / 2;
+            lens.style.width = LENS_SIZE + 'px';
+            lens.style.height = LENS_SIZE + 'px';
+            lens.style.left = (rect.left - stageRect.left + x - r) + 'px';
+            lens.style.top = (rect.top - stageRect.top + y - r) + 'px';
+            lens.style.display = 'block';
+            const ix = (x - ox) / dw * nw, iy = (y - oy) / dh * nh;
+            lens.style.backgroundImage = 'url("' + (img.currentSrc || img.src) + '")';
+            lens.style.backgroundSize = (nw * LENS_ZOOM) + 'px ' + (nh * LENS_ZOOM) + 'px';
+            lens.style.backgroundPosition = '-' + (ix * LENS_ZOOM - r) + 'px -' + (iy * LENS_ZOOM - r) + 'px';
+        }
+        function hideLens() {
+            const lens = document.getElementById('zoomLens');
+            if (lens) lens.style.display = 'none';
+        }
+        (function initLens() {
+            const stage = document.querySelector('.product-stage');
+            if (!stage) return;
+            stage.addEventListener('mousemove', moveLens);
+            stage.addEventListener('mouseleave', hideLens);
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && lensOn) toggleImageLens(false);
+            });
+        })();
         // Carousel nav
         document.getElementById('thumbPrev')?.addEventListener('click', () => {
             const track = document.getElementById('thumbTrack');
