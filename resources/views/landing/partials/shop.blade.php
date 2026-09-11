@@ -149,6 +149,9 @@
 
                                         <div class="product-price">
                                             {{ $product['price'] ?? '' }}
+                                            @if (!empty($product['old_price']))
+                                                <span class="product-old-price">{{ $product['old_price'] }}</span>
+                                            @endif
                                         </div>
 
                                         <div class="product-footer">

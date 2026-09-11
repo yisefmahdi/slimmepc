@@ -67,8 +67,9 @@ class PageController extends Controller
 
                 $badge = '';
                 $badgeColor = 'blue';
-                if ($fp->discount_value && $fp->discounted_price < $fp->price) {
-                    $badge = $fp->discount_type === 'percentage' ? "-{$fp->discount_value}%" : 'Korting';
+                $hasDiscount = $fp->discount_value && $fp->discounted_price < $fp->price;
+                if ($hasDiscount) {
+                    $badge = $fp->discount_type === 'percentage' ? '-'.rtrim(rtrim((string) $fp->discount_value, '0'), '.').'%' : 'Korting';
                     $badgeColor = 'amber';
                 } elseif ($fp->is_featured) {
                     $badge = 'Populair';
@@ -89,7 +90,8 @@ class PageController extends Controller
                     'id' => $fp->id,
                     'title' => $fp->title,
                     'specs' => $specs,
-                    'price' => '€' . number_format($fp->price, 2),
+                    'price' => '€' . number_format($hasDiscount ? $fp->discounted_price : $fp->price, 2),
+                    'old_price' => $hasDiscount ? '€' . number_format($fp->price, 2) : null,
                     'in_stock' => $fp->stock_status === 'in_stock',
                     'image' => $imageUrl,
                     'is_db_image' => true,
