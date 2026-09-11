@@ -108,7 +108,6 @@
         /* Vergrootglas-lens */
         #zoomLens { display: none; position: absolute; z-index: 30; border-radius: 9999px; border: 3px solid #fff; background-repeat: no-repeat; background-color: #fff; box-shadow: 0 14px 40px rgba(15, 23, 42, .35), inset 0 0 0 1px rgba(15, 23, 42, .08); pointer-events: none; }
         .product-stage.lens-on:hover #mainProductImage { transform: none; }
-        .product-stage.lens-on #mainProductImage { cursor: none; }
         #lensToggleBtn.lens-btn-active { background: #0757ef; border-color: #0757ef; color: #fff; }
         #mainProductImage { transition: transform .45s cubic-bezier(.2,.8,.2,1), opacity .25s ease, filter .35s ease; filter: drop-shadow(0 25px 25px rgba(21, 40, 85, .14)); }
         .product-stage:hover #mainProductImage { transform: translateY(-6px) scale(1.025); filter: drop-shadow(0 32px 30px rgba(21,40,85,.20)); }
