@@ -301,6 +301,10 @@ class WebshopController extends Controller
 
         $isFavorite = in_array($product->id, $favoriteIds, true);
 
-        return view('landing.product-details', compact('c', 'design', 'category', 'product', 'allCategories', 'relatedProducts', 'favoriteIds', 'isFavorite'));
+        // Nooit uit de browser-cache: prijzen/voorraad en pagina-JS moeten altijd vers zijn
+        return response()
+            ->view('landing.product-details', compact('c', 'design', 'category', 'product', 'allCategories', 'relatedProducts', 'favoriteIds', 'isFavorite'))
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate')
+            ->header('Pragma', 'no-cache');
     }
 }
