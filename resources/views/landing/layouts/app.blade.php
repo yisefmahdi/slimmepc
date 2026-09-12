@@ -54,6 +54,7 @@
     <script src="{{ asset('assets/js/design.js') }}?v={{ filemtime(public_path('assets/js/design.js')) }}"></script>
     <script src="{{ asset('assets/js/vendor/lucide.min.js') }}"></script>
     <script src="{{ asset('assets/js/landing.js') }}?v={{ filemtime(public_path('assets/js/landing.js')) }}"></script>
+    <script src="{{ asset('assets/js/ai-chat.js') }}?v={{ filemtime(public_path('assets/js/ai-chat.js')) }}"></script>
     <script src="{{ asset('assets/js/cart.js') }}?v={{ filemtime(public_path('assets/js/cart.js')) }}"></script>
 </body>
 

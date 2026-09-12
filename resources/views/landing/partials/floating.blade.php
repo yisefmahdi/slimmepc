@@ -2,7 +2,7 @@
 <div class="fixed bottom-6 right-6 z-[999] flex flex-col items-end gap-3">
 
     <!-- AI Chatbot -->
-    <a href="{{ $c['floating']['chat_url'] ?? '#' }}" class="
+    <button type="button" id="openAiChat" aria-label="AI Chat" aria-expanded="false" class="
             group relative flex h-[60px] w-[60px]
             items-center justify-center
             rounded-full
@@ -12,7 +12,7 @@
             transition-all duration-300
             hover:-translate-y-1
             hover:scale-105
-        " aria-label="AI Chat">
+        ">
         <!-- Tooltip -->
         <span class="
                 pointer-events-none absolute right-[74px]
@@ -48,7 +48,7 @@
                 border-[3px] border-white
                 bg-brand-accent
             "></span>
-    </a>
+    </button>
 
     <!-- WhatsApp -->
     <a href="{{ $c['floating']['whatsapp_url'] ?? '#' }}" class="

@@ -56,10 +56,12 @@
             const d = row.received_at || row.created_at ? new Date((row.received_at || row.created_at).replace(' ', 'T')) : null;
             const dateStr = d ? String(d.getDate()).padStart(2,'0')+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+d.getFullYear()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0') : '—';
             const tNum = escapeHtml(row.receipt_number || ('DR-' + String(row.id).padStart(5,'0')));
+            const photoCount = parseInt(row.photos_count || 0, 10);
+            const photoBadge = photoCount > 0 ? `<span class="ml-1.5 inline-flex items-center gap-1 rounded-full bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-3 w-3"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Z" /></svg>${photoCount}</span>` : '';
             return `<tr class="border-b transition hover:bg-blue-50/40 dark:hover:bg-slate-800/40" style="border-color: rgba(148,163,184,.12)">
                 <td class="px-3 py-3 text-sm font-semibold whitespace-nowrap" style="color:var(--c-heading)">${escapeHtml(row.customer_name)}</td>
                 <td class="px-3 py-3 text-xs truncate max-w-[170px]" style="color:var(--c-heading)">${escapeHtml(row.customer_email)}</td>
-                <td class="px-3 py-3 text-xs font-bold whitespace-nowrap" style="color:var(--c-heading)">${tNum}</td>
+                <td class="px-3 py-3 text-xs font-bold whitespace-nowrap" style="color:var(--c-heading)">${tNum}${photoBadge}</td>
                 <td class="px-3 py-3 text-xs whitespace-nowrap" style="color:var(--c-muted)">${escapeHtml(row.device_type || '—')}</td>
                 <td class="px-3 py-3 text-xs whitespace-nowrap" style="color:var(--c-muted)">${escapeHtml(row.serial_number || '—')}</td>
                 <td class="px-3 py-3 text-xs whitespace-nowrap" style="color:var(--c-muted)">${escapeHtml(dateStr)}</td>
@@ -103,12 +105,57 @@
                         document.getElementById('prevNotes').textContent = r.notes || '—';
                         document.getElementById('prevStatus').value = r.status;
                         currentId = r.id;
+                        renderPreviewPhotos(data.photos || [], r.id);
                         openModal('ontvangstPreviewModal');
                     })
                     .finally(() => {
                         btn.disabled = false;
                         btn.innerHTML = origHtml;
                     });
+            });
+        });
+    }
+
+    function renderPreviewPhotos(photos, receiptId) {
+        const grid = document.getElementById('prevPhotosGrid');
+        const emptyEl = document.getElementById('prevPhotosEmpty');
+        const countEl = document.getElementById('prevPhotosCount');
+        if (!grid) return;
+        const list = Array.isArray(photos) ? photos : [];
+        if (countEl) countEl.textContent = list.length;
+        if (emptyEl) emptyEl.style.display = list.length ? 'none' : '';
+        grid.innerHTML = list.map((p, idx) => {
+            const url = typeof p === 'string' ? p : p.url;
+            const pid = typeof p === 'object' ? p.photo_id : null;
+            const delBtn = pid ? `<button type="button" data-photo-del="${pid}" aria-label="Foto verwijderen" class="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-lg bg-black/60 text-white opacity-0 transition group-hover:opacity-100 hover:bg-red-600"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-3.5 w-3.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg></button>` : '';
+            return `<button type="button" data-photo-tile data-photo-view="${escapeHtml(url)}" class="group relative block h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-sm transition hover:shadow-md dark:border-slate-800 dark:bg-slate-900" title="Foto ${idx + 1} openen"><img src="${escapeHtml(url)}" alt="Foto ${idx + 1}" loading="lazy" class="h-full w-full object-cover pointer-events-none">${delBtn}<span class="absolute bottom-1 left-1 rounded-md bg-black/60 px-1.5 py-0.5 text-[10px] font-bold text-white">${idx + 1}</span></button>`;
+        }).join('');
+        grid.querySelectorAll('[data-photo-view]').forEach(tile => {
+            tile.addEventListener('click', () => {
+                const url = tile.getAttribute('data-photo-view');
+                const img = document.getElementById('photoLightboxImg');
+                if (img) img.src = url;
+                openModal('ontvangstPhotoLightbox');
+            });
+        });
+        grid.querySelectorAll('[data-photo-del]').forEach(btn => {
+            btn.addEventListener('click', (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                const pid = btn.getAttribute('data-photo-del');
+                if (!confirm('Deze foto verwijderen?')) return;
+                btn.disabled = true;
+                fetch('/admin/bevestiging-mail/ontvangst/' + receiptId + '/photo/' + pid, {
+                    method: 'DELETE',
+                    headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': getToken(), 'X-Requested-With': 'XMLHttpRequest' },
+                }).then(r => r.json()).then(() => {
+                    const tile = btn.closest('[data-photo-tile]');
+                    if (tile) tile.remove();
+                    const remaining = grid.querySelectorAll('[data-photo-tile]').length;
+                    if (countEl) countEl.textContent = remaining;
+                    if (emptyEl) emptyEl.style.display = remaining ? 'none' : '';
+                    load();
+                }).catch(() => {}).finally(() => { btn.disabled = false; });
             });
         });
     }

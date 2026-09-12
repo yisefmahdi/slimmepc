@@ -91,6 +91,14 @@
                 <p class="text-[10px] uppercase font-bold text-slate-500 mb-1">Opmerkingen</p>
                 <p id="prevNotes" class="text-sm" style="color: var(--c-heading)">—</p>
             </div>
+            <div class="p-3 rounded-xl border" style="background-color: var(--c-page); border-color: rgba(148,163,184,.2)">
+                <div class="mb-2 flex items-center justify-between">
+                    <p class="text-[10px] uppercase font-bold text-slate-500">Foto's van het apparaat</p>
+                    <span id="prevPhotosCount" class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-400">0</span>
+                </div>
+                <div id="prevPhotosGrid" class="flex flex-wrap items-center gap-2"></div>
+                <p id="prevPhotosEmpty" class="text-xs" style="color: var(--c-muted)">Geen foto's bij deze ontvangst.</p>
+            </div>
             <div class="mt-6 p-4 rounded-2xl border bg-blue-50/50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/30">
                 <label class="block text-xs font-bold text-blue-700 dark:text-blue-300 mb-2 uppercase">Status wijzigen</label>
                 <div class="flex gap-2">
@@ -104,6 +112,16 @@
                     </button>
                 </div>
             </div>
+        </div>
+        <x-slot name="footer">
+            <button type="button" data-modal-close class="inline-flex h-11 items-center justify-center rounded-xl border px-5 text-sm font-semibold" style="color: var(--c-heading); border-color: var(--c-input-border)">Sluiten</button>
+        </x-slot>
+    </x-admin.modal>
+
+    {{-- Photo lightbox (popup i.p.v. nieuwe tab) --}}
+    <x-admin.modal id="ontvangstPhotoLightbox" title="Foto" size="lg">
+        <div class="flex items-center justify-center rounded-xl bg-black/90 p-2">
+            <img id="photoLightboxImg" src="" alt="Foto" class="max-h-[70vh] w-auto max-w-full rounded-lg object-contain">
         </div>
         <x-slot name="footer">
             <button type="button" data-modal-close class="inline-flex h-11 items-center justify-center rounded-xl border px-5 text-sm font-semibold" style="color: var(--c-heading); border-color: var(--c-input-border)">Sluiten</button>

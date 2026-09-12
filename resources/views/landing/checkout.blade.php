@@ -284,6 +284,7 @@
 
     @include('landing.partials.footer')
     @include('landing.partials.floating')
+    @include('landing.partials.ai-chat')
 
     <script>
         const CSRF = document.querySelector('meta[name="csrf-token"]')?.content || document.querySelector('input[name=_token]')?.value || '';

@@ -1169,19 +1169,24 @@ Handmatige factuur-flow voor hardware: admin vult klant + apparaat + bedragen in
 ## 17. Apparaat Ontvangst (Bevestiging-mail → Ontvangst) — feature detail (2026-08-30)
 
 ### Overzicht
-Handmatige ontvangstbevestiging per categorie. Admin kiest type via sidebar (Laptops-PC / iPad-iPhone / PlayStation-Xbox), vult 7 velden in, klant krijgt bevestigingsmail. Zie Changelog 2026-08-30.
+Handmatige ontvangstbevestiging per categorie. Admin kiest type via sidebar (Laptops-PC / iPad-iPhone / PlayStation-Xbox), vult 7 velden + optioneel max 20 apparaatfoto's in, klant krijgt bevestigingsmail (zonder foto's — dashboard only). Zie Changelog 2026-08-30 + §28 (foto's 2026-09-12).
 
 ### Database
 - `device_receipts` (migration `2026_08_30_000001_create_device_receipts_table.php`) — zie Changelog.
+- `device_receipt_photos` (migration `2026_09_12_000001_create_device_receipt_photos_table.php`): `id`, `device_receipt_id` FK → `device_receipts` cascadeOnDelete + index, `path` (`receipt/{id}/{uuid}.ext` op disk `local`), `original_name`/`mime_type`/`size` nullable, `sort_order` default 0, timestamps. Eén ontvangst → veel foto's (one-to-many). Geldt voor alle 3 types (`laptop` / `ipad_iphone` / `playstation_xbox` — zelfde tabel, `type`-kolom filter).
 
 ### Model / Request / Mail
-- `DeviceReceipt` + `StoreDeviceReceiptRequest` + `DeviceReceiptMail` + `emails/device-receipt.blade.php` verticaal.
+- `DeviceReceipt` + `hasMany photos()` (`DeviceReceiptPhoto`, sort_order+id) + `photoUrls()` (streaming URLs via `admin.bevestiging-mail.ontvangst.photo`) + `withCount('photos')`.
+- `StoreDeviceReceiptRequest`: + `photos` nullable array max 20, `photos.*` image jpg/jpeg/png/webp/avif max 10MB (NL messages).
+- `DeviceReceiptMail` + `emails/device-receipt.blade.php` verticaal (ongewijzigd — geen foto's in mail).
 
 ### Controller / Routes
-- `DeviceReceiptController` + `routes/admin.php` `bevestiging-mail.ontvangst.*` (5 routes).
+- `DeviceReceiptController` + `routes/admin.php` `bevestiging-mail.ontvangst.*` (9 routes): index/data/create/store/show/status/destroy + `GET /{receipt}/photo/{photo}` (`photo`, `Storage::response` inline, 404-guard op receipt_id) + `DELETE /{receipt}/photo/{photo}` (`photo.destroy`, rij + bestand). `store` slaat foto's op (`storeAs receipt/{id}`, uuid, disk `local`, zoals repair inbox) + `loadCount`. `show` retourneert `receipt + photos[] + photos_count`. `destroy` wist `receipt/{id}`-map + rij (cascade wist foto-rijen).
 
 ### Views / JS
-- `admin/bevestiging-mail/ontvangst/index.blade.php` + `create.blade.php` + `device-receipts.js`.
+- `admin/bevestiging-mail/ontvangst/create.blade.php`: foto-dropzone in dashboard/product-gallery-stijl (dashed blue dropzone + counter `0/20` + tiles `h-20 w-20 sm:h-24 sm:w-24` + add-tile + DataTransfer + drag&drop + 10MB-filter) + submit omgezet van `JSON.stringify` naar `FormData` (multipart — JSON kan geen files sturen) + `photos.*`-validatiefouten naar `[data-error-for=photos]`.
+- `admin/bevestiging-mail/ontvangst/index.blade.php`: preview-modal + foto-grid + counter + `ontvangstPhotoLightbox`-modal (popup i.p.v. nieuwe tab).
+- `device-receipts.js`: `photos_count`-badge bij T-nummer, `renderPreviewPhotos()` (tiles als `<button data-photo-view>`, lightbox-popup bij klik, delete per foto met confirm + counter-update + `load()`-refresh).
 
 ### Sidebar
 - `components/admin/layout.blade.php` Bevestiging-mail → 3 Ontvangst items.
@@ -1505,3 +1510,28 @@ Niet actief: e-mailverificatie (`MustVerifyEmail` staat uit in `User`-model).
 - **Mailable:** `App\Mail\OrderStatusMail` (subject/badge/title/intro per status via `texts()`, pickup-bewust: `shipped` + pickup = "Klaar voor afhalen", delivery = "Verzonden") + view `emails/order-status.blade.php` in het design-systeem (badge, card met nummer/status/totaal, CTA naar eigen bestelling). Werkt ook voor gast-bestellingen (`customer_email`).
 - **Trigger:** `Admin\OrderController@status` stuurt alleen bij echte wijziging (`$changed`-check → geen mail bij opnieuw opslaan van dezelfde status), via `afterResponse` zodat de admin-UI nooit wacht op SMTP.
 - **Tests:** `EmailDesignTest` +3 (render alle 6 status-varianten; POST status → `Mail::assertSent`; zelfde status → `assertNotSent`). `mail:test-all` verstuurt hem nu ook live mee (13 mails). Full suite 86 green.
+
+## 28. Update 2026-09-12 — Ontvangstfoto's (device_receipt_photos, one-to-many, alle 3 types)
+
+- **Doel:** bij een ontvangst het apparaat fotograferen (veel foto's, optioneel) en meesturen met het verzoek — eigen tabel + één-op-veel-relatie, zelfde opslag/streaming als de repair-inbox, zelfde dropzone-design als de product-gallery, werkend voor Laptops-PC + iPad-iPhone + PlayStation-Xbox (zelfde tabel, `type`-filter).
+- **Database:** `2026_09_12_000001_create_device_receipt_photos_table.php` — `device_receipt_photos(id, device_receipt_id FK cascade + index, path, original_name/mime_type/size nullable, sort_order default 0, timestamps)`. `migrate` DONE (604ms).
+- **Models:** nieuw `App\Models\DeviceReceiptPhoto` (`fillable` + `belongsTo receipt()`); `DeviceReceipt` + `hasMany photos()` (sort_order+id) + `photoUrls()` (`route('admin.bevestiging-mail.ontvangst.photo', [receipt, photo])` per foto).
+- **Validatie:** `StoreDeviceReceiptRequest` + `photos` nullable/array/max:20 + `photos.*` image (jpg/jpeg/png/webp/avif, 10MB) met NL-messages.
+- **Controller (`Admin\DeviceReceiptController`):** `store` bewaart foto's (`storeAs('receipt/{id}', uuid.ext, 'local')` + `photos()->create(...)` met sort_order) + `loadCount`; `data` met `withCount('photos')` → `photos_count` per rij; `show` met `photos[] + photos_count`; `destroy` wist `receipt/{id}`-map (zoals `RepairInboxController@destroy`) + cascade; nieuw `photo(receipt, photo)` (inline stream, 404-guards) + `destroyPhoto(receipt, photo)` (bestand + rij).
+- **Routes (`routes/admin.php`, `bevestiging-mail.ontvangst.*` 7→9):** `GET /{receipt}/photo/{photo}` (`photo`) + `DELETE /{receipt}/photo/{photo}` (`photo.destroy`). `route:list` toont 9 ontvangst-routes.
+- **Create-view:** foto-dropzone in dashboard-stijl (`ontvangstDropzone` + counter `0/20` + tiles + add-tile + `DataTransfer` + drag&drop + 10MB/20-cap feedback) + **submit-fix:** `JSON.stringify(payload)` → `FormData(form)` multipart (JSON kon nooit files sturen) + `photos.*`-errors naar `[data-error-for=photos]`.
+- **Index-view + JS:** tabel-T-nummer + `photos_count`-badge; preview-modal foto-grid + counter; **lightbox-popup** (`ontvangstPhotoLightbox`-modal, `photoLightboxImg max-h-[70vh]`): klik op foto opent popup i.p.v. nieuwe tab (op verzoek); per-foto delete (confirm → DELETE → tile.remove + counter + `load()`).
+- **E-mail:** bewust géén foto's in `DeviceReceiptMail`/`CompletedMail` (dashboard only, op verzoek).
+- **Verification:** `php -l` 6 bestanden ok; `migrate --force` DONE; tinker-script: receipt + 1 foto + `photoUrls()` count 1 + route-URL ok, daarna cleanup (rijen weg, geen `storage/app/receipt/6`-rest); `node --check device-receipts.js` ok; `view:clear` ok.
+
+## 29. Update 2026-09-12 — AI chat widget (design only, alle pagina's)
+
+- **Doel + keuzes (op verzoek):** AI-icoon altijd zichtbaar voor bezoekers; klik opent klein chatpaneel in hetzelfde site-systeem. Scope: **design only** (statische demo-reply, géén backend), paneel **380px**, opening met **welkom + 3 suggesties** (Laptop reparatie / Prijzen / Contact).
+- **Knop (`landing/partials/floating.blade.php`):** AI-`<a href=chat_url>` → `<button id="openAiChat" aria-expanded>` — zelfde look 100% (60px `bg-brand-gradient-br`, `message-circle` + `sparkles`-badge + online-dot + CMS-tooltip). WhatsApp-knop ongewijzigd.
+- **Paneel (nieuw `landing/partials/ai-chat.blade.php`, `aiChatPanel`):** header `bg-brand-gradient-br` (sparkles + "Slimme-PC Assistent" + Online + `x`-sluitknop), berichten (klant rechts gradient / assistent links wit, Figtree 13px), NL-welkomst + suggestie-knoppen (`data-suggestion` vult input), typing-dots, input (maxlength 500) + ronde `send`-knop. Iteraties op verzoek: berichten **220–320px → 380–540px** (`sm:max-h-[540px] sm:min-h-[380px]`); op **mobiel fullscreen** (`fixed inset-0`, geen radius) als eigen interface, op `sm:`+ het 380px-paneel (`sm:inset-auto sm:bottom-24 sm:right-6 sm:rounded-3xl`). Layout via flex-col (`hidden`+`flex`-toggle in JS, `flex-1 min-h-0` berichten vult mobiel scherm).
+- **JS (nieuw `public/assets/js/ai-chat.js`, IIFE zoals `contact-form.js`):** open/sluit (knop-toggle, X, ESC, klik-buiten), focus op input, suggesties, demo-reply na 800ms typing ("Bedankt! De live-assistent komt binnenkort... + 055-nummer"), XSS-escape, `lucide.createIcons()` + `__lucideRefresh()` na elke injectie. Guard `if (!panel || !openBtn) return` (veilig op pagina's zonder widget).
+- **Registratie:** `landing/layouts/app.blade.php` + `ai-chat.js?v=filemtime` na `landing.js` (zelfde patroon als `cart.js`); `@include('landing.partials.ai-chat')` naast elke floating-include — **24 views**: 13 met floating (home/contact/webshop/product-details/cart/checkout/wishlist/tarieven/overons/payment-*/account/orders) + **11 service-pagina's** (`service*.blade.php`) die nog géén floating hadden → kregen `floating + ai-chat` samen, zodat het icoon écht overal staat.
+- **Gotcha — landing.css mist nieuwe classes:** paneel opende maar onzichtbaar/verkeerd gepositioneerd omdat `bottom-24`/`z-[1000]`/`max-h-[320px]`/`sm:*`-varianten niet in gecompileerde `landing.css` stonden → `npm run css:landing` gedraaid (2×, na elke class-wijziging) + klassen in CSS geverifieerd. **Regel:** na elke Tailwind-class-wijziging in `landing/**` altijd rebuilden.
+- **Gotcha — full-page HTML-cache:** gasten kregen oude HTML zonder paneel na blade-wijziging → `php artisan optimize:clear` nodig (deploy-script doet dit al op server).
+- **Verification:** `node --check ai-chat.js` ok; `GET /` → 200 met `aiChatPanel` + `openAiChat` + `ai-chat.js`; `GET /diensten/console-reparatie` → 200 met paneel; CRLF→LF genormaliseerd in 24 bulk-edits.
+- **Volgende stap (bewust uitgesteld):** live-koppeling `POST /ai/chat` → `AiChatController` → bestaand `AiService::chat()` (zie §20) met NL system-prompt; `.env.example` mist nog `OPENAI_*` (gap uit AI-audit).

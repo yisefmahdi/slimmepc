@@ -22,6 +22,8 @@ class StoreDeviceReceiptRequest extends FormRequest
             'received_at' => ['required', 'date'],
             'notes' => ['nullable', 'string', 'max:5000'],
             'type' => ['required', 'string', 'in:laptop,ipad_iphone,playstation_xbox'],
+            'photos' => ['nullable', 'array', 'max:20'],
+            'photos.*' => ['image', 'mimes:jpg,jpeg,png,webp,avif', 'max:10240'],
         ];
     }
 
@@ -35,6 +37,10 @@ class StoreDeviceReceiptRequest extends FormRequest
             'phone_number.required' => 'Vul het telefoonnummer in.',
             'received_at.required' => 'Vul datum & tijd van ontvangst in.',
             'type.in' => 'Ongeldig type.',
+            'photos.max' => 'Maximaal 20 foto\'s per ontvangst.',
+            'photos.*.image' => 'Elke foto moet een afbeelding zijn.',
+            'photos.*.mimes' => 'Alleen JPG, PNG, WEBP of AVIF toegestaan.',
+            'photos.*.max' => 'Elke foto mag maximaal 10MB zijn.',
         ];
     }
 }

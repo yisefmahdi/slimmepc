@@ -15,6 +15,7 @@
 
     @include('landing.partials.footer')
     @include('landing.partials.floating')
+    @include('landing.partials.ai-chat')
 
     <link rel="stylesheet" href="{{ asset('assets/css/overons.css') }}?v={{ filemtime(public_path('assets/css/overons.css')) }}">
 @endsection

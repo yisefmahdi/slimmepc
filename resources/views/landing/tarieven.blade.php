@@ -10,6 +10,7 @@
 
     @include('landing.partials.footer')
     @include('landing.partials.floating')
+    @include('landing.partials.ai-chat')
 
     <script src="{{ asset('assets/js/tarieven.js') }}?v={{ filemtime(public_path('assets/js/tarieven.js')) }}"></script>
 @endsection

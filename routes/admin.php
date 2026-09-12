@@ -182,6 +182,8 @@ Route::prefix('admin')
                         Route::post('/', [DeviceReceiptController::class, 'store'])->name('store');
                         Route::get('/{receipt}', [DeviceReceiptController::class, 'show'])->name('show');
                         Route::post('/{receipt}/status', [DeviceReceiptController::class, 'updateStatus'])->name('status');
+                        Route::get('/{receipt}/photo/{photo}', [DeviceReceiptController::class, 'photo'])->name('photo');
+                        Route::delete('/{receipt}/photo/{photo}', [DeviceReceiptController::class, 'destroyPhoto'])->name('photo.destroy');
                         Route::delete('/{receipt}', [DeviceReceiptController::class, 'destroy'])->name('destroy');
                     });
             });

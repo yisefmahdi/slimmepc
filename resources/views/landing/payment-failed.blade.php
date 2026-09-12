@@ -37,4 +37,5 @@
     </main>
     @include('landing.partials.footer')
     @include('landing.partials.floating')
+    @include('landing.partials.ai-chat')
 @endsection

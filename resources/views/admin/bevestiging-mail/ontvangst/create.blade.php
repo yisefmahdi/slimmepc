@@ -80,6 +80,33 @@
                            class="form-input h-11 w-full text-sm">
                     <p class="field-error hidden mt-1 text-xs font-semibold text-red-600"></p>
                 </div>
+                <div class="sm:col-span-2">
+                    <div class="flex items-center justify-between">
+                        <label class="mb-1.5 flex items-center gap-2 text-sm font-semibold" style="color: var(--c-heading)">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-4 w-4 text-slate-500"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>
+                            Foto's van het apparaat
+                        </label>
+                        <span id="ontvangstPhotoCounter" class="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-400">0 / 20</span>
+                    </div>
+                    <input type="file" id="ontvangstPhotos" name="photos[]" multiple accept=".jpg,.jpeg,.png,.webp,.avif" class="hidden">
+                    <div id="ontvangstDropzone"
+                         class="group relative flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-blue-200/80 bg-blue-50/30 p-5 text-center transition hover:border-blue-500 hover:bg-blue-50/70 dark:border-blue-900/40 dark:bg-slate-900/20 dark:hover:border-blue-500">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-blue-600 shadow-sm transition group-hover:scale-105 group-hover:bg-blue-600 group-hover:text-white dark:bg-slate-800 dark:text-blue-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-700 dark:text-slate-200">
+                                Sleep foto's hierheen of <span class="text-blue-600 hover:underline">klik om te selecteren</span>
+                            </p>
+                            <p class="mt-0.5 text-xs text-slate-400">Optioneel · Meerdere bestanden tegelijk · Maximaal 20 foto's (PNG, JPG, WEBP, AVIF · 10MB per foto)</p>
+                        </div>
+                    </div>
+                    <div id="ontvangstPhotosPreview" class="mt-3 flex flex-wrap items-center gap-2.5 sm:gap-3"></div>
+                    <p id="ontvangstPhotosFeedback" class="hidden mt-1 text-xs font-semibold text-amber-600 dark:text-amber-400"></p>
+                    <p class="field-error hidden mt-1 text-xs font-semibold text-red-600" data-error-for="photos"></p>
+                </div>
             </div>
 
             <button type="submit" id="ontvangstSubmitBtn"
@@ -107,6 +134,83 @@
                 dt.value = now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate())+'T'+pad(now.getHours())+':'+pad(now.getMinutes());
             }
 
+            // ---- Foto's: dashboard-stijl preview (dropzone + tiles + DataTransfer) ----
+            const photoInput = document.getElementById('ontvangstPhotos');
+            const dropzone = document.getElementById('ontvangstDropzone');
+            const previewGrid = document.getElementById('ontvangstPhotosPreview');
+            const counter = document.getElementById('ontvangstPhotoCounter');
+            const feedback = document.getElementById('ontvangstPhotosFeedback');
+            const MAX_PHOTOS = 20;
+            let stagedFiles = [];
+
+            function showFeedback(text){
+                if(!feedback) return;
+                if(!text){ feedback.textContent=''; feedback.classList.add('hidden'); return; }
+                feedback.textContent = text;
+                feedback.classList.remove('hidden');
+            }
+
+            function syncInput(){
+                const dt = new DataTransfer();
+                stagedFiles.forEach(f => dt.items.add(f));
+                photoInput.files = dt.files;
+                if(counter) counter.textContent = stagedFiles.length + ' / ' + MAX_PHOTOS;
+                if(dropzone) dropzone.classList.toggle('hidden', stagedFiles.length > 0);
+            }
+
+            function renderPreview(){
+                if(!previewGrid) return;
+                previewGrid.innerHTML = '';
+                stagedFiles.forEach((file, idx) => {
+                    const url = URL.createObjectURL(file);
+                    const card = document.createElement('div');
+                    card.className = 'group relative h-20 w-20 sm:h-24 sm:w-24 shrink-0 overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-sm transition hover:shadow-md dark:border-slate-800 dark:bg-slate-900';
+                    card.innerHTML = '<img src="'+url+'" alt="Foto '+(idx+1)+'" class="h-full w-full object-cover">'
+                        + '<button type="button" data-idx="'+idx+'" aria-label="Verwijderen" class="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-lg bg-black/60 text-white opacity-0 transition group-hover:opacity-100 hover:bg-red-600">'
+                        + '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-3.5 w-3.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg></button>'
+                        + '<span class="absolute bottom-1 left-1 rounded-md bg-black/60 px-1.5 py-0.5 text-[10px] font-bold text-white">'+(idx+1)+'</span>';
+                    previewGrid.appendChild(card);
+                });
+                const addTile = document.createElement('button');
+                addTile.type = 'button';
+                addTile.title = 'Foto toevoegen';
+                addTile.className = 'flex h-20 w-20 sm:h-24 sm:w-24 shrink-0 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-blue-300 bg-blue-50/40 text-blue-600 transition hover:border-blue-500 hover:bg-blue-50/80 shadow-sm';
+                addTile.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg><span class="text-[10px] font-bold">Toevoegen</span>';
+                addTile.addEventListener('click', () => photoInput.click());
+                previewGrid.appendChild(addTile);
+                previewGrid.querySelectorAll('button[data-idx]').forEach(b => {
+                    b.addEventListener('click', (ev) => {
+                        ev.stopPropagation();
+                        stagedFiles.splice(parseInt(b.dataset.idx, 10), 1);
+                        syncInput(); renderPreview(); showFeedback('');
+                    });
+                });
+            }
+
+            function addFiles(files){
+                const incoming = Array.from(files || []).filter(f => f.type.startsWith('image/'));
+                if(!incoming.length) return;
+                if(stagedFiles.length + incoming.length > MAX_PHOTOS){
+                    showFeedback('Maximaal '+MAX_PHOTOS+' foto\'s per ontvangst. Eerste '+MAX_PHOTOS+' worden bewaard.');
+                    incoming.splice(MAX_PHOTOS - stagedFiles.length);
+                } else {
+                    showFeedback('');
+                }
+                const oversized = incoming.filter(f => f.size > 10*1024*1024);
+                if(oversized.length) showFeedback('Elke foto mag maximaal 10MB zijn — te grote bestanden zijn overgeslagen.');
+                incoming.filter(f => f.size <= 10*1024*1024).forEach(f => stagedFiles.push(f));
+                syncInput(); renderPreview();
+            }
+
+            if(dropzone && photoInput){
+                dropzone.addEventListener('click', () => photoInput.click());
+                ['dragenter','dragover'].forEach(ev => dropzone.addEventListener(ev, (e) => { e.preventDefault(); dropzone.classList.add('border-blue-500','bg-blue-100/50'); }));
+                ['dragleave','drop'].forEach(ev => dropzone.addEventListener(ev, (e) => { e.preventDefault(); dropzone.classList.remove('border-blue-500','bg-blue-100/50'); }));
+                dropzone.addEventListener('drop', (e) => addFiles(e.dataTransfer.files));
+                photoInput.addEventListener('change', function(){ addFiles(this.files); });
+                syncInput(); renderPreview();
+            }
+
             form.addEventListener('submit', async (e)=>{
                 e.preventDefault();
                 if(!form.reportValidity()) return;
@@ -119,18 +223,17 @@
                 form.querySelectorAll('.form-input').forEach(el=> el.classList.remove('!border-red-500'));
 
                 const fd = new FormData(form);
-                const payload = Object.fromEntries(fd.entries());
 
                 try{
                     const res = await fetch('{{ route('admin.bevestiging-mail.ontvangst.store') }}', {
                         method: 'POST',
                         credentials: 'same-origin',
                         headers: {
-                            'Content-Type': 'application/json',
                             'Accept': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.getAttribute('content') || document.querySelector('input[name=_token]')?.value || '',
+                            'X-Requested-With': 'XMLHttpRequest',
                         },
-                        body: JSON.stringify(payload),
+                        body: fd,
                     });
                     const data = await res.json().catch(()=>({}));
                     if(res.ok && data.receipt){
@@ -138,6 +241,7 @@
                         msg.className = 'mt-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-bold text-green-700';
                         msg.classList.remove('hidden');
                         form.reset();
+                        stagedFiles = []; syncInput(); renderPreview();
                         // re-apply default datetime
                         if (dt) {
                             const now2 = new Date();
@@ -149,12 +253,11 @@
                     }
                     if(res.status===422 && data.errors){
                         Object.entries(data.errors).forEach(([field, msgs])=>{
-                            const input = form.querySelector(`[name="${field}"]`);
-                            if(input){
-                                input.classList.add('!border-red-500');
-                                const errEl = input.parentElement.querySelector('.field-error');
-                                if(errEl){ errEl.textContent = msgs[0]; errEl.classList.remove('hidden'); }
-                            }
+                            const base = field.split('.')[0];
+                            const input = form.querySelector(`[name="${field}"]`) || form.querySelector(`[name="${base}"]`) || form.querySelector(`[name="${base}[]"]`);
+                            const errEl = (input && input.parentElement) ? input.parentElement.querySelector('.field-error') : document.querySelector('[data-error-for="photos"]');
+                            if(input) input.classList.add('!border-red-500');
+                            if(errEl){ errEl.textContent = msgs[0]; errEl.classList.remove('hidden'); }
                         });
                         const firstErr = Object.values(data.errors)[0]?.[0] || 'Controleer de velden.';
                         msg.textContent = '✗ ' + firstErr;

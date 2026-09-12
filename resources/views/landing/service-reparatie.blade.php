@@ -1573,6 +1573,8 @@
 </script>
 
 @include('landing.partials.footer')
+    @include('landing.partials.floating')
+    @include('landing.partials.ai-chat')
 
 <script src="{{ asset('assets/js/vendor/jquery.min.js') }}"></script>
 

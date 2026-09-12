@@ -358,6 +358,7 @@
 
     @include('landing.partials.footer')
     @include('landing.partials.floating')
+    @include('landing.partials.ai-chat')
 
     {{-- Guest checkout choice — same dashboard modal style --}}
     <div id="modal-guestCheckoutModal" class="fixed inset-0 z-[60] hidden" role="dialog" aria-modal="true" aria-labelledby="modal-guestCheckoutModal-title">

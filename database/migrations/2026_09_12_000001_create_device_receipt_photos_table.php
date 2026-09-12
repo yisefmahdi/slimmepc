@@ -1,0 +1,28 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('device_receipt_photos', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('device_receipt_id')->constrained('device_receipts')->cascadeOnDelete();
+            $table->string('path');
+            $table->string('original_name')->nullable();
+            $table->string('mime_type')->nullable();
+            $table->unsignedInteger('size')->nullable();
+            $table->unsignedInteger('sort_order')->default(0);
+            $table->timestamps();
+            $table->index('device_receipt_id');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('device_receipt_photos');
+    }
+};
