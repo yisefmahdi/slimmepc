@@ -283,14 +283,6 @@
         scrollBottom();
     }
     function customerBlock(body, photoUrl) {
-        // Skip optimistic duplicate of latest customer message.
-        if (body && messagesEl.children.length > 0) {
-            var lastBubble = messagesEl.children[messagesEl.children.length - 1];
-            if (lastBubble && lastBubble.querySelector && lastBubble.querySelector('.bg-brand-gradient-br')) {
-                var txtNode = lastBubble.querySelector('.bg-brand-gradient-br');
-                if (txtNode && txtNode.textContent === body) return;
-            }
-        }
         var wrap = document.createElement('div');
         wrap.className = 'flex justify-end';
         var col = '<div class="flex max-w-[85%] flex-col items-end gap-1.5">';
@@ -337,13 +329,6 @@
         list = Array.isArray(list) ? list : [];
         messagesEl.innerHTML = '';
         renderedIds = {};
-        // Behoud de statische welkomst-div alleen bij een verse gate.
-        if (view === 'gate') {
-            var welcome = document.createElement('div');
-            welcome.className = 'flex justify-start';
-            welcome.innerHTML = '<div dir="auto" class="max-w-[85%] rounded-2xl rounded-tl-md bg-white px-3.5 py-2.5 text-[13px] leading-relaxed text-slate-700 shadow-sm ring-1 ring-slate-200/70">Hoi! Ik ben de <strong>Slimme-PC assistent</strong>. Waar kan ik je mee helpen?</div>';
-            messagesEl.appendChild(welcome);
-        }
         list.forEach(function (m) {
             renderMessage(m);
         });
@@ -414,8 +399,6 @@
         var cross = document.getElementById('aiChatFabClose');
         if (bars) bars.classList.toggle('hidden', !!open);
         if (cross) cross.classList.toggle('hidden', !open);
-        try { if (bars) bars.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-7 w-7"><rect x="4" y="6" width="16" height="2.5" rx="1.25" fill="currentColor" stroke="none"/><rect x="7.5" y="10.5" width="9" height="2.5" rx="1.25" fill="currentColor" stroke="none"/><rect x="7.5" y="15" width="9" height="2.5" rx="1.25" fill="currentColor" stroke="none"/></svg>'; } catch (e) { /* noop */ }
-        try { if (cross) cross.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="h-7 w-7"><path d="M6 18 18 6M6 6l12 12"/></svg>'; } catch (e) { /* noop */ }
     }
     function openPanel() {
         panel.classList.remove('hidden');
@@ -533,19 +516,7 @@
                 return;
             }
             if (r.data.status === 'closed') {
-                // Gesloten gesprek: toon alleen als archief (lezen, geen schrijven, geen rating meer).
                 showRateForm();
-                rateSend.classList.add('hidden');
-                rateSend.classList.remove('flex');
-                rateSkip.classList.add('hidden');
-                rateSkip.classList.remove('flex');
-                if (rateComment) rateComment.disabled = true;
-                var ratingDone = document.getElementById('aiChatRatedDone');
-                if (ratingDone) {
-                    ratingDone.classList.remove('hidden');
-                    ratingDone.classList.add('flex');
-                    document.getElementById('aiChatRateForm').classList.add('hidden');
-                }
                 setView('rating');
                 selectedStars = 0;
                 paintStars();
@@ -911,11 +882,10 @@
                 b.innerHTML = '<p class="flex items-center justify-between text-xs font-bold text-slate-700"><span>Gesprek #' + esc(c.id) + ' · ' + esc(c.status) + '</span>' + (c.rating ? '<span class="text-amber-500">★ ' + esc(c.rating) + '</span>' : '') + '</p>'
                     + '<p class="mt-1 truncate text-xs text-slate-500">' + esc(c.last_message || '—') + '</p>';
                 b.addEventListener('click', function () {
-                    currentId = c.id;
                     saveToken(c.token);
                     historyEl.classList.add('hidden');
                     historyEl.classList.remove('flex');
-                    openThread(c.id);
+                    resume();
                 });
                 historyList.appendChild(b);
             });

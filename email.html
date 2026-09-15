@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E-mail preview — Slimme-PC design systeem</title>
+<style>
+  body { margin: 0; padding: 32px 12px; background: #e8edf5; font-family: Arial, Helvetica, sans-serif; }
+  .preview-label { max-width: 640px; margin: 0 auto 12px; font-size: 13px; font-weight: bold; color: #475569; }
+</style>
+</head>
+<body>
+
+<p class="preview-label">Voorbeeld — Klant: bestelling gelukt + factuur (zelfde identiteit als de website)</p>
+
+<!-- ================= EMAIL START ================= -->
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+  <tr>
+    <td align="center" style="background-color:#f8fafc; padding:32px 12px;">
+
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="640" style="max-width:640px; width:100%;">
+
+        <!-- SITE HEADER (donkerblauw gradient, zoals navbar) -->
+        <tr>
+          <td bgcolor="#1e3a8a" style="background-color:#1e3a8a; background:linear-gradient(90deg,#172554 0%,#1e40af 50%,#2563eb 100%); border-radius:16px 16px 0 0; padding:22px 28px;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+              <tr>
+                <td width="56">
+                  <div style="background-color:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); border-radius:12px; width:52px; height:52px; text-align:center;">
+                    <img src="public/assets/img/landing/logo.webp" alt="Slimme-PC" width="44" height="44" style="display:inline-block; border:0; width:44px; height:44px; object-fit:contain; margin-top:3px;">
+                  </div>
+                </td>
+                <td style="padding-left:12px;">
+                  <div style="font-size:19px; font-weight:800; color:#ffffff; line-height:1.2;">SLIMME-PC</div>
+                  <div style="font-size:11px; color:#bfdbfe; margin-top:2px;">Eerlijk advies · Persoonlijke service</div>
+                </td>
+                <td align="right" style="vertical-align:middle;">
+                  <span style="display:inline-block; background-color:#84cc16; color:#0b1734; font-size:11px; font-weight:800; padding:6px 14px; border-radius:999px;">✓ Betaling gelukt</span>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- BODY -->
+        <tr>
+          <td style="background-color:#ffffff; padding:28px 32px 28px;">
+            <div style="font-size:11px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:#2563eb; margin-bottom:10px;">Webshop · Bestelbevestiging</div>
+            <h1 style="margin:0 0 12px; font-size:26px; font-weight:800; color:#020617; line-height:1.25;">Bestelling gelukt, Jan!</h1>
+            <p style="margin:0 0 20px; font-size:14px; line-height:1.7; color:#475569;">Bedankt voor je bestelling bij Slimme-PC! De factuur vind je als PDF in de bijlage van deze e-mail. Hieronder het overzicht:</p>
+
+            <!-- ORDER ITEMS CARD -->
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border:1px solid #e2e8f0; border-radius:12px;">
+              <tr>
+                <td style="padding:18px 20px 6px; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:#64748b;">Jouw artikelen (2)</td>
+              </tr>
+              <tr>
+                <td style="padding:6px 20px;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                    <tr>
+                      <td style="font-size:13px; font-weight:700; color:#020617; padding:6px 0;">MSI Infinite S3 RTX 4060 Gaming PC <span style="color:#64748b; font-weight:400;">× 1</span></td>
+                      <td align="right" style="font-size:13px; font-weight:800; color:#020617; padding:6px 0; white-space:nowrap;">€1.130,13</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size:13px; font-weight:700; color:#020617; padding:6px 0; border-top:1px solid #f1f5f9;">Logitech MX Master 3S <span style="color:#64748b; font-weight:400;">× 1</span></td>
+                      <td align="right" style="font-size:13px; font-weight:800; color:#020617; padding:6px 0; border-top:1px solid #f1f5f9; white-space:nowrap;">€99,00</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:10px 20px 18px;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#f8fafc; border-radius:8px;">
+                    <tr>
+                      <td style="padding:12px 16px; font-size:12px; color:#64748b;">Factuur <strong style="color:#020617;">INV-2026-000123</strong> · 09-09-2026 · iDEAL</td>
+                      <td align="right" style="padding:12px 16px; font-size:16px; font-weight:800; color:#1d4ed8; white-space:nowrap;">€1.229,13</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+
+            <!-- CTA (gradient zoals site-knoppen) -->
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+              <tr>
+                <td align="center" style="padding:24px 0 4px;">
+                  <a href="http://127.0.0.1:8000/mijn-bestellingen" style="display:inline-block; background-color:#0757ef; background:linear-gradient(90deg,#0647ca 0%,#0757ef 50%,#2877ff 100%); color:#ffffff; font-size:14px; font-weight:700; text-decoration:none; padding:14px 36px; border-radius:12px;">Mijn bestelling bekijken →</a>
+                </td>
+              </tr>
+              <tr>
+                <td align="center" style="padding:10px 0 8px; font-size:12px; color:#94a3b8;">Of kopieer: http://127.0.0.1:8000/mijn-bestellingen</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- SITE FOOTER (lichtblauw gradient, zoals website-footer) -->
+        <tr>
+          <td bgcolor="#d7e8ff" style="background-color:#d7e8ff; background:linear-gradient(180deg,#edf5ff 0%,#83b9eb 60%,#d7e8ff 100%); border-radius:0 0 16px 16px; padding:24px 32px;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+              <tr>
+                <td style="font-size:14px; font-weight:800; color:#0b1734;">Slimme-PC</td>
+                <td align="right" style="font-size:11px; font-weight:700; color:#1d4ed8;">iDEAL · VISA · Mastercard · PayPal</td>
+              </tr>
+              <tr>
+                <td colspan="2" style="font-size:12px; line-height:1.9; color:#334155; padding-top:8px;">
+                  Kanaalweg 33, 3526 KL Utrecht · 030 123 45 67 · info@slimme-pc.nl<br>
+                  Ma - Vr: 09:00 - 18:00 · Za: 10:00 - 16:00 · Zo: Gesloten
+                </td>
+              </tr>
+              <tr>
+                <td colspan="2" style="border-top:1px solid rgba(11,23,52,0.12); margin-top:12px; padding-top:12px; font-size:11px; color:#475569;">© 2026 Slimme-PC. Alle rechten voorbehouden.</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+      </table>
+
+    </td>
+  </tr>
+</table>
+<!-- ================= EMAIL END ================= -->
+
+</body>
+</html>
