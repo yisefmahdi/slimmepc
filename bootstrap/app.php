@@ -29,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'contact/submit',
             'payment/webhook',
             'track/',
+            'ai-chat/*',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

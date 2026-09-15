@@ -88,6 +88,52 @@ class InboundContactFetcher
             }
         }
 
+        // Tweede pass: live-chat threads (+chat-{id}).
+        try {
+            $chatMessages = $client->getFolderByPath(config('contact-inbox.mailbox'))
+                ->query()
+                ->unseen()
+                ->to('+chat-')
+                ->leaveUnread()
+                ->setFetchOrder('asc')
+                ->limit(max(1, min((int) $limit, 200)))
+                ->get();
+        } catch (\Exception $e) {
+            $errors[] = 'Failed to fetch chat messages: '.$e->getMessage();
+            Log::warning('[chat-inbox] '.end($errors));
+
+            $client->disconnect();
+
+            return compact('processed', 'matched', 'errors');
+        }
+
+        foreach ($chatMessages as $message) {
+            $processed++;
+
+            $token = $this->findChatToken($message);
+            $conversation = $token ? \App\Models\ChatConversation::find($token) : null;
+
+            if (! $conversation) {
+                $errors[] = sprintf(
+                    'Unmatched chat reply from "%s" (token: %s) — left unread.',
+                    $this->senderOf($message),
+                    $token ?? 'none',
+                );
+                Log::warning('[chat-inbox] '.end($errors));
+
+                continue;
+            }
+
+            try {
+                $this->appendChatMessage($message, $conversation);
+                $message->setFlag('Seen');
+                $matched++;
+            } catch (\Exception $e) {
+                $errors[] = 'Could not process reply for chat #'.$conversation->id.': '.$e->getMessage();
+                Log::warning('[chat-inbox] '.end($errors));
+            }
+        }
+
         $client->disconnect();
 
         return compact('processed', 'matched', 'errors');
@@ -313,6 +359,201 @@ class InboundContactFetcher
                 return 'inbound/'.$name;
             } catch (\Exception $e) {
                 Log::warning('[contact-inbox] Could not save attachment: '.$e->getMessage());
+            }
+        }
+
+        throw new \RuntimeException('All attachments failed to save.');
+    }
+
+    /**
+     * Extract the "+chat-{id}" token from the message headers.
+     */
+    private function findChatToken($message): ?int
+    {
+        $needles = [];
+
+        $to = $message->getTo();
+
+        if (is_object($to) && method_exists($to, 'all')) {
+            foreach ($to->all() as $address) {
+                if (is_object($address) && isset($address->mail)) {
+                    $needles[] = $address->mail;
+                }
+            }
+        } else {
+            foreach ($to as $address) {
+                $needles[] = $address->mail;
+            }
+        }
+
+        $deliveredTo = $message->getHeader('Delivered-To');
+
+        if (is_object($deliveredTo)) {
+            $deliveredTo = $deliveredTo->raw ?? json_encode($deliveredTo);
+        }
+
+        if ($deliveredTo) {
+            $needles[] = (string) $deliveredTo;
+        }
+
+        foreach ($needles as $needle) {
+            if (preg_match('/\+chat-(\d+)/i', (string) $needle, $m)) {
+                return (int) $m[1];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Append a live-chat e-mail reply to its thread.
+     *
+     * Afzender-herkenning: komt de mail van ons eigen adres (notify/mail-from/
+     * IMAP-login), dan is het de MEDEWERKER die vanuit zijn mailprogramma
+     * antwoordt → sender=admin + doorsturen naar de klant. Anders klant.
+     *
+     * Zelfde garanties als contact: bijlage eerst veilig opslaan (anders geen
+     * rij + ongelezen laten), daarna pas de row. Gesloten/offline threads met
+     * een terugkerende klant gaan weer open.
+     */
+    private function appendChatMessage($message, \App\Models\ChatConversation $conversation): void
+    {
+        $body = $message->getTextBody();
+
+        if (! $body && $html = $message->getHTMLBody()) {
+            $body = trim(strip_tags($html));
+        }
+
+        $body = $this->cleanBody((string) $body);
+        $body = preg_replace('/\[image:\s*[^\]]+\]/i', '', $body) ?? $body;
+
+        $attachments = $message->getAttachments();
+
+        $savedName = $attachments->count() ? $this->storeChatAttachment($attachments, $conversation) : null;
+
+        $isEmployee = $this->isEmployeeAddress($this->senderMail($message));
+
+        $row = \App\Models\ChatMessage::create([
+            'chat_conversation_id' => $conversation->id,
+            'sender' => $isEmployee ? 'admin' : 'customer',
+            'body' => trim($body) ?: '(Geen tekst)',
+            'attachment' => $savedName,
+            'source' => $isEmployee ? 'email' : 'inbound',
+        ]);
+
+        $updates = ['last_activity_at' => now()];
+
+        if ($isEmployee) {
+            $updates['ai_enabled'] = false;
+        }
+
+        if (in_array($conversation->status, ['closed', 'offline'], true)) {
+            $openNow = app(\App\Services\Chat\ChatAvailabilityService::class)->isOpen();
+            $updates['status'] = $openNow ? 'open' : 'offline';
+        }
+
+        $conversation->update($updates);
+
+        // Medewerker-antwoord per e-mail ook naar de klant sturen
+        // (widget kan dicht zijn); klant-antwoorden komen vanzelf binnen.
+        if ($isEmployee) {
+            try {
+                \Illuminate\Support\Facades\Mail::to($conversation->email)->send(
+                    new \App\Mail\ChatReplyMail($conversation->fresh(), $row->fresh())
+                );
+            } catch (\Throwable $e) {
+                Log::warning('[chat-inbox] Could not forward employee mail: '.$e->getMessage());
+            }
+        }
+    }
+
+    /**
+     * Is dit afzenderadres van onszelf (medewerker die vanuit mail antwoordt)?
+     */
+    private function isEmployeeAddress(string $mail): bool
+    {
+        $mail = mb_strtolower(trim($mail));
+
+        if ($mail === '') {
+            return false;
+        }
+
+        $ours = [
+            mb_strtolower((string) config('contact-inbox.notify_email')),
+            mb_strtolower((string) config('mail.from.address')),
+            mb_strtolower((string) config('contact-inbox.imap.username')),
+        ];
+
+        return in_array($mail, array_filter($ours), true);
+    }
+
+    /**
+     * Ruw e-mailadres van de afzender.
+     */
+    private function senderMail($message): string
+    {
+        $from = $message->getFrom();
+
+        if (is_object($from) && method_exists($from, 'first')) {
+            $address = $from->first();
+
+            return $address ? (string) ($address->mail ?? '') : '';
+        }
+
+        foreach ($from as $address) {
+            return (string) ($address->mail ?? '');
+        }
+
+        return '';
+    }
+
+    /**
+     * Persist the first storable attachment of a chat e-mail.
+     *
+     * @param  iterable<int, \Webklex\PHPIMAP\Attachment>  $attachments
+     *
+     * @throws \RuntimeException when an attachment was expected but none could be saved
+     */
+    private function storeChatAttachment(iterable $attachments, \App\Models\ChatConversation $conversation): ?string
+    {
+        $dir = 'chat/'.$conversation->id.'/inbound';
+
+        Storage::disk('local')->makeDirectory($dir);
+
+        $list = is_array($attachments) ? $attachments : iterator_to_array($attachments, false);
+
+        $sortKey = function ($a) {
+            $isImage = preg_match('/\.(jpe?g|png|gif|webp|bmp|svg)$/i', (string) $a->getName());
+
+            return ($isImage ? 2 : 0) + ($a->getDisposition() === 'attachment' ? 0 : 1);
+        };
+
+        usort($list, fn ($a, $b) => $sortKey($a) - $sortKey($b));
+
+        foreach ($list as $attachment) {
+            try {
+                $rawName = $attachment->getName();
+
+                if ($rawName === '') {
+                    continue;
+                }
+
+                $name = $attachment->decodeName($rawName);
+                $name = $this->decodeMimeHeader($name);
+
+                $content = $attachment->getContent();
+
+                if ($content === '' || $content === false) {
+                    continue;
+                }
+
+                Storage::disk('local')->put($dir.'/'.$name, $content);
+
+                // Volledig pad bewaren (zoals outbound/uploads): alle
+                // readers (widget, inbox, mails) gebruiken het direct.
+                return $dir.'/'.$name;
+            } catch (\Exception $e) {
+                Log::warning('[chat-inbox] Could not save attachment: '.$e->getMessage());
             }
         }
 

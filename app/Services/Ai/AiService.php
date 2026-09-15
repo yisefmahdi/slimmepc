@@ -3,7 +3,9 @@
 namespace App\Services\Ai;
 
 use App\Services\Ai\Clients\OpenAiClient;
+use App\Services\Ai\Clients\OpenAiEmbeddingClient;
 use App\Services\Ai\Contracts\AiClientInterface;
+use App\Services\Ai\Contracts\EmbeddingClientInterface;
 use App\Services\Ai\Features\ProductDescriptionGenerator;
 use App\Services\Ai\Search\WebSearchService;
 
@@ -11,6 +13,7 @@ class AiService
 {
     protected static ?AiClientInterface $client = null;
     protected static ?WebSearchService $searchService = null;
+    protected static ?EmbeddingClientInterface $embeddingClient = null;
 
     /**
      * Get or set the AI client.
@@ -83,5 +86,35 @@ class AiService
     public static function chat(array $messages, array $options = []): string
     {
         return static::client()->chat($messages, $options);
+    }
+
+    /**
+     * Get or set the embedding client.
+     */
+    public static function embedding(): EmbeddingClientInterface
+    {
+        if (static::$embeddingClient === null) {
+            static::$embeddingClient = new OpenAiEmbeddingClient();
+        }
+
+        return static::$embeddingClient;
+    }
+
+    /**
+     * Swap embedding client (useful for unit testing).
+     */
+    public static function setEmbeddingClient(EmbeddingClientInterface $client): void
+    {
+        static::$embeddingClient = $client;
+    }
+
+    /**
+     * Embed one text into a float vector.
+     *
+     * @return array<int, float>
+     */
+    public static function embed(string $text): array
+    {
+        return static::embedding()->embed($text);
     }
 }

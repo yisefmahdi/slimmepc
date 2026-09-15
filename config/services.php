@@ -46,5 +46,20 @@ return [
         'timeout' => env('OPENAI_TIMEOUT', 30),
     ],
 
+    'embedding' => [
+        'api_key' => env('OPENAI_API_KEY'),
+        'api_url' => env('EMBEDDING_API_URL', (function () {
+            $chatUrl = (string) env('OPENAI_API_URL', 'https://api.openai.com/v1/chat/completions');
+            if (str_ends_with($chatUrl, '/chat/completions')) {
+                return substr($chatUrl, 0, -strlen('/chat/completions')).'/embeddings';
+            }
+
+            return rtrim(dirname($chatUrl), '/').'/embeddings';
+        })()),
+        'model'   => env('EMBEDDING_MODEL', 'text-embedding-3-small'),
+        'dimensions' => (int) env('EMBEDDING_DIMENSIONS', 1536),
+        'timeout' => env('OPENAI_TIMEOUT', 30),
+    ],
+
 ];
 

@@ -74,6 +74,20 @@ Route::get('/payment/return/{order}', [PaymentController::class, 'return'])->nam
 Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
 Route::get('/payment/failed', [PaymentController::class, 'failed'])->name('payment.failed');
 
+// Live Chat (AI + medewerker) — CSRF-protected, throttle per endpoint
+Route::prefix('ai-chat')->name('ai-chat.')->group(function () {
+    Route::get('/status', [App\Http\Controllers\ChatController::class, 'status'])->name('status');
+    Route::post('/start', [App\Http\Controllers\ChatController::class, 'start'])->middleware('throttle:10,1')->name('start');
+    Route::get('/messages', [App\Http\Controllers\ChatController::class, 'messages'])->middleware('throttle:60,1')->name('messages');
+    Route::post('/send', [App\Http\Controllers\ChatController::class, 'send'])->middleware('throttle:30,1')->name('send');
+    Route::post('/handover', [App\Http\Controllers\ChatController::class, 'handover'])->middleware('throttle:10,1')->name('handover');
+    Route::post('/offline', [App\Http\Controllers\ChatController::class, 'offline'])->middleware('throttle:5,1')->name('offline');
+    Route::post('/close', [App\Http\Controllers\ChatController::class, 'close'])->middleware('throttle:10,1')->name('close');
+    Route::post('/rate', [App\Http\Controllers\ChatController::class, 'rate'])->middleware('throttle:10,1')->name('rate');
+    Route::get('/history', [App\Http\Controllers\ChatController::class, 'history'])->middleware('throttle:30,1')->name('history');
+    Route::get('/photo/{message}', [App\Http\Controllers\ChatController::class, 'photo'])->middleware('throttle:60,1')->name('photo');
+});
+
 // Wishlist — login required (guests are sent to login, then back via intended URL)
 Route::middleware('auth')->group(function () {
     Route::get('/wishlist', [FavoriteController::class, 'index'])->name('wishlist.index');

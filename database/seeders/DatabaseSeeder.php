@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             ContentBlockSeeder::class,
             ShippingRateSeeder::class,
+            ChatFaqSeeder::class,
         ]);
     }
 }

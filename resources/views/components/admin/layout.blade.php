@@ -530,6 +530,40 @@
                     </div>
                 </div>
 
+                {{-- Live Chat Dropdown --}}
+                <div x-data="{ open: {{ request()->routeIs('admin.chat.*') ? 'true' : 'false' }}, init() { if (localStorage.getItem('nav-chat') !== null) { this.open = localStorage.getItem('nav-chat') === '1'; } }, toggle() { this.open = !this.open; localStorage.setItem('nav-chat', this.open ? '1' : '0'); } }" class="space-y-1">
+                    <button type="button" @click="toggle()"
+                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
+                            style="color: rgba(255,255,255,0.95)">
+                        <span class="flex items-center gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5 text-blue-100">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm3.75 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm3.75 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+                            </svg>
+                            <span>Live Chat</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+                    <div x-show="open" x-cloak x-transition class="border-l-2 border-white/30 ml-6 pl-4 space-y-1.5 py-1 text-xs">
+                        @php $chatHandoverCount = \App\Models\ChatConversation::where('status', 'handed_over')->count(); @endphp
+                        <a href="{{ route('admin.chat.inbox.index') }}"
+                           class="flex items-center justify-between gap-2 rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.chat.inbox.*') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            <span>Inbox</span>
+                            <span id="sidebarChatBadge" class="{{ $chatHandoverCount > 0 ? '' : 'hidden' }} inline-flex min-h-[20px] min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">{{ $chatHandoverCount }}</span>
+                        </a>
+                        <a href="{{ route('admin.chat.faqs.index') }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.chat.faqs.*') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Kennisbank
+                        </a>
+                        <a href="{{ route('admin.chat.availability.index') }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.chat.availability.*') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Openingstijden
+                        </a>
+                    </div>
+                </div>
+
                 {{-- 11. Users-beheren Dropdown (Active: Klanten) --}}
                 <div x-data="{ open: {{ request()->routeIs('admin.users.*') ? 'true' : 'false' }} }" class="space-y-1">
                     <button type="button" @click="open = !open"

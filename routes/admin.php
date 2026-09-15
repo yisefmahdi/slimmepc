@@ -188,6 +188,42 @@ Route::prefix('admin')
                     });
             });
 
+        // 💬 Live Chat - Kennisbank & Openingstijden (+ inbox volgt)
+        Route::prefix('chat')
+            ->name('chat.')
+            ->group(function () {
+                Route::prefix('inbox')->name('inbox.')->group(function () {
+                    Route::get('/', [App\Http\Controllers\Admin\Chat\InboxController::class, 'index'])->name('index');
+                    Route::get('/data', [App\Http\Controllers\Admin\Chat\InboxController::class, 'data'])->name('data');
+                    Route::get('/new-count', [App\Http\Controllers\Admin\Chat\InboxController::class, 'newCount'])->name('new-count');
+                    Route::post('/sync', [App\Http\Controllers\Admin\Chat\InboxController::class, 'sync'])->name('sync');
+                    Route::get('/photo/{chatMessage}', [App\Http\Controllers\Admin\Chat\InboxController::class, 'photo'])->name('photo');
+                    Route::get('/{conversation}', [App\Http\Controllers\Admin\Chat\InboxController::class, 'show'])->name('show');
+                    Route::post('/{conversation}/reply', [App\Http\Controllers\Admin\Chat\InboxController::class, 'reply'])->name('reply');
+                    Route::post('/{conversation}/status', [App\Http\Controllers\Admin\Chat\InboxController::class, 'status'])->name('status');
+                    Route::post('/{conversation}/toggle-ai', [App\Http\Controllers\Admin\Chat\InboxController::class, 'toggleAi'])->name('toggle-ai');
+                    Route::delete('/{conversation}', [App\Http\Controllers\Admin\Chat\InboxController::class, 'destroy'])->name('destroy');
+                });
+
+                Route::prefix('faqs')->name('faqs.')->group(function () {
+                    Route::get('/', [App\Http\Controllers\Admin\Chat\FaqController::class, 'index'])->name('index');
+                    Route::get('/data', [App\Http\Controllers\Admin\Chat\FaqController::class, 'data'])->name('data');
+                    Route::post('/', [App\Http\Controllers\Admin\Chat\FaqController::class, 'store'])->name('store');
+                    Route::get('/{faq}', [App\Http\Controllers\Admin\Chat\FaqController::class, 'show'])->name('show');
+                    Route::put('/{faq}', [App\Http\Controllers\Admin\Chat\FaqController::class, 'update'])->name('update');
+                    Route::delete('/{faq}', [App\Http\Controllers\Admin\Chat\FaqController::class, 'destroy'])->name('destroy');
+                    Route::post('/{faq}/toggle', [App\Http\Controllers\Admin\Chat\FaqController::class, 'toggle'])->name('toggle');
+                    Route::post('/generate-keywords', [App\Http\Controllers\Admin\Chat\FaqController::class, 'generateKeywords'])->name('generate-keywords');
+                });
+
+                Route::prefix('beschikbaarheid')->name('availability.')->group(function () {
+                    Route::get('/', [App\Http\Controllers\Admin\Chat\AvailabilityController::class, 'index'])->name('index');
+                    Route::put('/{availability}', [App\Http\Controllers\Admin\Chat\AvailabilityController::class, 'updateDay'])->name('update-day');
+                    Route::post('/vrije-dagen', [App\Http\Controllers\Admin\Chat\AvailabilityController::class, 'storeDate'])->name('store-date');
+                    Route::delete('/vrije-dagen/{closedDate}', [App\Http\Controllers\Admin\Chat\AvailabilityController::class, 'destroyDate'])->name('destroy-date');
+                });
+            });
+
         // 🛒 Webshop - Categories & Products
         Route::prefix('webshop')
             ->name('webshop.')

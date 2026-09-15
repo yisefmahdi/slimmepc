@@ -52,40 +52,11 @@
                         </div>
                     </div>
 
-                    <div class="relative min-h-[400px] sm:min-h-[520px]">
+                    <div class="relative flex min-h-[400px] items-center justify-center sm:min-h-[520px]">
                         <div class="absolute left-1/2 top-1/2 h-[430px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#ddecff]/70 blur-[80px]"></div>
                         <img src="{{ asset($s['hero']['image'] ?? 'assets/img/landing/0bdab181-585e-44c9-a56e-11cc49cff612.png') }}"
                              alt="Custom PC Slimme-PC"
-                             class="absolute left-[47%] top-[49%] z-10 w-[57%] max-w-[620px] -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-[0_30px_30px_rgba(20,54,105,.20)] max-lg:static max-lg:mx-auto max-lg:w-full max-lg:max-w-[520px] max-lg:translate-x-0 max-lg:left-auto max-lg:top-auto max-lg:translate-y-0">
-
-                        <div class="absolute left-[1%] top-[7%] z-20 hidden xl:block">
-                            <img src="{{ asset('assets/img/landing/cpu.png') }}" class="w-[190px] object-contain drop-shadow-xl" alt="GPU">
-                            <div class="mt-0 pl-5 text-[13px] font-black uppercase text-[#0c1736]">GPU <span class="block text-[11px] font-medium normal-case text-slate-500">Grafische kaart</span></div>
-                        </div>
-                        <div class="absolute left-[2%] top-[39%] z-20 hidden xl:block">
-                            <img src="{{ asset('assets/img/landing/b76aa0e9-6ac7-4a0e-92a4-41766b1f77d4.png') }}" class="w-[175px] object-contain drop-shadow-xl" alt="RAM">
-                            <div class="mt-1 pl-4 text-[13px] font-black uppercase text-[#0c1736]">RAM <span class="block text-[11px] font-medium normal-case text-slate-500">Werkgeheugen</span></div>
-                        </div>
-                        <div class="absolute bottom-[8%] left-[7%] z-20 hidden xl:block">
-                            <img src="{{ asset('assets/img/landing/SSD-hard.jpg') }}" class="w-[140px] object-contain drop-shadow-xl" alt="SSD">
-                            <div class="mt-1 pl-5 text-[13px] font-black uppercase text-[#0c1736]">SSD <span class="block text-[11px] font-medium normal-case text-slate-500">Opslag</span></div>
-                        </div>
-                        <div class="absolute right-[4%] top-[5%] z-20 hidden xl:block">
-                            <img src="{{ asset('assets/img/landing/pc/cpu.png') }}" class="mx-auto w-[100px] object-contain drop-shadow-xl" alt="CPU">
-                            <div class="mt-2 text-[13px] font-black uppercase text-[#0c1736]">CPU <span class="block text-[11px] font-medium normal-case text-slate-500">Processor</span></div>
-                        </div>
-                        <div class="absolute right-[1%] top-[31%] z-20 hidden xl:block">
-                            <img src="{{ asset('assets/img/landing/pc/motherboard.png') }}" class="w-[160px] object-contain drop-shadow-xl" alt="Motherboard">
-                            <div class="mt-2 text-[13px] font-black uppercase text-[#0c1736]">Moederbord <span class="block text-[11px] font-medium normal-case text-slate-500">Motherboard</span></div>
-                        </div>
-                        <div class="absolute bottom-[17%] right-[0%] z-20 hidden xl:block">
-                            <img src="{{ asset('assets/img/landing/pc/psu.png') }}" class="w-[150px] object-contain drop-shadow-xl" alt="PSU">
-                            <div class="mt-2 text-[13px] font-black uppercase text-[#0c1736]">PSU <span class="block text-[11px] font-medium normal-case text-slate-500">Voeding</span></div>
-                        </div>
-                        <div class="absolute bottom-[0%] left-[50%] z-20 hidden -translate-x-1/2 xl:block">
-                            <img src="{{ asset('assets/img/landing/pc/cooling.png') }}" class="mx-auto w-[145px] object-contain drop-shadow-xl" alt="Cooling">
-                            <div class="text-center text-[13px] font-black uppercase text-[#0c1736]">Koeling <span class="block text-[11px] font-medium normal-case text-slate-500">Cooling</span></div>
-                        </div>
+                             class="relative z-10 mx-auto w-[85%] max-w-[620px] object-contain drop-shadow-[0_30px_30px_rgba(20,54,105,.20)]">
                     </div>
                 </div>
 

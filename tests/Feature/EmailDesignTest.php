@@ -107,7 +107,9 @@ function assertMailLayout(string $html, string $needle): void
         ->not->toContain('<x-mail')
         ->not->toContain('**')
         ->not->toContain('<?php')
-        ->not->toContain('{{');
+        ->not->toContain('{{')
+        ->not->toContain('@section')
+        ->not->toContain('@endsection');
 }
 
 it('renders the order invoice mail in the new design', function () {
@@ -157,6 +159,24 @@ it('renders device receipt mails in the new design', function () {
 
     assertMailLayout((new DeviceReceiptMail($receipt))->render(), 'Bevestiging ontvangst apparaat');
     assertMailLayout((new DeviceReceiptCompletedMail($receipt))->render(), 'Uw apparaat is gerepareerd!');
+});
+
+it('renders chat mails in the new design', function () {
+    $conv = App\Models\ChatConversation::create([
+        'guest_token' => Str::random(64),
+        'name' => 'Jan Jansen',
+        'email' => 'jan@example.com',
+        'status' => 'handed_over',
+        'last_activity_at' => now(),
+    ]);
+    $conv->messages()->create(['sender' => 'customer', 'body' => 'Mijn scherm is kapot', 'source' => 'widget']);
+    $reply = $conv->messages()->create(['sender' => 'admin', 'body' => 'Wij kijken ernaar.', 'source' => 'dashboard']);
+
+    assertMailLayout((new App\Mail\ChatOfflineReceived($conv->fresh()))->render(), 'goed ontvangen');
+    assertMailLayout((new App\Mail\AdminChatNotification($conv->fresh(), 'handover'))->render(), 'Open gesprek');
+    assertMailLayout((new App\Mail\ChatReplyMail($conv->fresh(), $reply->fresh()))->render(), 'Wij kijken ernaar.');
+    assertMailLayout((new App\Mail\ChatClosedMail($conv->fresh()))->render(), 'Bedankt voor je chat');
+    assertMailLayout((new App\Mail\ChatTicketMail($conv->fresh(), 'Ticket aangemaakt! Even geduld alsjeblieft.'))->render(), 'Ticket aangemaakt');
 });
 
 it('renders the manual invoice mail in the new design', function () {

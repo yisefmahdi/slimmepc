@@ -263,9 +263,10 @@
                 <div class="
                         process-laptop absolute
                         left-1/2 top-1/2
-                        z-20 w-[58%]
+                        z-20 flex w-[58%]
                         -translate-x-1/2
                         -translate-y-[42%]
+                        justify-center
                     ">
                     <img src="{{ asset($c['hero']['hero_image'] ?? '') }}" alt="{{ $c['hero']['hero_image_alt'] ?? '' }}"
                         fetchpriority="high" decoding="async"
@@ -273,6 +274,7 @@
                             h-auto
                             w-[111%]
                             max-w-none
+                            flex-shrink-0
                             object-contain
                             drop-shadow-[0_35px_35px_rgba(15,23,42,.32)]
                         ">

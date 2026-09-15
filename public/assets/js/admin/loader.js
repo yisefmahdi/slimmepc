@@ -23,6 +23,7 @@
 
         var href = a.getAttribute('href') || '';
         if (!href || href.charAt(0) === '#' || href.indexOf('javascript:') === 0) return;
+        if (a.hasAttribute('data-photo')) return;
         if (a.target && a.target !== '' && a.target !== '_self') return;
         if (a.hasAttribute('download')) return;
         if (a.origin && a.origin !== window.location.origin) return;

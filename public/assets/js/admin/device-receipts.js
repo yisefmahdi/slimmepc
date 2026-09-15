@@ -143,19 +143,25 @@
                 ev.preventDefault();
                 ev.stopPropagation();
                 const pid = btn.getAttribute('data-photo-del');
-                if (!confirm('Deze foto verwijderen?')) return;
-                btn.disabled = true;
-                fetch('/admin/bevestiging-mail/ontvangst/' + receiptId + '/photo/' + pid, {
-                    method: 'DELETE',
-                    headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': getToken(), 'X-Requested-With': 'XMLHttpRequest' },
-                }).then(r => r.json()).then(() => {
-                    const tile = btn.closest('[data-photo-tile]');
-                    if (tile) tile.remove();
-                    const remaining = grid.querySelectorAll('[data-photo-tile]').length;
-                    if (countEl) countEl.textContent = remaining;
-                    if (emptyEl) emptyEl.style.display = remaining ? 'none' : '';
-                    load();
-                }).catch(() => {}).finally(() => { btn.disabled = false; });
+                const doDelete = () => {
+                    btn.disabled = true;
+                    fetch('/admin/bevestiging-mail/ontvangst/' + receiptId + '/photo/' + pid, {
+                        method: 'DELETE',
+                        headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': getToken(), 'X-Requested-With': 'XMLHttpRequest' },
+                    }).then(r => r.json()).then(() => {
+                        const tile = btn.closest('[data-photo-tile]');
+                        if (tile) tile.remove();
+                        const remaining = grid.querySelectorAll('[data-photo-tile]').length;
+                        if (countEl) countEl.textContent = remaining;
+                        if (emptyEl) emptyEl.style.display = remaining ? 'none' : '';
+                        load();
+                    }).catch(() => {}).finally(() => { btn.disabled = false; });
+                };
+                if (window.SlimmePC && typeof window.SlimmePC.confirm === 'function') {
+                    window.SlimmePC.confirm('Weet je zeker dat je deze foto wilt verwijderen?', doDelete);
+                } else if (confirm('Deze foto verwijderen?')) {
+                    doDelete();
+                }
             });
         });
     }
