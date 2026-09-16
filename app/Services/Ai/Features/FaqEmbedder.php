@@ -7,7 +7,7 @@ use App\Services\Ai\AiService;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Genereert + ververst FAQ-embeddings (question + answer + keywords).
+ * Genereert + ververst FAQ-embeddings (question + answer).
  */
 class FaqEmbedder
 {

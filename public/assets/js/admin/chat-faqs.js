@@ -118,7 +118,6 @@
         if (!id) {
             document.getElementById('faqQuestion').value = '';
             document.getElementById('faqAnswer').value = '';
-            document.getElementById('faqKeywords').value = '';
             document.getElementById('faqCategory').value = '';
             document.getElementById('faqSort').value = '0';
             document.getElementById('faqActive').checked = true;
@@ -130,7 +129,6 @@
                 const f = data.faq;
                 document.getElementById('faqQuestion').value = f.question || '';
                 document.getElementById('faqAnswer').value = f.answer || '';
-                document.getElementById('faqKeywords').value = f.keywords || '';
                 document.getElementById('faqCategory').value = f.category || '';
                 document.getElementById('faqSort').value = f.sort_order ?? 0;
                 document.getElementById('faqActive').checked = !!f.is_active;
@@ -140,39 +138,11 @@
 
     document.getElementById('faqCreateBtn').addEventListener('click', () => openForm(null));
 
-    document.getElementById('faqKeywordsAiBtn').addEventListener('click', () => {
-        const btn = document.getElementById('faqKeywordsAiBtn');
-        const label = document.getElementById('faqKeywordsAiLabel');
-        const question = document.getElementById('faqQuestion').value.trim();
-        const answer = document.getElementById('faqAnswer').value.trim();
-        const category = document.getElementById('faqCategory').value.trim();
-        if (!question || !answer) { toastErr('Vul eerst vraag én antwoord in.'); return; }
-        const kwInput = document.getElementById('faqKeywords');
-        if (kwInput.value.trim() && !confirm('Bestaande zoekwoorden overschrijven met AI-suggesties?')) return;
-        btn.disabled = true;
-        const origLabel = label.textContent;
-        label.textContent = 'AI bedenkt zoekwoorden...';
-        fetch('/admin/chat/faqs/generate-keywords', {
-            method: 'POST',
-            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-CSRF-TOKEN': getToken(), 'X-Requested-With': 'XMLHttpRequest' },
-            body: JSON.stringify({ question, answer, category }),
-        }).then(async r => {
-            const data = await r.json().catch(() => ({}));
-            if (!r.ok || !data.success) throw new Error(data.message || 'Genereren mislukt.');
-            kwInput.value = data.keywords || '';
-            toastOk('Zoekwoorden gegenereerd — controleer en pas aan.');
-        }).catch(e => toastErr(e.message)).finally(() => {
-            btn.disabled = false;
-            label.textContent = origLabel;
-        });
-    });
-
     document.getElementById('faqSaveBtn').addEventListener('click', () => {
         const id = document.getElementById('faqId').value;
         const payload = {
             question: document.getElementById('faqQuestion').value.trim(),
             answer: document.getElementById('faqAnswer').value.trim(),
-            keywords: document.getElementById('faqKeywords').value.trim(),
             category: document.getElementById('faqCategory').value.trim(),
             sort_order: parseInt(document.getElementById('faqSort').value || '0', 10),
             is_active: document.getElementById('faqActive').checked ? 1 : 0,

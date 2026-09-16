@@ -5,7 +5,7 @@ namespace Tests\Unit;
 use App\Models\ChatFaq;
 use App\Services\Ai\AiService;
 use App\Services\Ai\Contracts\EmbeddingClientInterface;
-use App\Services\Ai\Features\ChatAnswerGenerator;
+use App\Services\Ai\Features\ChatTools\SearchKnowledgeTool;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -15,10 +15,11 @@ class ChatEmbeddingTest extends TestCase
 
     protected function mockEmbedding(array $map, ?float $default = 0.1): void
     {
-        $mock = new class($map, $default) implements EmbeddingClientInterface {
+        $mock = new class($map, $default) implements EmbeddingClientInterface
+        {
             public function __construct(private array $map, private ?float $default) {}
 
-            public function embed(string $text): array
+            public function embed(string $text, array $options = []): array
             {
                 foreach ($this->map as $needle => $vector) {
                     if (str_contains(mb_strtolower($text), mb_strtolower((string) $needle))) {
@@ -48,7 +49,6 @@ class ChatEmbeddingTest extends TestCase
         ChatFaq::create([
             'question' => 'Hoe kan ik contact opnemen?',
             'answer' => 'Bel 055 203 21 45.',
-            'keywords' => 'contact,telefoon',
             'is_active' => true,
             'embedding' => [1.0, 0.0, 0.0],
             'embedding_model' => 'test-model',
@@ -56,7 +56,6 @@ class ChatEmbeddingTest extends TestCase
         ChatFaq::create([
             'question' => 'Hoe lang duurt een reparatie?',
             'answer' => 'Meestal dezelfde dag.',
-            'keywords' => 'duur,wachten',
             'is_active' => true,
             'embedding' => [0.0, 1.0, 0.0],
             'embedding_model' => 'test-model',
@@ -65,44 +64,61 @@ class ChatEmbeddingTest extends TestCase
 
     public function test_cosine_similarity_math(): void
     {
-        $gen = new ChatAnswerGenerator();
-
-        $this->assertEquals(1.0, round($gen->cosine([1, 0, 0], [1, 0, 0]), 4));
-        $this->assertEquals(0.0, round($gen->cosine([1, 0, 0], [0, 1, 0]), 4));
-        $this->assertEquals(0.0, $gen->cosine([0, 0, 0], [1, 0, 0]));
+        $this->assertEquals(1.0, round(SearchKnowledgeTool::cosine([1, 0, 0], [1, 0, 0]), 4));
+        $this->assertEquals(0.0, round(SearchKnowledgeTool::cosine([1, 0, 0], [0, 1, 0]), 4));
+        $this->assertEquals(0.0, SearchKnowledgeTool::cosine([0, 0, 0], [1, 0, 0]));
     }
 
-    public function test_arabic_normalization_strips_plurals_and_prefixes(): void
-    {
-        $this->assertEquals('لابتوب', \App\Services\Chat\ArabicText::normalize('لابتوبات'));
-        $this->assertEquals('موظف', \App\Services\Chat\ArabicText::normalize('موظفين'));
-        $this->assertEquals('تواصل', \App\Services\Chat\ArabicText::normalize('التواصل'));
-        $this->assertEquals('ا', \App\Services\Chat\ArabicText::normalize('أ'));
-        $this->assertContains('laptop', \App\Services\Chat\ArabicText::toDutchTerms(['لابتوب']));
-    }
-
-    public function test_embedding_retrieval_picks_closest_faq(): void
+    public function test_semantic_search_picks_closest_faq(): void
     {
         config(['services.embedding.model' => 'test-model']);
         $this->seedFaqs();
         $this->mockEmbedding(['contact' => [1.0, 0.0, 0.0], 'reparatie' => [0.0, 1.0, 0.0]]);
 
-        $gen = new ChatAnswerGenerator();
-        $ref = new \ReflectionMethod($gen, 'findFaqs');
-        $ref->setAccessible(true);
+        $out = (new SearchKnowledgeTool)->execute(['query' => 'hoe kom ik met jullie in contact']);
 
-        $found = $ref->invoke($gen, 'hoe kom ik met jullie in contact');
-        $this->assertNotEmpty($found);
-        $this->assertStringContainsString('contact', mb_strtolower($found[0]['question']));
+        $this->assertStringContainsString('055 203 21 45', $out);
+        $this->assertStringNotContainsString('dezelfde dag', $out);
     }
 
-    public function test_keyword_fallback_when_embedding_fails(): void
+    public function test_strong_match_is_marked_exact(): void
+    {
+        config(['services.embedding.model' => 'test-model']);
+        ChatFaq::create([
+            'question' => 'Hoe lang duurt een reparatie?',
+            'answer' => 'Meestal dezelfde dag.',
+            'is_active' => true,
+            'embedding' => [1.0, 0.0, 0.0],
+            'embedding_model' => 'test-model',
+        ]);
+        $this->mockEmbedding(['reparatie' => [1.0, 0.0, 0.0]]);
+
+        $out = (new SearchKnowledgeTool)->execute(['query' => 'reparatie duur?']);
+
+        expect($out)->toContain('EXACT ANTWOORD')
+            ->and($out)->toContain('dezelfde dag');
+    }
+
+    public function test_semantic_search_reports_honestly_when_nothing_matches(): void
+    {
+        config(['services.embedding.model' => 'test-model']);
+        $this->seedFaqs();
+        // Vector loodrecht op beide FAQs → sim 0 < threshold.
+        $this->mockEmbedding(['piano' => [0.0, 0.0, 1.0]], 0.0);
+
+        $out = (new SearchKnowledgeTool)->execute(['query' => 'piano stemmen aan huis']);
+
+        $this->assertStringContainsString('Geen relevante kennisbank', $out);
+    }
+
+    public function test_semantic_search_reports_technical_failure(): void
     {
         config(['services.embedding.model' => 'test-model']);
         $this->seedFaqs();
 
-        $failing = new class implements EmbeddingClientInterface {
-            public function embed(string $text): array
+        $failing = new class implements EmbeddingClientInterface
+        {
+            public function embed(string $text, array $options = []): array
             {
                 throw new \RuntimeException('API down');
             }
@@ -119,32 +135,18 @@ class ChatEmbeddingTest extends TestCase
         };
         AiService::setEmbeddingClient($failing);
 
-        $gen = new ChatAnswerGenerator();
-        $ref = new \ReflectionMethod($gen, 'findFaqs');
-        $ref->setAccessible(true);
+        $out = (new SearchKnowledgeTool)->execute(['query' => 'wat is jullie telefoonnummer']);
 
-        $found = $ref->invoke($gen, 'wat is jullie telefoonnummer voor contact');
-        $this->assertNotEmpty($found);
-        $this->assertStringContainsString('contact', mb_strtolower($found[0]['question']));
+        $this->assertStringContainsString('niet doorzoekbaar', $out);
     }
 
-    public function test_no_vectors_means_keyword_fallback(): void
+    public function test_empty_knowledge_base_is_reported(): void
     {
         config(['services.embedding.model' => 'test-model']);
-        // Geen embeddings opgeslagen → findFaqsByEmbedding geeft null → fallback.
-        ChatFaq::create([
-            'question' => 'Wat zijn jullie openingstijden?',
-            'answer' => 'Maandag tot vrijdag.',
-            'is_active' => true,
-        ]);
         $this->mockEmbedding([]);
 
-        $gen = new ChatAnswerGenerator();
-        $ref = new \ReflectionMethod($gen, 'findFaqs');
-        $ref->setAccessible(true);
+        $out = (new SearchKnowledgeTool)->execute(['query' => 'wanneer zijn jullie open']);
 
-        $found = $ref->invoke($gen, 'wanneer zijn jullie open');
-        $this->assertNotEmpty($found);
-        $this->assertStringContainsString('openingstijden', mb_strtolower($found[0]['question']));
+        $this->assertStringContainsString('leeg', $out);
     }
 }

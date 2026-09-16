@@ -41,6 +41,11 @@ class AiServiceTest extends TestCase
                 return "```html\n<p>De HP Victus 15 is een krachtige gaming laptop.</p>\n<h3>Belangrijkste kenmerken</h3>\n<ul><li><strong>GPU:</strong> RTX 4060</li></ul>\n```";
             }
 
+            public function chatWithTools(array $messages, array $tools, array $options = []): array
+            {
+                return ['content' => $this->chat($messages, $options), 'calls' => [], 'raw_calls' => []];
+            }
+
             public function isAvailable(): bool
             {
                 return true;
@@ -77,6 +82,11 @@ class AiServiceTest extends TestCase
             public function chat(array $messages, array $options = []): string
             {
                 return 'Mocked AI response';
+            }
+
+            public function chatWithTools(array $messages, array $tools, array $options = []): array
+            {
+                return ['content' => 'Mocked AI response', 'calls' => [], 'raw_calls' => []];
             }
 
             public function isAvailable(): bool

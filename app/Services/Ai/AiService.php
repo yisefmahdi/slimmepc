@@ -12,7 +12,9 @@ use App\Services\Ai\Search\WebSearchService;
 class AiService
 {
     protected static ?AiClientInterface $client = null;
+
     protected static ?WebSearchService $searchService = null;
+
     protected static ?EmbeddingClientInterface $embeddingClient = null;
 
     /**
@@ -21,7 +23,7 @@ class AiService
     public static function client(): AiClientInterface
     {
         if (static::$client === null) {
-            static::$client = new OpenAiClient();
+            static::$client = new OpenAiClient;
         }
 
         return static::$client;
@@ -41,7 +43,7 @@ class AiService
     public static function search(): WebSearchService
     {
         if (static::$searchService === null) {
-            static::$searchService = new WebSearchService();
+            static::$searchService = new WebSearchService;
         }
 
         return static::$searchService;
@@ -50,8 +52,8 @@ class AiService
     /**
      * Generate an e-commerce product description using web search + AI.
      *
-     * @param array<string, mixed> $productData
-     * @param array<string, mixed> $options
+     * @param  array<string, mixed>  $productData
+     * @param  array<string, mixed>  $options
      * @return array{description: string, search_results: array<int, array{title: string, snippet: string, url: string}>, search_count: int}
      */
     public static function generateProductDescription(array $productData, array $options = []): array
@@ -67,8 +69,6 @@ class AiService
     /**
      * Perform a web search.
      *
-     * @param string $query
-     * @param int $limit
      * @return array<int, array{title: string, snippet: string, url: string}>
      */
     public static function searchWeb(string $query, int $limit = 5): array
@@ -79,13 +79,25 @@ class AiService
     /**
      * Direct chat completion.
      *
-     * @param array<int, array{role: string, content: string}> $messages
-     * @param array<string, mixed> $options
-     * @return string
+     * @param  array<int, array{role: string, content: string}>  $messages
+     * @param  array<string, mixed>  $options
      */
     public static function chat(array $messages, array $options = []): string
     {
         return static::client()->chat($messages, $options);
+    }
+
+    /**
+     * Chat completion met function-calling (voor de agentic chat-loop).
+     *
+     * @param  array<int, array<string, mixed>>  $messages
+     * @param  array<int, array<string, mixed>>  $tools
+     * @param  array<string, mixed>  $options
+     * @return array{content: ?string, calls: array<int, array{id: string, name: string, arguments: array<string, mixed>}>, raw_calls: array<int, array<string, mixed>>}
+     */
+    public static function chatWithTools(array $messages, array $tools, array $options = []): array
+    {
+        return static::client()->chatWithTools($messages, $tools, $options);
     }
 
     /**
@@ -94,7 +106,7 @@ class AiService
     public static function embedding(): EmbeddingClientInterface
     {
         if (static::$embeddingClient === null) {
-            static::$embeddingClient = new OpenAiEmbeddingClient();
+            static::$embeddingClient = new OpenAiEmbeddingClient;
         }
 
         return static::$embeddingClient;
@@ -111,10 +123,11 @@ class AiService
     /**
      * Embed one text into a float vector.
      *
+     * @param  array<string, mixed>  $options  Provider-opties (o.a. 'timeout').
      * @return array<int, float>
      */
-    public static function embed(string $text): array
+    public static function embed(string $text, array $options = []): array
     {
-        return static::embedding()->embed($text);
+        return static::embedding()->embed($text, $options);
     }
 }

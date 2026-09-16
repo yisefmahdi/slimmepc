@@ -333,7 +333,8 @@ it('product search returns closest in-stock match with real url', function () {
         'description' => 'Goedkope Dell laptop voor studenten.',
     ]);
 
-    $result = (new ChatProductSearch())->search('ik zoek een laptop rond 600 euro', 3);
+    // Het budget komt van de agent (tool-arg), niet uit de tekst.
+    $result = (new ChatProductSearch())->search('ik zoek een laptop', 3, 600);
 
     expect($result['budget'])->toBe(600)
         ->and($result['products'])->not->toBeEmpty()

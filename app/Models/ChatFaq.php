@@ -9,7 +9,6 @@ class ChatFaq extends Model
     protected $fillable = [
         'question',
         'answer',
-        'keywords',
         'category',
         'is_active',
         'sort_order',
@@ -26,11 +25,12 @@ class ChatFaq extends Model
     }
 
     /**
-     * Tekst die wordt embedded (vraag + antwoord + keywords).
+     * Tekst die wordt embedded (vraag + antwoord). Puur semantisch —
+     * geen keywords: de agent begrijpt betekenis, geen woordenlijsten.
      */
     public function embeddableText(): string
     {
-        return trim($this->question."\n".$this->answer."\n".($this->keywords ?? ''));
+        return trim($this->question."\n".$this->answer);
     }
 
     public function scopeActive($query)

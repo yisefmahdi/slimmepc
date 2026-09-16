@@ -213,7 +213,6 @@ Route::prefix('admin')
                     Route::put('/{faq}', [App\Http\Controllers\Admin\Chat\FaqController::class, 'update'])->name('update');
                     Route::delete('/{faq}', [App\Http\Controllers\Admin\Chat\FaqController::class, 'destroy'])->name('destroy');
                     Route::post('/{faq}/toggle', [App\Http\Controllers\Admin\Chat\FaqController::class, 'toggle'])->name('toggle');
-                    Route::post('/generate-keywords', [App\Http\Controllers\Admin\Chat\FaqController::class, 'generateKeywords'])->name('generate-keywords');
                 });
 
                 Route::prefix('beschikbaarheid')->name('availability.')->group(function () {

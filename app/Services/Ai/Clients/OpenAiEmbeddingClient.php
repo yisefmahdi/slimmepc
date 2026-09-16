@@ -10,9 +10,13 @@ use RuntimeException;
 class OpenAiEmbeddingClient implements EmbeddingClientInterface
 {
     protected ?string $apiKey;
+
     protected string $apiUrl;
+
     protected string $model;
+
     protected int $dimensions;
+
     protected int $timeout;
 
     public function __construct(
@@ -31,21 +35,23 @@ class OpenAiEmbeddingClient implements EmbeddingClientInterface
 
     public function isAvailable(): bool
     {
-        return !empty($this->apiKey);
+        return ! empty($this->apiKey);
     }
 
-    public function embed(string $text): array
+    public function embed(string $text, array $options = []): array
     {
-        $vectors = $this->embedMany([$text]);
+        $vectors = $this->embedMany([$text], $options);
 
         return $vectors[0];
     }
 
-    public function embedMany(array $texts): array
+    public function embedMany(array $texts, array $options = []): array
     {
-        if (!$this->isAvailable()) {
+        if (! $this->isAvailable()) {
             throw new RuntimeException('Embedding API-sleutel ontbreekt. Voeg OPENAI_API_KEY toe aan je .env bestand.');
         }
+
+        $timeout = (int) ($options['timeout'] ?? $this->timeout);
 
         $inputs = array_map(fn ($t) => mb_substr(trim((string) $t), 0, 8000), array_values($texts));
 
@@ -54,11 +60,11 @@ class OpenAiEmbeddingClient implements EmbeddingClientInterface
                 'Authorization' => 'Bearer '.trim($this->apiKey),
                 'Content-Type' => 'application/json',
             ])
-            ->timeout($this->timeout)
-            ->post($this->apiUrl, [
-                'model' => $this->model,
-                'input' => $inputs,
-            ]);
+                ->timeout($timeout)
+                ->post($this->apiUrl, [
+                    'model' => $this->model,
+                    'input' => $inputs,
+                ]);
 
             if ($response->successful()) {
                 $data = $response->json('data', []);

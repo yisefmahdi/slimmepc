@@ -58,7 +58,6 @@ class FaqController extends Controller
         $validated = $request->validate([
             'question' => ['required', 'string', 'max:500'],
             'answer' => ['required', 'string', 'max:5000'],
-            'keywords' => ['nullable', 'string', 'max:2000'],
             'category' => ['nullable', 'string', 'max:100'],
             'is_active' => ['nullable', 'boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:9999'],
@@ -70,7 +69,6 @@ class FaqController extends Controller
         $faq = ChatFaq::create([
             'question' => $validated['question'],
             'answer' => $validated['answer'],
-            'keywords' => $validated['keywords'] ?? null,
             'category' => $validated['category'] ?? null,
             'is_active' => $validated['is_active'] ?? true,
             'sort_order' => $validated['sort_order'] ?? 0,
@@ -93,7 +91,6 @@ class FaqController extends Controller
         $validated = $request->validate([
             'question' => ['required', 'string', 'max:500'],
             'answer' => ['required', 'string', 'max:5000'],
-            'keywords' => ['nullable', 'string', 'max:2000'],
             'category' => ['nullable', 'string', 'max:100'],
             'is_active' => ['nullable', 'boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:9999'],
@@ -126,51 +123,5 @@ class FaqController extends Controller
             'message' => $faq->is_active ? 'Vraag geactiveerd.' : 'Vraag gedeactiveerd.',
             'is_active' => $faq->is_active,
         ]);
-    }
-
-    /**
-     * Genereer NL + AR + EN zoekwoorden met AI (vraag + antwoord als input).
-     */
-    public function generateKeywords(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'question' => ['required', 'string', 'max:500'],
-            'answer' => ['required', 'string', 'max:5000'],
-            'category' => ['nullable', 'string', 'max:100'],
-        ], [
-            'question.required' => 'Vul eerst een vraag in.',
-            'answer.required' => 'Vul eerst een antwoord in.',
-        ]);
-
-        try {
-            $text = \App\Services\Ai\AiService::chat([
-                [
-                    'role' => 'system',
-                    'content' => 'Je bent een meertalige SEO-specialist voor de Slimme-PC chat-kennisbank. '
-                        .'Geef 12 tot 18 komma-gescheiden zoekwoorden waarmee klanten deze vraag kunnen vinden: '
-                        .'Nederlands + Arabisch + Engels, inclusief spreektaal- en spellingsvarianten '
-                        .'(bv. اتوصل/بتوصل naast تواصل, tel naast telefoon). '
-                        .'Antwoord met ALLEEN de kommagescheiden lijst, zonder nummering of uitleg.',
-                ],
-                [
-                    'role' => 'user',
-                    'content' => 'Vraag: '.$validated['question']
-                        ."\nAntwoord: ".$validated['answer']
-                        .($validated['category'] ?? null ? "\nCategorie: ".$validated['category'] : ''),
-                ],
-            ], ['temperature' => 0.6, 'max_tokens' => 250]);
-
-            $keywords = trim(preg_replace('/^\s*[\d\-\*\.\)]+\s*/mu', '', $text) ?? '');
-            $keywords = preg_replace('/\s+/', ' ', $keywords) ?? '';
-            $keywords = trim(preg_replace('/,(\S)/', ', $1', $keywords) ?? '');
-
-            if ($keywords === '') {
-                throw new \RuntimeException('De AI gaf geen zoekwoorden terug.');
-            }
-
-            return response()->json(['success' => true, 'keywords' => mb_substr($keywords, 0, 2000)]);
-        } catch (\Throwable $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
-        }
     }
 }

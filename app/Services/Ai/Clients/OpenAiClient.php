@@ -10,8 +10,11 @@ use RuntimeException;
 class OpenAiClient implements AiClientInterface
 {
     protected ?string $apiKey;
+
     protected string $apiUrl;
+
     protected string $defaultModel;
+
     protected int $timeout;
 
     public function __construct(
@@ -28,41 +31,109 @@ class OpenAiClient implements AiClientInterface
 
     public function isAvailable(): bool
     {
-        return !empty($this->apiKey);
+        return ! empty($this->apiKey);
     }
 
     /**
-     * @param array<int, array{role: string, content: string}> $messages
-     * @param array<string, mixed> $options
-     * @return string
+     * @param  array<int, array{role: string, content: string}>  $messages
+     * @param  array<string, mixed>  $options
      */
     public function chat(array $messages, array $options = []): string
     {
-        if (!$this->isAvailable()) {
+        if (! $this->isAvailable()) {
             throw new RuntimeException('OpenAI API-sleutel ontbreekt. Voeg OPENAI_API_KEY toe aan je .env bestand.');
         }
 
-        $model = $options['model'] ?? $this->defaultModel;
-        $temperature = $options['temperature'] ?? 0.7;
-        $maxTokens = $options['max_tokens'] ?? 1000;
+        $data = $this->post([
+            'model' => $options['model'] ?? $this->defaultModel,
+            'messages' => $messages,
+            'temperature' => $options['temperature'] ?? 0.7,
+            'max_tokens' => $options['max_tokens'] ?? 1000,
+        ], (int) ($options['timeout'] ?? $this->timeout));
 
+        $content = $data['choices'][0]['message']['content'] ?? null;
+        if ($content !== null) {
+            return trim((string) $content);
+        }
+
+        throw new RuntimeException('OpenAI gaf geen tekst terug.');
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $messages
+     * @param  array<int, array<string, mixed>>  $tools
+     * @param  array<string, mixed>  $options
+     * @return array{content: ?string, calls: array<int, array{id: string, name: string, arguments: array<string, mixed>}>, raw_calls: array<int, array<string, mixed>>}
+     */
+    public function chatWithTools(array $messages, array $tools, array $options = []): array
+    {
+        if (! $this->isAvailable()) {
+            throw new RuntimeException('OpenAI API-sleutel ontbreekt. Voeg OPENAI_API_KEY toe aan je .env bestand.');
+        }
+
+        $payload = [
+            'model' => $options['model'] ?? $this->defaultModel,
+            'messages' => $messages,
+            'temperature' => $options['temperature'] ?? 0.3,
+            'max_tokens' => $options['max_tokens'] ?? 500,
+        ];
+        if ($tools) {
+            $payload['tools'] = array_values($tools);
+            $payload['tool_choice'] = $options['tool_choice'] ?? 'auto';
+        }
+
+        $data = $this->post($payload, (int) ($options['timeout'] ?? $this->timeout));
+
+        $message = $data['choices'][0]['message'] ?? [];
+        $content = isset($message['content']) && $message['content'] !== null
+            ? trim((string) $message['content'])
+            : null;
+
+        $calls = [];
+        $raw = [];
+        foreach ((array) ($message['tool_calls'] ?? []) as $tc) {
+            if (! is_array($tc) || ($tc['type'] ?? 'function') !== 'function') {
+                continue;
+            }
+            $raw[] = $tc;
+            $args = [];
+            $rawArgs = $tc['function']['arguments'] ?? '';
+            if (is_string($rawArgs) && $rawArgs !== '') {
+                $decoded = json_decode($rawArgs, true);
+                if (is_array($decoded)) {
+                    $args = $decoded;
+                }
+            } elseif (is_array($rawArgs)) {
+                $args = $rawArgs;
+            }
+            $calls[] = [
+                'id' => (string) ($tc['id'] ?? ''),
+                'name' => (string) ($tc['function']['name'] ?? ''),
+                'arguments' => $args,
+            ];
+        }
+
+        return ['content' => $content === '' ? null : $content, 'calls' => $calls, 'raw_calls' => $raw];
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    protected function post(array $payload, ?int $timeout = null): array
+    {
         try {
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . trim($this->apiKey),
-                'Content-Type'  => 'application/json',
+                'Authorization' => 'Bearer '.trim((string) $this->apiKey),
+                'Content-Type' => 'application/json',
             ])
-            ->timeout($this->timeout)
-            ->post($this->apiUrl, [
-                'model'       => $model,
-                'messages'    => $messages,
-                'temperature' => $temperature,
-                'max_tokens'  => $maxTokens,
-            ]);
+                ->timeout($timeout ?? $this->timeout)
+                ->post($this->apiUrl, $payload);
 
             if ($response->successful()) {
-                $content = $response->json('choices.0.message.content');
-                if ($content !== null) {
-                    return trim($content);
+                $data = $response->json();
+                if (is_array($data)) {
+                    return $data;
                 }
             }
 
@@ -71,8 +142,8 @@ class OpenAiClient implements AiClientInterface
 
             Log::error('OpenAI API Error', [
                 'status' => $response->status(),
-                'code'   => $errorCode,
-                'error'  => $errorMessage,
+                'code' => $errorCode,
+                'error' => $errorMessage,
             ]);
 
             // Friendly error for insufficient quota / expired credits
@@ -90,8 +161,8 @@ class OpenAiClient implements AiClientInterface
                 throw $e;
             }
 
-            Log::error('OpenAI Exception: ' . $e->getMessage());
-            throw new RuntimeException('Fout bij verbinden met OpenAI: ' . $e->getMessage());
+            Log::error('OpenAI Exception: '.$e->getMessage());
+            throw new RuntimeException('Fout bij verbinden met OpenAI: '.$e->getMessage());
         }
     }
 }

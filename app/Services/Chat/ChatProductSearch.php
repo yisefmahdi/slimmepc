@@ -2,8 +2,9 @@
 
 namespace App\Services\Chat;
 
+use App\Models\Category;
 use App\Models\Product;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Collection;
 
 /**
  * Zoekt beschikbare webshop-producten voor de chat.
@@ -12,47 +13,66 @@ use Illuminate\Support\Facades\Log;
 class ChatProductSearch
 {
     /**
+     * Fallback-keten: tokens → enkelvoud → categorie → budget.
+     * "Geen laptops" mag pas als ALLES leeg is.
+     *
      * @return array{budget: int|null, products: array<int, array<string, mixed>>}
      */
-    public function search(string $userText, int $limit = 3, ?int $budgetOverride = null): array
+    public function search(string $userText, int $limit = 3, ?int $budgetOverride = null, ?string $categorySlug = null): array
     {
-        $budget = $budgetOverride ?? $this->extractBudget($userText);
-        $words = array_merge($this->words($userText), ArabicText::toDutchTerms(ArabicText::tokens($userText)));
+        // Budget en categorie komen van de agent (tool-args).
+        // Geen bedrag-extractie uit tekst meer: dit is pure retrieval.
+        $budget = $budgetOverride;
+        $categoryId = $this->resolveCategoryId($categorySlug);
 
-        $query = Product::where('status', true)->with('category');
+        $words = $this->words($userText);
 
-        if ($words) {
-            $query->where(function ($q) use ($words) {
-                foreach ($words as $w) {
-                    $lower = mb_strtolower($w);
-                    $q->orWhere('title', 'like', "%{$w}%")
-                        ->orWhere('brand', 'like', "%{$w}%")
-                        ->orWhere('sku', 'like', "%{$w}%")
-                        ->orWhere('description', 'like', "%{$w}%")
-                        ->orWhereRaw('LOWER(features) LIKE ?', ['%'.$lower.'%']);
-                }
-            });
-        } elseif (! $budget) {
-            return ['budget' => null, 'products' => []];
+        $candidates = $this->matchTokens($words, $categoryId);
+
+        // Stap 2: enkelvoud proberen (laptops → laptop). Generieke
+        // morfologie, geen woordenlijsten.
+        if ($candidates->isEmpty()) {
+            $singular = array_values(array_unique(array_filter(
+                array_map(fn ($w) => $this->singularize($w), $words)
+            )));
+            if ($singular !== $words) {
+                $candidates = $this->matchTokens($singular, $categoryId);
+                $words = $singular;
+            }
         }
 
-        $candidates = $query->orderBy('id')->limit(40)->get();
+        // Stap 3: hele categorie (alles op voorraad) als tokens niets vonden.
+        if ($candidates->isEmpty() && $categoryId) {
+            $candidates = Product::where('status', true)->with('category')
+                ->where('category_id', $categoryId)
+                ->orderBy('id')->limit(40)->get();
+        }
 
-        // Budget-zoekers krijgen ALTIJD het prijsbereik erbij (unie, geen fallback):
-        // zo blijft er keuze (meerdere kaarten) in plaats van één vast product.
+        // Stap 4: budget-zoekers krijgen ALTIJD het prijsbereik erbij.
         if ($budget) {
             $inRange = Product::where('status', true)->with('category')->orderBy('id')->limit(80)->get()
-                ->filter(function (Product $p) use ($budget) {
+                ->filter(function (Product $p) use ($budget, $categoryId) {
                     $v = (float) $p->discounted_price;
+                    if ($v < $budget * 0.5 || $v > $budget * 1.5) {
+                        return false;
+                    }
 
-                    return $v >= $budget * 0.5 && $v <= $budget * 1.5;
+                    return ! $categoryId || (int) $p->category_id === $categoryId;
                 });
             $candidates = $candidates->concat($inRange)->unique('id')->values();
         }
 
         // Geen woordmatch maar wél budget: puur op prijs zoeken.
         if ($candidates->isEmpty() && $budget) {
-            $candidates = Product::where('status', true)->with('category')->orderBy('id')->limit(60)->get();
+            $q = Product::where('status', true)->with('category')->orderBy('id')->limit(60);
+            if ($categoryId) {
+                $q->where('category_id', $categoryId);
+            }
+            $candidates = $q->get();
+        }
+
+        if ($candidates->isEmpty() && ! $budget) {
+            return ['budget' => null, 'products' => []];
         }
 
         $scored = [];
@@ -63,6 +83,11 @@ class ChatProductSearch
                 if (str_contains($hay, $w)) {
                     $score += mb_strlen($w) >= 4 ? 2 : 1;
                 }
+            }
+            // Expliciet gevraagde categorie = relevantie op zich: leden
+            // overleven het score-filter, de agent beoordeelt de fit.
+            if ($categoryId && (int) $p->category_id === $categoryId) {
+                $score += 2;
             }
             // Voorraad eerst: uitverkocht zakt weg maar blijft zichtbaar als alternatief.
             if (($p->stock_status ?? 'in_stock') !== 'in_stock') {
@@ -91,13 +116,79 @@ class ChatProductSearch
             $items[] = $this->toCard($s['product']);
         }
 
+        // Alles leeg maar enkelvoud verschilt? Hele keten opnieuw met
+        // enkelvoud (idempotent — geen oneindige recursie mogelijk).
+        if (! $items && ! $budget) {
+            $singular = array_values(array_unique(array_filter(
+                array_map(fn ($w) => $this->singularize($w), $this->words($userText))
+            )));
+            if ($singular !== $this->words($userText)) {
+                return $this->search(implode(' ', $singular), $limit, null, $categorySlug);
+            }
+        }
+
         return ['budget' => $budget, 'products' => $items];
+    }
+
+    /**
+     * Token-match op catalogus + categorie in de haystack.
+     * Met categorie-slug als harde filter (type-validatie).
+     *
+     * @param  array<int, string>  $words
+     * @return Collection<int, Product>
+     */
+    protected function matchTokens(array $words, ?int $categoryId)
+    {
+        $query = Product::where('status', true)->with('category');
+        if ($categoryId) {
+            $query->where('category_id', $categoryId);
+        }
+
+        if ($words) {
+            $query->where(function ($q) use ($words) {
+                foreach ($words as $w) {
+                    $lower = mb_strtolower($w);
+                    $q->orWhere('title', 'like', "%{$w}%")
+                        ->orWhere('brand', 'like', "%{$w}%")
+                        ->orWhere('sku', 'like', "%{$w}%")
+                        ->orWhere('description', 'like', "%{$w}%")
+                        ->orWhereRaw('LOWER(features) LIKE ?', ['%'.$lower.'%'])
+                        ->orWhereHas('category', fn ($cq) => $cq->where('name', 'like', "%{$w}%")->orWhere('slug', 'like', "%{$w}%"));
+                }
+            });
+
+            return $query->orderBy('id')->limit(40)->get();
+        }
+
+        return collect();
+    }
+
+    protected function resolveCategoryId(?string $slug): ?int
+    {
+        $slug = trim((string) $slug);
+        if ($slug === '') {
+            return null;
+        }
+
+        return Category::where('status', true)->where('slug', $slug)->value('id');
+    }
+
+    /**
+     * Generiek enkelvoud (meervoud-s eraf). Morfologie, geen lijst.
+     */
+    protected function singularize(string $word): string
+    {
+        if (mb_strlen($word) > 4 && str_ends_with($word, 's') && ! str_ends_with($word, 'ss')) {
+            return mb_substr($word, 0, -1);
+        }
+
+        return $word;
     }
 
     /**
      * Bouwt kaart-payloads voor product-ids (alleen actieve producten).
      *
-     * @param array<int, int> $ids
+     * @param  array<int, int>  $ids
      * @return array<int, array<string, mixed>>
      */
     public function cardsForIds(array $ids): array
@@ -151,6 +242,8 @@ class ChatProductSearch
             'rating' => $p->rating_avg ? (float) $p->rating_avg : null,
             'rating_count' => (int) ($p->rating_count ?? 0),
             'specs' => implode(' | ', $specs),
+            'category' => $p->category?->name,
+            'category_slug' => $p->category?->slug,
             'image' => $this->imageUrl($p),
             'url' => route('webshop.product', [$categorySlug, $p->slug]),
         ];
@@ -172,25 +265,19 @@ class ChatProductSearch
         return asset('storage/'.ltrim($img, '/'));
     }
 
-    protected function extractBudget(string $text): ?int
-    {
-        if (preg_match('/(\d{2,5})\s*(€|euro|يورو)/iu', $text, $m)) {
-            return (int) $m[1];
-        }
-
-        return null;
-    }
-
     /**
+     * Pure tokenizer voor catalogus-retrieval: splitsen op witruimte,
+     * leestekens eraf, verder niets. Geen stopwoorden, geen lijsten —
+     * de agent formuleert de query, dit knipt hem alleen in stukjes.
+     *
      * @return array<int, string>
      */
     protected function words(string $text): array
     {
-        $stop = ['een', 'het', 'de', 'van', 'voor', 'met', 'die', 'dat', 'the', 'and', 'rond', 'onder', 'tussen', 'حدود', 'بسعر', 'يورو', 'مثلا', 'مثل', 'في', 'على', 'الى', 'إلى', 'من', 'مع', 'هل', 'يوجد', 'عندكم', 'بدي', 'ابغى', 'اريد', 'أريد'];
         $out = [];
         foreach (preg_split('/\s+/u', mb_strtolower($text)) ?? [] as $w) {
             $w = trim($w, " \t\n\r\0\x0B.,!?;:\"'()€");
-            if (mb_strlen($w) >= 3 && ! in_array($w, $stop, true) && ! is_numeric($w)) {
+            if ($w !== '' && ! is_numeric($w)) {
                 $out[] = $w;
             }
         }
