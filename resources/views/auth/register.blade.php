@@ -1,5 +1,5 @@
 <x-guest-layout>
-    <x-auth-card :max-width="'390px'">
+    <x-auth-card>
         {{-- Logo --}}
         <div class="mb-5 flex justify-center fade-in-up">
             <x-logo :size="100" />
