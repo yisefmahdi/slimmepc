@@ -266,34 +266,6 @@
                     </div>
                 </div>
 
-                {{-- Juridisch Dropdown (privacy + voorwaarden, CMS) --}}
-                <div x-data="{ open: {{ request()->routeIs('admin.content.section.edit') && in_array(request()->route('page'), ['privacy', 'voorwaarden'], true) ? 'true' : 'false' }} }" class="space-y-1">
-                    <button type="button" @click="open = !open"
-                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
-                            style="color: rgba(255,255,255,0.95)">
-                        <span class="flex items-center gap-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5 text-blue-100">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
-                            </svg>
-                            <span>Juridisch</span>
-                        </span>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                        </svg>
-                    </button>
-                    <div x-show="open" x-cloak x-transition class="border-l-2 border-white/30 ml-6 pl-4 space-y-1.5 py-1 text-xs">
-                        <a href="{{ route('admin.content.section.edit', ['page' => 'privacy', 'section' => 'inhoud']) }}"
-                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === 'privacy' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
-                            Privacyverklaring
-                        </a>
-                        <a href="{{ route('admin.content.section.edit', ['page' => 'voorwaarden', 'section' => 'inhoud']) }}"
-                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === 'voorwaarden' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
-                            Algemene voorwaarden
-                        </a>
-                    </div>
-                </div>
-
                 {{-- 1d. Over ons Dropdown --}}
                 <div x-data="{ open: {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === 'overons' ? 'true' : 'false' }} }" class="space-y-1">
                     <button type="button" @click="open = !open"
@@ -612,6 +584,34 @@
                         <a href="{{ route('admin.users.index') }}"
                            class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.users.*') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
                             Users
+                        </a>
+                    </div>
+                </div>
+
+                {{-- Juridisch Dropdown (privacy + voorwaarden, CMS) --}}
+                <div x-data="{ open: {{ request()->routeIs('admin.content.section.edit') && in_array(request()->route('page'), ['privacy', 'voorwaarden'], true) ? 'true' : 'false' }} }" class="space-y-1">
+                    <button type="button" @click="open = !open"
+                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
+                            style="color: rgba(255,255,255,0.95)">
+                        <span class="flex items-center gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5 text-blue-100">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+                            </svg>
+                            <span>Juridisch</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+                    <div x-show="open" x-cloak x-transition class="border-l-2 border-white/30 ml-6 pl-4 space-y-1.5 py-1 text-xs">
+                        <a href="{{ route('admin.content.section.edit', ['page' => 'privacy', 'section' => 'inhoud']) }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === 'privacy' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Privacyverklaring
+                        </a>
+                        <a href="{{ route('admin.content.section.edit', ['page' => 'voorwaarden', 'section' => 'inhoud']) }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === 'voorwaarden' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Algemene voorwaarden
                         </a>
                     </div>
                 </div>
