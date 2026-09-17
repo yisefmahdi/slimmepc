@@ -27,6 +27,7 @@ class StoreCheckoutRequest extends FormRequest
             'shipping_method' => 'required|in:delivery,pickup',
             'saved_address_id' => 'nullable|exists:addresses,id',
             'newsletter' => 'nullable|boolean',
+            'terms' => 'accepted',
         ];
     }
 
@@ -45,6 +46,7 @@ class StoreCheckoutRequest extends FormRequest
             'phone.required' => 'Telefoonnummer is verplicht.',
             'shipping_method.required' => 'Kies een verzendmethode.',
             'shipping_method.in' => 'Ongeldige verzendmethode.',
+            'terms.accepted' => 'Ga akkoord met de algemene voorwaarden en het privacybeleid.',
         ];
     }
 

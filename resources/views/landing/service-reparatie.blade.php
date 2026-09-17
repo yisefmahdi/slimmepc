@@ -631,7 +631,7 @@
                                 </span>
                                 <span>
                                     Ik ga akkoord met de
-                                    <a href="/privacyverklaring" class="font-bold text-slimme-600 hover:underline">privacyverklaring</a>
+                                    <a href="/privacy" class="font-bold text-slimme-600 hover:underline">privacyverklaring</a>
                                     en begrijp dat een definitieve prijs vaak pas na diagnose kan worden gegeven.
                                 </span>
                             </label>

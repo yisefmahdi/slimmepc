@@ -1897,6 +1897,40 @@ return [
             ],
         ],
 
+        'privacy' => [
+            'label' => 'Privacyverklaring',
+            'sections' => [
+                'inhoud' => [
+                    'label' => 'Inhoud (titel + tekst)',
+                    'blocks' => [
+                        'badge' => ['label' => 'Badge (boven de titel)', 'type' => 'text'],
+                        'title_line1' => ['label' => 'Titel regel 1', 'type' => 'text'],
+                        'title_line2' => ['label' => 'Titel regel 2 (blauw)', 'type' => 'text'],
+                        'description' => ['label' => 'Introductie', 'type' => 'textarea'],
+                        'content' => ['label' => 'Tekst (gebruik ## voor een kop, witregel = nieuwe alinea)', 'type' => 'textarea'],
+                        'updated_label' => ['label' => 'Regel onderaan (bijv. Laatst bijgewerkt: ...)', 'type' => 'text'],
+                    ],
+                ],
+            ],
+        ],
+
+        'voorwaarden' => [
+            'label' => 'Algemene voorwaarden',
+            'sections' => [
+                'inhoud' => [
+                    'label' => 'Inhoud (titel + tekst)',
+                    'blocks' => [
+                        'badge' => ['label' => 'Badge (boven de titel)', 'type' => 'text'],
+                        'title_line1' => ['label' => 'Titel regel 1', 'type' => 'text'],
+                        'title_line2' => ['label' => 'Titel regel 2 (blauw)', 'type' => 'text'],
+                        'description' => ['label' => 'Introductie', 'type' => 'textarea'],
+                        'content' => ['label' => 'Tekst (gebruik ## voor een kop, witregel = nieuwe alinea)', 'type' => 'textarea'],
+                        'updated_label' => ['label' => 'Regel onderaan (bijv. Laatst bijgewerkt: ...)', 'type' => 'text'],
+                    ],
+                ],
+            ],
+        ],
+
         'overons' => [
             'label' => 'Over ons',
             'sections' => [

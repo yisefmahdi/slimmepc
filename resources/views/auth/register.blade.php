@@ -249,9 +249,9 @@
 
                 <span class="text-[12px] leading-[18px]" style="color: var(--c-body)">
                     Ik ga akkoord met de
-                    <a href="#" class="font-medium text-blue-600 hover:underline dark:text-blue-400">voorwaarden</a>
+                    <a href="{{ route('voorwaarden') }}" target="_blank" rel="noopener" class="font-medium text-blue-600 hover:underline dark:text-blue-400">voorwaarden</a>
                     en het
-                    <a href="#" class="font-medium text-blue-600 hover:underline dark:text-blue-400">privacybeleid</a>.
+                    <a href="{{ route('privacy') }}" target="_blank" rel="noopener" class="font-medium text-blue-600 hover:underline dark:text-blue-400">privacybeleid</a>.
                 </span>
             </label>
 

@@ -212,6 +212,60 @@ class PageController extends Controller
         return response($html)->header('Content-Type', 'text/html; charset=UTF-8');
     }
 
+    public function privacy()
+    {
+        $version = Cms::version();
+        $cacheKey = "cms.page.html.privacy.{$version}";
+
+        if (!Auth::check()) {
+            $cached = Cache::get($cacheKey);
+
+            if (is_string($cached)) {
+                return response($cached)->header('Content-Type', 'text/html; charset=UTF-8');
+            }
+        }
+
+        // Header/footer live on the 'home' page; the privacy content lives on 'privacy'.
+        $c = Cms::page('home');
+        $l = Cms::page('privacy');
+        $design = Cms::design();
+
+        $html = view('landing.privacy', compact('c', 'l', 'design'))->render();
+
+        if (!Auth::check()) {
+            Cache::put($cacheKey, $html, now()->addMonth());
+        }
+
+        return response($html)->header('Content-Type', 'text/html; charset=UTF-8');
+    }
+
+    public function voorwaarden()
+    {
+        $version = Cms::version();
+        $cacheKey = "cms.page.html.voorwaarden.{$version}";
+
+        if (!Auth::check()) {
+            $cached = Cache::get($cacheKey);
+
+            if (is_string($cached)) {
+                return response($cached)->header('Content-Type', 'text/html; charset=UTF-8');
+            }
+        }
+
+        // Header/footer live on the 'home' page; the voorwaarden content lives on 'voorwaarden'.
+        $c = Cms::page('home');
+        $l = Cms::page('voorwaarden');
+        $design = Cms::design();
+
+        $html = view('landing.voorwaarden', compact('c', 'l', 'design'))->render();
+
+        if (!Auth::check()) {
+            Cache::put($cacheKey, $html, now()->addMonth());
+        }
+
+        return response($html)->header('Content-Type', 'text/html; charset=UTF-8');
+    }
+
     public function reparatie()
     {
         // NEVER cache this page: it contains a CSRF-protected form. A cached HTML

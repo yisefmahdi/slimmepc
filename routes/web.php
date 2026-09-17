@@ -28,6 +28,10 @@ Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 
 Route::get('/over-ons', [PageController::class, 'overons'])->name('over-ons');
 
+Route::get('/privacy', [PageController::class, 'privacy'])->name('privacy');
+
+Route::get('/voorwaarden', [PageController::class, 'voorwaarden'])->name('voorwaarden');
+
 Route::get('/reparatie-aanmelden', [PageController::class, 'reparatie'])->name('reparatie');
 
 Route::get('/diensten/{slug}', [PageController::class, 'service'])->name('service.show');

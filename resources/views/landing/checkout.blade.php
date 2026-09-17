@@ -192,6 +192,11 @@
                                 <p class="text-slate-600 text-xs mt-1">Je hoeft geen verzendadres in te vullen. Je ontvangt een bericht zodra je bestelling klaarstaat.</p>
                             </div>
                             <p class="err hidden mt-1 text-xs font-semibold text-red-600" data-err="shipping_method"></p>
+                            <label class="mt-4 flex cursor-pointer items-start gap-2.5 rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3">
+                                <input type="checkbox" name="terms" value="1" class="field mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 accent-[#155EEF]">
+                                <span class="text-xs leading-relaxed text-slate-600">Ik ga akkoord met de <a href="/voorwaarden" target="_blank" rel="noopener" class="font-semibold text-[#155EEF] hover:underline">algemene voorwaarden</a> en het <a href="/privacy" target="_blank" rel="noopener" class="font-semibold text-[#155EEF] hover:underline">privacybeleid</a>.</span>
+                            </label>
+                            <p class="err hidden mt-1 text-xs font-semibold text-red-600" data-err="terms"></p>
                             <button id="payBtn" type="submit" class="w-full h-[52px] mt-5 rounded-xl bg-gradient-to-r from-brand to-[#0C4CD9] text-white font-semibold shadow-blue hover:-translate-y-[1px] transition-all">
                                 <span id="payBtnLabel" class="flex items-center justify-center gap-3">Verder naar betaling <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
                             </button>
