@@ -2,23 +2,23 @@
     {{-- App shell: fills the viewport below the admin header, no page scroll --}}
     <div class="inbox-app flex h-[calc(100dvh-108px)] min-h-[24rem] flex-col overflow-hidden lg:h-[calc(100dvh-9rem)] lg:min-h-[26rem]">
 
-        {{-- Slim header --}}
-        <div id="chatInboxPageHeader" class="mb-4 flex shrink-0 flex-wrap items-center justify-between gap-x-2 gap-y-2">
-            <div>
+        {{-- Slim header (compact app-style on mobile: single scrollable badge row, no description) --}}
+        <div id="chatInboxPageHeader" class="mb-3 flex shrink-0 flex-col gap-2 sm:mb-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-2 sm:gap-y-2">
+            <div class="min-w-0">
                 <h2 class="text-base font-extrabold tracking-tight sm:text-lg" style="color: var(--c-heading)">Live Chat</h2>
-                <p class="mt-0.5 text-xs" style="color: var(--c-muted)">Gesprekken met klant- en AI-berichten. Zodra jij antwoordt, stopt de AI.</p>
+                <p class="mt-0.5 hidden text-xs sm:block" style="color: var(--c-muted)">Gesprekken met klant- en AI-berichten. Zodra jij antwoordt, stopt de AI.</p>
             </div>
-            <div class="flex flex-wrap items-center gap-2 text-xs">
-                <span class="rounded-full bg-amber-50 px-3 py-1.5 font-bold text-amber-600 dark:bg-amber-900/30 dark:text-amber-400" id="chatCountHandover">
+            <div class="flex max-w-full flex-nowrap items-center gap-1.5 overflow-x-auto pb-0.5 text-[11px] sm:flex-wrap sm:gap-2 sm:overflow-visible sm:pb-0 sm:text-xs">
+                <span class="shrink-0 rounded-full bg-amber-50 px-2.5 py-1 font-bold text-amber-600 sm:px-3 sm:py-1.5 dark:bg-amber-900/30 dark:text-amber-400" id="chatCountHandover">
                     Medewerker: 0
                 </span>
-                <span class="rounded-full bg-red-50 px-3 py-1.5 font-bold text-red-600 dark:bg-red-900/30 dark:text-red-400" id="chatCountUnread">
+                <span class="shrink-0 rounded-full bg-red-50 px-2.5 py-1 font-bold text-red-600 sm:px-3 sm:py-1.5 dark:bg-red-900/30 dark:text-red-400" id="chatCountUnread">
                     Ongelezen: 0
                 </span>
-                <span class="rounded-full bg-blue-50 px-3 py-1.5 font-bold text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" id="chatCountOpen">
+                <span class="shrink-0 rounded-full bg-blue-50 px-2.5 py-1 font-bold text-blue-600 sm:px-3 sm:py-1.5 dark:bg-blue-900/30 dark:text-blue-400" id="chatCountOpen">
                     Open: 0
                 </span>
-                <span class="rounded-full bg-slate-100 px-3 py-1.5 font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300" id="chatCountRating">
+                <span class="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 font-bold text-slate-600 sm:px-3 sm:py-1.5 dark:bg-slate-800 dark:text-slate-300" id="chatCountRating">
                     ★ — (0)
                 </span>
             </div>
@@ -33,7 +33,7 @@
                  style="background-color: var(--c-card); border-color: rgba(148, 163, 184, 0.2); box-shadow: 0 14px 35px rgba(15, 23, 42, 0.06)">
 
                 {{-- Search --}}
-                <div class="shrink-0 border-b px-4 py-3" style="border-color: rgba(148, 163, 184, 0.15)">
+                <div class="shrink-0 border-b px-3 py-2.5 sm:px-4 sm:py-3" style="border-color: rgba(148, 163, 184, 0.15)">
                     <div class="relative">
                         <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-4 w-4">
@@ -83,7 +83,7 @@
 
             {{-- ============ RIGHT: chat ============ --}}
             <div id="chatPane"
-                 class="inbox-pane hidden min-h-0 flex-col overflow-hidden rounded-2xl border lg:flex"
+                 class="inbox-pane hidden min-h-0 min-w-0 flex-col overflow-hidden rounded-2xl border lg:flex"
                  style="background-color: var(--c-card); border-color: rgba(148, 163, 184, 0.2); box-shadow: 0 14px 35px rgba(15, 23, 42, 0.06)">
 
                 {{-- Empty state --}}
@@ -98,36 +98,36 @@
                 </div>
 
                 {{-- Chat --}}
-                <div id="chatThread" class="hidden min-h-0 flex-1 flex-col">
+                <div id="chatThread" class="hidden min-h-0 min-w-0 flex-1 flex-col">
 
-                    {{-- Chat header --}}
-                    <div class="shrink-0 border-b px-4 py-3.5 sm:px-5" style="border-color: rgba(148, 163, 184, 0.15)">
-                        <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-2.5">
-                            <div class="flex min-w-0 items-center gap-3">
+                    {{-- Chat header (app-style bar: single row on mobile) --}}
+                    <div class="shrink-0 border-b px-3 py-2.5 sm:px-5 sm:py-3.5" style="border-color: rgba(148, 163, 184, 0.15)">
+                        <div class="flex items-center justify-between gap-2 sm:gap-3">
+                            <div class="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
                                 <button type="button" id="chatBackBtn"
-                                        class="rounded-lg p-2 transition hover:bg-blue-50 hover:text-blue-600 lg:hidden dark:hover:bg-blue-900/30" style="color: var(--c-muted)">
+                                        class="shrink-0 rounded-lg p-2.5 transition hover:bg-blue-50 hover:text-blue-600 lg:hidden dark:hover:bg-blue-900/30" style="color: var(--c-muted)">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
                                     </svg>
                                 </button>
                                 <span id="chatAvatar"
-                                      class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-[#075be8] to-[#064bd7] text-base font-bold text-white shadow-[0_10px_25px_rgba(0,91,234,0.25)]">?</span>
-                                <div class="min-w-0">
-                                    <p id="chatName" class="truncate font-extrabold" style="color: var(--c-heading)">—</p>
-                                    <p id="chatMeta" class="truncate text-xs" style="color: var(--c-muted)">—</p>
+                                      class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-[#075be8] to-[#064bd7] text-base font-bold text-white shadow-[0_10px_25px_rgba(0,91,234,0.25)] sm:h-11 sm:w-11">?</span>
+                                <div class="min-w-0 flex-1">
+                                    <p id="chatName" class="truncate text-sm font-extrabold sm:text-base" style="color: var(--c-heading)">—</p>
+                                    <p id="chatMeta" class="truncate text-[11px] sm:text-xs" style="color: var(--c-muted)">—</p>
                                 </div>
                             </div>
 
-                            <div class="flex shrink-0 items-center gap-2">
-                                <span id="chatRatingBadge" class="hidden items-center gap-1 rounded-lg bg-amber-50 px-2.5 py-2 text-xs font-bold text-amber-600 dark:bg-amber-900/30 dark:text-amber-400" title="Beoordeling">★ —</span>
+                            <div class="flex shrink-0 items-center gap-1.5 sm:gap-2">
+                                <span id="chatRatingBadge" class="hidden items-center gap-1 rounded-lg bg-amber-50 px-2 py-1.5 text-xs font-bold text-amber-600 sm:px-2.5 sm:py-2 dark:bg-amber-900/30 dark:text-amber-400" title="Beoordeling">★ —</span>
                                 <button type="button" id="chatAiToggle" title="AI aan/uit"
-                                        class="inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-xs font-bold transition"
+                                        class="inline-flex h-9 items-center gap-1.5 rounded-lg border px-2 text-xs font-bold transition sm:px-3"
                                         style="border-color: var(--c-input-border); color: var(--c-heading)">
-                                    <span id="chatAiDot" class="inline-block h-2 w-2 rounded-full bg-green-500"></span>
-                                    <span id="chatAiLabel">AI aan</span>
+                                    <span id="chatAiDot" class="inline-block h-2 w-2 shrink-0 rounded-full bg-green-500"></span>
+                                    <span id="chatAiLabel" class="hidden sm:inline">AI aan</span>
                                 </button>
                                 <select id="chatStatusSelect"
-                                        class="h-9 cursor-pointer appearance-none rounded-lg border py-1.5 pl-3 pr-8 text-xs font-bold leading-none outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/40"
+                                        class="h-9 max-w-[6.5rem] cursor-pointer appearance-none truncate rounded-lg border py-1.5 pl-2.5 pr-7 text-xs font-bold leading-none outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 sm:max-w-none sm:pl-3 sm:pr-8 dark:focus:ring-blue-900/40"
                                         style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading); background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m19.5 8.25-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E&quot;); background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 12px;">
                                     <option value="ai">AI actief</option>
                                     <option value="open">Open</option>
@@ -143,28 +143,28 @@
                             </div>
                         </div>
 
-                        {{-- Compact meta chips --}}
-                        <div class="mt-3 flex flex-wrap items-center gap-2 text-[11px]">
-                            <span class="inline-flex items-center gap-1.5 rounded-md border px-2 py-1 font-semibold" style="border-color: rgba(148, 163, 184, 0.15); color: var(--c-heading)">
+                        {{-- Compact meta chips (one scrollable row on mobile, wrapped on desktop) --}}
+                        <div class="mt-2 flex flex-nowrap items-center gap-1.5 overflow-x-auto pb-0.5 text-[11px] sm:mt-3 sm:flex-wrap sm:gap-2 sm:overflow-visible sm:pb-0">
+                            <span class="inline-flex shrink-0 items-center gap-1.5 rounded-md border px-2 py-1 font-semibold" style="border-color: rgba(148, 163, 184, 0.15); color: var(--c-heading)">
                                 E-mail: <span id="chatEmail" class="font-bold">—</span>
                             </span>
-                            <span class="inline-flex items-center gap-1.5 rounded-md border px-2 py-1 font-semibold" style="border-color: rgba(148, 163, 184, 0.15); color: var(--c-heading)">
+                            <span class="inline-flex shrink-0 items-center gap-1.5 rounded-md border px-2 py-1 font-semibold" style="border-color: rgba(148, 163, 184, 0.15); color: var(--c-heading)">
                                 Account: <span id="chatAccount" class="font-bold">—</span>
                             </span>
-                            <span id="chatRatingChip" class="hidden items-center gap-1.5 rounded-md border px-2 py-1 font-semibold" style="border-color: rgba(148, 163, 184, 0.15); color: var(--c-heading)">
+                            <span id="chatRatingChip" class="hidden shrink-0 items-center gap-1.5 rounded-md border px-2 py-1 font-semibold" style="border-color: rgba(148, 163, 184, 0.15); color: var(--c-heading)">
                                 Beoordeling: <span id="chatRatingText" class="font-bold">—</span>
                             </span>
-                            <span class="inline-flex items-center gap-1.5 rounded-md border px-2 py-1 font-semibold" style="border-color: rgba(148, 163, 184, 0.15); color: var(--c-heading)">
+                            <span class="inline-flex shrink-0 items-center gap-1.5 rounded-md border px-2 py-1 font-semibold" style="border-color: rgba(148, 163, 184, 0.15); color: var(--c-heading)">
                                 Gestart: <span id="chatDate" class="font-bold">—</span>
                             </span>
                         </div>
                     </div>
 
                     {{-- Thread (scrolls) --}}
-                    <div id="chatMessages" class="inbox-scroll min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-5 sm:px-6"></div>
+                    <div id="chatMessages" class="inbox-scroll min-h-0 min-w-0 flex-1 space-y-3 overflow-y-auto px-3 py-4 sm:space-y-4 sm:px-6 sm:py-5"></div>
 
                     {{-- Reply box --}}
-                    <div class="shrink-0 border-t px-4 py-4 sm:px-5" style="border-color: rgba(148, 163, 184, 0.15)">
+                    <div class="shrink-0 border-t px-3 py-3 sm:px-5 sm:py-4" style="border-color: rgba(148, 163, 184, 0.15)">
                         <p id="chatLockedNote" class="mb-3 hidden items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-xs font-bold text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-4 w-4 shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
                             Ticket gesloten — heropen het gesprek via de status hierboven om te antwoorden.
@@ -181,9 +181,9 @@
                                 </svg>
                             </button>
                         </div>
-                        <div class="flex items-end gap-2.5">
+                        <div class="flex min-w-0 items-end gap-2 sm:gap-2.5">
                             <textarea id="chatReply" rows="2" placeholder="Typ je antwoord hier... ( AI stopt zodra je verstuurt )"
-                                      class="form-input flex-1 resize-none text-sm" style="min-height: 52px"></textarea>
+                                      class="form-input min-w-0 flex-1 resize-none text-sm" style="min-height: 52px"></textarea>
                             <input type="file" id="chatAttachFile" class="hidden" accept=".jpg,.jpeg,.png,.webp,.avif">
                             <button type="button" id="chatAttachBtn" title="Foto toevoegen (max 10 MB)"
                                     class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-slate-800"

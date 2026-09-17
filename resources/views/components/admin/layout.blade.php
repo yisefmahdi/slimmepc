@@ -706,8 +706,8 @@
                 {{ $slot }}
             </main>
 
-            {{-- Footer (hidden on the full-height inbox page so it never scrolls) --}}
-            @if (!request()->routeIs('admin.contact-inbox.index'))
+            {{-- Footer (hidden on the full-height inbox pages so they never scroll) --}}
+            @if (!request()->routeIs('admin.contact-inbox.index') && !request()->routeIs('admin.chat.inbox.*'))
             <footer class="px-3 pb-5 sm:px-6 lg:px-8">
                 <p class="text-center text-xs" style="color: var(--c-muted)">
                     &copy; {{ date('Y') }} Slimme-PC Beheer. Alle rechten voorbehouden.

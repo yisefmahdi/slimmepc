@@ -89,6 +89,7 @@
                         <span id="ontvangstPhotoCounter" class="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-400">0 / 20</span>
                     </div>
                     <input type="file" id="ontvangstPhotos" name="photos[]" multiple accept=".jpg,.jpeg,.png,.webp,.avif" class="hidden">
+                    <input type="file" id="ontvangstPhotosCamera" accept="image/*" capture="environment" class="hidden">
                     <div id="ontvangstDropzone"
                          class="group relative flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-blue-200/80 bg-blue-50/30 p-5 text-center transition hover:border-blue-500 hover:bg-blue-50/70 dark:border-blue-900/40 dark:bg-slate-900/20 dark:hover:border-blue-500">
                         <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-blue-600 shadow-sm transition group-hover:scale-105 group-hover:bg-blue-600 group-hover:text-white dark:bg-slate-800 dark:text-blue-400">
@@ -100,7 +101,7 @@
                             <p class="text-sm font-bold text-slate-700 dark:text-slate-200">
                                 Sleep foto's hierheen of <span class="text-blue-600 hover:underline">klik om te selecteren</span>
                             </p>
-                            <p class="mt-0.5 text-xs text-slate-400">Optioneel · Meerdere bestanden tegelijk · Maximaal 20 foto's (PNG, JPG, WEBP, AVIF · 10MB per foto)</p>
+                            <p class="mt-0.5 text-xs text-slate-400">Optioneel · Kies uit bestanden of maak direct een foto met de camera · Maximaal 20 foto's (PNG, JPG, WEBP, AVIF · 10MB per foto)</p>
                         </div>
                     </div>
                     <div id="ontvangstPhotosPreview" class="mt-3 flex flex-wrap items-center gap-2.5 sm:gap-3"></div>
@@ -117,6 +118,72 @@
             <div id="ontvangstFormMsg" class="mt-4 hidden rounded-xl border px-4 py-3 text-sm font-bold"></div>
         </form>
     </div>
+
+    {{-- ============ Foto-bron kiezen (bestanden of camera) ============ --}}
+    <x-admin.modal id="ontvangstPhotoSource" title="Foto toevoegen" subtitle="Kies uit je bestanden of maak direct een foto." size="sm">
+        {{-- Stap 1: bron kiezen --}}
+        <div id="ontvangstSourceChoice" class="grid grid-cols-2 gap-3">
+            <button type="button" id="ontvangstPickFiles"
+                    class="flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50/40 px-4 py-6 text-blue-700 transition hover:border-blue-500 hover:bg-blue-50/80 dark:bg-slate-900/40 dark:text-blue-300">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor" class="h-9 w-9">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" />
+                </svg>
+                <span class="text-sm font-bold">Bestanden</span>
+                <span class="text-[11px] font-medium opacity-70">Kies één of meer foto's</span>
+            </button>
+            <button type="button" id="ontvangstPickCamera"
+                    class="flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-emerald-300 bg-emerald-50/40 px-4 py-6 text-emerald-700 transition hover:border-emerald-500 hover:bg-emerald-50/80 dark:bg-slate-900/40 dark:text-emerald-300">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor" class="h-9 w-9">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Z" />
+                </svg>
+                <span class="text-sm font-bold">Camera</span>
+                <span class="text-[11px] font-medium opacity-70">Maak direct een foto</span>
+            </button>
+        </div>
+
+        {{-- Stap 2: live camera (werkt met webcam én aangesloten USB-camera) --}}
+        <div id="ontvangstCameraView" class="hidden flex-col gap-3">
+            <div class="relative overflow-hidden rounded-2xl bg-slate-950">
+                <video id="ontvangstCameraVideo" autoplay playsinline muted
+                       class="aspect-[4/3] w-full object-cover"></video>
+                <span class="absolute left-2 top-2 flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-bold text-white">
+                    <span class="inline-block h-2 w-2 animate-pulse rounded-full bg-red-500"></span>
+                    LIVE
+                </span>
+            </div>
+            <label class="text-xs font-semibold" style="color: var(--c-heading)">
+                Camera kiezen
+                <select id="ontvangstCameraDevice"
+                        class="form-input mt-1 h-10 w-full text-xs"></select>
+            </label>
+            <p id="ontvangstCameraError" class="hidden rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-bold text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300"></p>
+            <div class="flex gap-2">
+                <button type="button" id="ontvangstCaptureBtn"
+                        class="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-bold text-white shadow-[0_10px_25px_rgba(5,150,105,.25)] transition hover:bg-emerald-700 disabled:opacity-60">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Z" />
+                    </svg>
+                    Foto maken
+                </button>
+                <button type="button" id="ontvangstCameraBackBtn"
+                        class="inline-flex h-11 items-center justify-center rounded-xl border px-4 text-sm font-semibold transition hover:bg-slate-100 dark:hover:bg-slate-800"
+                        style="color: var(--c-heading); border-color: var(--c-input-border)">
+                    Terug
+                </button>
+            </div>
+            <canvas id="ontvangstCameraCanvas" class="hidden"></canvas>
+        </div>
+
+        <x-slot name="footer">
+            <button type="button" data-modal-close
+                    class="inline-flex h-11 items-center justify-center rounded-xl border px-5 text-sm font-semibold transition hover:bg-slate-100 dark:hover:bg-slate-800"
+                    style="color: var(--c-heading); border-color: var(--c-input-border)">
+                Annuleren
+            </button>
+        </x-slot>
+    </x-admin.modal>
 
     <script>
         (function(){
@@ -136,6 +203,149 @@
 
             // ---- Foto's: dashboard-stijl preview (dropzone + tiles + DataTransfer) ----
             const photoInput = document.getElementById('ontvangstPhotos');
+            const cameraInput = document.getElementById('ontvangstPhotosCamera');
+            const pickFilesBtn = document.getElementById('ontvangstPickFiles');
+            const pickCameraBtn = document.getElementById('ontvangstPickCamera');
+            const SOURCE_MODAL = 'ontvangstPhotoSource';
+
+            function openSourcePicker(){
+                if(window.SlimmePC && window.SlimmePC.modal){ window.SlimmePC.modal.open(SOURCE_MODAL); return; }
+                const m = document.getElementById('modal-' + SOURCE_MODAL);
+                if(m) m.classList.remove('hidden');
+                else if(photoInput) photoInput.click();
+            }
+            function closeSourcePicker(){
+                if(window.SlimmePC && window.SlimmePC.modal){ window.SlimmePC.modal.close(SOURCE_MODAL); return; }
+                const m = document.getElementById('modal-' + SOURCE_MODAL);
+                if(m) m.classList.add('hidden');
+            }
+
+            if(pickFilesBtn && photoInput){
+                pickFilesBtn.addEventListener('click', () => { photoInput.click(); closeSourcePicker(); });
+            }
+
+            // ---- Live camera (webcam + aangesloten USB-camera + mobiele camera) ----
+            const choiceView = document.getElementById('ontvangstSourceChoice');
+            const cameraView = document.getElementById('ontvangstCameraView');
+            const video = document.getElementById('ontvangstCameraVideo');
+            const deviceSelect = document.getElementById('ontvangstCameraDevice');
+            const camError = document.getElementById('ontvangstCameraError');
+            const captureBtn = document.getElementById('ontvangstCaptureBtn');
+            const camBackBtn = document.getElementById('ontvangstCameraBackBtn');
+            const canvas = document.getElementById('ontvangstCameraCanvas');
+            const sourceModalEl = document.getElementById('modal-' + SOURCE_MODAL);
+            let camStream = null;
+
+            function showCamError(text){
+                if(!camError) return;
+                if(!text){ camError.textContent = ''; camError.classList.add('hidden'); return; }
+                camError.textContent = text;
+                camError.classList.remove('hidden');
+            }
+            function stopCamera(){
+                if(camStream){ camStream.getTracks().forEach(t => { try{ t.stop(); }catch(e){} }); camStream = null; }
+                if(video) video.srcObject = null;
+            }
+            function showChoice(){
+                stopCamera();
+                if(cameraView){ cameraView.classList.add('hidden'); cameraView.classList.remove('flex'); }
+                if(choiceView){ choiceView.classList.remove('hidden'); }
+            }
+            async function listCameras(){
+                if(!deviceSelect) return;
+                try{
+                    const devs = await navigator.mediaDevices.enumerateDevices();
+                    const cams = devs.filter(d => d.kind === 'videoinput');
+                    deviceSelect.innerHTML = '';
+                    if(!cams.length){ deviceSelect.innerHTML = '<option value="">Geen camera gevonden</option>'; return; }
+                    cams.forEach((c, i) => {
+                        const o = document.createElement('option');
+                        o.value = c.deviceId;
+                        o.textContent = c.label || ('Camera ' + (i + 1));
+                        deviceSelect.appendChild(o);
+                    });
+                }catch(e){ /* labels blijven leeg, opname werkt alsnog */ }
+            }
+            async function startCamera(deviceId){
+                stopCamera();
+                showCamError('');
+                const base = { width: { ideal: 1920 }, height: { ideal: 1080 } };
+                const wanted = deviceId ? Object.assign({ deviceId: { exact: deviceId } }, base) : Object.assign({ facingMode: 'environment' }, base);
+                try{
+                    camStream = await navigator.mediaDevices.getUserMedia({ audio: false, video: wanted });
+                }catch(err){
+                    if(deviceId){
+                        try{ camStream = await navigator.mediaDevices.getUserMedia({ audio: false, video: base }); }
+                        catch(e2){ showCamError('Camera niet beschikbaar. Controleer de cameratoestemming in de browser en probeer opnieuw.'); return; }
+                    }else{
+                        showCamError('Camera niet beschikbaar. Controleer de cameratoestemming in de browser en probeer opnieuw.');
+                        return;
+                    }
+                }
+                if(video){
+                    video.srcObject = camStream;
+                    try{ await video.play(); }catch(e){}
+                }
+            }
+            async function openCameraView(){
+                if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+                    closeSourcePicker();
+                    if(cameraInput) cameraInput.click();
+                    return;
+                }
+                if(choiceView) choiceView.classList.add('hidden');
+                if(cameraView){ cameraView.classList.remove('hidden'); cameraView.classList.add('flex'); }
+                if(captureBtn) captureBtn.disabled = true;
+                try{
+                    const tmp = await navigator.mediaDevices.getUserMedia({ audio: false, video: true });
+                    tmp.getTracks().forEach(t => { try{ t.stop(); }catch(e){} });
+                }catch(e){
+                    showCamError('Geen toegang tot de camera. Sta cameragebruik toe in de browser en probeer opnieuw.');
+                    if(captureBtn) captureBtn.disabled = false;
+                    return;
+                }
+                await listCameras();
+                await startCamera(deviceSelect && deviceSelect.value ? deviceSelect.value : null);
+                if(captureBtn) captureBtn.disabled = false;
+            }
+
+            if(pickCameraBtn){
+                pickCameraBtn.addEventListener('click', () => { openCameraView(); });
+            }
+            if(deviceSelect){
+                deviceSelect.addEventListener('change', function(){ startCamera(this.value || null); });
+            }
+            if(camBackBtn){
+                camBackBtn.addEventListener('click', () => { showChoice(); });
+            }
+            if(captureBtn && canvas){
+                captureBtn.addEventListener('click', () => {
+                    if(!camStream || !video || !video.videoWidth){
+                        showCamError('Camera is nog aan het opstarten — wacht een moment en probeer opnieuw.');
+                        return;
+                    }
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+                    canvas.toBlob((blob) => {
+                        if(!blob){ showCamError('Foto maken mislukt, probeer opnieuw.'); return; }
+                        const file = new File([blob], 'camera-' + Date.now() + '.jpg', { type: 'image/jpeg' });
+                        addFiles([file]);
+                        closeSourcePicker();
+                        showChoice();
+                    }, 'image/jpeg', 0.92);
+                });
+            }
+            // Camera altijd stoppen bij sluiten van de popup (overlay / Annuleren / Escape).
+            if(sourceModalEl){
+                sourceModalEl.addEventListener('click', (e) => {
+                    if(e.target.closest('[data-modal-close],[data-modal-overlay]')) showChoice();
+                });
+            }
+            document.addEventListener('keydown', (e) => { if(e.key === 'Escape') showChoice(); });
+            if(cameraInput){
+                cameraInput.addEventListener('change', function(){ addFiles(this.files); this.value = ''; });
+            }
             const dropzone = document.getElementById('ontvangstDropzone');
             const previewGrid = document.getElementById('ontvangstPhotosPreview');
             const counter = document.getElementById('ontvangstPhotoCounter');
@@ -176,7 +386,7 @@
                 addTile.title = 'Foto toevoegen';
                 addTile.className = 'flex h-20 w-20 sm:h-24 sm:w-24 shrink-0 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-blue-300 bg-blue-50/40 text-blue-600 transition hover:border-blue-500 hover:bg-blue-50/80 shadow-sm';
                 addTile.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg><span class="text-[10px] font-bold">Toevoegen</span>';
-                addTile.addEventListener('click', () => photoInput.click());
+                addTile.addEventListener('click', () => openSourcePicker());
                 previewGrid.appendChild(addTile);
                 previewGrid.querySelectorAll('button[data-idx]').forEach(b => {
                     b.addEventListener('click', (ev) => {
@@ -203,11 +413,11 @@
             }
 
             if(dropzone && photoInput){
-                dropzone.addEventListener('click', () => photoInput.click());
+                dropzone.addEventListener('click', () => openSourcePicker());
                 ['dragenter','dragover'].forEach(ev => dropzone.addEventListener(ev, (e) => { e.preventDefault(); dropzone.classList.add('border-blue-500','bg-blue-100/50'); }));
                 ['dragleave','drop'].forEach(ev => dropzone.addEventListener(ev, (e) => { e.preventDefault(); dropzone.classList.remove('border-blue-500','bg-blue-100/50'); }));
                 dropzone.addEventListener('drop', (e) => addFiles(e.dataTransfer.files));
-                photoInput.addEventListener('change', function(){ addFiles(this.files); });
+                photoInput.addEventListener('change', function(){ addFiles(this.files); this.value = ''; });
                 syncInput(); renderPreview();
             }
 

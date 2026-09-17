@@ -642,6 +642,19 @@ $(function () {
         if (isMobile()) showListPane();
     });
 
+    // Rotating/resizing back to desktop restores list + header (app-style is mobile-only).
+    $(window).on('resize', function () {
+        if (!isMobile()) {
+            $('#inboxPageHeader').removeClass('hidden');
+            if (state.currentId) {
+                $('#inboxListPane').removeClass('hidden');
+                $('#inboxChatPane').removeClass('hidden').addClass('flex');
+            }
+        } else if (state.mobileChatOpen) {
+            $('#inboxPageHeader').addClass('hidden');
+        }
+    });
+
     // Status select
     $('#inboxStatusSelect').on('change', function () {
         if (state.currentId) changeStatus(state.currentId, $(this).val());

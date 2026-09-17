@@ -37,6 +37,11 @@
     let lastUnread = 0;
     let threadSeq = 0;
 
+    /* True below the lg breakpoint (single-pane mobile chat, app-style). */
+    function isMobile() {
+        return window.matchMedia('(max-width: 1023.98px)').matches;
+    }
+
     const STATUS_LABEL = { ai: 'AI actief', open: 'Open', handed_over: 'Medewerker', closed: 'Gesloten', offline: 'Offline' };
 
     function escapeHtml(v) {
@@ -169,6 +174,11 @@
         listPane.classList.add('hidden');
         listPane.classList.remove('flex');
         if (window.innerWidth >= 1024) { listPane.classList.remove('hidden'); listPane.classList.add('flex'); }
+        /* App-style on mobile: hide the page header so the chat fills the screen. */
+        if (isMobile()) {
+            const pageHeader = document.getElementById('chatInboxPageHeader');
+            if (pageHeader) pageHeader.classList.add('hidden');
+        }
         threadEl.innerHTML = '<div class="flex justify-center py-8"><svg class="h-8 w-8 animate-spin text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg></div>';
         fetch('/admin/chat/inbox/' + id, { headers: { 'Accept': 'application/json' } })
             .then(r => r.json()).then(data => {
@@ -211,12 +221,12 @@
     }
 
     function renderBubble(m) {
-        const photo = m.photo_url ? '<a data-photo href="' + escapeHtml(m.photo_url) + '" class="mt-2 block max-w-[240px] cursor-zoom-in overflow-hidden rounded-xl border border-slate-200/70"><img src="' + escapeHtml(m.photo_url) + '" alt="Foto" loading="lazy" class="max-h-48 w-auto object-cover"></a>' : '';
+        const photo = m.photo_url ? '<a data-photo href="' + escapeHtml(m.photo_url) + '" class="mt-2 block max-w-full cursor-zoom-in overflow-hidden rounded-xl border border-slate-200/70"><img src="' + escapeHtml(m.photo_url) + '" alt="Foto" loading="lazy" class="max-h-48 w-auto object-cover"></a>' : '';
         if (m.sender === 'admin') {
-            return '<div class="flex justify-end"><div class="max-w-[85%] rounded-2xl rounded-tr-md bg-gradient-to-r from-[#075be8] to-[#064bd7] px-3.5 py-2.5 text-[13px] leading-relaxed text-white shadow-sm">' + escapeHtml(m.body || '') + photo + '</div></div>';
+            return '<div class="flex justify-end"><div class="max-w-[92%] break-words rounded-2xl rounded-tr-md bg-gradient-to-r from-[#075be8] to-[#064bd7] px-3.5 py-2.5 text-[13px] leading-relaxed text-white shadow-sm sm:max-w-[85%]">' + escapeHtml(m.body || '') + photo + '</div></div>';
         }
         const aiLabel = m.sender === 'ai' ? '<span class="mb-1 block text-[10px] font-extrabold uppercase tracking-wide text-violet-500">AI</span>' : '';
-        return '<div class="flex justify-start"><div class="max-w-[85%] rounded-2xl rounded-tl-md bg-white px-3.5 py-2.5 text-[13px] leading-relaxed text-slate-700 shadow-sm ring-1 ring-slate-200/70">' + aiLabel + escapeHtml(m.body || '') + photo + '</div></div>';
+        return '<div class="flex justify-start"><div class="max-w-[92%] break-words rounded-2xl rounded-tl-md bg-white px-3.5 py-2.5 text-[13px] leading-relaxed text-slate-700 shadow-sm ring-1 ring-slate-200/70 sm:max-w-[85%]">' + aiLabel + escapeHtml(m.body || '') + photo + '</div></div>';
     }
 
     function senderBadge() { return ''; }
@@ -427,6 +437,21 @@
         listPane.classList.add('flex');
         const header = document.getElementById('chatInboxPageHeader');
         if (header) header.classList.remove('hidden');
+    });
+
+    /* Rotating/resizing back to desktop restores list + header (app-style is mobile-only). */
+    window.addEventListener('resize', () => {
+        if (!isMobile()) {
+            const header = document.getElementById('chatInboxPageHeader');
+            if (header) header.classList.remove('hidden');
+            if (currentId) {
+                listPane.classList.remove('hidden');
+                listPane.classList.add('flex');
+            }
+        } else if (currentId) {
+            const header = document.getElementById('chatInboxPageHeader');
+            if (header) header.classList.add('hidden');
+        }
     });
 
     searchEl.addEventListener('input', () => { clearTimeout(searchTimer); searchTimer = setTimeout(() => { currentPage = 1; load(); }, 300); });
