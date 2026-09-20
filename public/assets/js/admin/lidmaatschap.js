@@ -134,9 +134,11 @@
                 const invBtn = document.getElementById('lidInvoiceBtn');
                 if (inv) {
                     invBtn.classList.remove('hidden');
-                    invBtn.setAttribute('href', '/admin/lidmaatschap/' + m.id + '/factuur');
+                    invBtn.dataset.url = '/admin/lidmaatschap/' + m.id + '/factuur';
+                    invBtn.dataset.filename = 'factuur-' + (inv.invoice_number || m.id) + '.pdf';
                 } else {
                     invBtn.classList.add('hidden');
+                    delete invBtn.dataset.url;
                 }
                 document.getElementById('lidFields').innerHTML =
                     row('Type', m.customer_type === 'business' ? 'Zakelijk' : 'Particulier')
@@ -150,8 +152,36 @@
             }).catch(() => toast('Details laden mislukt.', 'error'));
     }
 
-    document.getElementById('lidDeleteBtn').addEventListener('click', () => {
-        if (!currentDetailId) return;
+    /* Factuur downloaden zonder refresh: spinner op de knop, daarna direct downloaden. */
+    document.getElementById('lidInvoiceBtn').addEventListener('click', async (e) => {
+        const btn = e.currentTarget;
+        const url = btn.dataset.url;
+        if (!url) return;
+        btnLoading(btn, true);
+        try {
+            const res = await fetch(url, { headers: { 'Accept': 'application/pdf', 'X-Requested-With': 'XMLHttpRequest' } });
+            if (!res.ok) throw new Error('Downloaden mislukt.');
+            const blob = await res.blob();
+            const cd = res.headers.get('Content-Disposition') || '';
+            const match = cd.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+            const filename = (match && match[1] ? match[1].replace(/['"]/g, '') : null) || btn.dataset.filename || 'factuur.pdf';
+            const objUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = objUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(objUrl), 60000);
+            toast('Factuur gedownload.', 'success');
+        } catch (err) {
+            toast(err.message || 'Downloaden mislukt.', 'error');
+        } finally {
+            btnLoading(btn, false);
+        }
+    });
+
+    document.getElementById('lidDeleteBtn').addEventListener('click', () => {        if (!currentDetailId) return;
         document.getElementById('lidDeleteName').textContent = document.getElementById('lidName').textContent || 'dit lidmaatschap';
         pendingDeleteId = currentDetailId;
         if (window.SlimmePC && window.SlimmePC.modal) window.SlimmePC.modal.open('lidDeleteModal');

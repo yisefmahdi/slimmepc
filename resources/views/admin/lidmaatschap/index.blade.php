@@ -79,13 +79,13 @@
                     </div>
                 </div>
                 <div class="flex shrink-0 items-center gap-2">
-                    <a id="lidInvoiceBtn" href="#" class="inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-xs font-bold transition hover:border-blue-400 hover:text-blue-600"
+                    <button type="button" id="lidInvoiceBtn" class="inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-xs font-bold transition hover:border-blue-400 hover:text-blue-600 disabled:opacity-60"
                        style="color: var(--c-heading); border-color: var(--c-input-border)">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-4 w-4">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                         </svg>
-                        Factuur
-                    </a>
+                        <span>Factuur</span>
+                    </button>
                     <button type="button" id="lidDeleteBtn" title="Verwijder"
                             class="rounded-lg p-2 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400" style="color: var(--c-muted)">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">

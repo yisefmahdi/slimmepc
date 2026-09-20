@@ -201,8 +201,11 @@
                             const inp = e.target.closest('input, select');
                             if (!inp || !inp.name) return;
                             inp.classList.remove('!border-red-500');
-                            const wrap = inp.type === 'checkbox' ? inp.closest('label') : inp;
-                            const dyn = (wrap.parentElement || wrap).querySelector(':scope > p.field-error');
+                            // Foutmelding staat NA de .relative wrapper (icoon blijft op zijn plek).
+                            const container = inp.type === 'checkbox'
+                                ? inp.closest('label').parentElement
+                                : inp.parentElement.parentElement;
+                            const dyn = container ? container.querySelector(':scope > p.field-error') : null;
                             if (dyn) dyn.remove();
                             if (!form.querySelector('.field-error')) { errBox.classList.add('hidden'); errBox.textContent = ''; }
                         });
@@ -244,7 +247,8 @@
                                         const err = document.createElement('p');
                                         err.className = 'field-error mt-1 text-xs font-semibold text-red-600';
                                         err.textContent = Array.isArray(msgs) ? msgs[0] : msgs;
-                                        const anchor = input.type === 'checkbox' ? input.closest('label') : input;
+                                        // Na de .relative wrapper invoegen (niet erin), zodat het icoon niet verschuift.
+                                        const anchor = input.type === 'checkbox' ? input.closest('label') : input.parentElement;
                                         anchor.insertAdjacentElement('afterend', err);
                                     });
                                     const firstInput = firstField ? form.querySelector(`[name="${firstField}"]`) : null;
