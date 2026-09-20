@@ -40,9 +40,12 @@ class LidmaatschapController extends Controller
         // De prijs komt ALTIJD uit het dashboard, nooit uit het formulier.
         $price = MembershipSetting::price();
         if ($price <= 0) {
-            return back()
-                ->withInput()
-                ->withErrors(['price' => 'De lidmaatschapsprijs is nog niet ingesteld. Probeer het later opnieuw.']);
+            $msg = 'De lidmaatschapsprijs is nog niet ingesteld. Probeer het later opnieuw.';
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $msg, 'errors' => ['price' => [$msg]]], 422);
+            }
+
+            return back()->withInput()->withErrors(['price' => $msg]);
         }
 
         $email = strtolower(trim($data['customer_email']));
@@ -53,9 +56,12 @@ class LidmaatschapController extends Controller
             ->exists();
 
         if ($activeExists) {
-            return back()
-                ->withInput()
-                ->withErrors(['customer_email' => 'U heeft al een actief lidmaatschap. U kunt geen nieuw lidmaatschap aanvragen totdat het huidige is verlopen.']);
+            $msg = 'U heeft al een actief lidmaatschap. U kunt geen nieuw lidmaatschap aanvragen totdat het huidige is verlopen.';
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $msg, 'errors' => ['customer_email' => [$msg]]], 422);
+            }
+
+            return back()->withInput()->withErrors(['customer_email' => $msg]);
         }
 
         $user = Auth::user();
@@ -106,9 +112,14 @@ class LidmaatschapController extends Controller
         ]);
 
         if (! $this->payments->isConfigured()) {
+            $msg = 'Aanmelding opgeslagen, maar de betaalkoppeling is nog niet ingesteld. Neem contact met ons op.';
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $msg], 502);
+            }
+
             return redirect()
                 ->route('lidmaatschap.failed', ['lidmaatschap' => $membership->id])
-                ->with('error', 'Aanmelding opgeslagen, maar de betaalkoppeling is nog niet ingesteld. Neem contact met ons op.');
+                ->with('error', $msg);
         }
 
         try {
@@ -122,12 +133,19 @@ class LidmaatschapController extends Controller
         } catch (\Throwable $e) {
             report($e);
 
-            return back()
-                ->withInput()
-                ->withErrors(['payment' => 'De betaling kon niet worden gestart. Probeer het opnieuw.']);
+            $msg = 'De betaling kon niet worden gestart. Probeer het opnieuw.';
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $msg], 502);
+            }
+
+            return back()->withInput()->withErrors(['payment' => $msg]);
         }
 
         $membership->update(['mollie_payment_id' => $payment->id]);
+
+        if ($request->expectsJson()) {
+            return response()->json(['redirect' => $payment->getCheckoutUrl()], 201);
+        }
 
         return redirect()->away($payment->getCheckoutUrl());
     }

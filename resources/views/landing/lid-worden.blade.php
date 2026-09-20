@@ -27,20 +27,12 @@
                     <div class="mb-7 text-center">
                         <h1 class="text-3xl font-bold tracking-tight text-[#071b46] sm:text-[34px]">Lid worden</h1>
                         <p class="mt-2 text-sm text-slate-500 sm:text-[15px]">Meld je eenvoudig aan als klant van Slimme-PC</p>
-                        <p class="mx-auto mt-3 inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-1.5 text-sm font-bold text-blue-700">
-                            €{{ number_format($price, 2, ',', '.') }} per jaar
-                            <span class="font-medium text-blue-500">(incl. btw)</span>
-                        </p>
                     </div>
 
-                    @if ($errors->has('price') || $errors->has('payment'))
-                        <div class="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
-                            {{ $errors->first('price') ?: $errors->first('payment') }}
-                        </div>
-                    @endif
+                    <div id="lidFormError" class="mb-5 hidden rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700"></div>
 
                     <!-- Formulier -->
-                    <form action="{{ route('lidmaatschap.store') }}" method="POST" data-loading>
+                    <form id="lidForm" action="{{ route('lidmaatschap.store') }}" method="POST" novalidate>
                         @csrf
 
                         <div class="grid grid-cols-1 gap-x-7 gap-y-5 md:grid-cols-2">
@@ -181,13 +173,107 @@
                         @error('terms')<p class="mt-1 text-xs font-semibold text-red-600">{{ $message }}</p>@enderror
 
                         <!-- Submit -->
-                        <button type="submit" data-loading data-loading-text="Bezig met aanmelden..."
+                        <button id="lidSubmitBtn" type="submit"
                             class="mt-6 flex h-[54px] w-full items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-[#075be8] to-[#064bd7] text-base font-semibold text-white shadow-[0_12px_28px_rgba(0,91,234,0.25)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_32px_rgba(0,91,234,0.32)] disabled:opacity-60">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5"><path d="M15 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8" cy="7" r="4"></circle><path d="M19 8v6"></path><path d="M22 11h-6"></path></svg>
-                            <span>Aanmelden & betalen — €{{ number_format($price, 2, ',', '.') }}</span>
+                            <span id="lidSubmitLabel">Verzenden</span>
                         </button>
 
                     </form>
+
+                    <script>
+                    (function () {
+                        const form = document.getElementById('lidForm');
+                        if (!form) return;
+                        const btn = document.getElementById('lidSubmitBtn');
+                        const btnLabel = document.getElementById('lidSubmitLabel');
+                        const errBox = document.getElementById('lidFormError');
+                        const csrf = form.querySelector('input[name="_token"]')?.value || '';
+
+                        function clearErrors() {
+                            errBox.classList.add('hidden');
+                            errBox.textContent = '';
+                            form.querySelectorAll('.field-error').forEach(el => el.remove());
+                            form.querySelectorAll('input, select').forEach(el => el.classList.remove('!border-red-500'));
+                        }
+
+                        form.addEventListener('input', (e) => {
+                            const inp = e.target.closest('input, select');
+                            if (!inp || !inp.name) return;
+                            inp.classList.remove('!border-red-500');
+                            const wrap = inp.type === 'checkbox' ? inp.closest('label') : inp;
+                            const dyn = (wrap.parentElement || wrap).querySelector(':scope > p.field-error');
+                            if (dyn) dyn.remove();
+                            if (!form.querySelector('.field-error')) { errBox.classList.add('hidden'); errBox.textContent = ''; }
+                        });
+
+                        form.addEventListener('submit', async (e) => {
+                            e.preventDefault();
+                            clearErrors();
+                            btn.disabled = true;
+                            if (btnLabel) btnLabel.textContent = 'Bezig met verzenden…';
+
+                            const fd = new FormData(form);
+                            const payload = Object.fromEntries(fd.entries());
+
+                            try {
+                                const res = await fetch(form.action, {
+                                    method: 'POST',
+                                    credentials: 'same-origin',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/json',
+                                        'X-CSRF-TOKEN': csrf,
+                                    },
+                                    body: JSON.stringify(payload),
+                                });
+                                const data = await res.json().catch(() => ({}));
+
+                                if ((res.ok || res.status === 201) && data.redirect) {
+                                    window.location.href = data.redirect;
+                                    return;
+                                }
+
+                                if (res.status === 422 && data.errors) {
+                                    const firstField = Object.keys(data.errors)[0];
+                                    const firstMsg = data.errors[firstField]?.[0] || 'Controleer de gemarkeerde velden.';
+                                    Object.entries(data.errors).forEach(([field, msgs]) => {
+                                        const input = form.querySelector(`[name="${field}"]`);
+                                        if (!input) return;
+                                        input.classList.add('!border-red-500');
+                                        const err = document.createElement('p');
+                                        err.className = 'field-error mt-1 text-xs font-semibold text-red-600';
+                                        err.textContent = Array.isArray(msgs) ? msgs[0] : msgs;
+                                        const anchor = input.type === 'checkbox' ? input.closest('label') : input;
+                                        anchor.insertAdjacentElement('afterend', err);
+                                    });
+                                    const firstInput = firstField ? form.querySelector(`[name="${firstField}"]`) : null;
+                                    if (firstInput) {
+                                        firstInput.focus({ preventScroll: true });
+                                        firstInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    }
+                                    errBox.textContent = firstMsg;
+                                    errBox.classList.remove('hidden');
+                                    throw new Error(firstMsg);
+                                }
+
+                                if (res.status === 419) {
+                                    throw new Error('Sessie verlopen. Vernieuw de pagina en probeer het opnieuw.');
+                                }
+
+                                throw new Error(data.message || 'Er ging iets mis. Probeer het opnieuw.');
+                            } catch (err) {
+                                if (err.message && !document.querySelector('.field-error')) {
+                                    errBox.textContent = err.message;
+                                    errBox.classList.remove('hidden');
+                                }
+                            } finally {
+                                btn.disabled = false;
+                                if (btnLabel) btnLabel.textContent = 'Verzenden';
+                            }
+                        });
+                    })();
+                    </script>
 
                 </div>
             </div>
