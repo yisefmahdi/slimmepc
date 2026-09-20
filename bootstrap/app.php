@@ -28,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'logout/',
             'contact/submit',
             'payment/webhook',
+            'lid-worden/webhook',
             'track/',
             'ai-chat/*',
         ]);

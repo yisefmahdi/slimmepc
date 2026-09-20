@@ -530,6 +530,34 @@
                     </div>
                 </div>
 
+                {{-- Lidmaatschap Dropdown --}}
+                <div x-data="{ open: {{ request()->routeIs('admin.lidmaatschap.*') ? 'true' : 'false' }} }" class="space-y-1">
+                    <button type="button" @click="open = !open"
+                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
+                            style="color: rgba(255,255,255,0.95)">
+                        <span class="flex items-center gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5 text-blue-100">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5a2.25 2.25 0 0 0 2.25 2.25Zm4.125-9.75a1.875 1.875 0 1 1-3.75 0 1.875 1.875 0 0 1 3.75 0Zm1.294 6.336a6.721 6.721 0 0 1-3.17-3.165 2.25 2.25 0 0 1-.04-1.669 2.252 2.252 0 0 1 1.218-1.108 2.25 2.25 0 0 1 1.669-.04 6.721 6.721 0 0 1 3.165 3.17 2.25 2.25 0 0 1 .04 1.669 2.252 2.252 0 0 1-1.108 1.218 2.25 2.25 0 0 1-1.669.04Z" />
+                            </svg>
+                            <span>Lidmaatschap</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+                    <div x-show="open" x-cloak x-transition class="border-l-2 border-white/30 ml-6 pl-4 space-y-1.5 py-1 text-xs">
+                        <a href="{{ route('admin.lidmaatschap.index') }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.lidmaatschap.index') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Leden
+                        </a>
+                        <a href="{{ route('admin.lidmaatschap.settings') }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.lidmaatschap.settings') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Prijs-instelling
+                        </a>
+                    </div>
+                </div>
+
                 {{-- Live Chat Dropdown --}}
                 <div x-data="{ open: {{ request()->routeIs('admin.chat.*') ? 'true' : 'false' }}, init() { if (localStorage.getItem('nav-chat') !== null) { this.open = localStorage.getItem('nav-chat') === '1'; } }, toggle() { this.open = !this.open; localStorage.setItem('nav-chat', this.open ? '1' : '0'); } }" class="space-y-1">
                     <button type="button" @click="toggle()"

@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\RepairInboxController;
 use App\Http\Controllers\Admin\AfspraakInboxController;
 use App\Http\Controllers\Admin\DeviceReceiptController;
 use App\Http\Controllers\Admin\ManualInvoiceController;
+use App\Http\Controllers\Admin\MembershipController;
 use App\Http\Controllers\Admin\Shop\AiProductController;
 use App\Http\Controllers\Admin\Shop\CategoryController as ShopCategoryController;
 use App\Http\Controllers\Admin\Shop\ProductController as ShopProductController;
@@ -186,6 +187,18 @@ Route::prefix('admin')
                         Route::delete('/{receipt}/photo/{photo}', [DeviceReceiptController::class, 'destroyPhoto'])->name('photo.destroy');
                         Route::delete('/{receipt}', [DeviceReceiptController::class, 'destroy'])->name('destroy');
                     });
+            });
+
+        Route::prefix('lidmaatschap')
+            ->name('lidmaatschap.')
+            ->group(function () {
+                Route::get('/', [MembershipController::class, 'index'])->name('index');
+                Route::get('/data', [MembershipController::class, 'data'])->name('data');
+                Route::get('/prijs', [MembershipController::class, 'settings'])->name('settings');
+                Route::post('/prijs', [MembershipController::class, 'updatePrice'])->name('price');
+                Route::get('/{lidmaatschap}', [MembershipController::class, 'show'])->name('show');
+                Route::get('/{lidmaatschap}/factuur', [MembershipController::class, 'invoiceDownload'])->name('invoice');
+                Route::delete('/{lidmaatschap}', [MembershipController::class, 'destroy'])->name('destroy');
             });
 
         // 💬 Live Chat - Kennisbank & Openingstijden (+ inbox volgt)

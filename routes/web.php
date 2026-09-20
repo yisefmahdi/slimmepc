@@ -6,6 +6,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\LidmaatschapController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
@@ -71,6 +72,14 @@ Route::get('/webshop/{slug}', [WebshopController::class, 'index'])->name('websho
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout/totals', [CheckoutController::class, 'totals'])->middleware('throttle:30,1')->name('checkout.totals');
 Route::post('/checkout', [CheckoutController::class, 'store'])->middleware('throttle:10,1')->name('checkout.store');
+
+// Lidmaatschap (lid-worden) — ook zonder login mogelijk
+Route::get('/lid-worden', [LidmaatschapController::class, 'show'])->name('lidmaatschap.show');
+Route::post('/lid-worden', [LidmaatschapController::class, 'store'])->middleware('throttle:5,1')->name('lidmaatschap.store');
+Route::post('/lid-worden/webhook', [LidmaatschapController::class, 'webhook'])->name('lidmaatschap.webhook');
+Route::get('/lid-worden/success/{lidmaatschap}', [LidmaatschapController::class, 'success'])->name('lidmaatschap.success');
+Route::get('/lid-worden/failed/{lidmaatschap}', [LidmaatschapController::class, 'failed'])->name('lidmaatschap.failed');
+Route::get('/lid-worden/return/{lidmaatschap}', [LidmaatschapController::class, 'mollieReturn'])->name('lidmaatschap.return');
 
 // Mollie payments (single reusable gateway)
 Route::post('/payment/webhook', [PaymentController::class, 'webhook'])->name('payment.webhook');
