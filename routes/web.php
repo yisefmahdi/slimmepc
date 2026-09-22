@@ -8,6 +8,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\LidmaatschapController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RepairController;
@@ -72,6 +73,18 @@ Route::get('/webshop/{slug}', [WebshopController::class, 'index'])->name('websho
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout/totals', [CheckoutController::class, 'totals'])->middleware('throttle:30,1')->name('checkout.totals');
 Route::post('/checkout', [CheckoutController::class, 'store'])->middleware('throttle:10,1')->name('checkout.store');
+
+// Monteur (technician) — login, klantfactuur aan huis, Mollie
+Route::get('/betaal/login', [TechnicianController::class, 'technicialogin'])->name('technician.login');
+Route::post('/betaal/login', [TechnicianController::class, 'loginSubmit'])->middleware('throttle:10,1')->name('technician.login.submit');
+Route::get('/technician/payment/{klantnummer}', [TechnicianController::class, 'paymentPage'])->name('technician.payment');
+Route::post('/technician/payment/submit', [TechnicianController::class, 'storePaymentForm'])->middleware('throttle:10,1')->name('technician.payment.store');
+Route::post('/technician/quote', [TechnicianController::class, 'quote'])->middleware('throttle:30,1')->name('technician.quote');
+Route::post('/technician/check-coupon', [TechnicianController::class, 'checkCoupon'])->middleware('throttle:30,1')->name('technician.coupon.check');
+Route::post('/technician/webhook', [TechnicianController::class, 'webhook'])->name('technician.webhook');
+Route::get('/technician/return/{form}', [TechnicianController::class, 'mollieReturn'])->name('technician.return');
+Route::get('/technician/success/{form}', [TechnicianController::class, 'success'])->name('technician.success');
+Route::get('/technician/failed/{form}', [TechnicianController::class, 'failed'])->name('technician.failed');
 
 // Lidmaatschap (lid-worden) — ook zonder login mogelijk
 Route::get('/lid-worden', [LidmaatschapController::class, 'show'])->name('lidmaatschap.show');

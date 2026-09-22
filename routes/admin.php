@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\AfspraakInboxController;
 use App\Http\Controllers\Admin\DeviceReceiptController;
 use App\Http\Controllers\Admin\ManualInvoiceController;
 use App\Http\Controllers\Admin\MembershipController;
+use App\Http\Controllers\Admin\TechnicianController;
 use App\Http\Controllers\Admin\Shop\AiProductController;
 use App\Http\Controllers\Admin\Shop\CategoryController as ShopCategoryController;
 use App\Http\Controllers\Admin\Shop\ProductController as ShopProductController;
@@ -199,6 +200,18 @@ Route::prefix('admin')
                 Route::get('/{lidmaatschap}', [MembershipController::class, 'show'])->name('show');
                 Route::get('/{lidmaatschap}/factuur', [MembershipController::class, 'invoiceDownload'])->name('invoice');
                 Route::delete('/{lidmaatschap}', [MembershipController::class, 'destroy'])->name('destroy');
+            });
+
+        Route::prefix('monteur')
+            ->name('monteur.')
+            ->group(function () {
+                Route::get('/', [TechnicianController::class, 'index'])->name('index');
+                Route::get('/data', [TechnicianController::class, 'data'])->name('data');
+                Route::get('/tarieven', [TechnicianController::class, 'rates'])->name('rates');
+                Route::post('/tarieven', [TechnicianController::class, 'updateRates'])->name('rates.update');
+                Route::get('/{monteur}', [TechnicianController::class, 'show'])->name('show');
+                Route::get('/{monteur}/factuur', [TechnicianController::class, 'invoiceDownload'])->name('invoice');
+                Route::delete('/{monteur}', [TechnicianController::class, 'destroy'])->name('destroy');
             });
 
         // 💬 Live Chat - Kennisbank & Openingstijden (+ inbox volgt)

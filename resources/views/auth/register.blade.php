@@ -18,6 +18,9 @@
         {{-- Form --}}
         <form method="POST" action="{{ route('register') }}" data-loading class="space-y-3 fade-in-up" style="animation-delay: 160ms">
             @csrf
+            @if(request()->has('nieuwe-klant'))
+                <input type="hidden" name="nieuwe-klant" value="1">
+            @endif
 
             {{-- Name --}}
             <div>

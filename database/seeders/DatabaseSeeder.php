@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             ContentBlockSeeder::class,
             LegalContentSeeder::class,
             MembershipPriceSeeder::class,
+            TechnicianRatesSeeder::class,
             ShippingRateSeeder::class,
             ChatFaqSeeder::class,
         ]);

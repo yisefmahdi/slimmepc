@@ -558,8 +558,35 @@
                     </div>
                 </div>
 
-                {{-- Live Chat Dropdown --}}
-                <div x-data="{ open: {{ request()->routeIs('admin.chat.*') ? 'true' : 'false' }}, init() { if (localStorage.getItem('nav-chat') !== null) { this.open = localStorage.getItem('nav-chat') === '1'; } }, toggle() { this.open = !this.open; localStorage.setItem('nav-chat', this.open ? '1' : '0'); } }" class="space-y-1">
+                {{-- Monteur Dropdown --}}
+                <div x-data="{ open: {{ request()->routeIs('admin.monteur.*') ? 'true' : 'false' }} }" class="space-y-1">
+                    <button type="button" @click="open = !open"
+                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
+                            style="color: rgba(255,255,255,0.95)">
+                        <span class="flex items-center gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5 text-blue-100">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085" />
+                            </svg>
+                            <span>Monteur</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+                    <div x-show="open" x-cloak x-transition class="border-l-2 border-white/30 ml-6 pl-4 space-y-1.5 py-1 text-xs">
+                        <a href="{{ route('admin.monteur.index') }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.monteur.index') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Facturen
+                        </a>
+                        <a href="{{ route('admin.monteur.rates') }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.monteur.rates') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Tarieven
+                        </a>
+                    </div>
+                </div>
+
+                {{-- Live Chat Dropdown --}}                <div x-data="{ open: {{ request()->routeIs('admin.chat.*') ? 'true' : 'false' }}, init() { if (localStorage.getItem('nav-chat') !== null) { this.open = localStorage.getItem('nav-chat') === '1'; } }, toggle() { this.open = !this.open; localStorage.setItem('nav-chat', this.open ? '1' : '0'); } }" class="space-y-1">
                     <button type="button" @click="toggle()"
                             class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
                             style="color: rgba(255,255,255,0.95)">

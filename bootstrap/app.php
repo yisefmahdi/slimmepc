@@ -29,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'contact/submit',
             'payment/webhook',
             'lid-worden/webhook',
+            'technician/webhook',
             'track/',
             'ai-chat/*',
         ]);
