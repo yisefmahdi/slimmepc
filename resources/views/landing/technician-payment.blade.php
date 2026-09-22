@@ -1,8 +1,6 @@
 @extends('landing.layouts.app')
 
 @section('content')
-    @include('landing.partials.header')
-
     <main>
         <section class="relative min-h-screen overflow-hidden bg-[#f7faff] px-4 py-8">
             <div class="pointer-events-none absolute -left-48 top-20 h-[520px] w-[520px] rounded-full bg-blue-200/35 blur-[120px]"></div>
@@ -104,6 +102,7 @@
                         <div class="flex items-center justify-between gap-3"><dt class="text-slate-500">Voorrijkosten</dt><dd id="prTravel" class="font-bold text-[#071b46]">—</dd></div>
                         <div id="prMemberRow" class="hidden items-center justify-between gap-3"><dt class="font-semibold text-green-700">Lidkorting</dt><dd id="prMember" class="font-bold text-green-700">—</dd></div>
                         <div id="prCouponRow" class="hidden items-center justify-between gap-3"><dt class="font-semibold text-green-700">Kortingscode</dt><dd id="prCoupon" class="font-bold text-green-700">—</dd></div>
+                        <div class="flex items-center justify-between gap-3"><dt class="text-slate-500">BTW (21%)</dt><dd id="prBtw" class="font-bold text-[#071b46]">—</dd></div>
                         <div class="flex items-center justify-between gap-3 border-t border-slate-100 pt-3"><dt class="font-bold text-[#071b46]">Totaal (incl. btw)</dt><dd id="prTotal" class="text-lg font-black text-blue-700">—</dd></div>
                         <p id="prHint" class="text-xs text-slate-400">Vul start- en eindtijd in voor een berekening.</p>
                     </dl>
@@ -111,10 +110,6 @@
             </div>
         </section>
     </main>
-
-    @include('landing.partials.footer')
-    @include('landing.partials.floating')
-    @include('landing.partials.ai-chat')
 
     <script>
     (function () {
@@ -144,6 +139,7 @@
                 document.getElementById('prMember').textContent = '−' + eur(d.member_discount);
             } else { mRow.classList.add('hidden'); mRow.classList.remove('flex'); }
             document.getElementById('prTotal').textContent = eur(d.total);
+            document.getElementById('prBtw').textContent = eur(d.btw);
             document.getElementById('prHint').textContent = d.minutes + ' minuten' + (d.is_member ? ' · lidkorting toegepast' : '');
         }
 
@@ -197,6 +193,7 @@
                     couponMsg.className = 'mt-1 text-xs font-semibold text-green-600';
                     paintCoupon(d);
                     document.getElementById('prTotal').textContent = eur(d.total);
+                    document.getElementById('prBtw').textContent = eur(d.btw);
                 } else {
                     appliedCoupon = '';
                     couponMsg.textContent = d.error || 'Ongeldige kortingscode.';
@@ -219,6 +216,10 @@
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            // Zoals /afspraak: eerst native browser-validatie (rode ballonnetjes), daarna server-errors inline.
+            if (!form.reportValidity()) return;
+
             clearErrors();
             btn.disabled = true;
             if (btnLabel) btnLabel.textContent = 'Bezig met verwerken…';

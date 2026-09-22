@@ -56,6 +56,22 @@ class User extends Authenticatable
         ];
     }
 
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        // Zoals oud project: elke user zonder klantnummer krijgt SLP-######.
+        static::creating(function (User $user) {
+            if (empty($user->klantnummer)) {
+                do {
+                    $number = 'SLP-' . random_int(100000, 999999);
+                } while (static::where('klantnummer', $number)->exists());
+
+                $user->klantnummer = $number;
+            }
+        });
+    }
+
     /**
      * Determine whether the user is an admin.
      */

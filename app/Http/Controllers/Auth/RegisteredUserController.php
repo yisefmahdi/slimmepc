@@ -32,7 +32,7 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        // Monteur-flow: /register?nieuwe-klant=1 — extra velden verplicht + admin-mail met klantnummer.
+        // Monteur-flow: /register?nieuwe-klant — extra velden verplicht + admin-mail met klantnummer.
         $isNieuweKlant = $request->has('nieuwe-klant');
 
         $request->validate([
@@ -55,13 +55,10 @@ class RegisteredUserController extends Controller
             'postcode' => $request->postcode,
             'city' => $request->city,
             'password' => Hash::make($request->password),
-            'klantnummer' => $isNieuweKlant ? $this->makeKlantnummer($request->name) : null,
         ]);
 
-        event(new Registered($user));
-
-        Auth::login($user);
-
+        // Monteur-flow (zoals oud project): NIET inloggen (sessie van de monteur
+        // mag niet wisselen), alleen admin-mail + terug naar monteur-login.
         if ($isNieuweKlant) {
             $notify = (string) (config('contact-inbox.notify_email') ?: '');
             if ($notify !== '') {
@@ -70,22 +67,15 @@ class RegisteredUserController extends Controller
                 })->afterResponse();
             }
 
-            return redirect(route('login', absolute: false))
+            return redirect(route('technician.login', absolute: false))
                 ->with('status', 'Account aangemaakt! Klantnummer: ' . $user->klantnummer);
         }
 
+        event(new Registered($user));
+
+        Auth::login($user);
+
         return redirect(route('home', absolute: false));
-    }
-
-    protected function makeKlantnummer(string $name): string
-    {
-        $base = strtoupper(substr(preg_replace('/[^a-zA-Z]/u', '', $name) ?: 'KLT', 0, 5));
-
-        do {
-            $number = 'SMP-' . $base . random_int(100000, 999999);
-        } while (User::where('klantnummer', $number)->exists());
-
-        return $number;
     }
 }
 

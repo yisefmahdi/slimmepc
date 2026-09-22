@@ -20,7 +20,7 @@ class NewCustomerMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Nieuwe klant via monteur: ' . $this->user->name . ' (' . $this->user->klantnummer . ')',
+            subject: 'Nieuwe klant toegevoegd: ' . $this->user->name,
         );
     }
 

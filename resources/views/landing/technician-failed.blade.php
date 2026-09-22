@@ -1,8 +1,6 @@
 @extends('landing.layouts.app')
 
 @section('content')
-    @include('landing.partials.header')
-
     <main class="min-h-screen bg-[#FAFCFF] text-navy">
         <div class="max-w-[680px] mx-auto px-4 sm:px-6 py-14">
             <div class="rounded-3xl border border-slate-100 bg-white p-6 sm:p-10 text-center shadow-floating">
@@ -32,8 +30,5 @@
             </div>
         </div>
     </main>
-
-    @include('landing.partials.footer')
-    @include('landing.partials.floating')
-    @include('landing.partials.ai-chat')
+@endsection
 @endsection

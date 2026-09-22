@@ -18,7 +18,7 @@
             </div>
             <p id="lidPriceError" class="mt-1 hidden text-xs font-semibold text-red-600"></p>
 
-            <button type="submit" id="lidPriceBtn" data-loading
+            <button type="submit" id="lidPriceBtn"
                     class="mt-6 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#075be8] to-[#064bd7] px-6 text-sm font-bold text-white shadow-[0_10px_25px_rgba(0,91,234,0.25)] transition duration-300 hover:-translate-y-0.5 disabled:opacity-60">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-5 w-5"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
                 <span>Prijs opslaan</span>
@@ -41,11 +41,22 @@
                     else window.SlimmePC.toast.error(msg);
                 }
             }
+            const SPINNER = '<svg class="h-5 w-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>';
+            function btnLoading(on) {
+                if (on) {
+                    if (btn.dataset.origHtml === undefined) btn.dataset.origHtml = btn.innerHTML;
+                    btn.disabled = true;
+                    btn.innerHTML = SPINNER + '<span>Opslaan…</span>';
+                } else {
+                    if (btn.dataset.origHtml !== undefined) btn.innerHTML = btn.dataset.origHtml;
+                    btn.disabled = false;
+                }
+            }
 
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 err.classList.add('hidden');
-                btn.disabled = true;
+                btnLoading(true);
                 try {
                     const res = await fetch('{{ route('admin.lidmaatschap.price') }}', {
                         method: 'POST',
@@ -63,7 +74,7 @@
                 } catch (e2) {
                     if (err.classList.contains('hidden')) toast(e2.message || 'Opslaan mislukt.', 'error');
                 } finally {
-                    btn.disabled = false;
+                    btnLoading(false);
                 }
             });
         })();
