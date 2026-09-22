@@ -20,8 +20,13 @@ class RegisteredUserController extends Controller
     /**
      * Display the registration view.
      */
-    public function create(): View
+    public function create(Request $request): View|RedirectResponse
     {
+        // Eén pagina voor iedereen: /register?nieuwe-klant mag ook door ingelogde monteurs geopend worden.
+        if ($request->user() && ! ($request->has('nieuwe-klant') && $request->user()->role === 'technician')) {
+            return redirect(route('home', absolute: false));
+        }
+
         return view('auth.register');
     }
 
@@ -32,6 +37,11 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Eén pagina: normale registratie is alleen voor gasten; nieuwe-klant mag ook door ingelogde monteurs.
+        if ($request->user() && ! ($request->has('nieuwe-klant') && $request->user()->role === 'technician')) {
+            return redirect(route('home', absolute: false));
+        }
+
         // Monteur-flow: /register?nieuwe-klant — extra velden verplicht + admin-mail met klantnummer.
         $isNieuweKlant = $request->has('nieuwe-klant');
 
