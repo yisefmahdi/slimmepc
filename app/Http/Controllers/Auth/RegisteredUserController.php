@@ -22,8 +22,8 @@ class RegisteredUserController extends Controller
      */
     public function create(Request $request): View|RedirectResponse
     {
-        // Eén pagina voor iedereen: /register?nieuwe-klant mag ook door ingelogde monteurs geopend worden.
-        if ($request->user() && ! ($request->has('nieuwe-klant') && $request->user()->role === 'technician')) {
+        // Eén pagina voor iedereen: /register?nieuwe-klant mag ook ingelogd geopend worden (monteur/admin).
+        if ($request->user() && ! $request->has('nieuwe-klant')) {
             return redirect(route('home', absolute: false));
         }
 
@@ -37,8 +37,8 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        // Eén pagina: normale registratie is alleen voor gasten; nieuwe-klant mag ook door ingelogde monteurs.
-        if ($request->user() && ! ($request->has('nieuwe-klant') && $request->user()->role === 'technician')) {
+        // Eén pagina: normale registratie is alleen voor gasten; nieuwe-klant mag ook ingelogd (monteur/admin).
+        if ($request->user() && ! $request->has('nieuwe-klant')) {
             return redirect(route('home', absolute: false));
         }
 
