@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\User;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class ImportUsersCommand extends Command
@@ -53,10 +54,12 @@ class ImportUsersCommand extends Command
 
             // Wachtwoord-hash 1-op-1 overnemen (zelfde wachtwoorden blijven werken).
             // Altijd een hash meegeven, anders faalt het aanmaken (password is NOT NULL).
+            // Let op: via Eloquent wordt 'password' door de 'hashed' cast opnieuw gehasht (double-hash bug),
+            // daarom wachtwoord apart via DB::table zetten (bypass cast).
             if (! empty($row['password']) && str_starts_with((string) $row['password'], '$2y$')) {
-                $data['password'] = $row['password'];
+                $passwordHash = $row['password'];
             } else {
-                $data['password'] = Hash::make(bin2hex(random_bytes(16)));
+                $passwordHash = Hash::make(bin2hex(random_bytes(16)));
             }
 
             // Klantnummer behouden als het nog vrij is, anders nieuw genereren (boot doet dat automatisch).
@@ -67,7 +70,9 @@ class ImportUsersCommand extends Command
             }
 
             $exists = User::where('email', $email)->exists();
-            User::updateOrCreate(['email' => $email], $data);
+            $user = User::updateOrCreate(['email' => $email], $data);
+            // Wachtwoord raw zetten (bypass 'hashed' cast)
+            DB::table('users')->where('email', $email)->update(['password' => $passwordHash]);
 
             $exists ? $updated++ : $created++;
         }
