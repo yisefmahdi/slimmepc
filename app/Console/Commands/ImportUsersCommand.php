@@ -52,8 +52,11 @@ class ImportUsersCommand extends Command
             ];
 
             // Wachtwoord-hash 1-op-1 overnemen (zelfde wachtwoorden blijven werken).
+            // Altijd een hash meegeven, anders faalt het aanmaken (password is NOT NULL).
             if (! empty($row['password']) && str_starts_with((string) $row['password'], '$2y$')) {
                 $data['password'] = $row['password'];
+            } else {
+                $data['password'] = Hash::make(bin2hex(random_bytes(16)));
             }
 
             // Klantnummer behouden als het nog vrij is, anders nieuw genereren (boot doet dat automatisch).
@@ -64,12 +67,7 @@ class ImportUsersCommand extends Command
             }
 
             $exists = User::where('email', $email)->exists();
-            $user = User::updateOrCreate(['email' => $email], $data);
-
-            // Wachtwoord ontbrak in export → willekeurig (veilig).
-            if (empty($row['password']) || ! str_starts_with((string) $row['password'], '$2y$')) {
-                $user->update(['password' => Hash::make(bin2hex(random_bytes(16)))]);
-            }
+            User::updateOrCreate(['email' => $email], $data);
 
             $exists ? $updated++ : $created++;
         }
