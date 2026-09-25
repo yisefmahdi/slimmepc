@@ -643,6 +643,62 @@
                     </div>
                 </div>
 
+                {{-- E-mail verzenden Dropdown (mass + mailinglijst) --}}
+                <div x-data="{ open: {{ request()->routeIs('admin.mass.email.*') || request()->routeIs('admin.send.mass.email') || request()->routeIs('admin.customerlist.*') || request()->routeIs('admin.mailinglist.*') ? 'true' : 'false' }} }" class="space-y-1">
+                    <button type="button" @click="open = !open"
+                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
+                            style="color: rgba(255,255,255,0.95)">
+                        <span class="flex items-center gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5 text-blue-100">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.126A59.768 59.768 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+                            </svg>
+                            <span>E-mail verzenden</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+                    <div x-show="open" x-cloak x-transition class="border-l-2 border-white/30 ml-6 pl-4 space-y-1.5 py-1 text-xs">
+                        <a href="{{ route('admin.mass.email.form') }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.mass.email.*') || request()->routeIs('admin.send.mass.email') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Send Emails (alle gebruikers)
+                        </a>
+                        <a href="{{ route('admin.customerlist.index') }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.customerlist.*') || request()->routeIs('admin.mailinglist.*') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Klantenlijst (mailinglijst)
+                        </a>
+                    </div>
+                </div>
+
+                {{-- Boekhouden Dropdown (Kopen+verkopen & RekenMachine) --}}
+                <div x-data="{ open: {{ request()->routeIs('admin.purchase-sales.*') || request()->routeIs('admin.reken-machine.*') ? 'true' : 'false' }} }" class="space-y-1">
+                    <button type="button" @click="open = !open"
+                            class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
+                            style="color: rgba(255,255,255,0.95)">
+                        <span class="flex items-center gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5 text-blue-100">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                            </svg>
+                            <span>Boekhouden</span>
+                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                             class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" style="color: rgba(203,213,225,0.5)">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+                    <div x-show="open" x-cloak x-transition class="border-l-2 border-white/30 ml-6 pl-4 space-y-1.5 py-1 text-xs">
+                        <a href="{{ route('admin.purchase-sales.index') }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.purchase-sales.*') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Kopen+verkopen
+                        </a>
+                        <a href="{{ route('admin.reken-machine.index') }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.reken-machine.*') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            RekenMachine
+                        </a>
+                    </div>
+                </div>
+
                 {{-- Juridisch Dropdown (privacy + voorwaarden, CMS) --}}
                 <div x-data="{ open: {{ request()->routeIs('admin.content.section.edit') && in_array(request()->route('page'), ['privacy', 'voorwaarden'], true) ? 'true' : 'false' }} }" class="space-y-1">
                     <button type="button" @click="open = !open"

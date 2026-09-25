@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\MailingListController;
+use App\Http\Controllers\Admin\MassEmailController;
+use App\Http\Controllers\Admin\PurchaseSalesRecordController;
 use App\Http\Controllers\Admin\ContactInboxController;
 use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\Admin\KlantController;
@@ -316,5 +319,31 @@ Route::prefix('admin')
             Route::delete('/{shipping}', [App\Http\Controllers\Admin\ShippingRateController::class, 'destroy'])->name('destroy');
             Route::post('/{shipping}/toggle', [App\Http\Controllers\Admin\ShippingRateController::class, 'toggle'])->name('toggle');
         });
+
+        // 📢 Mass e-mail naar alle gebruikers (zoals oude systeem A)
+        Route::get('/email-verzenden', [MassEmailController::class, 'showForm'])->name('mass.email.form');
+        Route::post('/email-verzenden', [MassEmailController::class, 'sendMassEmail'])->name('send.mass.email');
+        Route::delete('/mass-emails/{id}', [MassEmailController::class, 'deleteMassEmail'])->name('mass.email.delete');
+
+        // 📧 Mailinglijst (zoals oude systeem B: customerlist + send)
+        Route::get('/mailinglijst', [MailingListController::class, 'index'])->name('customerlist.index');
+        Route::post('/mailinglijst', [MailingListController::class, 'store'])->name('customerlist.store');
+        Route::delete('/mailinglijst/{id}', [MailingListController::class, 'destroy'])->name('customerlist.destroy');
+        Route::get('/mailinglijst/verzenden', [MailingListController::class, 'sendForm'])->name('mailinglist.send.form');
+        Route::post('/mailinglijst/verzenden', [MailingListController::class, 'send'])->name('mailinglist.send');
+
+        // 📄 Boekhouden: Kopen+verkopen & RekenMachine (zoals oude systeem)
+        Route::prefix('boekhouden')->name('boekhouden.')->group(function () {
+            Route::redirect('/', '/admin/boekhouden/kopen-verkopen', 301);
+        });
+        Route::prefix('purchase-sales')->name('purchase-sales.')->group(function () {
+            Route::get('/', [PurchaseSalesRecordController::class, 'index'])->name('index');
+            Route::get('/create', [PurchaseSalesRecordController::class, 'create'])->name('create');
+            Route::post('/', [PurchaseSalesRecordController::class, 'store'])->name('store');
+            Route::get('/{id}/edit', [PurchaseSalesRecordController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [PurchaseSalesRecordController::class, 'update'])->name('update');
+            Route::delete('/{id}', [PurchaseSalesRecordController::class, 'destroy'])->name('destroy');
+        });
+        Route::get('/rekenmachine', [PurchaseSalesRecordController::class, 'reken'])->name('reken-machine.index');
     });
 
