@@ -23,16 +23,16 @@
 
                     <!-- Klantgegevens -->
                     <div class="mb-6 rounded-2xl border border-slate-100 bg-slate-50/80 px-5 py-4">
-                        <dl class="space-y-2.5 text-sm text-[#071b46]">
-                            <div>
+                        <dl class="space-y-2 text-sm text-[#071b46]">
+                            <div class="flex flex-wrap gap-x-1.5">
                                 <dt class="font-bold">Klantnummer:</dt>
                                 <dd>{{ $client->klantnummer ?: '—' }}</dd>
                             </div>
-                            <div>
+                            <div class="flex flex-wrap gap-x-1.5">
                                 <dt class="font-bold">Naam:</dt>
                                 <dd>{{ $client->name ?: '—' }}</dd>
                             </div>
-                            <div>
+                            <div class="flex flex-wrap gap-x-1.5">
                                 <dt class="font-bold">Adres:</dt>
                                 <dd>
                                     @php
@@ -43,15 +43,15 @@
                                     {{ $addressLine ?: '—' }}
                                 </dd>
                             </div>
-                            <div>
+                            <div class="flex flex-wrap gap-x-1.5">
                                 <dt class="font-bold">Email:</dt>
                                 <dd class="break-all">{{ $client->email ?: '—' }}</dd>
                             </div>
-                            <div>
+                            <div class="flex flex-wrap gap-x-1.5">
                                 <dt class="font-bold">Telefoon:</dt>
                                 <dd>{{ $client->phone ?: '—' }}</dd>
                             </div>
-                            <div>
+                            <div class="flex flex-wrap gap-x-1.5">
                                 <dt class="font-bold">Datum:</dt>
                                 <dd>{{ now()->format('d-m-Y') }}</dd>
                             </div>
@@ -122,17 +122,18 @@
                     data-dtype="{{ $pricing['member_discount_type'] ?? 'none' }}"
                     data-dval="{{ (float) ($pricing['member_discount_value'] ?? 0) }}"
                     data-ismember="{{ !empty($pricing['is_member']) ? '1' : '0' }}">
-                    <h2 class="text-lg font-bold text-[#071b46]">Aantal uren</h2>
+                    <h2 class="text-lg font-bold text-[#071b46]">Aantaaluuren</h2>
                     <p class="mt-1 text-xs text-slate-500">Tarief €{{ number_format($pricing['hour_price'], 2, ',', '.') }}/uur · per kwartier afgerekend</p>
-                    <dl id="priceRows" class="mt-4 space-y-2.5 text-sm">
-                        <div class="flex items-center justify-between gap-3"><dt class="text-slate-500">Arbeid</dt><dd id="prLabor" class="font-bold text-[#071b46]">—</dd></div>
-                        <div class="flex items-center justify-between gap-3"><dt class="text-slate-500">Reiskost</dt><dd id="prTravel" class="font-bold text-[#071b46]">—</dd></div>
-                        <div id="prMemberRow" class="hidden items-center justify-between gap-3"><dt class="font-semibold text-green-700">Lidkorting</dt><dd id="prMember" class="font-bold text-green-700">—</dd></div>
-                        <div id="prCouponRow" class="hidden items-center justify-between gap-3"><dt class="font-semibold text-green-700">Kortingscode</dt><dd id="prCoupon" class="font-bold text-green-700">—</dd></div>
-                        <div class="flex items-center justify-between gap-3"><dt class="text-slate-500">BTW (21%)</dt><dd id="prBtw" class="font-bold text-[#071b46]">—</dd></div>
-                        <div class="flex items-center justify-between gap-3 border-t border-slate-100 pt-3"><dt class="font-bold text-[#071b46]">Totaal (incl. btw)</dt><dd id="prTotal" class="text-lg font-black text-blue-700">—</dd></div>
-                        <p id="prHint" class="text-xs text-slate-400">Vul start- en eindtijd in voor een berekening.</p>
-                    </dl>
+                    <div id="priceRows" class="mt-4 space-y-2 text-sm text-[#071b46]">
+                        <div class="flex flex-wrap gap-x-1.5"><span class="font-semibold">Aantaaluuren:</span><span id="prAantal">—</span></div>
+                        <div class="flex flex-wrap gap-x-1.5"><span class="font-semibold">Reiskost:</span><span id="prTravel">—</span></div>
+                        <div id="prMemberRow" class="hidden flex-wrap gap-x-1.5"><span class="font-semibold text-green-700">Lidkorting:</span><span id="prMember" class="font-bold text-green-700">—</span></div>
+                        <div id="prCouponRow" class="hidden flex-wrap gap-x-1.5"><span class="font-semibold text-green-700">Kortingscode:</span><span id="prCoupon" class="font-bold text-green-700">—</span></div>
+                        <div class="flex flex-wrap gap-x-1.5 pt-3"><span class="font-semibold">Subtotaal (excl. btw):</span><span id="prSub">—</span></div>
+                        <div class="flex flex-wrap gap-x-1.5 pt-3"><span class="font-semibold">Btw (21%):</span><span id="prBtw">—</span></div>
+                        <div class="flex flex-wrap gap-x-1.5 pt-3 text-base font-bold"><span>Totaal (incl. btw):</span><span id="prTotal" class="font-black text-blue-700">—</span></div>
+                        <p id="prHint" class="pt-1 text-xs text-slate-400">Vul start- en eindtijd in voor een berekening.</p>
+                    </div>
                 </aside>
             </div>
         </section>
@@ -155,7 +156,7 @@
         let quoteTimer = null;
         let appliedCoupon = '';
 
-        const eur = v => '€' + Number(v || 0).toFixed(2).replace('.', ',');
+        const eur = v => '€ ' + Number(v || 0).toFixed(2).replace('.', ',');
         const PRICING = {
             quarter_price: {{ (float) ($pricing['quarter_price'] ?? 0) }},
             travel_cost: {{ (float) ($pricing['travel_cost'] ?? 0) }},
@@ -166,16 +167,17 @@
         };
 
         function paintQuote(d) {
-            document.getElementById('prLabor').textContent = d.quarters + ' × ' + eur(d.quarter_price);
-            document.getElementById('prTravel').textContent = Number(d.travel) > 0 ? eur(d.travel) : 'Gratis';
+            document.getElementById('prAantal').textContent = Math.floor(d.minutes / 60) + 'uur ' + (d.minutes % 60) + 'min';
+            document.getElementById('prTravel').textContent = eur(d.travel);
             const mRow = document.getElementById('prMemberRow');
             if (Number(d.member_discount) > 0) {
                 mRow.classList.remove('hidden'); mRow.classList.add('flex');
                 document.getElementById('prMember').textContent = '−' + eur(d.member_discount);
             } else { mRow.classList.add('hidden'); mRow.classList.remove('flex'); }
+            document.getElementById('prSub').textContent = eur(d.subtotal);
             document.getElementById('prTotal').textContent = eur(d.total);
             document.getElementById('prBtw').textContent = eur(d.btw);
-            document.getElementById('prHint').textContent = d.minutes + ' minuten' + (d.is_member ? ' · lidkorting toegepast' : '');
+            document.getElementById('prHint').textContent = '';
         }
 
         function paintCoupon(d) {
@@ -210,6 +212,7 @@
             }
             const net = Math.round((bruto - memberDiscount) * 100) / 100;
             const btw = Math.round(net * 21 / 121 * 100) / 100;
+            const subtotal = Math.round((net - btw) * 100) / 100;
             paintQuote({
                 quarters: quarters,
                 quarter_price: Number(PRICING.quarter_price || 0),
@@ -217,6 +220,7 @@
                 member_discount: memberDiscount,
                 total: net,
                 btw: btw,
+                subtotal: subtotal,
                 minutes: minutes,
                 is_member: PRICING.is_member,
             });
@@ -258,6 +262,7 @@
                     paintCoupon(d);
                     document.getElementById('prTotal').textContent = eur(d.total);
                     document.getElementById('prBtw').textContent = eur(d.btw);
+                    document.getElementById('prSub').textContent = eur(d.subtotal);
                 } else {
                     appliedCoupon = '';
                     couponMsg.textContent = d.error || 'Ongeldige kortingscode.';
@@ -363,17 +368,19 @@
             else if (dtype === 'fixed' && dval > 0) md = Math.min(dval, bruto);
             var net = Math.round((bruto - md) * 100) / 100;
             var btw = Math.round(net * 21 / 121 * 100) / 100;
-            var eur = function (v) { return '€' + Number(v || 0).toFixed(2).replace('.', ','); };
-            document.getElementById('prLabor').textContent = quarters + ' × ' + eur(qp);
-            document.getElementById('prTravel').textContent = travel > 0 ? eur(travel) : 'Gratis';
+            var subtotal = Math.round((net - btw) * 100) / 100;
+            var eur = function (v) { return '€ ' + Number(v || 0).toFixed(2).replace('.', ','); };
+            document.getElementById('prAantal').textContent = Math.floor(minutes / 60) + 'uur ' + (minutes % 60) + 'min';
+            document.getElementById('prTravel').textContent = eur(travel);
             var mRow = document.getElementById('prMemberRow');
             if (md > 0) {
                 mRow.classList.remove('hidden'); mRow.classList.add('flex');
                 document.getElementById('prMember').textContent = '−' + eur(md);
             }
+            document.getElementById('prSub').textContent = eur(subtotal);
             document.getElementById('prTotal').textContent = eur(net);
             document.getElementById('prBtw').textContent = eur(btw);
-            if (hint) hint.textContent = minutes + ' minuten' + (box.getAttribute('data-ismember') === '1' ? ' · lidkorting toegepast' : '');
+            if (hint) hint.textContent = '';
         } catch (err) { /* stil */ }
     };
     </script>
