@@ -9,8 +9,9 @@
     body { font-family: DejaVu Sans, sans-serif; font-size: 11px; color: #1e293b; line-height: 1.5; margin: 0; }
     .header { width: 100%; margin-bottom: 18px; }
     .header-right { text-align: right; }
-    .brand { font-size: 26px; font-weight: 800; color: #000; margin: 0; }
+    .brand { font-size: 20px; font-weight: 800; color: #2563eb; margin: 0; }
     .header-right p { margin: 1px 0; font-size: 9px; color: #000; line-height: 1.4; }
+    .header-right p.brand { font-size: 20px; font-weight: 800; color: #2563eb; margin: 0; }
     .divider { border: none; border-top: 1px solid #e2e8f0; margin: 12px 0 16px; }
     .meta { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
     .meta td { padding: 2px 0; font-size: 10.5px; vertical-align: top; }
@@ -39,7 +40,7 @@
     </td>
     <td class="header-right">
         <p class="brand">Slimme-PC</p>
-        <p><strong>Adres:</strong> Asselestraat 24, 7311EL Apeldoorn</p>
+        <p><strong>Adres:</strong> Asselsestraat 24, 7311EL Apeldoorn</p>
         <p><strong>Email:</strong> info@slimme-pc.nl</p>
         <p><strong>Tel:</strong> 0617100945 / 0557850547</p>
         <p><strong>KVK:</strong> 82348478</p>
