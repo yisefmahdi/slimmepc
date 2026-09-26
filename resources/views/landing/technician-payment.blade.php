@@ -13,13 +13,50 @@
 
                     <div class="mb-7 text-center">
                         <h1 class="text-3xl font-bold tracking-tight text-[#071b46] sm:text-[34px]">Betaling klant</h1>
-                        <p class="mt-2 text-sm text-slate-500 sm:text-[15px]">{{ $client->name }} · {{ $client->klantnummer }}</p>
                         @if($pricing['is_member'])
                             <p class="mx-auto mt-3 inline-flex items-center gap-1.5 rounded-full bg-green-50 px-4 py-1.5 text-xs font-bold text-green-700">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
                                 Lid — korting wordt automatisch toegepast
                             </p>
                         @endif
+                    </div>
+
+                    <!-- Klantgegevens -->
+                    <div class="mb-6 rounded-2xl border border-slate-100 bg-slate-50/80 px-5 py-4">
+                        <h2 class="mb-3 text-sm font-bold uppercase tracking-wide text-[#071b46]">Klantgegevens</h2>
+                        <dl class="space-y-2 text-sm text-[#071b46]">
+                            <div class="flex flex-wrap gap-x-1.5">
+                                <dt class="font-bold">Klantnummer:</dt>
+                                <dd>{{ $client->klantnummer ?: '—' }}</dd>
+                            </div>
+                            <div class="flex flex-wrap gap-x-1.5">
+                                <dt class="font-bold">Naam:</dt>
+                                <dd>{{ $client->name ?: '—' }}</dd>
+                            </div>
+                            <div class="flex flex-wrap gap-x-1.5">
+                                <dt class="font-bold">Adres:</dt>
+                                <dd>
+                                    @php
+                                        $streetLine = trim((string) ($client->street . ' ' . $client->house_number));
+                                        $cityLine = trim((string) (($client->postcode ?? '') . ' ' . ($client->city ?? '')));
+                                        $addressLine = trim($streetLine . ($streetLine && $cityLine ? ', ' : '') . $cityLine);
+                                    @endphp
+                                    {{ $addressLine ?: '—' }}
+                                </dd>
+                            </div>
+                            <div class="flex flex-wrap gap-x-1.5">
+                                <dt class="font-bold">Email:</dt>
+                                <dd class="break-all">{{ $client->email ?: '—' }}</dd>
+                            </div>
+                            <div class="flex flex-wrap gap-x-1.5">
+                                <dt class="font-bold">Telefoon:</dt>
+                                <dd>{{ $client->phone ?: '—' }}</dd>
+                            </div>
+                            <div class="flex flex-wrap gap-x-1.5">
+                                <dt class="font-bold">Datum:</dt>
+                                <dd>{{ now()->format('d-m-Y') }}</dd>
+                            </div>
+                        </dl>
                     </div>
 
                     <div id="techFormError" class="mb-5 hidden rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700"></div>
@@ -29,18 +66,6 @@
                         <input type="hidden" name="klantnummer" value="{{ $client->klantnummer }}">
 
                         <div class="grid grid-cols-1 gap-x-7 gap-y-5 md:grid-cols-2">
-                            <div>
-                                <label for="start_time" class="mb-1.5 block text-sm font-medium text-[#071b46]">Starttijd *</label>
-                                <input id="start_time" name="start_time" type="time" required value="{{ old('start_time') }}"
-                                    class="h-[46px] w-full rounded-xl border border-slate-300 bg-white px-4 text-sm text-[#071b46] outline-none transition hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
-                                @error('start_time')<p class="mt-1 text-xs font-semibold text-red-600">{{ $message }}</p>@enderror
-                            </div>
-                            <div>
-                                <label for="end_time" class="mb-1.5 block text-sm font-medium text-[#071b46]">Eindtijd *</label>
-                                <input id="end_time" name="end_time" type="time" required value="{{ old('end_time') }}"
-                                    class="h-[46px] w-full rounded-xl border border-slate-300 bg-white px-4 text-sm text-[#071b46] outline-none transition hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
-                                @error('end_time')<p class="mt-1 text-xs font-semibold text-red-600">{{ $message }}</p>@enderror
-                            </div>
                             <div class="md:col-span-2">
                                 <label for="description" class="mb-1.5 block text-sm font-medium text-[#071b46]">Omschrijving</label>
                                 <textarea id="description" name="description" rows="2" placeholder="Korte omschrijving van het bezoek..."
@@ -57,16 +82,18 @@
                                     class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-[#071b46] outline-none transition placeholder:text-slate-400 hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100">{{ old('advice') }}</textarea>
                             </div>
                             <div>
-                                <label for="rating" class="mb-1.5 block text-sm font-medium text-[#071b46]">Beoordeling (1–5)</label>
-                                <select id="rating" name="rating"
-                                    class="h-[46px] w-full appearance-none rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-600 outline-none transition hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
-                                    <option value="">Geen beoordeling</option>
-                                    @for($i = 1; $i <= 5; $i++)
-                                        <option value="{{ $i }}" {{ (string) old('rating') === (string) $i ? 'selected' : '' }}>{{ $i }} {{ $i === 1 ? 'ster' : 'sterren' }}</option>
-                                    @endfor
-                                </select>
+                                <label for="start_time" class="mb-1.5 block text-sm font-medium text-[#071b46]">Starttijd *</label>
+                                <input id="start_time" name="start_time" type="time" required value="{{ old('start_time') }}" oninput="window.techQuoteFallback()" onchange="window.techQuoteFallback()"
+                                    class="h-[46px] w-full rounded-xl border border-slate-300 bg-white px-4 text-sm text-[#071b46] outline-none transition hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
+                                @error('start_time')<p class="mt-1 text-xs font-semibold text-red-600">{{ $message }}</p>@enderror
                             </div>
                             <div>
+                                <label for="end_time" class="mb-1.5 block text-sm font-medium text-[#071b46]">Eindtijd *</label>
+                                <input id="end_time" name="end_time" type="time" required value="{{ old('end_time') }}" oninput="window.techQuoteFallback()" onchange="window.techQuoteFallback()"
+                                    class="h-[46px] w-full rounded-xl border border-slate-300 bg-white px-4 text-sm text-[#071b46] outline-none transition hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
+                                @error('end_time')<p class="mt-1 text-xs font-semibold text-red-600">{{ $message }}</p>@enderror
+                            </div>
+                            <div class="md:col-span-2">
                                 <label for="coupon_code" class="mb-1.5 block text-sm font-medium text-[#071b46]">Kortingscode</label>
                                 <div class="flex gap-2">
                                     <input id="coupon_code" name="coupon_code" type="text" placeholder="Code" value="{{ old('coupon_code') }}"
@@ -94,7 +121,13 @@
                 </div>
 
                 <!-- Prijsopbouw -->
-                <aside class="w-full rounded-[28px] border border-white/80 bg-white/95 px-6 py-7 shadow-[0_25px_80px_rgba(37,99,235,0.14)] backdrop-blur-xl sm:px-7 lg:w-[300px] lg:shrink-0">
+                <aside id="priceBox" class="w-full rounded-[28px] border border-white/80 bg-white/95 px-6 py-7 shadow-[0_25px_80px_rgba(37,99,235,0.14)] backdrop-blur-xl sm:px-7 lg:w-[300px] lg:shrink-0"
+                    data-quarter="{{ (float) ($pricing['quarter_price'] ?? 0) }}"
+                    data-travel="{{ (float) ($pricing['travel_cost'] ?? 0) }}"
+                    data-freetravel="{{ !empty($pricing['member_free_travel']) ? '1' : '0' }}"
+                    data-dtype="{{ $pricing['member_discount_type'] ?? 'none' }}"
+                    data-dval="{{ (float) ($pricing['member_discount_value'] ?? 0) }}"
+                    data-ismember="{{ !empty($pricing['is_member']) ? '1' : '0' }}">
                     <h2 class="text-lg font-bold text-[#071b46]">Prijsopbouw</h2>
                     <p class="mt-1 text-xs text-slate-500">Tarief €{{ number_format($pricing['hour_price'], 2, ',', '.') }}/uur · per kwartier afgerekend</p>
                     <dl id="priceRows" class="mt-4 space-y-2.5 text-sm">
@@ -129,6 +162,14 @@
         let appliedCoupon = '';
 
         const eur = v => '€' + Number(v || 0).toFixed(2).replace('.', ',');
+        const PRICING = {
+            quarter_price: {{ (float) ($pricing['quarter_price'] ?? 0) }},
+            travel_cost: {{ (float) ($pricing['travel_cost'] ?? 0) }},
+            member_free_travel: {{ !empty($pricing['member_free_travel']) ? 'true' : 'false' }},
+            member_discount_type: '{{ $pricing['member_discount_type'] ?? 'none' }}',
+            member_discount_value: {{ (float) ($pricing['member_discount_value'] ?? 0) }},
+            is_member: {{ !empty($pricing['is_member']) ? 'true' : 'false' }},
+        };
 
         function paintQuote(d) {
             document.getElementById('prLabor').textContent = d.quarters + ' × ' + eur(d.quarter_price);
@@ -152,23 +193,52 @@
             document.getElementById('prTotal').textContent = eur(d.total);
         }
 
-        async function refreshQuote() {
+        // Instant berekening in de browser (zelfde formule als de server; de server herberekent bij opslaan).
+        function refreshQuote() {
+            const hint = document.getElementById('prHint');
             if (!startEl.value || !endEl.value) return;
-            try {
-                const res = await fetch('{{ route('technician.quote') }}', {
-                    method: 'POST', credentials: 'same-origin',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf },
-                    body: JSON.stringify({ klantnummer, start_time: startEl.value, end_time: endEl.value }),
-                });
-                const d = await res.json().catch(() => ({}));
-                if (res.ok && d.success) { paintQuote(d); appliedCoupon = ''; paintCoupon({ discount: 0, total: d.total }); }
-            } catch (e) { /* stil */ }
+            const sp = startEl.value.split(':').map(Number);
+            const ep = endEl.value.split(':').map(Number);
+            if (sp.length < 2 || ep.length < 2) return;
+            const minutes = (ep[0] * 60 + ep[1]) - (sp[0] * 60 + sp[1]);
+            if (!(minutes >= 5)) {
+                if (hint) { hint.textContent = 'De eindtijd moet na de starttijd zijn (minimaal 5 minuten).'; }
+                return;
+            }
+            const quarters = Math.ceil(minutes / 15);
+            const travel = PRICING.member_free_travel ? 0 : Number(PRICING.travel_cost || 0);
+            const bruto = Math.round((quarters * Number(PRICING.quarter_price || 0) + travel) * 100) / 100;
+            let memberDiscount = 0;
+            if (PRICING.member_discount_type === 'percent' && Number(PRICING.member_discount_value) > 0) {
+                memberDiscount = Math.round(bruto * Number(PRICING.member_discount_value) / 100 * 100) / 100;
+            } else if (PRICING.member_discount_type === 'fixed' && Number(PRICING.member_discount_value) > 0) {
+                memberDiscount = Math.min(Number(PRICING.member_discount_value), bruto);
+            }
+            const net = Math.round((bruto - memberDiscount) * 100) / 100;
+            const btw = Math.round(net * 21 / 121 * 100) / 100;
+            paintQuote({
+                quarters: quarters,
+                quarter_price: Number(PRICING.quarter_price || 0),
+                travel: travel,
+                member_discount: memberDiscount,
+                total: net,
+                btw: btw,
+                minutes: minutes,
+                is_member: PRICING.is_member,
+            });
+            appliedCoupon = '';
+            paintCoupon({ discount: 0, total: net });
         }
 
-        [startEl, endEl].forEach(el => el.addEventListener('change', () => {
+        if (!startEl || !endEl) return;
+
+        [startEl, endEl].forEach(el => ['input', 'change'].forEach(evt => el.addEventListener(evt, () => {
             clearTimeout(quoteTimer);
-            quoteTimer = setTimeout(refreshQuote, 400);
-        }));
+            quoteTimer = setTimeout(refreshQuote, 200);
+        })));
+
+        // Direct berekenen als beide velden al gevuld zijn (bv. na validatiefout met old-values)
+        refreshQuote();
 
         couponBtn.addEventListener('click', async () => {
             const code = (couponEl.value || '').trim();
@@ -271,5 +341,46 @@
             }
         });
     })();
+    </script>
+    <script>
+    // Onafhankelijke fallback-berekening (tweede pad naast het hoofdscript hierboven).
+    window.techQuoteFallback = function () {
+        try {
+            var box = document.getElementById('priceBox');
+            var sEl = document.getElementById('start_time');
+            var eEl = document.getElementById('end_time');
+            if (!box || !sEl || !eEl || !sEl.value || !eEl.value) return;
+            var sp = sEl.value.split(':');
+            var ep = eEl.value.split(':');
+            var minutes = (parseInt(ep[0], 10) * 60 + parseInt(ep[1], 10)) - (parseInt(sp[0], 10) * 60 + parseInt(sp[1], 10));
+            var hint = document.getElementById('prHint');
+            if (!(minutes >= 5)) {
+                if (hint) hint.textContent = 'De eindtijd moet na de starttijd zijn (minimaal 5 minuten).';
+                return;
+            }
+            var qp = parseFloat(box.getAttribute('data-quarter')) || 0;
+            var travel = box.getAttribute('data-freetravel') === '1' ? 0 : (parseFloat(box.getAttribute('data-travel')) || 0);
+            var quarters = Math.ceil(minutes / 15);
+            var bruto = Math.round((quarters * qp + travel) * 100) / 100;
+            var dtype = box.getAttribute('data-dtype') || 'none';
+            var dval = parseFloat(box.getAttribute('data-dval')) || 0;
+            var md = 0;
+            if (dtype === 'percent' && dval > 0) md = Math.round(bruto * dval / 100 * 100) / 100;
+            else if (dtype === 'fixed' && dval > 0) md = Math.min(dval, bruto);
+            var net = Math.round((bruto - md) * 100) / 100;
+            var btw = Math.round(net * 21 / 121 * 100) / 100;
+            var eur = function (v) { return '€' + Number(v || 0).toFixed(2).replace('.', ','); };
+            document.getElementById('prLabor').textContent = quarters + ' × ' + eur(qp);
+            document.getElementById('prTravel').textContent = travel > 0 ? eur(travel) : 'Gratis';
+            var mRow = document.getElementById('prMemberRow');
+            if (md > 0) {
+                mRow.classList.remove('hidden'); mRow.classList.add('flex');
+                document.getElementById('prMember').textContent = '−' + eur(md);
+            }
+            document.getElementById('prTotal').textContent = eur(net);
+            document.getElementById('prBtw').textContent = eur(btw);
+            if (hint) hint.textContent = minutes + ' minuten' + (box.getAttribute('data-ismember') === '1' ? ' · lidkorting toegepast' : '');
+        } catch (err) { /* stil */ }
+    };
     </script>
 @endsection

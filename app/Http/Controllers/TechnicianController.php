@@ -433,6 +433,13 @@ class TechnicianController extends Controller
     {
         abort_unless($form->payment_status === 'paid', 404);
 
+        // Voor veiligheid: na een geslaagde betaling de monteur direct uitloggen.
+        if (Auth::check()) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
+
         $c = Cms::page('home');
         $design = Cms::design();
 
