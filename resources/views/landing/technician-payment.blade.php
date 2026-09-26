@@ -122,7 +122,6 @@
                     data-dtype="{{ $pricing['member_discount_type'] ?? 'none' }}"
                     data-dval="{{ (float) ($pricing['member_discount_value'] ?? 0) }}"
                     data-ismember="{{ !empty($pricing['is_member']) ? '1' : '0' }}">
-                    <h2 class="text-lg font-bold text-[#071b46]">Aantaaluuren</h2>
                     <p class="mt-1 text-xs text-slate-500">Tarief €{{ number_format($pricing['hour_price'], 2, ',', '.') }}/uur · per kwartier afgerekend</p>
                     <div id="priceRows" class="mt-4 space-y-2 text-sm text-[#071b46]">
                         <div class="flex flex-wrap gap-x-1.5"><span class="font-semibold">Aantaaluuren:</span><span id="prAantal">—</span></div>
