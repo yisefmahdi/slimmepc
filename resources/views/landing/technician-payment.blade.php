@@ -12,7 +12,7 @@
                 <div class="w-full max-w-[760px] flex-1 rounded-[28px] border border-white/80 bg-white/95 px-6 py-7 shadow-[0_25px_80px_rgba(37,99,235,0.14)] backdrop-blur-xl sm:px-8 sm:py-8">
 
                     <div class="mb-7 text-center">
-                        <h1 class="text-3xl font-bold tracking-tight text-[#071b46] sm:text-[34px]">Betaling klant</h1>
+                        <h1 class="text-3xl font-bold tracking-tight text-[#071b46] sm:text-[34px]">Betaling formulier</h1>
                         @if($pricing['is_member'])
                             <p class="mx-auto mt-3 inline-flex items-center gap-1.5 rounded-full bg-green-50 px-4 py-1.5 text-xs font-bold text-green-700">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
@@ -23,17 +23,16 @@
 
                     <!-- Klantgegevens -->
                     <div class="mb-6 rounded-2xl border border-slate-100 bg-slate-50/80 px-5 py-4">
-                        <h2 class="mb-3 text-sm font-bold uppercase tracking-wide text-[#071b46]">Klantgegevens</h2>
-                        <dl class="space-y-2 text-sm text-[#071b46]">
-                            <div class="flex flex-wrap gap-x-1.5">
+                        <dl class="space-y-2.5 text-sm text-[#071b46]">
+                            <div>
                                 <dt class="font-bold">Klantnummer:</dt>
                                 <dd>{{ $client->klantnummer ?: '—' }}</dd>
                             </div>
-                            <div class="flex flex-wrap gap-x-1.5">
+                            <div>
                                 <dt class="font-bold">Naam:</dt>
                                 <dd>{{ $client->name ?: '—' }}</dd>
                             </div>
-                            <div class="flex flex-wrap gap-x-1.5">
+                            <div>
                                 <dt class="font-bold">Adres:</dt>
                                 <dd>
                                     @php
@@ -44,15 +43,15 @@
                                     {{ $addressLine ?: '—' }}
                                 </dd>
                             </div>
-                            <div class="flex flex-wrap gap-x-1.5">
+                            <div>
                                 <dt class="font-bold">Email:</dt>
                                 <dd class="break-all">{{ $client->email ?: '—' }}</dd>
                             </div>
-                            <div class="flex flex-wrap gap-x-1.5">
+                            <div>
                                 <dt class="font-bold">Telefoon:</dt>
                                 <dd>{{ $client->phone ?: '—' }}</dd>
                             </div>
-                            <div class="flex flex-wrap gap-x-1.5">
+                            <div>
                                 <dt class="font-bold">Datum:</dt>
                                 <dd>{{ now()->format('d-m-Y') }}</dd>
                             </div>
@@ -67,12 +66,12 @@
 
                         <div class="grid grid-cols-1 gap-x-7 gap-y-5 md:grid-cols-2">
                             <div class="md:col-span-2">
-                                <label for="description" class="mb-1.5 block text-sm font-medium text-[#071b46]">Omschrijving</label>
+                                <label for="description" class="mb-1.5 block text-sm font-medium text-[#071b46]">Probleem omschrijven</label>
                                 <textarea id="description" name="description" rows="2" placeholder="Korte omschrijving van het bezoek..."
                                     class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-[#071b46] outline-none transition placeholder:text-slate-400 hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100">{{ old('description') }}</textarea>
                             </div>
                             <div class="md:col-span-2">
-                                <label for="work_done" class="mb-1.5 block text-sm font-medium text-[#071b46]">Uitgevoerde werkzaamheden</label>
+                                <label for="work_done" class="mb-1.5 block text-sm font-medium text-[#071b46]">Werkzaamheden</label>
                                 <textarea id="work_done" name="work_done" rows="2" placeholder="Wat is er gedaan?"
                                     class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-[#071b46] outline-none transition placeholder:text-slate-400 hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100">{{ old('work_done') }}</textarea>
                             </div>
@@ -82,19 +81,19 @@
                                     class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-[#071b46] outline-none transition placeholder:text-slate-400 hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100">{{ old('advice') }}</textarea>
                             </div>
                             <div>
-                                <label for="start_time" class="mb-1.5 block text-sm font-medium text-[#071b46]">Starttijd *</label>
+                                <label for="start_time" class="mb-1.5 block text-sm font-medium text-[#071b46]">Van *</label>
                                 <input id="start_time" name="start_time" type="time" required value="{{ old('start_time') }}" oninput="window.techQuoteFallback()" onchange="window.techQuoteFallback()"
                                     class="h-[46px] w-full rounded-xl border border-slate-300 bg-white px-4 text-sm text-[#071b46] outline-none transition hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
                                 @error('start_time')<p class="mt-1 text-xs font-semibold text-red-600">{{ $message }}</p>@enderror
                             </div>
                             <div>
-                                <label for="end_time" class="mb-1.5 block text-sm font-medium text-[#071b46]">Eindtijd *</label>
+                                <label for="end_time" class="mb-1.5 block text-sm font-medium text-[#071b46]">Tot *</label>
                                 <input id="end_time" name="end_time" type="time" required value="{{ old('end_time') }}" oninput="window.techQuoteFallback()" onchange="window.techQuoteFallback()"
                                     class="h-[46px] w-full rounded-xl border border-slate-300 bg-white px-4 text-sm text-[#071b46] outline-none transition hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
                                 @error('end_time')<p class="mt-1 text-xs font-semibold text-red-600">{{ $message }}</p>@enderror
                             </div>
                             <div class="md:col-span-2">
-                                <label for="coupon_code" class="mb-1.5 block text-sm font-medium text-[#071b46]">Kortingscode</label>
+                                <label for="coupon_code" class="mb-1.5 block text-sm font-medium text-[#071b46]">Heb je een kortingscode?</label>
                                 <div class="flex gap-2">
                                     <input id="coupon_code" name="coupon_code" type="text" placeholder="Code" value="{{ old('coupon_code') }}"
                                         class="h-[46px] min-w-0 flex-1 rounded-xl border border-slate-300 bg-white px-4 text-sm uppercase text-[#071b46] outline-none transition placeholder:normal-case placeholder:text-slate-400 hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
@@ -123,11 +122,11 @@
                     data-dtype="{{ $pricing['member_discount_type'] ?? 'none' }}"
                     data-dval="{{ (float) ($pricing['member_discount_value'] ?? 0) }}"
                     data-ismember="{{ !empty($pricing['is_member']) ? '1' : '0' }}">
-                    <h2 class="text-lg font-bold text-[#071b46]">Prijsopbouw</h2>
+                    <h2 class="text-lg font-bold text-[#071b46]">Aantal uren</h2>
                     <p class="mt-1 text-xs text-slate-500">Tarief €{{ number_format($pricing['hour_price'], 2, ',', '.') }}/uur · per kwartier afgerekend</p>
                     <dl id="priceRows" class="mt-4 space-y-2.5 text-sm">
                         <div class="flex items-center justify-between gap-3"><dt class="text-slate-500">Arbeid</dt><dd id="prLabor" class="font-bold text-[#071b46]">—</dd></div>
-                        <div class="flex items-center justify-between gap-3"><dt class="text-slate-500">Voorrijkosten</dt><dd id="prTravel" class="font-bold text-[#071b46]">—</dd></div>
+                        <div class="flex items-center justify-between gap-3"><dt class="text-slate-500">Reiskost</dt><dd id="prTravel" class="font-bold text-[#071b46]">—</dd></div>
                         <div id="prMemberRow" class="hidden items-center justify-between gap-3"><dt class="font-semibold text-green-700">Lidkorting</dt><dd id="prMember" class="font-bold text-green-700">—</dd></div>
                         <div id="prCouponRow" class="hidden items-center justify-between gap-3"><dt class="font-semibold text-green-700">Kortingscode</dt><dd id="prCoupon" class="font-bold text-green-700">—</dd></div>
                         <div class="flex items-center justify-between gap-3"><dt class="text-slate-500">BTW (21%)</dt><dd id="prBtw" class="font-bold text-[#071b46]">—</dd></div>
