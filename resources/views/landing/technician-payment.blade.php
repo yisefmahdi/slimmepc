@@ -106,11 +106,6 @@
                                 <p id="couponMsg" class="mt-1 hidden text-xs font-semibold"></p>
                                 @error('coupon_code')<p class="mt-1 text-xs font-semibold text-red-600">{{ $message }}</p>@enderror
                             </div>
-                            <div class="md:col-span-2">
-                                <label for="comment" class="mb-1.5 block text-sm font-medium text-[#071b46]">Opmerking</label>
-                                <textarea id="comment" name="comment" rows="2" placeholder="Extra opmerking..."
-                                    class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-[#071b46] outline-none transition placeholder:text-slate-400 hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100">{{ old('comment') }}</textarea>
-                            </div>
                         </div>
 
                         <button id="techSubmitBtn" type="submit"
