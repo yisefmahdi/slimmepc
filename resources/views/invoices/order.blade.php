@@ -9,7 +9,7 @@
     body { font-family: DejaVu Sans, sans-serif; font-size: 11px; color: #1e293b; line-height: 1.5; margin: 0; }
     .header { width: 100%; margin-bottom: 18px; }
     .header-right { text-align: right; }
-    .brand { font-size: 22px; font-weight: 800; color: #000; margin: 0; }
+    .brand { font-size: 26px; font-weight: 800; color: #000; margin: 0; }
     .header-right p { margin: 1px 0; font-size: 9px; color: #000; line-height: 1.4; }
     .divider { border: none; border-top: 1px solid #e2e8f0; margin: 12px 0 16px; }
     .meta { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
@@ -75,19 +75,19 @@
             }
         @endphp
         @if($logoSrc)
-            <img src="{{ $logoSrc }}" style="width: 120px; height: auto; display: block;" alt="Slimme-PC">
+            <img src="{{ $logoSrc }}" style="width: 90px; height: auto; display: block;" alt="Slimme-PC">
         @else
-            <div style="width: 120px; height: 40px; background: #000; color: white; font-weight: bold; text-align: center; line-height: 40px; border-radius: 6px;">Slimme-PC</div>
+            <div style="width: 90px; height: 32px; background: #000; color: white; font-weight: bold; text-align: center; line-height: 32px; border-radius: 6px;">Slimme-PC</div>
         @endif
     </td>
     <td class="header-right">
         <p class="brand">Slimme-PC</p>
-        <p>asselsestraat 24 apeldoorn, 7311EL Apeldoorn</p>
-        <p>info@slimme-pc.nl</p>
-        <p>Tel: 0617100945 / 0557850547</p>
-        <p>KVK: 82348478</p>
-        <p>BTW: NL003670746B07</p>
-        <p>IBAN: NL55INGB0009592427</p>
+        <p><strong>Adres:</strong> Asselestraat 24, 7311EL Apeldoorn</p>
+        <p><strong>Email:</strong> info@slimme-pc.nl</p>
+        <p><strong>Tel:</strong> 0617100945 / 0557850547</p>
+        <p><strong>KVK:</strong> 82348478</p>
+        <p><strong>BTW:</strong> NL003670746B07</p>
+        <p><strong>IBAN:</strong> NL55INGB0009592427</p>
     </td>
 </tr>
 </table>
