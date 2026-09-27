@@ -492,6 +492,7 @@ $macSectionDef = [
         'blocks' => [
             'title' => ['label' => 'Titel', 'type' => 'text'],
             'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'phone' => ['label' => 'Telefoon (Bel direct)', 'type' => 'text'],
             'text' => ['label' => 'Tekst', 'type' => 'text'],
         ],
     ],
@@ -917,6 +918,7 @@ $netwerkSectionDef = [
         'blocks' => [
             'title' => ['label' => 'Titel', 'type' => 'text'],
             'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'phone' => ['label' => 'Telefoon (Bel direct)', 'type' => 'text'],
             'benefits' => [
                 'label' => 'Voordelen (3)',
                 'type' => 'json',

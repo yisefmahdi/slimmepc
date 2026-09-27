@@ -395,9 +395,9 @@
                            class="inline-flex items-center gap-3 rounded-xl bg-blue-600 px-6 py-3.5 font-bold text-white transition hover:bg-blue-500">
                             Mac reparatie aanmelden <span>→</span>
                         </a>
-                        <a href="tel:+31552032145"
+                        <a href="tel:{{ preg_replace('/[^0-9]/', '', $s['cta']['phone'] ?? '0552032145') }}"
                            class="inline-flex items-center gap-3 rounded-xl border border-white/30 bg-white/5 px-6 py-3.5 font-bold text-white transition hover:bg-white/10">
-                            Bel ons: 055 203 21 45
+                            Bel ons: {{ $s['cta']['phone'] ?? '055 203 21 45' }}
                         </a>
                     </div>
 

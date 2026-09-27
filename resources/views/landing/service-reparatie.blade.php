@@ -773,19 +773,19 @@
 
                     <div class="my-6 h-px bg-slate-200"></div>
 
-                    <h3 class="text-base font-black text-slate-950">Liever direct contact?</h3>
-                    <p class="mt-1 text-xs leading-5 text-slate-500">Bel of stuur ons een WhatsApp-bericht.</p>
+                    <h3 class="text-base font-black text-slate-950">{{ $s['why']['contact_title'] ?? 'Liever direct contact?' }}</h3>
+                    <p class="mt-1 text-xs leading-5 text-slate-500">{{ $s['why']['contact_subtitle'] ?? 'Bel of stuur ons een WhatsApp-bericht.' }}</p>
 
                     <div class="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                        <a href="https://wa.me/31552032145"
+                        <a href="https://wa.me/{{ $s['why']['whatsapp_number'] ?? '31552032145' }}"
                            class="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-green-300 bg-green-50 px-3 text-xs font-black text-green-700 transition hover:bg-green-100">
                             <i data-lucide="message-circle" class="h-4 w-4"></i>
-                            WhatsApp
+                            {{ $s['why']['whatsapp_label'] ?? 'WhatsApp' }}
                         </a>
-                        <a href="tel:+31552032145"
+                        <a href="tel:{{ preg_replace('/[^0-9]/', '', $s['why']['phone_number'] ?? '0552032145') }}"
                            class="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 text-xs font-black text-slimme-700 transition hover:bg-blue-100">
                             <i data-lucide="phone" class="h-4 w-4"></i>
-                            055 203 21 45
+                            {{ $s['why']['phone_number'] ?? '055 203 21 45' }}
                         </a>
                     </div>
                 </div>
