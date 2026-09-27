@@ -365,7 +365,7 @@
                                 <a href="/reparatie-aanmelden" class="rounded-md bg-white px-5 py-2.5 sm:px-7 sm:py-4 text-[14px] sm:text-[15px] font-bold text-[#1264df] transition hover:bg-slate-100">PC reparatie aanvragen →</a>
                                 <a href="/reparatie-aanmelden" class="rounded-md bg-white px-5 py-2.5 sm:px-7 sm:py-4 text-[14px] sm:text-[15px] font-bold text-[#1264df] transition hover:bg-slate-100">PC samenstellen →</a>
                             </div>
-                            <div class="mt-6 flex items-center gap-3 text-[13px] font-semibold">☎ <span>Bel ons direct: 055 203 21 45</span></div>
+                            <a href="tel:{{ preg_replace('/[^0-9]/', '', $s['faq_cta']['cta_phone'] ?? '0552032145') }}" class="mt-6 flex items-center gap-3 text-[13px] font-semibold hover:underline">☎ <span>Bel ons direct: {{ $s['faq_cta']['cta_phone'] ?? '055 203 21 45' }}</span></a>
                         </div>
                     </div>
 

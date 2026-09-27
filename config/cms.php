@@ -1432,6 +1432,7 @@ $pcSectionDef = [
             ],
             'cta_title' => ['label' => 'CTA titel', 'type' => 'text'],
             'cta_description' => ['label' => 'CTA beschrijving', 'type' => 'textarea'],
+            'cta_phone' => ['label' => 'CTA telefoon (Bel ons direct)', 'type' => 'text'],
             'cta_image' => ['label' => 'CTA afbeelding', 'type' => 'image'],
         ],
     ],
