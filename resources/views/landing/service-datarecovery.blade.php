@@ -279,12 +279,12 @@
                             </h2>
                             <p class="text-white/80 text-[12px] leading-5 mt-4 whitespace-pre-line">{{ $s['trust_cta_faq']['cta_description'] ?? "Wacht niet langer en vergroot de kans\nop succesvol herstel." }}</p>
                             <a href="/reparatie-aanmelden" class="inline-flex items-center gap-6 bg-[#0b63e5] hover:bg-[#0958ca] px-5 py-2.5 sm:px-7 sm:py-4 rounded-lg font-bold text-[14px] sm:text-[15px] mt-6">
-                                Gratis diagnose aanvragen
+                                Diagnose aanvragen
                                 <i data-lucide="chevron-right" class="w-4 h-4"></i>
                             </a>
-                            <a href="tel:0552032145" class="flex items-center gap-3 mt-5 text-white text-[12px]">
+                            <a href="tel:{{ preg_replace('/[^0-9]/', '', $s['trust_cta_faq']['cta_phone'] ?? '0552032145') }}" class="flex items-center gap-3 mt-5 text-white text-[12px]">
                                 <i data-lucide="phone" class="w-5 h-5"></i>
-                                Bel ons direct: 055 203 21 45
+                                Bel ons direct: {{ $s['trust_cta_faq']['cta_phone'] ?? '055 203 21 45' }}
                             </a>
                         </div>
                     </div>

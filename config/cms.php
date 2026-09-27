@@ -670,6 +670,7 @@ $ipadSectionDef = [
         'blocks' => [
             'title' => ['label' => 'Titel', 'type' => 'text'],
             'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
+            'phone' => ['label' => 'Telefoon (Bel ons)', 'type' => 'text'],
             'address_title' => ['label' => 'Adres titel', 'type' => 'text'],
             'address_text' => ['label' => 'Adres', 'type' => 'textarea'],
             'image' => ['label' => 'CTA afbeelding', 'type' => 'image'],
@@ -1222,6 +1223,7 @@ $datarecoverySectionDef = [
             'cta_title1' => ['label' => 'CTA titel regel 1 (Laat je data herstellen)', 'type' => 'text'],
             'cta_title2' => ['label' => 'CTA titel regel 2 (door specialisten.)', 'type' => 'text'],
             'cta_description' => ['label' => 'CTA beschrijving', 'type' => 'textarea'],
+            'cta_phone' => ['label' => 'CTA telefoon (Bel ons direct)', 'type' => 'text'],
             'cta_image' => ['label' => 'CTA afbeelding', 'type' => 'image'],
             'faq_title' => ['label' => 'FAQ titel', 'type' => 'text'],
             'faq_items' => [
