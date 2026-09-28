@@ -32,6 +32,7 @@ class RepairInboxController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('repair_number', 'like', "%{$search}%")
                     ->orWhere('brand', 'like', "%{$search}%")
                     ->orWhere('model', 'like', "%{$search}%")
                     ->orWhere('device', 'like', "%{$search}%");
@@ -48,7 +49,7 @@ class RepairInboxController extends Controller
             ->orderByDesc('created_at')
             ->orderByDesc('id')
             ->paginate($perPage, [
-                'id', 'repair_number', 'name', 'email', 'phone', 'device',
+                'id', 'repair_number', 'name', 'email', 'phone', 'postcode', 'device',
                 'brand', 'model', 'status', 'created_at',
             ]);
 

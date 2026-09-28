@@ -495,7 +495,7 @@
                 </div>
 
                 {{-- Bevestiging-mail Dropdown --}}
-                <div x-data="{ open: {{ request()->routeIs('admin.bevestiging-mail.*') ? 'true' : 'false' }}, init() { if (localStorage.getItem('nav-bevestiging') !== null) { this.open = localStorage.getItem('nav-bevestiging') === '1'; } }, toggle() { this.open = !this.open; localStorage.setItem('nav-bevestiging', this.open ? '1' : '0'); } }" class="space-y-1">
+                <div x-data="{ open: {{ request()->routeIs('admin.bevestiging-mail.*') || request()->routeIs('admin.leen-huur.*') ? 'true' : 'false' }}, init() { if (localStorage.getItem('nav-bevestiging') !== null) { this.open = localStorage.getItem('nav-bevestiging') === '1'; } }, toggle() { this.open = !this.open; localStorage.setItem('nav-bevestiging', this.open ? '1' : '0'); } }" class="space-y-1">
                     <button type="button" @click="toggle()"
                             class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
                             style="color: rgba(255,255,255,0.95)">
@@ -526,6 +526,10 @@
                         <a href="{{ route('admin.bevestiging-mail.ontvangst.index', ['type' => 'playstation_xbox']) }}"
                            class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.bevestiging-mail.ontvangst.*') && request()->input('type') === 'playstation_xbox' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
                             PlayStation-Xbox
+                        </a>
+                        <a href="{{ route('admin.leen-huur.index') }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.leen-huur.*') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Leen / Huur Laptop
                         </a>
                     </div>
                 </div>

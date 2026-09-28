@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\KlantController;
 use App\Http\Controllers\Admin\RepairInboxController;
 use App\Http\Controllers\Admin\AfspraakInboxController;
 use App\Http\Controllers\Admin\DeviceReceiptController;
+use App\Http\Controllers\Admin\LaptopLoanController;
 use App\Http\Controllers\Admin\ManualInvoiceController;
 use App\Http\Controllers\Admin\MembershipController;
 use App\Http\Controllers\Admin\TechnicianController;
@@ -191,6 +192,24 @@ Route::prefix('admin')
                         Route::delete('/{receipt}/photo/{photo}', [DeviceReceiptController::class, 'destroyPhoto'])->name('photo.destroy');
                         Route::delete('/{receipt}', [DeviceReceiptController::class, 'destroy'])->name('destroy');
                     });
+            });
+
+        // Leen / Huur Laptop (uitgifte + retour + foto's + PDF + e-mail)
+        Route::prefix('leen-huur')
+            ->name('leen-huur.')
+            ->group(function () {
+                Route::get('/', [LaptopLoanController::class, 'index'])->name('index');
+                Route::get('/data', [LaptopLoanController::class, 'data'])->name('data');
+                Route::get('/create', [LaptopLoanController::class, 'create'])->name('create');
+                Route::post('/', [LaptopLoanController::class, 'store'])->name('store');
+                Route::get('/{loan}/edit', [LaptopLoanController::class, 'edit'])->name('edit');
+                Route::put('/{loan}', [LaptopLoanController::class, 'update'])->name('update');
+                Route::get('/{loan}', [LaptopLoanController::class, 'show'])->name('show');
+                Route::post('/{loan}/retour', [LaptopLoanController::class, 'markReturned'])->name('return');
+                Route::get('/{loan}/overeenkomst', [LaptopLoanController::class, 'agreement'])->name('agreement');
+                Route::get('/{loan}/photo/{photo}', [LaptopLoanController::class, 'photo'])->name('photo');
+                Route::delete('/{loan}/photo/{photo}', [LaptopLoanController::class, 'destroyPhoto'])->name('photo.destroy');
+                Route::delete('/{loan}', [LaptopLoanController::class, 'destroy'])->name('destroy');
             });
 
         Route::prefix('lidmaatschap')
