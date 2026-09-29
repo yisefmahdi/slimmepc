@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')
     ->name('admin.')
-    ->middleware(['auth', 'verified', 'admin', 'inbound.sync'])
+    ->middleware(['auth', 'verified', 'check.blocked', 'admin.or.tech', 'inbound.sync'])
     ->group(function () {
         Route::get('/', [AdminController::class, 'dashboard'])
             ->name('dashboard');
@@ -29,9 +29,10 @@ Route::prefix('admin')
         Route::get('/dashboard', [AdminController::class, 'dashboard'])
             ->name('dashboard.alias');
 
-        // CMS: website content editor
+        // CMS: website content editor (admin only)
         Route::prefix('content')
             ->name('content.')
+            ->middleware('admin')
             ->group(function () {
                 // Redirect /admin/content to design editor
                 Route::get('/', function () {
@@ -59,9 +60,10 @@ Route::prefix('admin')
                     ->name('media');
             });
 
-        // Users management (formerly klanten)
+        // Users management (formerly klanten) — admin only
         Route::prefix('users')
             ->name('users.')
+            ->middleware('admin')
             ->group(function () {
                 Route::get('/', [KlantController::class, 'index'])
                     ->name('index');
@@ -88,9 +90,10 @@ Route::prefix('admin')
                     ->name('role');
             });
 
-        // Contact inbox (submissions + chat threads)
+        // Contact inbox (submissions + chat threads) — admin only
         Route::prefix('contact-inbox')
             ->name('contact-inbox.')
+            ->middleware('admin')
             ->group(function () {
                 Route::get('/', [ContactInboxController::class, 'index'])
                     ->name('index');
@@ -125,9 +128,10 @@ Route::prefix('admin')
                     ->name('destroy');
             });
 
-        // Repair submissions (reparatie aanmelden)
+        // Repair submissions (reparatie aanmelden) — admin only
         Route::prefix('reparatie-aanmeldingen')
             ->name('reparatie-aanmeldingen.')
+            ->middleware('admin')
             ->group(function () {
                 Route::get('/', [RepairInboxController::class, 'index'])
                     ->name('index');
@@ -151,9 +155,10 @@ Route::prefix('admin')
                     ->name('destroy');
             });
 
-        // Afspraak aan huis (afspraak aanvragen)
+        // Afspraak aan huis (afspraak aanvragen) — admin only
         Route::prefix('afspraak-aanvragen')
             ->name('afspraak-aanvragen.')
+            ->middleware('admin')
             ->group(function () {
                 Route::get('/', [AfspraakInboxController::class, 'index'])->name('index');
                 Route::get('/data', [AfspraakInboxController::class, 'data'])->name('data');
@@ -169,6 +174,7 @@ Route::prefix('admin')
             ->group(function () {
                 Route::prefix('hardware')
                     ->name('hardware.')
+                    ->middleware('admin')
                     ->group(function () {
                         Route::get('/', [ManualInvoiceController::class, 'index'])->name('index');
                         Route::get('/data', [ManualInvoiceController::class, 'data'])->name('data');
@@ -189,14 +195,15 @@ Route::prefix('admin')
                         Route::get('/{receipt}', [DeviceReceiptController::class, 'show'])->name('show');
                         Route::post('/{receipt}/status', [DeviceReceiptController::class, 'updateStatus'])->name('status');
                         Route::get('/{receipt}/photo/{photo}', [DeviceReceiptController::class, 'photo'])->name('photo');
-                        Route::delete('/{receipt}/photo/{photo}', [DeviceReceiptController::class, 'destroyPhoto'])->name('photo.destroy');
-                        Route::delete('/{receipt}', [DeviceReceiptController::class, 'destroy'])->name('destroy');
+                        Route::delete('/{receipt}/photo/{photo}', [DeviceReceiptController::class, 'destroyPhoto'])->name('photo.destroy')->middleware('admin');
+                        Route::delete('/{receipt}', [DeviceReceiptController::class, 'destroy'])->name('destroy')->middleware('admin');
                     });
             });
 
-        // Leen / Huur Laptop (uitgifte + retour + foto's + PDF + e-mail)
+        // Leen / Huur Laptop (uitgifte + retour + foto's + PDF + e-mail) — admin only
         Route::prefix('leen-huur')
             ->name('leen-huur.')
+            ->middleware('admin')
             ->group(function () {
                 Route::get('/', [LaptopLoanController::class, 'index'])->name('index');
                 Route::get('/data', [LaptopLoanController::class, 'data'])->name('data');
@@ -214,6 +221,7 @@ Route::prefix('admin')
 
         Route::prefix('lidmaatschap')
             ->name('lidmaatschap.')
+            ->middleware('admin')
             ->group(function () {
                 Route::get('/', [MembershipController::class, 'index'])->name('index');
                 Route::get('/data', [MembershipController::class, 'data'])->name('data');
@@ -226,6 +234,7 @@ Route::prefix('admin')
 
         Route::prefix('monteur')
             ->name('monteur.')
+            ->middleware('admin')
             ->group(function () {
                 Route::get('/', [TechnicianController::class, 'index'])->name('index');
                 Route::get('/data', [TechnicianController::class, 'data'])->name('data');
@@ -236,9 +245,10 @@ Route::prefix('admin')
                 Route::delete('/{monteur}', [TechnicianController::class, 'destroy'])->name('destroy');
             });
 
-        // 💬 Live Chat - Kennisbank & Openingstijden (+ inbox volgt)
+        // 💬 Live Chat - Kennisbank & Openingstijden (+ inbox volgt) — admin only
         Route::prefix('chat')
             ->name('chat.')
+            ->middleware('admin')
             ->group(function () {
                 Route::prefix('inbox')->name('inbox.')->group(function () {
                     Route::get('/', [App\Http\Controllers\Admin\Chat\InboxController::class, 'index'])->name('index');
@@ -271,9 +281,10 @@ Route::prefix('admin')
                 });
             });
 
-        // 🛒 Webshop - Categories & Products
+        // 🛒 Webshop - Categories & Products — admin only
         Route::prefix('webshop')
             ->name('webshop.')
+            ->middleware('admin')
             ->group(function () {
                 Route::prefix('categories')->name('categories.')->group(function () {
                     Route::get('/', [ShopCategoryController::class, 'index'])->name('index');
@@ -318,8 +329,8 @@ Route::prefix('admin')
                 });
             });
 
-        // 🧾 Orders (webshop bestellingen)
-        Route::prefix('orders')->name('orders.')->group(function () {
+        // 🧾 Orders (webshop bestellingen) — admin only
+        Route::prefix('orders')->name('orders.')->middleware('admin')->group(function () {
             Route::get('/', [App\Http\Controllers\Admin\OrderController::class, 'index'])->name('index');
             Route::get('/data', [App\Http\Controllers\Admin\OrderController::class, 'data'])->name('data');
             Route::get('/new-count', [App\Http\Controllers\Admin\OrderController::class, 'newCount'])->name('new-count');
@@ -329,8 +340,8 @@ Route::prefix('admin')
             Route::delete('/{order}', [App\Http\Controllers\Admin\OrderController::class, 'destroy'])->name('destroy');
         });
 
-        // 🚚 Shipping rates (verzendopties)
-        Route::prefix('shipping')->name('shipping.')->group(function () {
+        // 🚚 Shipping rates (verzendopties) — admin only
+        Route::prefix('shipping')->name('shipping.')->middleware('admin')->group(function () {
             Route::get('/', [App\Http\Controllers\Admin\ShippingRateController::class, 'index'])->name('index');
             Route::get('/data', [App\Http\Controllers\Admin\ShippingRateController::class, 'data'])->name('data');
             Route::post('/', [App\Http\Controllers\Admin\ShippingRateController::class, 'store'])->name('store');
@@ -339,23 +350,23 @@ Route::prefix('admin')
             Route::post('/{shipping}/toggle', [App\Http\Controllers\Admin\ShippingRateController::class, 'toggle'])->name('toggle');
         });
 
-        // 📢 Mass e-mail naar alle gebruikers (zoals oude systeem A)
-        Route::get('/email-verzenden', [MassEmailController::class, 'showForm'])->name('mass.email.form');
-        Route::post('/email-verzenden', [MassEmailController::class, 'sendMassEmail'])->name('send.mass.email');
-        Route::delete('/mass-emails/{id}', [MassEmailController::class, 'deleteMassEmail'])->name('mass.email.delete');
+        // 📢 Mass e-mail naar alle gebruikers (zoals oude systeem A) — admin only
+        Route::get('/email-verzenden', [MassEmailController::class, 'showForm'])->name('mass.email.form')->middleware('admin');
+        Route::post('/email-verzenden', [MassEmailController::class, 'sendMassEmail'])->name('send.mass.email')->middleware('admin');
+        Route::delete('/mass-emails/{id}', [MassEmailController::class, 'deleteMassEmail'])->name('mass.email.delete')->middleware('admin');
 
-        // 📧 Mailinglijst (zoals oude systeem B: customerlist + send)
-        Route::get('/mailinglijst', [MailingListController::class, 'index'])->name('customerlist.index');
-        Route::post('/mailinglijst', [MailingListController::class, 'store'])->name('customerlist.store');
-        Route::delete('/mailinglijst/{id}', [MailingListController::class, 'destroy'])->name('customerlist.destroy');
-        Route::get('/mailinglijst/verzenden', [MailingListController::class, 'sendForm'])->name('mailinglist.send.form');
-        Route::post('/mailinglijst/verzenden', [MailingListController::class, 'send'])->name('mailinglist.send');
+        // 📧 Mailinglijst (zoals oude systeem B: customerlist + send) — admin only
+        Route::get('/mailinglijst', [MailingListController::class, 'index'])->name('customerlist.index')->middleware('admin');
+        Route::post('/mailinglijst', [MailingListController::class, 'store'])->name('customerlist.store')->middleware('admin');
+        Route::delete('/mailinglijst/{id}', [MailingListController::class, 'destroy'])->name('customerlist.destroy')->middleware('admin');
+        Route::get('/mailinglijst/verzenden', [MailingListController::class, 'sendForm'])->name('mailinglist.send.form')->middleware('admin');
+        Route::post('/mailinglijst/verzenden', [MailingListController::class, 'send'])->name('mailinglist.send')->middleware('admin');
 
-        // 📄 Boekhouden: Kopen+verkopen & RekenMachine (zoals oude systeem)
-        Route::prefix('boekhouden')->name('boekhouden.')->group(function () {
+        // 📄 Boekhouden: Kopen+verkopen & RekenMachine (zoals oude systeem) — admin only
+        Route::prefix('boekhouden')->name('boekhouden.')->middleware('admin')->group(function () {
             Route::redirect('/', '/admin/boekhouden/kopen-verkopen', 301);
         });
-        Route::prefix('purchase-sales')->name('purchase-sales.')->group(function () {
+        Route::prefix('purchase-sales')->name('purchase-sales.')->middleware('admin')->group(function () {
             Route::get('/', [PurchaseSalesRecordController::class, 'index'])->name('index');
             Route::get('/create', [PurchaseSalesRecordController::class, 'create'])->name('create');
             Route::post('/', [PurchaseSalesRecordController::class, 'store'])->name('store');
@@ -363,6 +374,6 @@ Route::prefix('admin')
             Route::put('/{id}', [PurchaseSalesRecordController::class, 'update'])->name('update');
             Route::delete('/{id}', [PurchaseSalesRecordController::class, 'destroy'])->name('destroy');
         });
-        Route::get('/rekenmachine', [PurchaseSalesRecordController::class, 'reken'])->name('reken-machine.index');
+        Route::get('/rekenmachine', [PurchaseSalesRecordController::class, 'reken'])->name('reken-machine.index')->middleware('admin');
     });
 

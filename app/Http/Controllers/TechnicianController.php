@@ -45,6 +45,12 @@ class TechnicianController extends Controller
 
         $user = Auth::user();
 
+        if ($user instanceof User && (bool) ($user->is_blocked ?? false)) {
+            Auth::logout();
+
+            return back()->withErrors(['email' => \App\Http\Middleware\CheckIfBlocked::MESSAGE])->withInput();
+        }
+
         if (! $user instanceof User || $user->role !== 'technician') {
             Auth::logout();
 

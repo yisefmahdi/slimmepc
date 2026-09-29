@@ -50,6 +50,19 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        $user = Auth::user();
+
+        if ($user && (bool) ($user->is_blocked ?? false)) {
+            Auth::guard('web')->logout();
+
+            $this->session()->invalidate();
+            $this->session()->regenerateToken();
+
+            throw ValidationException::withMessages([
+                'email' => \App\Http\Middleware\CheckIfBlocked::MESSAGE,
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

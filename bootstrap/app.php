@@ -4,6 +4,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
+use App\Http\Middleware\CheckIfBlocked;
+use App\Http\Middleware\EnsureAdminOrTechnician;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\SyncInboundReplies;
 
@@ -19,7 +21,14 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'admin' => EnsureUserIsAdmin::class,
+            'admin.or.tech' => EnsureAdminOrTechnician::class,
+            'check.blocked' => CheckIfBlocked::class,
             'inbound.sync' => SyncInboundReplies::class,
+        ]);
+
+        // Immediate logout for blocked users on every web request.
+        $middleware->web(append: [
+            CheckIfBlocked::class,
         ]);
 
         $middleware->validateCsrfTokens(except: [

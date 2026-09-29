@@ -122,6 +122,7 @@
 
             {{-- Nav --}}
             <nav class="sidebar-scroll flex-1 space-y-1.5 overflow-y-auto px-1 py-6">
+                @php $isTechSidebar = auth()->user()?->isTechnician() ?? false; @endphp
                 <p class="mb-3 px-4 text-[11px] font-bold uppercase tracking-widest text-blue-100">Overzicht</p>
 
                 <x-admin.sidebar-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
@@ -133,6 +134,7 @@
                     Dashboard
                 </x-admin.sidebar-link>
 
+                @unless($isTechSidebar)
                 <p class="mb-3 mt-8 px-4 text-[11px] font-bold uppercase tracking-widest text-blue-100">Beheer</p>
 
                 {{-- 1. Home-page Dropdown (Split CMS) --}}
@@ -494,7 +496,11 @@
                     </div>
                 </div>
 
+                @endunless
                 {{-- Bevestiging-mail Dropdown --}}
+                @if($isTechSidebar)
+                <p class="mb-3 mt-8 px-4 text-[11px] font-bold uppercase tracking-widest text-blue-100">Beheer</p>
+                @endif
                 <div x-data="{ open: {{ request()->routeIs('admin.bevestiging-mail.*') || request()->routeIs('admin.leen-huur.*') ? 'true' : 'false' }}, init() { if (localStorage.getItem('nav-bevestiging') !== null) { this.open = localStorage.getItem('nav-bevestiging') === '1'; } }, toggle() { this.open = !this.open; localStorage.setItem('nav-bevestiging', this.open ? '1' : '0'); } }" class="space-y-1">
                     <button type="button" @click="toggle()"
                             class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
@@ -511,10 +517,12 @@
                         </svg>
                     </button>
                     <div x-show="open" x-cloak x-transition class="border-l-2 border-white/30 ml-6 pl-4 space-y-1.5 py-1 text-xs">
+                        @unless($isTechSidebar)
                         <a href="{{ route('admin.bevestiging-mail.hardware.index') }}"
                            class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.bevestiging-mail.hardware.*') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
                             Hardware
                         </a>
+                        @endunless
                         <a href="{{ route('admin.bevestiging-mail.ontvangst.index', ['type' => 'laptop']) }}"
                            class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.bevestiging-mail.ontvangst.*') && request()->input('type', 'laptop') === 'laptop' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
                             Laptops-PC
@@ -527,13 +535,16 @@
                            class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.bevestiging-mail.ontvangst.*') && request()->input('type') === 'playstation_xbox' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
                             PlayStation-Xbox
                         </a>
+                        @unless($isTechSidebar)
                         <a href="{{ route('admin.leen-huur.index') }}"
                            class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.leen-huur.*') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
                             Leen / Huur Laptop
                         </a>
+                        @endunless
                     </div>
                 </div>
 
+                @unless($isTechSidebar)
                 {{-- Lidmaatschap Dropdown --}}
                 <div x-data="{ open: {{ request()->routeIs('admin.lidmaatschap.*') ? 'true' : 'false' }} }" class="space-y-1">
                     <button type="button" @click="open = !open"
@@ -731,6 +742,7 @@
                     </div>
                 </div>
 
+                @endunless
             </nav>
 
             <script>

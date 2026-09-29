@@ -1,4 +1,29 @@
 <x-admin.layout title="Dashboard">
+    @php $isTechDash = auth()->user()?->isTechnician() ?? false; @endphp
+    @if($isTechDash)
+    {{-- Welcome banner --}}
+    <div class="mt-1 overflow-hidden rounded-2xl border bg-gradient-to-r from-[#075be8] to-[#064bd7] p-6 text-white shadow-[0_12px_25px_rgba(0,91,234,0.25)] sm:p-8">
+        <h2 class="text-xl font-extrabold tracking-tight sm:text-2xl">Welkom terug, {{ Auth::user()->name }}!</h2>
+        <p class="mt-1 text-sm text-blue-100">Je werkplek voor ontvangsten. Kies hieronder een categorie.</p>
+    </div>
+    <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-3">
+        <a href="{{ route('admin.bevestiging-mail.ontvangst.index', ['type' => 'laptop']) }}" class="rounded-2xl border p-6 transition hover:-translate-y-0.5 hover:shadow-lg" style="background-color: var(--c-card); border-color: rgba(148,163,184,.2)">
+            <p class="text-base font-extrabold" style="color: var(--c-heading)">Laptops-PC</p>
+            <p class="mt-1 text-xs" style="color: var(--c-muted)">Bekijken, aanmaken en status wijzigen.</p>
+            <span class="mt-4 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white">Openen</span>
+        </a>
+        <a href="{{ route('admin.bevestiging-mail.ontvangst.index', ['type' => 'ipad_iphone']) }}" class="rounded-2xl border p-6 transition hover:-translate-y-0.5 hover:shadow-lg" style="background-color: var(--c-card); border-color: rgba(148,163,184,.2)">
+            <p class="text-base font-extrabold" style="color: var(--c-heading)">iPad-iPhone</p>
+            <p class="mt-1 text-xs" style="color: var(--c-muted)">Bekijken, aanmaken en status wijzigen.</p>
+            <span class="mt-4 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white">Openen</span>
+        </a>
+        <a href="{{ route('admin.bevestiging-mail.ontvangst.index', ['type' => 'playstation_xbox']) }}" class="rounded-2xl border p-6 transition hover:-translate-y-0.5 hover:shadow-lg" style="background-color: var(--c-card); border-color: rgba(148,163,184,.2)">
+            <p class="text-base font-extrabold" style="color: var(--c-heading)">PlayStation-Xbox</p>
+            <p class="mt-1 text-xs" style="color: var(--c-muted)">Bekijken, aanmaken en status wijzigen.</p>
+            <span class="mt-4 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white">Openen</span>
+        </a>
+    </div>
+    @else
     {{-- Stats --}}
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-5">
         <x-admin.stat-card label="Klanten" :value="$stats['customers']">
@@ -246,5 +271,6 @@
             </x-admin.card>
         </div>
     </div>
-</x-admin-layout>
+    @endif
+</x-admin.layout>
 

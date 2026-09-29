@@ -157,6 +157,10 @@ class DeviceReceiptController extends Controller
 
     public function destroy(DeviceReceipt $receipt): JsonResponse
     {
+        if (auth()->user()?->isTechnician()) {
+            abort(403, 'Geen toegang.');
+        }
+
         Storage::disk('local')->deleteDirectory('receipt/'.$receipt->id);
 
         $receipt->delete();
@@ -183,6 +187,10 @@ class DeviceReceiptController extends Controller
      */
     public function destroyPhoto(DeviceReceipt $receipt, DeviceReceiptPhoto $photo): JsonResponse
     {
+        if (auth()->user()?->isTechnician()) {
+            abort(403, 'Geen toegang.');
+        }
+
         abort_unless($photo->device_receipt_id === $receipt->id, 404);
 
         Storage::disk('local')->delete($photo->path);

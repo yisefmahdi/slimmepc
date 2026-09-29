@@ -164,6 +164,7 @@
 
     <script>
         window.ONTVANGST_TYPE = @json($typeParam);
+        window.ONTVANGST_IS_TECH = @json(auth()->user()?->isTechnician() ?? false);
     </script>
     <script src="{{ asset('assets/js/admin/device-receipts.js') }}?v={{ filemtime(public_path('assets/js/admin/device-receipts.js')) }}"></script>
 </x-admin.layout>
