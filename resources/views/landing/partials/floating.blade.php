@@ -3,12 +3,12 @@
 
     <!-- AI Chat teaser-bericht (naast de knop) -->
     <div id="aiChatTeaser" class="absolute bottom-1.5 right-[72px] hidden" role="status">
-        <div class="site-chat-teaser relative w-[176px] rounded-2xl rounded-br-sm border border-slate-200/80 bg-white px-3 py-2 shadow-[0_16px_40px_rgba(15,23,42,.22)] sm:w-auto sm:max-w-none sm:whitespace-nowrap sm:px-3.5 sm:py-2.5 dark:border-slate-700 dark:bg-slate-900">
+        <div class="site-chat-teaser relative w-[152px] rounded-2xl rounded-br-sm border border-slate-200/80 bg-white px-2.5 py-2 text-center shadow-[0_16px_40px_rgba(15,23,42,.22)] sm:w-auto sm:max-w-none sm:whitespace-nowrap sm:px-3.5 sm:py-2.5 sm:text-left dark:border-slate-700 dark:bg-slate-900">
             <button type="button" data-teaser-close aria-label="Bericht sluiten"
                     class="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full border border-slate-200 bg-white text-xs leading-none text-slate-400 shadow transition hover:text-slate-600 dark:border-slate-700 dark:bg-slate-800">
                 ×
             </button>
-            <p class="text-[11px] font-semibold leading-snug sm:text-sm" style="color: var(--c-heading)">
+            <p class="text-[11px] font-semibold leading-tight sm:text-sm sm:leading-normal" style="color: var(--c-heading)">
                 {{ $c['floating']['chat_teaser'] ?? 'Stel hier uw vraag' }}
             </p>
         </div>
