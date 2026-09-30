@@ -65,30 +65,40 @@
 
 <script>
 (function () {
-    var teaser = document.getElementById('aiChatTeaser');
-    var panel = document.getElementById('aiChatPanel');
-    if (!teaser || !panel) return;
+    // Wacht tot het volledige document is geparsed: #aiChatPanel staat
+    // verderop in de pagina (ai-chat partial komt na floating).
+    function init() {
+        var teaser = document.getElementById('aiChatTeaser');
+        var panel = document.getElementById('aiChatPanel');
+        if (!teaser || !panel) return;
 
-    // De teaser is alleen zichtbaar zolang het chatpaneel open is.
-    function isOpen() { return !panel.classList.contains('hidden'); }
-    function show() {
-        teaser.style.display = '';
-        teaser.classList.remove('hidden');
+        // De teaser is alleen zichtbaar zolang het chatpaneel open is.
+        function isOpen() { return !panel.classList.contains('hidden'); }
+        function show() {
+            teaser.style.display = '';
+            teaser.classList.remove('hidden');
+        }
+        function hide() { teaser.style.display = 'none'; }
+        function sync() { if (isOpen()) show(); else hide(); }
+
+        // × verbergt de teaser tot het paneel opnieuw geopend wordt.
+        teaser.querySelector('[data-teaser-close]').addEventListener('click', function (e) {
+            e.stopPropagation();
+            hide();
+        });
+
+        if (window.MutationObserver) {
+            new MutationObserver(sync).observe(panel, { attributes: true, attributeFilter: ['class'] });
+        }
+
+        sync();
     }
-    function hide() { teaser.style.display = 'none'; }
-    function sync() { if (isOpen()) show(); else hide(); }
 
-    // × verbergt de teaser tot het paneel opnieuw geopend wordt.
-    teaser.querySelector('[data-teaser-close]').addEventListener('click', function (e) {
-        e.stopPropagation();
-        hide();
-    });
-
-    if (window.MutationObserver) {
-        new MutationObserver(sync).observe(panel, { attributes: true, attributeFilter: ['class'] });
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
     }
-
-    sync();
 })();
 </script>
 
