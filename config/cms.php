@@ -492,7 +492,6 @@ $macSectionDef = [
         'blocks' => [
             'title' => ['label' => 'Titel', 'type' => 'text'],
             'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
-            'phone' => ['label' => 'Telefoon (Bel direct)', 'type' => 'text'],
             'text' => ['label' => 'Tekst', 'type' => 'text'],
         ],
     ],
@@ -918,7 +917,6 @@ $netwerkSectionDef = [
         'blocks' => [
             'title' => ['label' => 'Titel', 'type' => 'text'],
             'subtitle' => ['label' => 'Ondertitel', 'type' => 'text'],
-            'phone' => ['label' => 'Telefoon (Bel direct)', 'type' => 'text'],
             'benefits' => [
                 'label' => 'Voordelen (3)',
                 'type' => 'json',
@@ -1689,6 +1687,41 @@ return [
                             'columns' => 2,
                             'fields' => [
                                 ['key' => 'label', 'label' => 'Label (bijv. iDEAL)', 'type' => 'text'],
+                            ],
+                        ],
+                    ],
+                ],
+
+                'popup' => [
+                    'label' => 'Popup-melding',
+                    'blocks' => [
+                        'enabled' => ['label' => 'Popup tonen op de homepage', 'type' => 'boolean'],
+                        'delay_seconds' => ['label' => 'Wachttijd (seconden, bijv. 2)', 'type' => 'text'],
+                        'items' => [
+                            'label' => 'Popups',
+                            'type' => 'json',
+                            'columns' => 2,
+                            'fields' => [
+                                ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                                ['key' => 'type', 'label' => 'Type (bijv. Actie)', 'type' => 'text'],
+                                ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                                ['key' => 'message', 'label' => 'Bericht', 'type' => 'textarea'],
+                                ['key' => 'button_text', 'label' => 'Knoptekst (optioneel)', 'type' => 'text'],
+                                ['key' => 'button_url', 'label' => 'Knoplink (bijv. /webshop/...)', 'type' => 'text'],
+                                ['key' => 'image', 'label' => 'Afbeelding (optioneel)', 'type' => 'image'],
+                                ['key' => 'style', 'label' => 'Stijl', 'type' => 'select', 'options' => [
+                                    'info' => 'Info (blauw)',
+                                    'success' => 'Succes (groen)',
+                                    'warning' => 'Waarschuwing (oranje)',
+                                    'promo' => 'Actie (paars)',
+                                ]],
+                                ['key' => 'position', 'label' => 'Positie op het scherm', 'type' => 'select', 'options' => [
+                                    'right-bottom' => 'Rechts-onder (schuift van rechts)',
+                                    'left-bottom' => 'Links-onder (schuift van links)',
+                                    'center' => 'Midden van het scherm (venster)',
+                                    'bottom-center' => 'Onder-midden (balkje)',
+                                ]],
+                                ['key' => 'active', 'label' => 'Actief', 'type' => 'boolean'],
                             ],
                         ],
                     ],

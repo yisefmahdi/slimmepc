@@ -115,6 +115,14 @@
                                             <div class="icon-picker-grid" data-icon-grid></div>
                                         </div>
                                     </div>
+                                @elseif (($field['type'] ?? 'text') === 'select')
+                                    <select name="blocks[{{ $blockKey }}][{{ $index }}][{{ $field['key'] }}]"
+                                            class="h-9 w-full shrink-0 rounded-lg border px-2 text-xs outline-none transition focus:ring-2 focus:ring-blue-500/40"
+                                            style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading)">
+                                        @foreach (($field['options'] ?? []) as $optValue => $optLabel)
+                                            <option value="{{ $optValue }}" @selected((string) $value === (string) $optValue)>{{ $optLabel }}</option>
+                                        @endforeach
+                                    </select>
                                 @else
                     <input type="text" name="blocks[{{ $blockKey }}][{{ $index }}][{{ $field['key'] }}]" value="{{ $value }}"
                            class="w-full rounded-xl border px-3 py-1.5 text-sm outline-none transition focus:ring-2 focus:ring-blue-500/40"

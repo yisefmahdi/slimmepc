@@ -176,9 +176,18 @@ class ContentBlockSeeder extends Seeder
 
             'floating' => [
                 'chat_tooltip' => 'Chat met Slimme-PC',
+                'chat_teaser' => 'Stel hier uw vraag',
                 'chat_url' => '#',
                 'whatsapp_tooltip' => 'Stuur ons een WhatsApp',
                 'whatsapp_url' => '#',
+            ],
+
+            'popup' => [
+                'enabled' => '1',
+                'delay_seconds' => '2',
+                'items' => [
+                    ['icon' => 'megaphone', 'type' => 'Actie', 'title' => 'Onze nieuwste actie is nu beschikbaar!', 'message' => 'Mis het niet — bekijk onze aanbiedingen in de webshop.', 'button_text' => 'Bekijk aanbiedingen', 'button_url' => '/webshop/laptops', 'image' => '', 'style' => 'promo', 'position' => 'right-bottom', 'active' => true],
+                ],
             ],
         ];
 

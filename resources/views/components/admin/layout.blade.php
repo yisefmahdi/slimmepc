@@ -182,6 +182,10 @@
                            class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === 'home' && request()->route('section') === 'footer' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
                             Footer
                         </a>
+                        <a href="{{ route('admin.content.section.edit', ['page' => 'home', 'section' => 'popup']) }}"
+                           class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.content.section.edit') && request()->route('page') === 'home' && request()->route('section') === 'popup' ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Popup-melding
+                        </a>
                     </div>
                 </div>
 

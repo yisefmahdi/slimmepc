@@ -376,7 +376,7 @@
                             bg-white p-1.5
                             shadow-[0_20px_50px_rgba(15,23,42,.18)]
                         ">
-                        @if(auth()->user()->isAdmin())
+                        @if(auth()->user()->isAdmin() || auth()->user()->isTechnician())
                             <a href="{{ route('admin.dashboard') }}" class="
                                     flex items-center gap-2.5
                                     rounded-xl px-3.5 py-2.5

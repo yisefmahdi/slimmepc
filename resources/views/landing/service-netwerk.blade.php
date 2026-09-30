@@ -303,8 +303,8 @@
                                     Gratis advies aanvragen
                                     <span>→</span>
                                 </a>
-                                <a href="tel:{{ preg_replace('/[^0-9]/', '', $s['final']['phone'] ?? '0552032145') }}" class="inline-flex items-center gap-3 rounded-[5px] border border-white/40 px-5 py-2.5 sm:px-7 sm:py-4 text-[14px] sm:text-[15px] font-bold text-white transition hover:bg-white/10">
-                                    ☎ Bel direct: {{ $s['final']['phone'] ?? '055 203 21 45' }}
+                                <a href="tel:0552032145" class="inline-flex items-center gap-3 rounded-[5px] border border-white/40 px-5 py-2.5 sm:px-7 sm:py-4 text-[14px] sm:text-[15px] font-bold text-white transition hover:bg-white/10">
+                                    ☎ Bel direct: 055 203 21 45
                                 </a>
                             </div>
                         </div>

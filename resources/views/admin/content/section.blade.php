@@ -32,6 +32,11 @@
                     'desc' => 'Beheer de bedrijfstekst, socialmedia-links, kolomlinks, contactgegevens, trustbadges, copyright en betaalmethoden onderaan elke pagina.',
                     'location' => 'Onderaan elke pagina (Footer)'
                 ],
+                'popup' => [
+                    'title' => 'Popup-melding bewerken',
+                    'desc' => 'Beheer de popup-meldingen op de homepage: pictogram, type, titel, bericht, knop, afbeelding, stijl en positie op het scherm. De popup wordt maximaal één keer per uur getoond.',
+                    'location' => 'Homepage (drijvend boven de inhoud)'
+                ],
             ],
             'tarieven' => [
                 'hero' => [
@@ -294,6 +299,23 @@
                                             <div class="icon-picker-grid" data-icon-grid></div>
                                         </div>
                                     </div>
+                                @elseif (($block['type'] ?? 'text') === 'select')
+                                    <select name="blocks[{{ $blockKey }}]"
+                                            class="h-9 w-full shrink-0 rounded-lg border px-2 text-xs outline-none transition focus:ring-2 focus:ring-blue-500/40"
+                                            style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading)">
+                                        @foreach (($block['options'] ?? []) as $optValue => $optLabel)
+                                            <option value="{{ $optValue }}" @selected((string) old('blocks.'.$blockKey, $blockValue) === (string) $optValue)>{{ $optLabel }}</option>
+                                        @endforeach
+                                    </select>
+                                @elseif (($block['type'] ?? 'text') === 'boolean')
+                                    <label class="inline-flex cursor-pointer items-center rounded-xl border px-4 py-3 transition hover:bg-slate-50 dark:hover:bg-slate-800/40"
+                                           style="border-color: rgba(148,163,184,.3)">
+                                        <input type="hidden" name="blocks[{{ $blockKey }}]" value="0">
+                                        <input type="checkbox" name="blocks[{{ $blockKey }}]" value="1"
+                                               @checked(filter_var(old('blocks.'.$blockKey, $blockValue), FILTER_VALIDATE_BOOLEAN))
+                                               class="peer sr-only">
+                                        <span class="relative h-6 w-11 shrink-0 rounded-full bg-slate-300 transition-colors duration-200 peer-checked:bg-green-500 after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow-md after:transition-transform after:duration-200 peer-checked:after:translate-x-5"></span>
+                                    </label>
                                 @else
                                     <input type="text" name="blocks[{{ $blockKey }}]" value="{{ old('blocks.'.$blockKey, $blockValue) }}"
                                            class="w-full rounded-xl border px-4 py-3 text-sm outline-none transition focus:ring-2 focus:ring-blue-500/40 shadow-sm"

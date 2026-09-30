@@ -90,6 +90,55 @@ transform: translateY(22px);
 animation: processReveal 700ms ease forwards;
 }
 
+/* Popup-melding entrances (per positie) */
+.site-popup-anim-right { animation: sitePopupInRight 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.site-popup-anim-left { animation: sitePopupInLeft 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.site-popup-anim-up { animation: sitePopupInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.site-popup-anim-center { animation: sitePopupZoom 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@keyframes sitePopupInRight {
+    from { opacity: 0; transform: translateX(60px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+@keyframes sitePopupInLeft {
+    from { opacity: 0; transform: translateX(-60px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+@keyframes sitePopupInUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes sitePopupZoom {
+    from { opacity: 0; transform: scale(0.92) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .site-popup-anim-right, .site-popup-anim-left,
+    .site-popup-anim-up, .site-popup-anim-center { animation: none; }
+}
+
+/* AI-chat teaser-bericht naast de knop */
+.site-chat-teaser { animation: siteChatTeaserPop 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; transform-origin: bottom right; }
+@keyframes siteChatTeaserPop {
+    from { opacity: 0; transform: scale(0.85) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.site-chat-dot {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-radius: 9999px;
+    background-color: #2563eb;
+    animation: siteChatDot 1.2s ease-in-out infinite;
+}
+@keyframes siteChatDot {
+    0%, 60%, 100% { opacity: 0.25; transform: translateY(0); }
+    30% { opacity: 1; transform: translateY(-3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .site-chat-teaser, .site-chat-dot { animation: none; }
+}
+
 .process-delay-1 {
 animation-delay: 100ms;
 }
