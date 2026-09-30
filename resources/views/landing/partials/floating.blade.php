@@ -72,20 +72,34 @@
         var panel = document.getElementById('aiChatPanel');
         if (!teaser || !panel) return;
 
-        // De teaser is alleen zichtbaar zolang het chatpaneel open is.
-        function isOpen() { return !panel.classList.contains('hidden'); }
-        function show() {
-            teaser.style.display = '';
-            teaser.classList.remove('hidden');
-        }
-        function hide() { teaser.style.display = 'none'; }
-        function sync() { if (isOpen()) show(); else hide(); }
+    // De teaser nodigt uit om de chat te openen: zichtbaar als het
+    // chatpaneel gesloten is, verborgen zodra het geopend wordt.
+    var dismissed = false;
+    var timer = null;
 
-        // × verbergt de teaser tot het paneel opnieuw geopend wordt.
-        teaser.querySelector('[data-teaser-close]').addEventListener('click', function (e) {
-            e.stopPropagation();
+    function isOpen() { return !panel.classList.contains('hidden'); }
+    function show() {
+        if (dismissed || isOpen()) return;
+        teaser.style.display = '';
+        teaser.classList.remove('hidden');
+    }
+    function hide() { teaser.style.display = 'none'; }
+    function sync() {
+        if (isOpen()) {
+            if (timer) { clearTimeout(timer); timer = null; }
             hide();
-        });
+        } else if (!dismissed && !timer) {
+            timer = setTimeout(function () { timer = null; show(); }, 2500);
+        }
+    }
+
+    // × verbergt de teaser voor deze paginaweergave.
+    teaser.querySelector('[data-teaser-close]').addEventListener('click', function (e) {
+        e.stopPropagation();
+        dismissed = true;
+        if (timer) { clearTimeout(timer); timer = null; }
+        hide();
+    });
 
         if (window.MutationObserver) {
             new MutationObserver(sync).observe(panel, { attributes: true, attributeFilter: ['class'] });
