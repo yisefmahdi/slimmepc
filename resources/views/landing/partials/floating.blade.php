@@ -73,15 +73,22 @@
         if (!teaser || !panel) return;
 
     // De teaser nodigt uit om de chat te openen: zichtbaar als het
-    // chatpaneel gesloten is, verborgen zodra het geopend wordt.
+    // chatpaneel gesloten is EN de chat bemand is (openingstijden).
+    // Bij gesloten chat (avond/weekend/feestdag) verschijnt hij nooit.
     var dismissed = false;
     var timer = null;
+    var availCache = null;
+    var availAt = 0;
 
     function isOpen() { return !panel.classList.contains('hidden'); }
     function show() {
         if (dismissed || isOpen()) return;
-        teaser.style.display = '';
-        teaser.classList.remove('hidden');
+        isAvailable().then(function (ok) {
+            if (ok && !dismissed && !isOpen()) {
+                teaser.style.display = '';
+                teaser.classList.remove('hidden');
+            }
+        });
     }
     function hide() { teaser.style.display = 'none'; }
     function sync() {
@@ -91,6 +98,26 @@
         } else if (!dismissed && !timer) {
             timer = setTimeout(function () { timer = null; show(); }, 2500);
         }
+    }
+
+    // Vraag /ai-chat/status (60s cache) of de chat nu bemand is.
+    function isAvailable() {
+        var now = Date.now();
+        if (availCache !== null && now - availAt < 60000) {
+            return Promise.resolve(availCache);
+        }
+        return fetch('/ai-chat/status', {
+            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+        }).then(function (res) {
+            return res.json().catch(function () { return {}; });
+        }).then(function (data) {
+            availCache = (data && data.open === true);
+            availAt = Date.now();
+            return availCache;
+        }).catch(function () {
+            // Bij twijfel (offline/error): toon de teaser gewoon.
+            return true;
+        });
     }
 
     // × verbergt de teaser voor deze paginaweergave.
