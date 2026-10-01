@@ -1,4 +1,20 @@
-@props(['label', 'value', 'trend' => null, 'trendUp' => true, 'icon' => null])
+@props(['label', 'value', 'trend' => null, 'trendUp' => true, 'icon' => null, 'compact' => false])
+
+@if ($compact)
+<div class="flex items-center gap-3 rounded-xl border p-3 transition duration-300 hover:-translate-y-0.5"
+     style="background-color: var(--c-card); border-color: rgba(148, 163, 184, 0.2); box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05)">
+    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+        @if ($icon)
+            {{ $icon }}
+        @endif
+    </div>
+
+    <div class="min-w-0">
+        <p class="truncate text-xs font-medium" style="color: var(--c-muted)">{{ $label }}</p>
+        <p class="text-xl font-extrabold leading-tight tracking-tight" style="color: var(--c-heading)">{{ $value }}</p>
+    </div>
+</div>
+@else
 
 <div class="fade-in-up rounded-2xl border p-5 transition duration-300 hover:-translate-y-0.5"
      style="background-color: var(--c-card); border-color: rgba(148, 163, 184, 0.2); box-shadow: 0 14px 35px rgba(15, 23, 42, 0.06)">
@@ -26,4 +42,5 @@
     <p class="mt-4 text-sm font-medium" style="color: var(--c-muted)">{{ $label }}</p>
     <p class="mt-1 text-2xl font-extrabold tracking-tight" style="color: var(--c-heading)">{{ $value }}</p>
 </div>
+@endif
 

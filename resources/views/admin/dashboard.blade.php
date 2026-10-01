@@ -24,253 +24,159 @@
         </a>
     </div>
     @else
-    {{-- Stats --}}
-    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-5">
-        <x-admin.stat-card label="Klanten" :value="$stats['customers']">
+    {{-- Title (like the old system) --}}
+    <h2 class="mt-1 text-center text-xl font-extrabold tracking-tight" style="color: var(--c-heading)">Welkom terug, {{ Auth::user()->name }}!</h2>
+
+    {{-- Stats only (9 small cards, like the old system) --}}
+    <div class="mt-5 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-3">
+        <a href="{{ route('admin.users.index') }}" class="block rounded-xl">
+            <x-admin.stat-card compact label="Klanten" :value="$stats['customers']">
+                <x-slot name="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                    </svg>
+                </x-slot>
+            </x-admin.stat-card>
+        </a>
+
+        <a href="{{ route('admin.orders.index') }}" class="block rounded-xl">
+            <x-admin.stat-card compact label="Bestellingen" :value="$stats['orders']">
+                <x-slot name="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z" />
+                    </svg>
+                </x-slot>
+            </x-admin.stat-card>
+        </a>
+
+        <a href="{{ route('admin.webshop.products.index') }}" class="block rounded-xl">
+            <x-admin.stat-card compact label="Producten" :value="$stats['products']">
+                <x-slot name="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25" />
+                    </svg>
+                </x-slot>
+            </x-admin.stat-card>
+        </a>
+
+        <x-admin.stat-card compact label="Facturen" :value="$stats['invoices']">
             <x-slot name="icon">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-6 w-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
                 </svg>
             </x-slot>
         </x-admin.stat-card>
 
-        <x-admin.stat-card label="Techniciens" :value="$stats['technicians']">
-            <x-slot name="icon">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-6 w-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085" />
-                </svg>
-            </x-slot>
-        </x-admin.stat-card>
+        <a href="{{ route('admin.afspraak-aanvragen.index') }}" class="block rounded-xl">
+            <x-admin.stat-card compact label="Afspraken" :value="$stats['afspraken']">
+                <x-slot name="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                    </svg>
+                </x-slot>
+            </x-admin.stat-card>
+        </a>
 
-        <x-admin.stat-card label="Bestellingen" value="{{ $stats['orders'] }}">
-            <x-slot name="icon">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-6 w-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z" />
-                </svg>
-            </x-slot>
-        </x-admin.stat-card>
+        <a href="{{ route('admin.chat.inbox.index') }}" class="block rounded-xl">
+            <x-admin.stat-card compact label="Berichten-live" :value="$stats['chat_unread']">
+                <x-slot name="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 0 1 1.037-.443 48.282 48.282 0 0 0 5.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
+                    </svg>
+                </x-slot>
+            </x-admin.stat-card>
+        </a>
 
-        <x-admin.stat-card label="Reparaties" value="{{ $stats['repairs'] }}">
-            <x-slot name="icon">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-6 w-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.348 14.652a3.75 3.75 0 0 1 0-5.304m5.304 0a3.75 3.75 0 0 1 0 5.304m-7.425 2.121a6.75 6.75 0 0 1 0-9.546m9.546 0a6.75 6.75 0 0 1 0 9.546M5.106 18.894c-3.808-3.807-3.808-9.98 0-13.788m13.788 0c3.808 3.807 3.808 9.98 0 13.788" />
-                </svg>
-            </x-slot>
-        </x-admin.stat-card>
+        <a href="{{ route('admin.lidmaatschap.index') }}" class="block rounded-xl">
+            <x-admin.stat-card compact label="Abonnement-Lidworden" :value="$stats['memberships']">
+                <x-slot name="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0 1 18 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3 1.5 1.5 3-3.75" />
+                    </svg>
+                </x-slot>
+            </x-admin.stat-card>
+        </a>
 
-        <x-admin.stat-card label="Contactaanvragen" :value="$stats['contact_new']">
-            <x-slot name="icon">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-6 w-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 0 1 1.037-.443 48.282 48.282 0 0 0 5.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
-                </svg>
-            </x-slot>
-        </x-admin.stat-card>
+        <a href="{{ route('admin.bevestiging-mail.ontvangst.index') }}" class="block rounded-xl">
+            <x-admin.stat-card compact label="DeviceReceipt" :value="$stats['device_receipts']">
+                <x-slot name="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
+                </x-slot>
+            </x-admin.stat-card>
+        </a>
+
+        <a href="{{ route('admin.lidmaatschap.index') }}" class="block rounded-xl">
+            <x-admin.stat-card compact label="Actieve abonnementen" :value="$stats['memberships_active']">
+                <x-slot name="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                </x-slot>
+            </x-admin.stat-card>
+        </a>
     </div>
 
-    {{-- Welcome banner --}}
-    <div class="mt-6 overflow-hidden rounded-2xl border bg-gradient-to-r from-[#075be8] to-[#064bd7] p-6 text-white shadow-[0_12px_25px_rgba(0,91,234,0.25)] sm:p-8 fade-in-up" style="animation-delay: 120ms">
-        <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-            <div>
-                <h2 class="text-xl font-extrabold tracking-tight sm:text-2xl">Welkom terug, {{ Auth::user()->name }}!</h2>
-                <p class="mt-1 text-sm text-blue-100">
-                    Beheer je klanten, bestellingen en reparaties vanaf één plek.
-                </p>
-            </div>
-
-            <span class="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-sm font-semibold backdrop-blur">
-                <span class="relative flex h-2.5 w-2.5">
-                    <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
-                    <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-400"></span>
+    {{-- Snelle acties --}}
+    <div class="mt-6">
+    <x-admin.card title="Snelle acties">
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
+            <a href="{{ route('admin.reken-machine.index') }}" class="group flex flex-col items-center gap-2 rounded-xl border border-dashed p-4 text-center transition hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-900/20" style="border-color: rgba(148, 163, 184, 0.3)">
+                <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition group-hover:scale-105 dark:bg-blue-900/30 dark:text-blue-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3.75h10.5a2.25 2.25 0 0 1 2.25 2.25v12a2.25 2.25 0 0 1-2.25 2.25H6.75a2.25 2.25 0 0 1-2.25-2.25V6a2.25 2.25 0 0 1 2.25-2.25ZM8.25 7.5h7.5M8.25 11.25h.008v.008H8.25v-.008Zm3.75 0h.008v.008h-.008v-.008Zm3.75 0h.008v.008h-.008v-.008ZM8.25 15h.008v.008H8.25V15Zm3.75 0h.008v.008h-.008V15Zm3.75 0h.008v.008h-.008V15Zm-7.5 3.75h.008v.008H8.25v-.008Zm3.75 0h.008v.008h-.008v-.008Zm3.75 0h.008v.008h-.008v-.008Z" />
+                    </svg>
                 </span>
-                Systeem online
-            </span>
+                <span class="text-xs font-semibold" style="color: var(--c-heading)">Rekenmachine</span>
+            </a>
+
+            <a href="{{ route('admin.bevestiging-mail.hardware.create') }}" class="group flex flex-col items-center gap-2 rounded-xl border border-dashed p-4 text-center transition hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-900/20" style="border-color: rgba(148, 163, 184, 0.3)">
+                <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition group-hover:scale-105 dark:bg-blue-900/30 dark:text-blue-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                </span>
+                <span class="text-xs font-semibold" style="color: var(--c-heading)">Handmatig Factuur Aanmaken</span>
+            </a>
+
+            <a href="{{ route('admin.orders.index') }}" class="group relative flex flex-col items-center gap-2 rounded-xl border border-dashed p-4 text-center transition hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-900/20" style="border-color: rgba(148, 163, 184, 0.3)">
+                @if (($stats['orders_new'] ?? 0) > 0)
+                    <span class="absolute -right-2 -top-2 flex h-6 items-center justify-center rounded-full bg-red-500 px-1.5 text-xs font-extrabold text-white shadow" style="min-width:1.5rem">{{ $stats['orders_new'] }}</span>
+                @endif
+                <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition group-hover:scale-105 dark:bg-blue-900/30 dark:text-blue-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z" />
+                    </svg>
+                </span>
+                <span class="text-xs font-semibold" style="color: var(--c-heading)">Bestellingen</span>
+            </a>
+
+            <a href="{{ route('admin.chat.inbox.index') }}" class="group relative flex flex-col items-center gap-2 rounded-xl border border-dashed p-4 text-center transition hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-900/20" style="border-color: rgba(148, 163, 184, 0.3)">
+                @if (($stats['chat_unread'] ?? 0) > 0)
+                    <span class="absolute -right-2 -top-2 flex h-6 items-center justify-center rounded-full bg-red-500 px-1.5 text-xs font-extrabold text-white shadow" style="min-width:1.5rem">{{ $stats['chat_unread'] }}</span>
+                @endif
+                <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition group-hover:scale-105 dark:bg-blue-900/30 dark:text-blue-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 0 1 1.037-.443 48.282 48.282 0 0 0 5.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
+                    </svg>
+                </span>
+                <span class="text-xs font-semibold" style="color: var(--c-heading)">AI Chat</span>
+            </a>
+
+            <a href="{{ route('admin.contact-inbox.index') }}" class="group relative flex flex-col items-center gap-2 rounded-xl border border-dashed p-4 text-center transition hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-900/20" style="border-color: rgba(148, 163, 184, 0.3)">
+                @if (($stats['contact_new'] ?? 0) > 0)
+                    <span class="absolute -right-2 -top-2 flex h-6 items-center justify-center rounded-full bg-red-500 px-1.5 text-xs font-extrabold text-white shadow" style="min-width:1.5rem">{{ $stats['contact_new'] }}</span>
+                @endif
+                <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition group-hover:scale-105 dark:bg-blue-900/30 dark:text-blue-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                    </svg>
+                </span>
+                <span class="text-xs font-semibold" style="color: var(--c-heading)">Contact</span>
+            </a>
         </div>
-    </div>
-
-    {{-- Recent activity --}}
-    <div class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-3">
-        <div class="xl:col-span-2 space-y-6">
-            <x-admin.card title="Recente bestellingen">
-                <x-slot name="action">
-                    <a href="{{ route('admin.orders.index') }}" class="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">Alles bekijken</a>
-                </x-slot>
-                <div class="overflow-x-auto -m-6">
-                    <table class="w-full min-w-[640px] text-start text-sm">
-                        <thead>
-                            <tr style="color: var(--c-muted)">
-                                <th class="px-6 py-3 text-start text-xs font-bold uppercase tracking-wider">Nummer</th>
-                                <th class="px-6 py-3 text-start text-xs font-bold uppercase tracking-wider">Klant</th>
-                                <th class="px-6 py-3 text-start text-xs font-bold uppercase tracking-wider">Totaal</th>
-                                <th class="px-6 py-3 text-start text-xs font-bold uppercase tracking-wider">Betaling</th>
-                                <th class="px-6 py-3 text-start text-xs font-bold uppercase tracking-wider">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse (($recentOrders ?? collect()) as $o)
-                                <tr class="border-t" style="border-color: rgba(148,163,184,0.12)">
-                                    <td class="px-6 py-3 font-semibold" style="color: var(--c-heading)"><a href="{{ route('admin.orders.show', $o) }}" class="hover:underline">{{ $o->order_number }}</a></td>
-                                    <td class="px-6 py-3">
-                                        <div class="font-semibold" style="color: var(--c-heading)">{{ $o->billingAddress?->fullName() ?? '—' }}</div>
-                                        <div class="text-xs" style="color: var(--c-muted)">{{ $o->customer_email }}</div>
-                                    </td>
-                                    <td class="px-6 py-3 font-semibold" style="color: var(--c-heading)">€{{ number_format($o->total_price, 2, ',', '.') }}</td>
-                                    <td class="px-6 py-3">
-                                        <span class="rounded-full px-2.5 py-1 text-xs font-bold {{ $o->payment_status === 'paid' ? 'bg-green-100 text-green-700' : ($o->payment_status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700') }}">{{ $o->payment_status === 'paid' ? 'Betaald' : ($o->payment_status === 'failed' ? 'Mislukt' : 'Open') }}</span>
-                                    </td>
-                                    <td class="px-6 py-3 text-xs font-semibold" style="color: var(--c-muted)">{{ ucfirst($o->order_status) }}</td>
-                                </tr>
-                            @empty
-                                <tr><td colspan="5" class="px-6 py-10 text-center font-semibold" style="color: var(--c-muted)">Nog geen bestellingen</td></tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </x-admin.card>
-            <x-admin.card title="Recente reparatie-aanmeldingen">
-                <x-slot name="action">
-                    <a href="{{ route('admin.reparatie-aanmeldingen.index') }}" class="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">Alles bekijken</a>
-                </x-slot>
-                <div class="overflow-x-auto -m-6">
-                    <table class="w-full min-w-[640px] text-start text-sm">
-                        <thead>
-                            <tr style="color: var(--c-muted)">
-                                <th class="px-6 py-3 text-start text-xs font-bold uppercase tracking-wider">Nummer</th>
-                                <th class="px-6 py-3 text-start text-xs font-bold uppercase tracking-wider">Klant</th>
-                                <th class="px-6 py-3 text-start text-xs font-bold uppercase tracking-wider">Apparaat</th>
-                                <th class="px-6 py-3 text-start text-xs font-bold uppercase tracking-wider">Datum</th>
-                                <th class="px-6 py-3 text-start text-xs font-bold uppercase tracking-wider">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($recentRepairs as $r)
-                                <tr class="border-t" style="border-color: rgba(148,163,184,0.12)">
-                                    <td class="px-6 py-3 font-semibold" style="color: var(--c-heading)">{{ $r->repair_number }}</td>
-                                    <td class="px-6 py-3">
-                                        <div class="font-semibold" style="color: var(--c-heading)">{{ $r->name }}</div>
-                                        <div class="text-xs" style="color: var(--c-muted)">{{ $r->email }}</div>
-                                    </td>
-                                    <td class="px-6 py-3" style="color: var(--c-heading)">{{ $r->brand }} {{ $r->model }}
-                                        <div class="text-xs" style="color: var(--c-muted)">{{ $r->device }}</div>
-                                    </td>
-                                    <td class="px-6 py-3" style="color: var(--c-muted)">{{ $r->created_at->format('d-m-Y H:i') }}</td>
-                                    <td class="px-6 py-3">
-                                        <span class="rounded-full px-2.5 py-1 text-xs font-bold {{ $r->status === 'new' ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300' : ($r->status === 'in_progress' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' : 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300') }}">
-                                            {{ $r->status === 'new' ? 'Nieuw' : ($r->status === 'in_progress' ? 'In behandeling' : 'Afgerond') }}
-                                        </span>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="px-6 py-14 text-center">
-                                        <div class="flex flex-col items-center gap-3">
-                                            <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-7 w-7">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.348 14.652a3.75 3.75 0 0 1 0-5.304m5.304 0a3.75 3.75 0 0 1 0 5.304m-7.425 2.121a6.75 6.75 0 0 1 0-9.546m9.546 0a6.75 6.75 0 0 1 0 9.546M5.106 18.894c-3.808-3.807-3.808-9.98 0-13.788m13.788 0c3.808 3.807 3.808 9.98 0 13.788" />
-                                                </svg>
-                                            </span>
-                                            <p class="font-semibold" style="color: var(--c-heading)">Nog geen reparatie-aanmeldingen</p>
-                                            <p class="text-xs" style="color: var(--c-muted)">Aanmeldingen via het formulier verschijnen hier.</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </x-admin.card>
-        </div>
-
-        <div class="space-y-6">
-            <x-admin.card title="Snelle acties">
-                <div class="grid grid-cols-2 gap-3">
-                    <a href="#" class="group flex flex-col items-center gap-2 rounded-xl border border-dashed p-4 text-center transition hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-900/20" style="border-color: rgba(148, 163, 184, 0.3)">
-                        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition group-hover:scale-105 dark:bg-blue-900/30 dark:text-blue-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                            </svg>
-                        </span>
-                        <span class="text-xs font-semibold" style="color: var(--c-heading)">Nieuwe klant</span>
-                    </a>
-
-                    <a href="#" class="group flex flex-col items-center gap-2 rounded-xl border border-dashed p-4 text-center transition hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-900/20" style="border-color: rgba(148, 163, 184, 0.3)">
-                        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition group-hover:scale-105 dark:bg-blue-900/30 dark:text-blue-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-                            </svg>
-                        </span>
-                        <span class="text-xs font-semibold" style="color: var(--c-heading)">Nieuwe reparatie</span>
-                    </a>
-
-                    <a href="#" class="group flex flex-col items-center gap-2 rounded-xl border border-dashed p-4 text-center transition hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-900/20" style="border-color: rgba(148, 163, 184, 0.3)">
-                        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition group-hover:scale-105 dark:bg-blue-900/30 dark:text-blue-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                            </svg>
-                        </span>
-                        <span class="text-xs font-semibold" style="color: var(--c-heading)">Geschiedenis</span>
-                    </a>
-
-                    <a href="#" class="group flex flex-col items-center gap-2 rounded-xl border border-dashed p-4 text-center transition hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-900/20" style="border-color: rgba(148, 163, 184, 0.3)">
-                        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition group-hover:scale-105 dark:bg-blue-900/30 dark:text-blue-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                            </svg>
-                        </span>
-                        <span class="text-xs font-semibold" style="color: var(--c-heading)">Goedkeuringen</span>
-                    </a>
-                </div>
-            </x-admin.card>
-
-            <x-admin.card title="Systeemstatus">
-                <div class="space-y-4">
-                    <div>
-                        <div class="mb-1.5 flex items-center justify-between text-xs">
-                            <span class="font-semibold" style="color: var(--c-heading)">Database</span>
-                            <span class="inline-flex items-center gap-1 font-bold text-green-600 dark:text-green-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="h-3.5 w-3.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                                </svg>
-                                Actief
-                            </span>
-                        </div>
-                        <div class="h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
-                            <div class="h-full w-full rounded-full bg-gradient-to-r from-[#075be8] to-[#064bd7]"></div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="mb-1.5 flex items-center justify-between text-xs">
-                            <span class="font-semibold" style="color: var(--c-heading)">Wachtrij</span>
-                            <span class="inline-flex items-center gap-1 font-bold text-green-600 dark:text-green-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="h-3.5 w-3.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                                </svg>
-                                Actief
-                            </span>
-                        </div>
-                        <div class="h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
-                            <div class="h-full w-full rounded-full bg-gradient-to-r from-[#075be8] to-[#064bd7]"></div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="mb-1.5 flex items-center justify-between text-xs">
-                            <span class="font-semibold" style="color: var(--c-heading)">Cache</span>
-                            <span class="inline-flex items-center gap-1 font-bold text-green-600 dark:text-green-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="h-3.5 w-3.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                                </svg>
-                                Actief
-                            </span>
-                        </div>
-                        <div class="h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
-                            <div class="h-full w-full rounded-full bg-gradient-to-r from-[#075be8] to-[#064bd7]"></div>
-                        </div>
-                    </div>
-                </div>
-            </x-admin.card>
-        </div>
+    </x-admin.card>
     </div>
     @endif
 </x-admin.layout>
-
