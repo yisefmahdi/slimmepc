@@ -36,11 +36,37 @@ class AdminPushNotifier
 
             $credentials = (string) config('firebase.credentials', '');
 
-            if ($credentials === '' || ! is_file($credentials)) {
+            if ($credentials === '' || ! is_file($credentials) || ! is_readable($credentials)) {
                 self::audit($type, $refId, $title, $url, $result, 'disabled: no service-account credentials');
 
                 return $result;
             }
+
+            // Decode here (rather than passing the path): the SDK's file
+            // source handling varies per version, an array always works.
+            // Keys are converted to camelCase explicitly: the SDK's
+            // snake-to-camel mapper does not handle the Google JSON shape.
+            $raw = json_decode((string) file_get_contents($credentials), true);
+
+            if (! is_array($raw) || empty($raw['project_id'])) {
+                self::audit($type, $refId, $title, $url, $result, 'disabled: invalid service-account JSON');
+
+                return $result;
+            }
+
+            $serviceAccount = [
+                'type' => $raw['type'] ?? 'service_account',
+                'projectId' => $raw['project_id'],
+                'clientEmail' => $raw['client_email'] ?? '',
+                'clientId' => (string) ($raw['client_id'] ?? ''),
+                'privateKey' => $raw['private_key'] ?? '',
+                'privateKeyId' => $raw['private_key_id'] ?? '',
+                'authUri' => $raw['auth_uri'] ?? 'https://accounts.google.com/o/oauth2/auth',
+                'tokenUri' => $raw['token_uri'] ?? 'https://oauth2.googleapis.com/token',
+                'authProviderX509CertUrl' => $raw['auth_provider_x509_cert_url'] ?? '',
+                'clientX509CertUrl' => $raw['client_x509_cert_url'] ?? '',
+                'universeDomain' => $raw['universe_domain'] ?? null,
+            ];
 
             // Only admins (role can change after token registration).
             $tokens = FcmToken::query()
@@ -70,7 +96,7 @@ class AdminPushNotifier
                     'fcm_options' => ['link' => $url],
                 ]));
 
-            $messaging = (new Factory)->withServiceAccount($credentials)->createMessaging();
+            $messaging = (new Factory)->withServiceAccount($serviceAccount)->createMessaging();
             $report = $messaging->sendMulticast($message, $tokens);
 
             $result['delivered'] = $report->successes()->count();
