@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.2",
         "barryvdh/laravel-dompdf": "*",
+        "kreait/firebase-php": "^7.21",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "mollie/mollie-api-php": "^3.14",

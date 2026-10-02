@@ -6,6 +6,7 @@ use App\Http\Requests\StoreContactSubmissionRequest;
 use App\Mail\AdminContactNotification;
 use App\Mail\ContactReceived;
 use App\Models\ContactSubmission;
+use App\Services\AdminPushNotifier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -42,6 +43,17 @@ class ContactController extends Controller
         if ($notifyEmail) {
             Mail::to($notifyEmail)
                 ->send(new AdminContactNotification($submission));
+
+            // Same moment as the admin e-mail: push to all admin devices.
+            dispatch(function () use ($submission) {
+                AdminPushNotifier::notify(
+                    'contact',
+                    (string) $submission->id,
+                    'Nieuw contactbericht: '.$submission->name,
+                    mb_substr((string) $submission->message, 0, 120),
+                    route('admin.contact-inbox.index', ['submission' => $submission->id], absolute: true)
+                );
+            })->afterResponse();
         }
 
         return response()->json([

@@ -1,0 +1,17 @@
+{
+    "name": "Slimme-PC Beheer",
+    "short_name": "SlimmePC",
+    "description": "Slimme-PC admin dashboard met pushmeldingen.",
+    "start_url": "/admin",
+    "scope": "/admin",
+    "display": "standalone",
+    "background_color": "#0b1638",
+    "theme_color": "#075be8",
+    "icons": [
+        {
+            "src": "/assets/img/logo.webp",
+            "sizes": "any",
+            "type": "image/webp"
+        }
+    ]
+}

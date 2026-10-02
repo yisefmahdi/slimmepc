@@ -22,6 +22,23 @@ Route::get('/stream/video/{file}', [VideoStreamController::class, 'show'])
     ->where('file', '.*')
     ->name('video.stream');
 
+// Firebase Cloud Messaging service worker (config injected server-side,
+// must be served from the site root for full push scope).
+Route::get('/firebase-messaging-sw.js', function () {
+    $web = config('firebase.web');
+
+    return response()->view('firebase-messaging-sw', [
+        'firebaseWebConfig' => [
+            'apiKey' => $web['api_key'] ?? '',
+            'authDomain' => $web['auth_domain'] ?? '',
+            'projectId' => config('firebase.project_id'),
+            'storageBucket' => config('firebase.project_id') ? config('firebase.project_id').'.appspot.com' : '',
+            'messagingSenderId' => $web['sender_id'] ?? '',
+            'appId' => $web['app_id'] ?? '',
+        ],
+    ])->header('Content-Type', 'application/javascript');
+})->name('firebase.sw');
+
 Route::get('/', [PageController::class, 'home'])->name('home');
 
 Route::get('/tarieven', [PageController::class, 'tarieven'])->name('tarieven');

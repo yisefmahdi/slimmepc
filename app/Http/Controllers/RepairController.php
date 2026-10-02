@@ -6,6 +6,7 @@ use App\Http\Requests\StoreRepairSubmissionRequest;
 use App\Mail\AdminRepairNotification;
 use App\Mail\RepairReceived;
 use App\Models\RepairSubmission;
+use App\Services\AdminPushNotifier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -52,6 +53,15 @@ class RepairController extends Controller
             if ($notifyEmail) {
                 Mail::to($notifyEmail)
                     ->send(new AdminRepairNotification($submission));
+
+                // Same moment as the admin e-mail: push to all admin devices.
+                AdminPushNotifier::notify(
+                    'repair',
+                    (string) $submission->repair_number,
+                    'Nieuwe reparatie: '.$submission->repair_number,
+                    ($submission->brand ? $submission->brand.' ' : '').($submission->device ?? ''),
+                    route('admin.reparatie-aanmeldingen.index', absolute: true)
+                );
             }
         })->afterResponse();
 

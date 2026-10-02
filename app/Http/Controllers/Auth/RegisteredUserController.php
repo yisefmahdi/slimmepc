@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Mail\NewCustomerMail;
 use App\Models\User;
+use App\Services\AdminPushNotifier;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -74,6 +75,15 @@ class RegisteredUserController extends Controller
             if ($notify !== '') {
                 dispatch(function () use ($user, $notify) {
                     Mail::to($notify)->send(new NewCustomerMail($user->fresh()));
+
+                    // Same moment as the admin e-mail: push to all admin devices.
+                    AdminPushNotifier::notify(
+                        'new_customer',
+                        (string) $user->fresh()->klantnummer,
+                        'Nieuwe klant: '.$user->fresh()->name,
+                        ($user->fresh()->email ?? '').' ('.($user->fresh()->klantnummer ?? '').')',
+                        route('admin.users.index', absolute: true)
+                    );
                 })->afterResponse();
             }
 

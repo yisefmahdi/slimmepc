@@ -8,6 +8,7 @@ use App\Models\Cart;
 use App\Models\CouponUsage;
 use App\Models\Order;
 use App\Models\OrderInvoice;
+use App\Services\AdminPushNotifier;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
@@ -71,6 +72,15 @@ class OrderPaymentService
         if ($notify !== '') {
             dispatch(function () use ($order, $notify) {
                 Mail::to($notify)->send(new AdminOrderNotificationMail($order->fresh()));
+
+                // Same moment as the admin e-mail: push to all admin devices.
+                AdminPushNotifier::notify(
+                    'order',
+                    (string) $order->fresh()->order_number,
+                    'Nieuwe bestelling: '.$order->fresh()->order_number,
+                    'Totaal € '.number_format((float) $order->fresh()->total_price, 2, ',', '.'),
+                    route('admin.orders.show', $order->fresh(), absolute: true)
+                );
             })->afterResponse();
         }
     }

@@ -8,6 +8,7 @@
         <title>{{ $title ?? 'Beheer' }} | {{ config('app.name', 'Slimme-PC') }}</title>
 
         <link rel="icon" href="{{ asset(\App\Support\Cms::page('home')['header']['logo_image'] ?? 'assets/img/landing/logo.webp') }}">
+        <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
 
         {{-- Fonts --}}
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -662,6 +663,15 @@
                     </div>
                 </div>
 
+                <x-admin.sidebar-link :href="route('admin.notificaties.index')" :active="request()->routeIs('admin.notificaties.*')">
+                    <x-slot name="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-5 w-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+                        </svg>
+                    </x-slot>
+                    Notificaties
+                </x-admin.sidebar-link>
+
                 {{-- E-mail verzenden Dropdown (mass + mailinglijst) --}}
                 <div x-data="{ open: {{ request()->routeIs('admin.mass.email.*') || request()->routeIs('admin.send.mass.email') || request()->routeIs('admin.customerlist.*') || request()->routeIs('admin.mailinglist.*') ? 'true' : 'false' }} }" class="space-y-1">
                     <button type="button" @click="open = !open"
@@ -875,6 +885,23 @@
             @endif
         </div>
         @stack('scripts')
+
+        {{-- Firebase web config (admin push) + push logic on every admin page --}}
+        @php($firebaseWebConfig = [
+            'apiKey' => config('firebase.web.api_key'),
+            'authDomain' => config('firebase.web.auth_domain'),
+            'projectId' => config('firebase.project_id'),
+            'storageBucket' => config('firebase.project_id') ? config('firebase.project_id').'.appspot.com' : '',
+            'messagingSenderId' => config('firebase.web.sender_id'),
+            'appId' => config('firebase.web.app_id'),
+            'vapidKey' => config('firebase.web.vapid_key'),
+            'storeUrl' => route('admin.notificaties.tokens.store'),
+            'testUrl' => route('admin.notificaties.test'),
+        ])
+        <script id="firebase-web-config" type="application/json">@json($firebaseWebConfig)</script>
+        <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
+        <script src="{{ asset('assets/js/admin/push.js') }}?v={{ filemtime(public_path('assets/js/admin/push.js')) }}"></script>
 
         {{-- Global Flash Messages (Toast) --}}
         @if (session('success') || session('status'))

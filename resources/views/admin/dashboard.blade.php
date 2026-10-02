@@ -27,6 +27,17 @@
     {{-- Title (like the old system) --}}
     <h2 class="mt-1 text-center text-xl font-extrabold tracking-tight" style="color: var(--c-heading)">Welkom terug, {{ Auth::user()->name }}!</h2>
 
+    {{-- Push permission banner (admins only, shown by push.js when permission is undecided) --}}
+    @if(auth()->user()?->isAdmin())
+    <div id="pushBanner" style="display:none" class="mx-auto mt-4 flex max-w-3xl flex-wrap items-center justify-between gap-3 rounded-2xl border border-blue-200 bg-blue-50 px-5 py-3.5">
+        <p class="text-sm font-semibold text-blue-900">🔔 Ontvang direct een melding bij elke nieuwe aanvraag, chat of bestelling — ook als je e-mail nog dicht is.</p>
+        <div class="flex items-center gap-2">
+            <button type="button" id="pushBannerEnable" class="rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700">Inschakelen</button>
+            <button type="button" id="pushBannerLater" class="rounded-xl border border-blue-300 px-4 py-2 text-xs font-bold text-blue-800">Later</button>
+        </div>
+    </div>
+    @endif
+
     {{-- Stats only (9 small cards, like the old system) --}}
     <div class="mt-5 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-3">
         <a href="{{ route('admin.users.index') }}" class="block rounded-xl">

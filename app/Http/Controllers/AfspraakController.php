@@ -6,6 +6,7 @@ use App\Mail\AdminAfspraakNotification;
 use App\Mail\AfspraakReceived;
 use App\Models\AfspraakSubmission;
 use App\Http\Requests\StoreAfspraakSubmissionRequest;
+use App\Services\AdminPushNotifier;
 use Illuminate\Http\JsonResponse;
 
 class AfspraakController extends Controller
@@ -57,6 +58,15 @@ class AfspraakController extends Controller
             if ($notifyEmail) {
                 \Mail::to($notifyEmail)
                     ->send(new AdminAfspraakNotification($submission));
+
+                // Same moment as the admin e-mail: push to all admin devices.
+                AdminPushNotifier::notify(
+                    'afspraak',
+                    (string) $submission->afspraak_number,
+                    'Nieuwe afspraak: '.$submission->afspraak_number,
+                    ($submission->name ?? '').' — '.($submission->preferred_date ?? ''),
+                    route('admin.afspraak-aanvragen.index', absolute: true)
+                );
             }
         })->afterResponse();
 

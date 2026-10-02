@@ -350,6 +350,14 @@ Route::prefix('admin')
             Route::post('/{shipping}/toggle', [App\Http\Controllers\Admin\ShippingRateController::class, 'toggle'])->name('toggle');
         });
 
+        // 🔔 Push notifications (Firebase, per admin device) — admin only
+        Route::prefix('notificaties')->name('notificaties.')->middleware('admin')->group(function () {
+            Route::get('/', [App\Http\Controllers\Admin\PushController::class, 'index'])->name('index');
+            Route::post('/tokens', [App\Http\Controllers\Admin\PushController::class, 'store'])->name('tokens.store');
+            Route::delete('/tokens/{fcmToken}', [App\Http\Controllers\Admin\PushController::class, 'destroy'])->name('tokens.destroy');
+            Route::post('/test', [App\Http\Controllers\Admin\PushController::class, 'test'])->name('test');
+        });
+
         // 📢 Mass e-mail naar alle gebruikers (zoals oude systeem A) — admin only
         Route::get('/email-verzenden', [MassEmailController::class, 'showForm'])->name('mass.email.form')->middleware('admin');
         Route::post('/email-verzenden', [MassEmailController::class, 'sendMassEmail'])->name('send.mass.email')->middleware('admin');

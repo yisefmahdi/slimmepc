@@ -7,6 +7,7 @@ use App\Mail\ChatOfflineReceived;
 use App\Mail\ChatTicketMail;
 use App\Models\ChatConversation;
 use App\Models\ChatMessage;
+use App\Services\AdminPushNotifier;
 use App\Services\Ai\Features\ChatAnswerGenerator;
 use App\Services\Chat\ChatAvailabilityService;
 use Illuminate\Http\JsonResponse;
@@ -217,6 +218,15 @@ class ChatController extends Controller
         dispatch(function () use ($conversation, $notify, $ticketText) {
             if ($notify) {
                 \App\Services\Chat\ChatMailer::send($notify, new AdminChatNotification($conversation->fresh(), 'handover'), 'handover-admin');
+
+                // Same moment as the admin e-mail: push to all admin devices.
+                AdminPushNotifier::notify(
+                    'chat',
+                    (string) $conversation->id,
+                    'Chat overname: '.$conversation->fresh()->name,
+                    mb_substr((string) $ticketText, 0, 120),
+                    route('admin.chat.inbox.index', absolute: true)
+                );
             }
             \App\Services\Chat\ChatMailer::send($conversation->email, new ChatTicketMail($conversation->fresh(), $ticketText), 'handover-customer');
         })->afterResponse();
@@ -279,6 +289,15 @@ class ChatController extends Controller
             \App\Services\Chat\ChatMailer::send($conversation->email, new ChatOfflineReceived($conversation->fresh()), 'offline-customer');
             if ($notify = config('contact-inbox.notify_email')) {
                 \App\Services\Chat\ChatMailer::send($notify, new AdminChatNotification($conversation->fresh(), 'handover'), 'offline-admin');
+
+                // Same moment as the admin e-mail: push to all admin devices.
+                AdminPushNotifier::notify(
+                    'chat',
+                    (string) $conversation->id,
+                    'Nieuw offline bericht: '.$conversation->fresh()->name,
+                    mb_substr((string) $conversation->fresh()->messages()->where('sender', 'customer')->latest()->value('body'), 0, 120),
+                    route('admin.chat.inbox.index', absolute: true)
+                );
             }
         })->afterResponse();
 
