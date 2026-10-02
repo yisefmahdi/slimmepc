@@ -64,16 +64,26 @@
             if (!firebase.apps.length) firebase.initializeApp(config);
             messaging = firebase.messaging();
 
-            // Foreground messages: toast + link.
+            // Foreground messages: toast + a real system notification
+            // (so it is visible even when the admin looks at another tab).
             messaging.onMessage(function (payload) {
                 var title = (payload.notification && payload.notification.title) || 'Slimme-PC';
                 var body = (payload.notification && payload.notification.body) || '';
-                var url = (payload.data && payload.data.url) || '';
+                var url = (payload.data && payload.data.url) || '/admin';
                 toast(title + (body ? ' — ' + body : ''), 'success');
-                if (url) {
-                    setTimeout(function () {
-                        if (confirm(title + '\n\nOpenen?')) window.open(url, '_blank');
-                    }, 600);
+
+                try {
+                    if (Notification.permission === 'granted') {
+                        var n = new Notification(title, { body: body, icon: '/assets/img/logo.webp', data: { url: url } });
+                        n.onclick = function (ev) {
+                            ev.preventDefault();
+                            window.focus();
+                            window.open(url, '_blank');
+                            n.close();
+                        };
+                    }
+                } catch (e) {
+                    console.warn('[push] foreground notification failed', e);
                 }
             });
 
@@ -161,8 +171,7 @@
         });
     }
 
-    function setupButtons() {
-        var enableBtn = document.getElementById('pushEnableBtn');
+    function setupButtons() {        var enableBtn = document.getElementById('pushEnableBtn');
         if (enableBtn) enableBtn.addEventListener('click', enable);
 
         var testBtn = document.getElementById('pushTestBtn');
@@ -193,9 +202,45 @@
         });
     }
 
+    /* --- self-diagnostics on the notificaties page --- */
+    async function updateDiag() {
+        function set(id, text, ok) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = text;
+            el.style.color = ok ? '#15803d' : '#b91c1c';
+        }
+
+        if (!document.getElementById('pushDiagList')) return;
+
+        set('pushDiagPermission',
+            ('Notification' in window) ? Notification.permission : 'niet ondersteund',
+            ('Notification' in window) && Notification.permission === 'granted');
+
+        set('pushDiagSDK', (typeof firebase !== 'undefined') ? 'geladen' : 'NIET geladen',
+            typeof firebase !== 'undefined');
+
+        set('pushDiagConfig', (config && config.apiKey && config.appId) ? 'ok' : 'onvolledig (.env)',
+            !!(config && config.apiKey && config.appId));
+
+        if (!('serviceWorker' in navigator)) {
+            set('pushDiagSW', 'niet ondersteund', false);
+            return;
+        }
+        try {
+            var reg = await navigator.serviceWorker.getRegistration('/firebase-messaging-sw.js');
+            if (!reg) reg = await navigator.serviceWorker.getRegistration();
+            set('pushDiagSW', reg ? ('actief (' + (reg.active ? reg.active.state : 'geen active worker') + ')') : 'NIET geregistreerd',
+                !!(reg && reg.active));
+        } catch (e) {
+            set('pushDiagSW', 'fout: ' + e.message, false);
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         init();
         setupBanner();
         setupButtons();
+        updateDiag();
     });
 })();

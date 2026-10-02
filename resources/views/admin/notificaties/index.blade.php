@@ -25,6 +25,18 @@
             </div>
         </div>
 
+        {{-- Diagnostics --}}
+        <div class="rounded-2xl border p-6" style="background-color: var(--c-card); border-color: rgba(148,163,184,.2)">
+            <h3 class="text-base font-extrabold" style="color: var(--c-heading)">Diagnose (dit apparaat)</h3>
+            <dl class="mt-3 space-y-1.5 text-sm" id="pushDiagList">
+                <div class="flex justify-between gap-3"><dt style="color: var(--c-muted)">Browser-toestemming</dt><dd class="font-bold" style="color: var(--c-heading)" id="pushDiagPermission">…</dd></div>
+                <div class="flex justify-between gap-3"><dt style="color: var(--c-muted)">Service Worker</dt><dd class="font-bold" style="color: var(--c-heading)" id="pushDiagSW">…</dd></div>
+                <div class="flex justify-between gap-3"><dt style="color: var(--c-muted)">Firebase SDK</dt><dd class="font-bold" style="color: var(--c-heading)" id="pushDiagSDK">…</dd></div>
+                <div class="flex justify-between gap-3"><dt style="color: var(--c-muted)">Server-configuratie</dt><dd class="font-bold" style="color: var(--c-heading)" id="pushDiagConfig">…</dd></div>
+            </dl>
+            <p class="mt-3 text-xs" style="color: var(--c-muted)">Zie je hier geen “toegestaan / actief”, dan kan de melding niet aankomen op dit apparaat. Op Windows: controleer ook Instellingen → Meldingen → Google Chrome (aan).</p>
+        </div>
+
         {{-- My devices --}}
         <div class="rounded-2xl border p-6" style="background-color: var(--c-card); border-color: rgba(148,163,184,.2)">
             <h3 class="text-base font-extrabold" style="color: var(--c-heading)">Mijn apparaten ({{ $tokens->count() }})</h3>
