@@ -29,19 +29,11 @@
 
     {{-- Push permission banner (admins only, shown by push.js when permission is undecided) --}}
     @if(auth()->user()?->isAdmin())
-    <div id="pushBanner" style="display:none" class="mt-5 flex w-full flex-wrap items-center gap-4 overflow-hidden rounded-2xl bg-gradient-to-r from-[#075be8] to-[#064bd7] p-5 text-white shadow-[0_12px_25px_rgba(0,91,234,0.25)] sm:p-6">
-        <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/20">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-6 w-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
-            </svg>
-        </span>
-        <div class="min-w-0 flex-1">
-            <p class="text-sm font-extrabold sm:text-base">Direct een melding bij elke nieuwe aanvraag</p>
-            <p class="mt-0.5 text-xs text-blue-100 sm:text-sm">Contact, reparatie, afspraak, chat of bestelling — ook als je e-mail nog dicht is. Eén klik en je staat op de juiste pagina.</p>
-        </div>
-        <div class="flex shrink-0 items-center gap-2">
-            <button type="button" id="pushBannerEnable" class="rounded-xl bg-white px-5 py-2.5 text-xs font-extrabold text-[#064bd7] shadow hover:bg-blue-50">Inschakelen</button>
-            <button type="button" id="pushBannerLater" class="rounded-xl border border-white/40 px-5 py-2.5 text-xs font-bold text-white hover:bg-white/10">Later</button>
+    <div id="pushBanner" style="display:none" class="mt-5 flex w-full flex-wrap items-center justify-between gap-3 rounded-2xl border border-blue-200 bg-blue-50 px-5 py-3.5 sm:px-6">
+        <p class="text-sm font-semibold text-blue-900">🔔 Ontvang direct een melding bij elke nieuwe aanvraag, chat of bestelling — ook als je e-mail nog dicht is.</p>
+        <div class="flex items-center gap-2">
+            <button type="button" id="pushBannerEnable" class="rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700">Inschakelen</button>
+            <button type="button" id="pushBannerLater" class="rounded-xl border border-blue-300 px-4 py-2 text-xs font-bold text-blue-800">Later</button>
         </div>
     </div>
     @endif
