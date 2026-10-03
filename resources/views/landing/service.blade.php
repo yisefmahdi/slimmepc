@@ -182,7 +182,7 @@
 
                         <div class="relative overflow-hidden rounded-xl min-h-[340px]">
                             @if (!empty($s['speciality']['video']))
-                                <video id="specialityVideo" class="absolute inset-0 w-full h-full object-cover" controls preload="metadata"
+                                <video id="specialityVideo" class="absolute inset-0 w-full h-full object-cover" controls muted playsinline preload="metadata"
                                        poster="{{ asset($s['speciality']['video_poster'] ?? '') }}">
                                     <source src="{{ url('/stream/video/' . basename($s['speciality']['video'])) }}" type="video/mp4">
                                 </video>

@@ -114,10 +114,10 @@
                         <p class="text-gray-700 mt-5 leading-7 text-[15px] max-w-[340px] whitespace-pre-line">{{ $s['process']['description'] ?? "Wij doorlopen een gestructureerd diagnoseproces om het echte\nprobleem te vinden en gericht te repareren." }}</p>
                     </div>
 
-                    <div class="relative min-h-[380px] lg:min-h-[430px]">
-                        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] h-[280px] rounded-full border border-blue-100 flex items-center justify-center">
+                    <div class="relative lg:min-h-[430px]">
+                        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] h-[280px] rounded-full border border-blue-100 flex items-center justify-center max-lg:static max-lg:mx-auto max-lg:mb-6 max-lg:h-[240px] max-lg:w-[240px] max-lg:transform-none">
                             <div class="absolute inset-[28px] rounded-full border border-dashed border-[#9acaff]"></div>
-                            <img src="{{ asset($s['process']['center_image'] ?? 'assets/img/landing/363f8f55-fba7-4f23-88db-8c8e728d522e.png') }}" class="relative z-10 w-[340px] object-contain" alt="">
+                            <img src="{{ asset($s['process']['center_image'] ?? 'assets/img/landing/363f8f55-fba7-4f23-88db-8c8e728d522e.png') }}" class="relative z-10 w-[340px] max-lg:w-[220px] object-contain" alt="">
                         </div>
 
                         @php
@@ -141,7 +141,7 @@
                                     'absolute left-[2%] bottom-[15%] w-[200px]',
                                 ][$idx] ?? '';
                             @endphp
-                            <div class="{{ $pos }} bg-white shadow-card border border-gray-200 rounded-xl p-5 max-lg:static max-lg:mx-auto max-lg:mb-4 max-lg:w-full max-lg:max-w-[320px]">
+                            <div class="{{ $pos }} bg-white shadow-card border border-gray-200 rounded-xl p-5 max-lg:static max-lg:mx-auto max-lg:mb-4 max-lg:w-full max-lg:max-w-[320px] max-lg:translate-x-0">
                                 <div class="flex items-center gap-3">
                                     <i data-lucide="{{ $it['icon'] ?? $procIcons[$idx] }}" class="w-8 h-8 text-[#0b63e5] shrink-0"></i>
                                     <div>
@@ -182,7 +182,7 @@
 
                         <div class="relative overflow-hidden rounded-xl border border-[#208cff] min-h-[330px] bg-black">
                             @if (!empty($s['workbench']['video']))
-                                <video class="absolute inset-0 w-full h-full object-cover" controls preload="metadata" poster="{{ asset($s['workbench']['video_poster'] ?? 'assets/img/landing/e4703bd3-ffe8-4ca1-8543-7f5a97484698.png') }}">
+                                <video class="absolute inset-0 w-full h-full object-cover" controls muted playsinline preload="metadata" poster="{{ asset($s['workbench']['video_poster'] ?? 'assets/img/landing/e4703bd3-ffe8-4ca1-8543-7f5a97484698.png') }}">
                                     <source src="{{ asset($s['workbench']['video']) }}" type="video/mp4">
                                 </video>
                             @else

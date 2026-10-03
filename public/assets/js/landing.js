@@ -82,7 +82,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const specialityPlayBtn = document.getElementById("specialityPlayBtn");
 
     if (specialityVideo && specialityPlayBtn) {
+        specialityVideo.muted = true;
         specialityPlayBtn.addEventListener("click", () => {
+            specialityVideo.muted = true;
             specialityVideo.play();
         });
 
