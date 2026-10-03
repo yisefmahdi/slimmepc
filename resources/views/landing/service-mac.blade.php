@@ -331,8 +331,10 @@
                 <div class="mt-8 grid md:grid-cols-3 gap-5">
                     @foreach ($s['recent']['items'] ?? [] as $ri)
                         <div class="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm">
-                            <img src="{{ asset('assets/img/landing/' . basename($ri['image'] ?? '')) }}" alt="{{ $ri['title'] ?? '' }}"
-                                 class="h-44 w-full rounded-xl object-cover">
+                            <div class="flex w-full items-center justify-center overflow-hidden rounded-xl border border-blue-50 bg-[#f7fbff] p-3" style="aspect-ratio: 4 / 3;">
+                                <img src="{{ asset('assets/img/landing/' . basename($ri['image'] ?? '')) }}" alt="{{ $ri['title'] ?? '' }}"
+                                     class="h-full w-full object-contain" loading="lazy" decoding="async">
+                            </div>
                             <h3 class="mt-4 font-black text-[#0b1f4d]">{{ $ri['title'] ?? '' }}</h3>
                             <p class="mt-1 text-sm text-slate-600">{{ $ri['text'] ?? '' }}</p>
                             <p class="mt-3 text-sm font-bold text-green-600">✓ Succesvol hersteld</p>

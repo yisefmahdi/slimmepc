@@ -1526,7 +1526,7 @@ transition: none !important;
     font-size: 1rem;
     font-weight: 800;
 
-    color: #0f172a;
+    color: #090909;
 }
 
 .footer-title::after {
@@ -1554,9 +1554,10 @@ transition: none !important;
 }
 
 .footer-links a {
-    color: #475569;
+    color: #111111;
 
     font-size: 0.88rem;
+    font-weight: 600;
 
     text-decoration: none;
 

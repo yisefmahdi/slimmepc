@@ -212,8 +212,10 @@
                             @endforeach
                         </div>
 
-                        <div class="min-h-[240px]">
-                            <img src="{{ asset($s['problems']['image'] ?? 'assets/img/landing/0bdab181-585e-44c9-a56e-11cc49cff612.png') }}" alt="PC reparatie" class="h-full w-full object-cover">
+                        <div class="min-h-[240px] p-3">
+                            <div class="flex h-full min-h-[240px] w-full items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-[#f7fbff] p-3" style="aspect-ratio: 4 / 3;">
+                                <img src="{{ asset($s['problems']['image'] ?? 'assets/img/landing/0bdab181-585e-44c9-a56e-11cc49cff612.png') }}" alt="PC reparatie" class="h-full w-full object-contain" loading="lazy" decoding="async">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -287,7 +289,9 @@
                     ] as $bld)
                         @php $bImg = $bld['image'] ?? ''; $bSrc = $bImg ? (str_starts_with($bImg, 'assets/') ? asset($bImg) : asset('assets/img/landing/' . ltrim($bImg, '/'))) : ''; @endphp
                         <article class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_7px_20px_rgba(0,38,90,.07)] transition hover:-translate-y-1 hover:shadow-xl">
-                            <img src="{{ $bSrc }}" class="h-[170px] w-full object-cover" alt="{{ $bld['title'] ?? '' }}">
+                            <div class="flex w-full items-center justify-center overflow-hidden border-b border-slate-100 bg-[#f7fbff] p-3" style="aspect-ratio: 4 / 3;">
+                                <img src="{{ $bSrc }}" class="h-full w-full object-contain" alt="{{ $bld['title'] ?? '' }}" loading="lazy" decoding="async">
+                            </div>
                             <div class="p-4">
                                 <div class="text-[10px] font-black uppercase text-[#1264df]">{{ $bld['badge'] ?? '' }}</div>
                                 <h3 class="mt-2 text-[11px] font-semibold">{{ $bld['title'] ?? '' }}</h3>
@@ -370,7 +374,9 @@
                     </div>
 
                     <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-                        <img src="{{ asset($s['faq_cta']['cta_image'] ?? 'assets/img/landing/0bdab181-585e-44c9-a56e-11cc49cff612.png') }}" alt="PC reparatie" class="h-[180px] w-full object-cover rounded-xl">
+                        <div class="flex w-full items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-[#f7fbff] p-3" style="aspect-ratio: 4 / 3;">
+                            <img src="{{ asset($s['faq_cta']['cta_image'] ?? 'assets/img/landing/0bdab181-585e-44c9-a56e-11cc49cff612.png') }}" alt="PC reparatie" class="h-full w-full object-contain" loading="lazy" decoding="async">
+                        </div>
                         <h3 class="mt-4 text-[14px] font-black">PC op maat</h3>
                         <p class="mt-2 text-[11px] text-slate-600">Jouw wensen, jouw PC — volledig op maat gebouwd en getest.</p>
                     </div>

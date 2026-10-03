@@ -138,20 +138,74 @@
                         </p>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-2 px-4 pb-5 pt-4 sm:grid-cols-3 md:grid-cols-5 xl:grid-cols-9">
-                        @php $svcKeys = ['windows','printer','wifi','network','email','cloud','security','devices','other']; @endphp
-                        @foreach ($s['selector']['tabs'] ?? [
-                            ['emoji' => '▦', 'title' => "Windows &\nSoftware"],
-                            ['emoji' => '🖨', 'title' => 'Printer'],
-                            ['emoji' => '◉', 'title' => "Internet &\nWiFi"],
-                            ['emoji' => '⛓', 'title' => 'Netwerk'],
-                            ['emoji' => '✉', 'title' => 'E-mail'],
-                            ['emoji' => '☁', 'title' => "Accounts &\nCloud"],
-                            ['emoji' => '♢', 'title' => 'Beveiliging'],
-                            ['emoji' => '⌨', 'title' => 'Randapparatuur'],
-                            ['emoji' => '•••', 'title' => "Ander IT-\nprobleem?"],
-                        ] as $idx => $tab)
-                            <button data-service="{{ $svcKeys[$idx] ?? 'other' }}" class="service-tab {{ $idx === 0 ? 'active-tab border-[#1264df] bg-[#f9fbff] shadow-[0_5px_18px_rgba(0,70,180,.08)]' : 'border-slate-200 bg-white shadow-sm' }} group min-h-[115px] rounded-[9px] border px-3 py-4 transition hover:-translate-y-1 hover:border-[#1264df]">
+                    <div id="software-tabs" class="grid grid-cols-2 gap-2 px-4 pb-5 pt-4 sm:grid-cols-3 md:grid-cols-5">
+                        @php
+                            $selectorTabsRaw = $s['selector']['tabs'] ?? [
+                                ['key' => 'windows', 'emoji' => '▦', 'title' => "Windows &\nSoftware"],
+                                ['key' => 'printer', 'emoji' => '🖨', 'title' => 'Printer'],
+                                ['key' => 'wifi', 'emoji' => '◉', 'title' => "Internet &\nWiFi"],
+                                ['key' => 'network', 'emoji' => '⛓', 'title' => 'Netwerk'],
+                                ['key' => 'email', 'emoji' => '✉', 'title' => 'E-mail'],
+                                ['key' => 'cloud', 'emoji' => '☁', 'title' => "Accounts &\nCloud"],
+                                ['key' => 'security', 'emoji' => '♢', 'title' => 'Beveiliging'],
+                                ['key' => 'devices', 'emoji' => '⌨', 'title' => 'Randapparatuur'],
+                                ['key' => 'other', 'emoji' => '•••', 'title' => "Ander IT-\nprobleem?"],
+                            ];
+                            $fallbackDetails = [
+                                'windows' => ['title' => 'Windows & Software problemen?', 'image' => 'assets/img/landing/windows-service.jpg', 'imageText' => "Installatie • Updates • Drivers\nFouten • Trage PC • Software", 'problems' => ['Windows start niet of vastlopers', 'Drivers installeren of bijwerken', 'Blauw scherm of foutmeldingen', "Programma's installeren / verwijderen", 'Trage computer of lange opstarttijd', 'Software werkt niet goed', 'Windows updates problemen', 'Bestanden kwijt of beschadigd']],
+                                'printer' => ['title' => 'Printerproblemen?', 'image' => 'assets/img/landing/printer-service.png', 'imageText' => "Installatie • WiFi • Scannen\nDrivers • Configuratie • Storingen", 'problems' => ['Printer wordt niet gevonden', 'Printer installeren en configureren', 'Printopdrachten blijven hangen', 'Printer verbinden met WiFi', 'Scanner werkt niet', 'Drivers installeren of herstellen', 'Printer offline melding', 'Verbindingsproblemen oplossen']],
+                                'wifi' => ['title' => 'Internet & WiFi problemen?', 'image' => 'assets/img/landing/router-service.png', 'imageText' => "WiFi • Router • Modem\nBereik • Snelheid • Verbinding", 'problems' => ['Geen internetverbinding', 'Trage internetverbinding', 'WiFi valt steeds weg', 'Slecht WiFi bereik', 'Router of modem instellen', 'Apparaten verbinden met WiFi', 'WiFi netwerk beveiligen', 'Internet storing onderzoeken']],
+                                'network' => ['title' => 'Netwerkproblemen?', 'image' => 'assets/img/landing/network-service.png', 'imageText' => "Netwerk • Bekabeling • Apparaten\nRouter • Delen • Verbinden", 'problems' => ['Thuisnetwerk installeren', 'Computers met elkaar verbinden', 'Netwerkschijven instellen', 'Bekabeld netwerk installeren', 'Netwerkapparaten configureren', 'NAS of gedeelde opslag instellen', 'Netwerkproblemen onderzoeken', 'Draadloze verbinding optimaliseren']],
+                                'email' => ['title' => 'Problemen met e-mail?', 'image' => 'assets/img/landing/email-service.png', 'imageText' => "Outlook • Gmail • Accounts\nSynchronisatie • Verzenden • Ontvangen", 'problems' => ['E-mailaccount instellen', 'E-mail werkt niet meer', 'Kan geen berichten verzenden', 'Kan geen berichten ontvangen', 'Outlook problemen', 'Wachtwoord of account herstellen', 'Synchronisatie problemen', 'E-mail overzetten naar nieuw apparaat']],
+                                'cloud' => ['title' => 'Accounts & Cloud problemen?', 'image' => 'assets/img/landing/cloud-service.png', 'imageText' => "Microsoft • Google • OneDrive\nAccounts • Cloud • Synchronisatie", 'problems' => ['Microsoft account problemen', 'Google account instellen', 'OneDrive werkt niet', 'Cloud synchronisatie herstellen', 'Bestanden synchroniseren', 'Account herstellen', 'Cloud opslag instellen', 'Bestanden overzetten']],
+                                'security' => ['title' => 'Computerbeveiliging nodig?', 'image' => 'assets/img/landing/security-service.png', 'imageText' => "Malware • Virussen • Privacy\nBeveiliging • Controle • Opschonen", 'problems' => ['Virussen verwijderen', 'Malware verwijderen', "Ongewenste programma's verwijderen", 'Computer beveiligen', 'Browser beveiliging', 'Privacy instellingen controleren', 'Beveiligingssoftware installeren', 'Verdachte meldingen onderzoeken']],
+                                'devices' => ['title' => 'Problemen met randapparatuur?', 'image' => 'assets/img/landing/devices-service.png', 'imageText' => "Toetsenbord • Muis • Webcam\nMonitor • USB • Bluetooth", 'problems' => ['Toetsenbord werkt niet', 'Muis werkt niet', 'Webcam instellen', 'Monitor aansluiten', 'USB apparaten werken niet', 'Bluetooth problemen', 'Externe schijf aansluiten', 'Randapparatuur installeren']],
+                                'other' => ['title' => 'Staat jouw probleem er niet tussen?', 'image' => 'assets/img/landing/other-it-service.png', 'imageText' => "Vertel ons wat er speelt.\nWij zoeken samen naar een oplossing.", 'problems' => ['Onbekende foutmelding', 'Computer werkt niet goed', 'Probleem na een update', 'Apparaat werkt niet zoals verwacht', 'Software of hardware conflict', 'Hulp bij instellingen', 'Technisch advies nodig', 'Ander IT-probleem']],
+                            ];
+                            $fallbackByIndex = array_values($fallbackDetails);
+                            $normTabs = [];
+                            $seenTabKeys = [];
+                            foreach (($selectorTabsRaw ?? []) as $idx => $tab) {
+                                $rawKey = trim((string) ($tab['key'] ?? ''));
+                                $key = $rawKey !== '' ? $rawKey : 'tab-' . ($idx + 1);
+                                $origKey = $key; $dup = 2;
+                                while (isset($seenTabKeys[$key])) { $key = $origKey . '-' . $dup; $dup++; }
+                                $seenTabKeys[$key] = true;
+                                $fb = $fallbackDetails[$tab['key'] ?? ''] ?? ($fallbackByIndex[$idx] ?? []);
+                                $rawProblems = $tab['problems'] ?? null;
+                                $problems = [];
+                                if (is_array($rawProblems)) {
+                                    foreach ($rawProblems as $p) {
+                                        $t = is_array($p) ? trim((string) ($p['title'] ?? '')) : trim((string) $p);
+                                        if ($t !== '') $problems[] = $t;
+                                    }
+                                } elseif (is_string($rawProblems) && trim($rawProblems) !== '') {
+                                    foreach (preg_split('/[\r\n,;]+/', $rawProblems) as $t) { $t = trim($t); if ($t !== '') $problems[] = $t; }
+                                }
+                                if (empty($problems)) $problems = $fb['problems'] ?? [];
+                                $img = trim((string) ($tab['image'] ?? ''));
+                                if ($img === '') $img = $fb['image'] ?? 'assets/img/landing/windows-service.jpg';
+                                $imgUrl = str_starts_with($img, 'assets/') ? asset($img) : (str_starts_with($img, 'http') ? $img : asset('assets/img/landing/' . ltrim($img, '/')));
+                                $normTabs[] = [
+                                    'key' => $key,
+                                    'emoji' => $tab['emoji'] ?? '',
+                                    'title' => $tab['title'] ?? '',
+                                    'detail_title' => ($tab['detail_title'] ?? '') !== '' ? $tab['detail_title'] : ($fb['title'] ?? ''),
+                                    'image' => $imgUrl,
+                                    'imageText' => ($tab['image_text'] ?? '') !== '' ? $tab['image_text'] : ($fb['imageText'] ?? ''),
+                                    'problems' => $problems,
+                                ];
+                            }
+                            $firstTab = $normTabs[0] ?? null;
+                            $tabCount = max(count($normTabs), 1);
+                        @endphp
+                        <style>
+                            @media (min-width: 1280px) {
+                                #software-tabs { grid-template-columns: repeat({{ $tabCount }}, minmax(0, 1fr)); }
+                            }
+                        </style>
+                        @foreach ($normTabs as $idx => $tab)
+                            <button data-service="{{ $tab['key'] }}" class="service-tab {{ $idx === 0 ? 'active-tab border-[#1264df] bg-[#f9fbff] shadow-[0_5px_18px_rgba(0,70,180,.08)]' : 'border-slate-200 bg-white shadow-sm' }} group min-h-[115px] rounded-[9px] border px-3 py-4 transition hover:-translate-y-1 hover:border-[#1264df]">
                                 <div class="text-[30px] leading-none text-[#07153d] group-[.active-tab]:text-[#1264df]">{{ $tab['emoji'] ?? '' }}</div>
                                 <div class="mt-3 text-[11px] font-black leading-tight whitespace-pre-line {{ $idx === 0 ? 'text-[#075ee5]' : '' }}">{{ $tab['title'] ?? '' }}</div>
                             </button>
@@ -159,22 +213,25 @@
                     </div>
 
                     <div class="relative grid border-t border-slate-100 lg:grid-cols-[1.05fr_1.45fr_.65fr]">
-                        <div class="relative m-5 min-h-[245px] overflow-hidden rounded-[10px]">
-                            <img id="serviceImage" src="{{ asset($s['selector']['selected_image'] ?? 'assets/img/landing/windows-service.jpg') }}" alt="" class="absolute inset-0 h-full w-full object-cover transition duration-300">
-                            <div id="serviceImageText" class="absolute bottom-6 left-5 rounded-[8px] bg-white/95 px-5 py-4 text-[10px] font-semibold leading-5 shadow-[0_7px_25px_rgba(0,0,0,.12)] whitespace-pre-line">{{ $s['selector']['selected_image_text'] ?? "Installatie • Updates • Drivers\nFouten • Trage PC • Software" }}</div>
+                        <div class="relative m-5 min-h-[245px] overflow-hidden rounded-[10px] border border-slate-100 bg-[#f7fbff]">
+                            <img id="serviceImage" src="{{ $firstTab['image'] ?? asset('assets/img/landing/windows-service.jpg') }}" alt="" class="absolute inset-0 h-full w-full object-contain p-4 transition duration-300" loading="lazy" decoding="async">
+                            <div id="serviceImageText" class="absolute bottom-6 left-5 rounded-[8px] bg-white/95 px-5 py-4 text-[10px] font-semibold leading-5 shadow-[0_7px_25px_rgba(0,0,0,.12)] whitespace-pre-line">{{ $firstTab['imageText'] ?? "Installatie • Updates • Drivers\nFouten • Trage PC • Software" }}</div>
                         </div>
 
                         <div class="flex items-center px-6 py-8">
                             <div class="w-full">
                                 <h3 id="serviceTitle" class="text-[23px] font-black tracking-[-.02em]">
-                                    {{ $s['selector']['selected_title'] ?? 'Windows & Software problemen?' }}
+                                    {{ $firstTab['detail_title'] ?? 'Windows & Software problemen?' }}
                                 </h3>
                                 <div id="serviceProblems" class="mt-6 grid gap-x-10 gap-y-4 text-[11px] font-medium text-slate-700 sm:grid-cols-2">
-                                    @foreach ($s['selector']['selected_problems'] ?? [['title' => 'Windows start niet of vastlopers'], ['title' => 'Drivers installeren of bijwerken'], ['title' => 'Blauw scherm of foutmeldingen'], ['title' => 'Programma\'s installeren / verwijderen'], ['title' => 'Trage computer of lange opstarttijd'], ['title' => 'Software werkt niet goed'], ['title' => 'Windows updates problemen'], ['title' => 'Bestanden kwijt of beschadigd']] as $sp)
+                                    @foreach (($firstTab['problems'] ?? null) ?: ['Windows start niet of vastlopers', 'Drivers installeren of bijwerken', 'Blauw scherm of foutmeldingen', "Programma's installeren / verwijderen", 'Trage computer of lange opstarttijd', 'Software werkt niet goed', 'Windows updates problemen', 'Bestanden kwijt of beschadigd'] as $sp)
+                                        @php $spTitle = is_array($sp) ? ($sp['title'] ?? '') : $sp; @endphp
+                                        @if (trim($spTitle) !== '')
                                         <div class="flex items-center gap-3">
                                             <span class="text-[#1264df]">◉</span>
-                                            {{ $sp['title'] ?? '' }}
+                                            {{ $spTitle }}
                                         </div>
+                                        @endif
                                     @endforeach
                                 </div>
                             </div>
@@ -325,7 +382,7 @@
                                 </div>
                             </div>
                         </div>
-                        <img src="{{ asset($s['final']['contact_image'] ?? 'assets/img/landing/slimme-pc-shop.jpg') }}" alt="Slimme-PC winkel" class="absolute bottom-0 right-0 hidden h-full w-[45%] object-cover md:block">
+                        <img src="{{ asset($s['final']['contact_image'] ?? 'assets/img/landing/slimme-pc-shop.jpg') }}" alt="Slimme-PC winkel" class="absolute bottom-0 right-0 hidden h-full w-[45%] object-contain bg-white p-4 md:block" loading="lazy" decoding="async">
                         <div class="absolute inset-y-0 left-[52%] hidden w-[100px] bg-gradient-to-r from-white to-transparent md:block"></div>
                     </div>
 
@@ -347,62 +404,18 @@
     @include('landing.partials.ai-chat')
 
     <script>
-    const softwareServices = {
-        windows: {
-            title: "Windows & Software problemen?",
-            image: "{{ asset('assets/img/landing/windows-service.jpg') }}",
-            imageText: "Installatie • Updates • Drivers<br>Fouten • Trage PC • Software",
-            problems: ["Windows start niet of vastlopers","Drivers installeren of bijwerken","Blauw scherm of foutmeldingen","Programma's installeren / verwijderen","Trage computer of lange opstarttijd","Software werkt niet goed","Windows updates problemen","Bestanden kwijt of beschadigd"]
-        },
-        printer: {
-            title: "Printerproblemen?",
-            image: "{{ asset('assets/img/landing/printer-service.png') }}",
-            imageText: "Installatie • WiFi • Scannen<br>Drivers • Configuratie • Storingen",
-            problems: ["Printer wordt niet gevonden","Printer installeren en configureren","Printopdrachten blijven hangen","Printer verbinden met WiFi","Scanner werkt niet","Drivers installeren of herstellen","Printer offline melding","Verbindingsproblemen oplossen"]
-        },
-        wifi: {
-            title: "Internet & WiFi problemen?",
-            image: "{{ asset('assets/img/landing/router-service.png') }}",
-            imageText: "WiFi • Router • Modem<br>Bereik • Snelheid • Verbinding",
-            problems: ["Geen internetverbinding","Trage internetverbinding","WiFi valt steeds weg","Slecht WiFi bereik","Router of modem instellen","Apparaten verbinden met WiFi","WiFi netwerk beveiligen","Internet storing onderzoeken"]
-        },
-        network: {
-            title: "Netwerkproblemen?",
-            image: "{{ asset('assets/img/landing/network-service.png') }}",
-            imageText: "Netwerk • Bekabeling • Apparaten<br>Router • Delen • Verbinden",
-            problems: ["Thuisnetwerk installeren","Computers met elkaar verbinden","Netwerkschijven instellen","Bekabeld netwerk installeren","Netwerkapparaten configureren","NAS of gedeelde opslag instellen","Netwerkproblemen onderzoeken","Draadloze verbinding optimaliseren"]
-        },
-        email: {
-            title: "Problemen met e-mail?",
-            image: "{{ asset('assets/img/landing/email-service.png') }}",
-            imageText: "Outlook • Gmail • Accounts<br>Synchronisatie • Verzenden • Ontvangen",
-            problems: ["E-mailaccount instellen","E-mail werkt niet meer","Kan geen berichten verzenden","Kan geen berichten ontvangen","Outlook problemen","Wachtwoord of account herstellen","Synchronisatie problemen","E-mail overzetten naar nieuw apparaat"]
-        },
-        cloud: {
-            title: "Accounts & Cloud problemen?",
-            image: "{{ asset('assets/img/landing/cloud-service.png') }}",
-            imageText: "Microsoft • Google • OneDrive<br>Accounts • Cloud • Synchronisatie",
-            problems: ["Microsoft account problemen","Google account instellen","OneDrive werkt niet","Cloud synchronisatie herstellen","Bestanden synchroniseren","Account herstellen","Cloud opslag instellen","Bestanden overzetten"]
-        },
-        security: {
-            title: "Computerbeveiliging nodig?",
-            image: "{{ asset('assets/img/landing/security-service.png') }}",
-            imageText: "Malware • Virussen • Privacy<br>Beveiliging • Controle • Opschonen",
-            problems: ["Virussen verwijderen","Malware verwijderen","Ongewenste programma's verwijderen","Computer beveiligen","Browser beveiliging","Privacy instellingen controleren","Beveiligingssoftware installeren","Verdachte meldingen onderzoeken"]
-        },
-        devices: {
-            title: "Problemen met randapparatuur?",
-            image: "{{ asset('assets/img/landing/devices-service.png') }}",
-            imageText: "Toetsenbord • Muis • Webcam<br>Monitor • USB • Bluetooth",
-            problems: ["Toetsenbord werkt niet","Muis werkt niet","Webcam instellen","Monitor aansluiten","USB apparaten werken niet","Bluetooth problemen","Externe schijf aansluiten","Randapparatuur installeren"]
-        },
-        other: {
-            title: "Staat jouw probleem er niet tussen?",
-            image: "{{ asset('assets/img/landing/other-it-service.png') }}",
-            imageText: "Vertel ons wat er speelt.<br>Wij zoeken samen naar een oplossing.",
-            problems: ["Onbekende foutmelding","Computer werkt niet goed","Probleem na een update","Apparaat werkt niet zoals verwacht","Software of hardware conflict","Hulp bij instellingen","Technisch advies nodig","Ander IT-probleem"]
+    @php
+        $jsServices = [];
+        foreach ($normTabs as $t) {
+            $jsServices[$t['key']] = [
+                'title' => $t['detail_title'],
+                'image' => $t['image'],
+                'imageText' => str_replace("\n", '<br>', (string) $t['imageText']),
+                'problems' => array_values($t['problems']),
+            ];
         }
-    };
+    @endphp
+    const softwareServices = @json($jsServices);
     document.querySelectorAll('.service-tab').forEach(tab => {
         tab.addEventListener('click', () => {
             const svc = softwareServices[tab.dataset.service];

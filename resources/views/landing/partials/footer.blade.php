@@ -79,7 +79,7 @@
                 <p class="
                         mt-6 max-w-[300px]
                         text-sm leading-7
-                        text-slate-600
+                        font-medium text-[#111111]
                     ">
                     {{ $c['footer']['brand_about'] ?? '' }}
                 </p>

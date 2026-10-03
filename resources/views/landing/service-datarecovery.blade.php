@@ -232,7 +232,9 @@
                     ] as $cs)
                         <article class="case-card border border-gray-200 rounded-xl bg-white shadow-card overflow-hidden">
                             <div class="grid grid-cols-[.95fr_1.05fr]">
-                                <img src="{{ asset('assets/img/landing/' . basename($cs['image'] ?? '')) }}" class="w-full h-full object-cover min-h-[190px]" alt="{{ $cs['title'] ?? '' }}">
+                                <div class="flex min-h-[190px] w-full items-center justify-center overflow-hidden bg-[#f7fbff] p-3">
+                                    <img src="{{ asset('assets/img/landing/' . basename($cs['image'] ?? '')) }}" class="h-full w-full object-contain" alt="{{ $cs['title'] ?? '' }}" loading="lazy" decoding="async">
+                                </div>
                                 <div class="p-5">
                                     <div class="text-[#0b63e5] font-black text-[9px]">{{ $cs['badge'] ?? '' }}</div>
                                     <h3 class="font-black text-[17px] mt-2">{{ $cs['title'] ?? '' }}</h3>
@@ -269,9 +271,8 @@
                     </div>
 
                     <div id="aanvragen" class="relative overflow-hidden rounded-xl bg-gradient-to-r from-[#081b35] via-[#0c315a] to-[#091c33] min-h-[285px]">
-                        <div class="absolute right-0 top-0 bottom-0 w-[46%] max-lg:hidden">
-                            <img src="{{ asset($s['trust_cta_faq']['cta_image'] ?? 'assets/img/landing/e6cc3cb7-5aea-460d-a1a9-884318edc64a.png') }}" class="w-full h-full object-cover" alt="">
-                            <div class="absolute inset-0 bg-gradient-to-r from-[#0c315a] to-transparent"></div>
+                        <div class="absolute right-0 top-0 w-[46%] max-lg:hidden bg-transparent flex items-start justify-center p-6 pt-8 pointer-events-none">
+                            <img src="{{ asset($s['trust_cta_faq']['cta_image'] ?? 'assets/img/landing/e6cc3cb7-5aea-460d-a1a9-884318edc64a.png') }}" class="w-full max-h-[220px] object-contain object-top" alt="" loading="lazy" decoding="async">
                         </div>
                         <div class="relative z-10 text-white p-8 lg:p-9 max-w-[65%] max-lg:max-w-full">
                             <h2 class="font-black text-[29px] lg:text-[34px] leading-tight">
@@ -298,13 +299,13 @@
                             ['question' => 'Is mijn data veilig bij jullie?', 'answer' => 'Wij behandelen alle ontvangen gegevens vertrouwelijk.'],
                             ['question' => 'Wat als de data niet herstelbaar is?', 'answer' => 'Na onderzoek bespreken wij duidelijk de haalbaarheid en mogelijkheden.'],
                         ] as $fi)
-                            <div class="faq-item border-b last:border-0">
-                                <button class="faq-toggle w-full flex justify-between py-4 text-left text-[11px] font-semibold">
+                            <details class="group border-b last:border-0">
+                                <summary class="flex cursor-pointer list-none items-center justify-between gap-3 py-4 text-left text-[11px] font-semibold [&::-webkit-details-marker]:hidden">
                                     {{ $fi['question'] ?? '' }}
-                                    <span class="faq-plus text-xl text-[#0b63e5]">+</span>
-                                </button>
-                                <div class="faq-content"><p class="pb-4 text-gray-500 text-[10px] leading-5">{{ $fi['answer'] ?? '' }}</p></div>
-                            </div>
+                                    <span class="text-xl leading-none text-[#0b63e5] group-open:hidden">+</span><span class="hidden text-xl leading-none text-[#0b63e5] group-open:inline">−</span>
+                                </summary>
+                                <p class="pb-4 text-gray-500 text-[10px] leading-5">{{ $fi['answer'] ?? '' }}</p>
+                            </details>
                         @endforeach
                     </div>
 
@@ -342,14 +343,4 @@
     @include('landing.partials.footer')
     @include('landing.partials.floating')
     @include('landing.partials.ai-chat')
-
-    <script>
-    document.querySelectorAll('.faq-toggle').forEach(button => {
-        button.addEventListener('click', function () {
-            const item = this.closest('.faq-item');
-            document.querySelectorAll('.faq-item').forEach(other => { if (other !== item) other.classList.remove('active'); });
-            item.classList.toggle('active');
-        });
-    });
-    </script>
 @endsection
