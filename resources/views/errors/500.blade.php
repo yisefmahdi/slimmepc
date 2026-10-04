@@ -11,15 +11,10 @@
             <div class="w-full max-w-xl rounded-[28px] border border-blue-100/80 bg-white/80 px-6 py-10 text-center shadow-[0_25px_80px_rgba(37,99,235,.13)] backdrop-blur-xl sm:px-10 sm:py-12">
 
                 <a href="{{ url('/') }}" class="inline-flex flex-col items-center gap-3">
-                    @if (!empty($c['header']['logo_image'] ?? null))
-                        <img src="{{ asset($c['header']['logo_image']) }}"
-                             alt="{{ $c['header']['logo_text'] ?? 'Slimme-PC' }}"
-                             class="h-20 w-20 rounded-2xl bg-white object-contain p-2 shadow-lg shadow-blue-500/20 ring-1 ring-blue-100">
-                    @else
-                        <span class="flex h-20 w-20 items-center justify-center rounded-2xl bg-brand-gradient-br text-3xl font-black text-white shadow-lg shadow-blue-500/20">
-                            {{ mb_strtoupper(mb_substr($c['header']['logo_text'] ?? 'S', 0, 1)) }}
-                        </span>
-                    @endif
+                    {{-- Officieel logo — zelfde variabele + fallback als de header --}}
+                    <img src="{{ asset($c['header']['logo_image'] ?? 'assets/img/landing/logo.webp') }}"
+                         alt="{{ $c['header']['logo_text'] ?? 'Slimme-PC' }}"
+                         class="h-20 w-20 rounded-2xl bg-white object-contain p-2 shadow-lg shadow-blue-500/20 ring-1 ring-blue-100">
                     <span>
                         <span class="block text-lg font-extrabold tracking-tight text-brand-heading">
                             {{ $c['header']['logo_text'] ?? 'SLIMME-PC' }}

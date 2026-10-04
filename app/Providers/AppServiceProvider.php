@@ -74,7 +74,10 @@ class AppServiceProvider extends ServiceProvider
         // Error pages (errors.404/403/419/500/503) use the same landing design system
         // (landing.layouts.app + header/footer) so they need the same $c/$design data.
         // Wrapped in try/catch so an error page never throws a second error (e.g. DB down on 500).
-        View::composer('errors.*', function ($view) {
+        // NOTE: Laravel's exception handler resolves error views via the `errors::` namespace
+        // (view name `errors::404`), NOT `errors.404` — so the composer must listen on BOTH
+        // patterns or $c/$design stay empty on real HTTP errors (header nav + footer go blank).
+        View::composer(['errors::*', 'errors.*'], function ($view) {
             try {
                 $c = Cms::page('home');
             } catch (\Throwable $e) {

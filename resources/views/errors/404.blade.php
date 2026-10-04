@@ -13,15 +13,10 @@
 
                 {{-- Logo (zelfde variabele als header) --}}
                 <a href="{{ url('/') }}" class="inline-flex flex-col items-center gap-3">
-                    @if (!empty($c['header']['logo_image'] ?? null))
-                        <img src="{{ asset($c['header']['logo_image']) }}"
-                             alt="{{ $c['header']['logo_text'] ?? 'Slimme-PC' }}"
-                             class="h-20 w-20 rounded-2xl bg-white object-contain p-2 shadow-lg shadow-blue-500/20 ring-1 ring-blue-100">
-                    @else
-                        <span class="flex h-20 w-20 items-center justify-center rounded-2xl bg-brand-gradient-br text-3xl font-black text-white shadow-lg shadow-blue-500/20">
-                            {{ mb_strtoupper(mb_substr($c['header']['logo_text'] ?? 'S', 0, 1)) }}
-                        </span>
-                    @endif
+                    {{-- Officieel logo — zelfde variabele + fallback als de header --}}
+                    <img src="{{ asset($c['header']['logo_image'] ?? 'assets/img/landing/logo.webp') }}"
+                         alt="{{ $c['header']['logo_text'] ?? 'Slimme-PC' }}"
+                         class="h-20 w-20 rounded-2xl bg-white object-contain p-2 shadow-lg shadow-blue-500/20 ring-1 ring-blue-100">
                     <span>
                         <span class="block text-lg font-extrabold tracking-tight text-brand-heading">
                             {{ $c['header']['logo_text'] ?? 'SLIMME-PC' }}
