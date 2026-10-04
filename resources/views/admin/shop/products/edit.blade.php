@@ -361,7 +361,7 @@
                         <x-input-label>Kleuren</x-input-label>
                         <div id="colors-container" class="space-y-2">
                             @php
-                                $colorNames = ['zwart'=>'#000000','wit'=>'#FFFFFF','zilver'=>'#C0C0C0','grijs'=>'#808080','antraciet'=>'#2F3640','blauw'=>'#1D4ED8','rood'=>'#DC2626','groen'=>'#16A34A','geel'=>'#EAB308','oranje'=>'#EA580C','paars'=>'#9333EA','roze'=>'#EC4899','bruin'=>'#78350F','goud'=>'#C9A227','beige'=>'#E8DCC4'];
+                                $colorNames = ['zwart'=>'#000000','black'=>'#000000','wit'=>'#FFFFFF','white'=>'#FFFFFF','zilver'=>'#C0C0C0','silver'=>'#C0C0C0','grijs'=>'#808080','gray'=>'#808080','grey'=>'#808080','antraciet'=>'#2F3640','blauw'=>'#1D4ED8','blue'=>'#1D4ED8','rood'=>'#DC2626','red'=>'#DC2626','groen'=>'#16A34A','green'=>'#16A34A','geel'=>'#EAB308','yellow'=>'#EAB308','oranje'=>'#EA580C','orange'=>'#EA580C','paars'=>'#9333EA','purple'=>'#9333EA','roze'=>'#EC4899','pink'=>'#EC4899','bruin'=>'#78350F','brown'=>'#78350F','goud'=>'#C9A227','gold'=>'#C9A227','beige'=>'#E8DCC4']; 
                                 $colors = old('colors', $product->colors ?? ['']); if(empty(array_filter((array)$colors))) $colors=[''];
                                 $toHex = function($v) use ($colorNames) { $v = trim((string)$v); if (preg_match('/^#[0-9a-fA-F]{6}$/', $v)) return strtoupper($v); return $colorNames[mb_strtolower($v)] ?? '#000000'; };
                             @endphp
