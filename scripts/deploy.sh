@@ -61,6 +61,10 @@ fi
 php artisan migrate --force >> "$LOG_FILE" 2>&1 \
   && log "migrate ok" || log "migrate FAILED"
 
+# Sitemap verversen met de APP_URL van de server (canonieke absolute URL's voor Google).
+php artisan sitemap:generate >> "$LOG_FILE" 2>&1 \
+  && log "sitemap ok" || log "sitemap FAILED"
+
 php artisan optimize:clear >> "$LOG_FILE" 2>&1 \
   && log "cache clear ok" || log "cache clear FAILED"
 

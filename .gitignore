@@ -16,6 +16,8 @@
 /public/build
 /public/hot
 /public/storage
+# Gegenereerd per omgeving via `php artisan sitemap:generate` (bevat absolute URL's o.b.v. APP_URL).
+/public/sitemap.xml
 /storage/*.key
 /storage/pail
 /vendor

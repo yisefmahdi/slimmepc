@@ -1,3 +1,20 @@
 User-agent: *
-Disallow:
+Allow: /
 
+# Privepagina's niet indexeren (winkelwagen, checkout, betalingen, accounts)
+Disallow: /cart
+Disallow: /checkout
+Disallow: /payment/
+Disallow: /technician/
+Disallow: /betaal/
+Disallow: /lid-worden/success
+Disallow: /lid-worden/failed
+Disallow: /lid-worden/return
+Disallow: /mijn-bestellingen
+Disallow: /profile
+Disallow: /wishlist
+Disallow: /track
+Disallow: /zoeken
+Disallow: /ai-chat/
+
+Sitemap: https://slimme-pc.nl/sitemap.xml

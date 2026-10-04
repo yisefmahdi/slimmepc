@@ -12,6 +12,7 @@ use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RepairController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\TrackingController;
 use App\Http\Controllers\VideoStreamController;
 use App\Http\Controllers\WebshopController;
@@ -40,6 +41,9 @@ Route::get('/firebase-messaging-sw.js', function () {
 })->name('firebase.sw');
 
 Route::get('/', [PageController::class, 'home'])->name('home');
+
+// SEO: dynamische sitemap voor Google (statisch bestand via `php artisan sitemap:generate`)
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 Route::get('/tarieven', [PageController::class, 'tarieven'])->name('tarieven');
 
