@@ -17,4 +17,4 @@ Disallow: /track
 Disallow: /zoeken
 Disallow: /ai-chat/
 
-Sitemap: https://slimme-pc.nl/sitemap.xml
+Sitemap: https://slimmepc.kulshy.online/sitemap.xml
