@@ -32,7 +32,7 @@ class AppServiceProvider extends ServiceProvider
             $categories = Cache::remember('webshop.header.categories', 3600, function () {
                 return Category::where('status', true)
                     ->orderBy('sort_order')
-                    ->orderBy('name')
+                    ->orderBy('id')
                     ->get(['id', 'name', 'slug', 'icon', 'description', 'image', 'sort_order']);
             });
             $view->with('webshopCategories', $categories);
@@ -43,7 +43,7 @@ class AppServiceProvider extends ServiceProvider
             $categories = Cache::remember('webshop.header.categories', 3600, function () {
                 return Category::where('status', true)
                     ->orderBy('sort_order')
-                    ->orderBy('name')
+                    ->orderBy('id')
                     ->get(['id', 'name', 'slug', 'icon', 'description', 'image', 'sort_order']);
             });
             $view->with('webshopCategories', $categories);

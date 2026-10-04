@@ -18,7 +18,7 @@ class WebshopController extends Controller
         // All active categories for chips + header (ordered)
         $allCategories = Category::where('status', true)
             ->orderBy('sort_order')
-            ->orderBy('name')
+            ->orderBy('id')
             ->get();
 
         $currentCategory = Category::where('slug', $slug)
@@ -191,7 +191,7 @@ class WebshopController extends Controller
 
         $allCategories = Category::where('status', true)
             ->orderBy('sort_order')
-            ->orderBy('name')
+            ->orderBy('id')
             ->get();
 
         $searchQuery = trim((string) $request->query('q', ''));
@@ -284,7 +284,7 @@ class WebshopController extends Controller
         // All active categories for header chips
         $allCategories = Category::where('status', true)
             ->orderBy('sort_order')
-            ->orderBy('name')
+            ->orderBy('id')
             ->get();
 
         // Related / accessories — same category, exclude current

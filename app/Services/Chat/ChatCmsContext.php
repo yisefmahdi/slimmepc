@@ -88,7 +88,7 @@ class ChatCmsContext
         }
 
         try {
-            $cats = Category::where('status', true)->orderBy('sort_order')->orderBy('name')->get(['name', 'slug']);
+            $cats = Category::where('status', true)->orderBy('sort_order')->orderBy('id')->get(['name', 'slug']);
             if ($cats->isNotEmpty()) {
                 $parts[] = 'Webshop-categorieën: '.$cats->map(fn ($c) => $c->name.' ('.url('/webshop/'.$c->slug).')')->implode(', ');
             }

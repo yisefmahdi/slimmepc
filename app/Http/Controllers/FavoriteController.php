@@ -38,7 +38,7 @@ class FavoriteController extends Controller
         );
 
         $favoriteIds = $products->pluck('id')->all();
-        $categories = Category::where('status', true)->orderBy('sort_order')->get();
+        $categories = Category::where('status', true)->orderBy('sort_order')->orderBy('id')->get();
 
         return view('landing.wishlist', compact('c', 'design', 'products', 'favoriteIds', 'categories'));
     }
