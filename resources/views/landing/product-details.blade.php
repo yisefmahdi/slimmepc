@@ -272,6 +272,26 @@
                         @endif
                     </div>
                     <div class="text-[11px] text-slate-400 mt-2">Inclusief btw</div>
+                    @php
+                        $colorNamesPd = ['zwart'=>'#000000','wit'=>'#FFFFFF','zilver'=>'#C0C0C0','grijs'=>'#808080','antraciet'=>'#2F3640','blauw'=>'#1D4ED8','rood'=>'#DC2626','groen'=>'#16A34A','geel'=>'#EAB308','oranje'=>'#EA580C','paars'=>'#9333EA','roze'=>'#EC4899','bruin'=>'#78350F','goud'=>'#C9A227','beige'=>'#E8DCC4'];
+                        $displayColors = [];
+                        foreach ((array)($product->colors ?? []) as $cc) {
+                            $cc = trim((string)$cc);
+                            if ($cc === '') continue;
+                            if (preg_match('/^#[0-9a-fA-F]{6}$/', $cc)) { $displayColors[] = ['hex'=>strtoupper($cc),'label'=>strtoupper($cc)]; }
+                            else { $k = mb_strtolower($cc); $displayColors[] = ['hex'=>($colorNamesPd[$k] ?? '#9AA5B1'),'label'=>$cc]; }
+                        }
+                    @endphp
+                    @if(!empty($displayColors))
+                    <div class="mt-4">
+                        <div class="text-[12px] font-bold text-[#071638]">Kleur{{ count($displayColors) > 1 ? 'en' : '' }}</div>
+                        <div class="flex items-center gap-2 mt-2">
+                            @foreach($displayColors as $dc)
+                                <span title="{{ $dc['label'] }}" class="w-7 h-7 rounded-full border border-slate-300 shadow-inner cursor-default" style="background-color: {{ $dc['hex'] }}"></span>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
                     @if($product->sku)<div class="text-[11px] text-slate-400">SKU: {{ $product->sku }}</div>@endif
                 </div>
                 <div class="mt-6 bg-gradient-to-r from-emerald-50/80 via-white to-white border border-emerald-100 rounded-xl px-4 py-3.5">
