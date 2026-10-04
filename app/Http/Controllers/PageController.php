@@ -272,9 +272,12 @@ class PageController extends Controller
         // would serve guests a stale _token and every submit would fail with 419.
         $c = Cms::page('home');
         $s = Cms::page('reparatie');
+        // Winkeladres (o.a. "Ik breng het apparaat naar de winkel") komt van de
+        // contactpagina (single source of truth: contact.gegevens.address).
+        $p = Cms::page('contact');
         $design = Cms::design();
 
-        $html = view('landing.service-reparatie', compact('c', 's', 'design'))->render();
+        $html = view('landing.service-reparatie', compact('c', 's', 'p', 'design'))->render();
 
         return response($html)
             ->header('Content-Type', 'text/html; charset=UTF-8')

@@ -71,6 +71,23 @@ class AppServiceProvider extends ServiceProvider
             $view->with('wishlistCount', $count);
         });
 
+        // Error pages (errors.404/403/419/500/503) use the same landing design system
+        // (landing.layouts.app + header/footer) so they need the same $c/$design data.
+        // Wrapped in try/catch so an error page never throws a second error (e.g. DB down on 500).
+        View::composer('errors.*', function ($view) {
+            try {
+                $c = Cms::page('home');
+            } catch (\Throwable $e) {
+                $c = [];
+            }
+            try {
+                $design = Cms::design();
+            } catch (\Throwable $e) {
+                $design = [];
+            }
+            $view->with('c', $c)->with('design', $design);
+        });
+
         // Share CMS company data (logo, contact, copyright) with all email views —
         // same source as the website header/footer, so admin CMS edits update emails too
         View::composer('emails.*', function ($view) {

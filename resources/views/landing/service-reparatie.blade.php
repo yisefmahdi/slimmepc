@@ -535,7 +535,14 @@
                                             <i data-lucide="store" class="mt-0.5 h-5 w-5 text-slimme-600"></i>
                                             <span>
                                                 <span class="block text-sm font-bold">Ik breng het apparaat naar de winkel</span>
-                                                <span class="mt-0.5 block text-xs text-slate-500">Mheenvelden 40D, Apeldoorn</span>
+                                                @php
+                                                    // Winkeladres van de contactpagina (contact.gegevens.address) — één bron voor het hele site.
+                                                    $shopAddressRaw = $p['gegevens']['address'] ?? '';
+                                                    $shopAddress = trim(preg_replace('/\s*[\r\n]+\s*/', ', ', (string) $shopAddressRaw));
+                                                    $shopAddress = trim(preg_replace('/,[,\s]+/', ', ', $shopAddress), " \t\n\r\0\x0B,");
+                                                    if ($shopAddress === '') $shopAddress = 'Mheenvelden 40D, Apeldoorn';
+                                                @endphp
+                                                <span class="mt-0.5 block text-xs text-slate-500">{{ $shopAddress }}</span>
                                             </span>
                                         </label>
                                     </div>
