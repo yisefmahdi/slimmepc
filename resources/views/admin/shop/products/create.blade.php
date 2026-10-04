@@ -326,12 +326,17 @@
                     <div>
                         <x-input-label>Kleuren</x-input-label>
                         <div id="colors-container" class="space-y-2">
-                            @php $colors = old('colors', ['']); @endphp
-                            @foreach($colors as $c)
-                                <div class="flex gap-2"><input type="text" name="colors[]" value="{{ $c }}" placeholder="Bijv. Zwart" class="form-input h-10 flex-1 text-sm" style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading)"><button type="button" onclick="this.parentElement.remove()" class="rounded-lg border p-2 text-red-500 hover:bg-red-50"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+                            @php
+                                $colorNames = ['zwart'=>'#000000','wit'=>'#FFFFFF','zilver'=>'#C0C0C0','grijs'=>'#808080','antraciet'=>'#2F3640','blauw'=>'#1D4ED8','rood'=>'#DC2626','groen'=>'#16A34A','geel'=>'#EAB308','oranje'=>'#EA580C','paars'=>'#9333EA','roze'=>'#EC4899','bruin'=>'#78350F','goud'=>'#C9A227','beige'=>'#E8DCC4'];
+                                $colors = old('colors', ['']); if(empty(array_filter((array)$colors))) $colors=[''];
+                                $toHex = function($v) use ($colorNames) { $v = trim((string)$v); if (preg_match('/^#[0-9a-fA-F]{6}$/', $v)) return strtoupper($v); return $colorNames[mb_strtolower($v)] ?? '#000000'; };
+                            @endphp
+                            @foreach((array)$colors as $c)
+                                @php $hex = $toHex($c); @endphp
+                                <div class="flex items-center gap-2"><input type="color" name="colors[]" value="{{ $hex }}" class="h-10 w-14 shrink-0 cursor-pointer rounded-lg border bg-white p-1" style="border-color: var(--c-input-border)" oninput="this.parentElement.querySelector('[data-hex]').value = this.value.toUpperCase()"><input type="text" value="{{ $hex }}" readonly tabindex="-1" data-hex class="form-input h-10 flex-1 text-sm" style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: uppercase;"><button type="button" onclick="this.parentElement.remove()" class="rounded-lg border p-2 text-red-500 hover:bg-red-50"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
                             @endforeach
                         </div>
-                        <button type="button" onclick="addField('colors-container','colors')" class="mt-2 inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-600 hover:bg-blue-100">+ Kleur toevoegen</button>
+                        <button type="button" onclick="addColorRow()" class="mt-2 inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-600 hover:bg-blue-100">+ Kleur toevoegen</button>
                     </div>
                     <div>
                         <x-input-label>Maten</x-input-label>
@@ -381,6 +386,13 @@
             const div = document.createElement('div');
             div.className = 'flex gap-2';
             div.innerHTML = `<input type="text" name="${name}[]" placeholder="Waarde" class="form-input h-10 flex-1 text-sm" style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading)"><button type="button" onclick="this.parentElement.remove()" class="rounded-lg border p-2 text-red-500 hover:bg-red-50"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>`;
+            container.appendChild(div);
+        }
+        function addColorRow() {
+            const container = document.getElementById('colors-container');
+            const div = document.createElement('div');
+            div.className = 'flex items-center gap-2';
+            div.innerHTML = `<input type="color" name="colors[]" value="#000000" class="h-10 w-14 shrink-0 cursor-pointer rounded-lg border bg-white p-1" style="border-color: var(--c-input-border)" oninput="this.parentElement.querySelector('[data-hex]').value = this.value.toUpperCase()"><input type="text" value="#000000" readonly tabindex="-1" data-hex class="form-input h-10 flex-1 text-sm" style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: uppercase;"><button type="button" onclick="this.parentElement.remove()" class="rounded-lg border p-2 text-red-500 hover:bg-red-50"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>`;
             container.appendChild(div);
         }
         function addFeatureRow() {

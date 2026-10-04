@@ -163,7 +163,8 @@ class ProductController extends Controller
             ];
         }, (array)$rawHighlights)));
 
-        $data['colors'] = array_values(array_filter($request->input('colors', [])));
+        // Colors are hex-only (#RRGGBB from <input type="color">) — drop anything else silently
+        $data['colors'] = array_values(array_filter(array_map(fn ($v) => strtoupper(trim((string) $v)), (array) $request->input('colors', [])), fn ($v) => (bool) preg_match('/^#[0-9A-F]{6}$/', $v)));
         $data['sizes'] = array_values(array_filter($request->input('sizes', [])));
 
         if ($request->hasFile('main_image')) {
@@ -266,7 +267,8 @@ class ProductController extends Controller
             if ($t === '') return null;
             return ['icon' => trim($h['icon'] ?? ''), 'title' => $t, 'subtitle' => trim($h['subtitle'] ?? '')];
         }, (array)$rawHighlights)));
-        $data['colors'] = array_values(array_filter($request->input('colors', [])));
+        // Colors are hex-only (#RRGGBB from <input type="color">) — drop anything else silently
+        $data['colors'] = array_values(array_filter(array_map(fn ($v) => strtoupper(trim((string) $v)), (array) $request->input('colors', [])), fn ($v) => (bool) preg_match('/^#[0-9A-F]{6}$/', $v)));
         $data['sizes'] = array_values(array_filter($request->input('sizes', [])));
 
         if ($request->boolean('remove_main_image')) {
