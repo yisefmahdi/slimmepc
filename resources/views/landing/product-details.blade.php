@@ -283,7 +283,7 @@
                         }
                     @endphp
                     @if(!empty($displayColors))
-                    <div class="mt-4">
+                    <div class="mt-4 mb-3">
                         <div class="text-[12px] font-bold text-[#071638]">Kleur{{ count($displayColors) > 1 ? 'en' : '' }}</div>
                         <div class="flex items-center gap-2 mt-2">
                             @foreach($displayColors as $dc)
