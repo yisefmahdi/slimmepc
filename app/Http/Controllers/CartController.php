@@ -15,6 +15,8 @@ class CartController extends Controller
     public function index(Request $request)
     {
         $c = Cms::page('home');
+        // Productinfo (levering & garantie) — same source as the product page
+        $pi = Cms::page('productinfo');
         $design = Cms::design();
 
         $cart = $this->cartService->resolveCart($request);
@@ -27,7 +29,7 @@ class CartController extends Controller
             ->inRandomOrder()->first();
 
         // Queue cookie if newly created for guest
-        $response = response()->view('landing.cart', compact('c', 'design', 'cart', 'totals', 'upsell'));
+        $response = response()->view('landing.cart', compact('c', 'design', 'cart', 'totals', 'upsell', 'pi'));
         if (!$request->user() && $cart->cart_token) {
             $response->withCookie(Cookie::forever(CartService::COOKIE_NAME, $cart->cart_token));
         }

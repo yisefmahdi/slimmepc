@@ -2165,6 +2165,50 @@ return [
                 ],
             ],
         ]],
+        'productinfo' => ['label' => 'Productinfo (levering & garantie)', 'sections' => [
+            'info' => [
+                'label' => 'Levering & garantie (productpagina + winkelwagen)',
+                'blocks' => [
+                    'trust_items' => [
+                        'label' => 'Vertrouwensrij (3 kolommen onder de bestelknop)',
+                        'type' => 'json',
+                        'columns' => 1,
+                        'fields' => [
+                            ['key' => 'icon', 'label' => 'Pictogram (FontAwesome class, bijv. fa-solid fa-lock)', 'type' => 'text'],
+                            ['key' => 'label', 'label' => 'Tekst', 'type' => 'text'],
+                        ],
+                    ],
+                    'warranty_tab_title' => ['label' => 'Tabblad titel (Levering & garantie)', 'type' => 'text'],
+                    'warranty_items' => [
+                        'label' => 'Tabblad punten (checklijst)',
+                        'type' => 'json',
+                        'columns' => 1,
+                        'fields' => [
+                            ['key' => 'label', 'label' => 'Tekst', 'type' => 'text'],
+                        ],
+                    ],
+                    'snel_title' => ['label' => 'Donkere kaart titel (Snel in huis)', 'type' => 'text'],
+                    'snel_subtitle' => ['label' => 'Donkere kaart ondertitel', 'type' => 'textarea'],
+                    'snel_items' => [
+                        'label' => 'Donkere kaart punten (ook de 3 checks in de winkelwagen)',
+                        'type' => 'json',
+                        'columns' => 1,
+                        'fields' => [
+                            ['key' => 'label', 'label' => 'Tekst', 'type' => 'text'],
+                        ],
+                    ],
+                    'cart_trust' => [
+                        'label' => 'Winkelwagen vertrouwensbalk (4 kaarten, vaste pictogrammen)',
+                        'type' => 'json',
+                        'columns' => 1,
+                        'fields' => [
+                            ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                            ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                        ],
+                    ],
+                ],
+            ],
+        ]],
     ],
 
     /*

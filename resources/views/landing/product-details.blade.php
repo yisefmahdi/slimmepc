@@ -343,10 +343,19 @@
                         </button>
                     @endif
                 </div>
+                @php
+                    $piInfo = $pi['info'] ?? [];
+                    $trustItems = $piInfo['trust_items'] ?? [];
+                    if (empty($trustItems)) $trustItems = [
+                        ['icon' => 'fa-regular fa-circle-check', 'label' => '2 jaar garantie'],
+                        ['icon' => 'fa-solid fa-location-dot', 'label' => 'Afhalen Apeldoorn'],
+                        ['icon' => 'fa-solid fa-lock', 'label' => 'Veilig betalen'],
+                    ];
+                @endphp
                 <div class="grid grid-cols-3 gap-3 mt-6 pt-5 border-t border-slate-200">
-                    <div class="text-center"><i class="fa-regular fa-circle-check text-emerald-500"></i><div class="text-[11px] font-medium mt-2">2 jaar garantie</div></div>
-                    <div class="text-center border-x border-slate-100"><i class="fa-solid fa-location-dot text-slimme-500"></i><div class="text-[11px] font-medium mt-2">Afhalen Apeldoorn</div></div>
-                    <div class="text-center"><i class="fa-solid fa-lock text-slimme-500"></i><div class="text-[11px] font-medium mt-2">Veilig betalen</div></div>
+                    @foreach(array_slice($trustItems, 0, 3) as $i => $ti)
+                        <div class="text-center @if($i === 1) border-x border-slate-100 @endif"><i class="{{ $ti['icon'] ?? 'fa-solid fa-circle-check' }} {{ $i === 0 ? 'text-emerald-500' : 'text-slimme-500' }}"></i><div class="text-[11px] font-medium mt-2">{{ $ti['label'] ?? '' }}</div></div>
+                    @endforeach
                 </div>
             </div>
         </section>
@@ -355,7 +364,7 @@
             <div class="bg-white border border-slate-200 rounded-[20px] overflow-hidden shadow-soft">
                 <div class="grid grid-cols-2 border-b border-slate-100">
                     <button type="button" onclick="openTab('about',this)" class="tab-btn active py-5 text-[12px] font-semibold">Over dit product</button>
-                    <button type="button" onclick="openTab('tabWarranty',this)" class="tab-btn py-5 text-[12px] font-semibold text-slate-500">Levering & garantie</button>
+                    <button type="button" onclick="openTab('tabWarranty',this)" class="tab-btn py-5 text-[12px] font-semibold text-slate-500">{{ $piInfo['warranty_tab_title'] ?? 'Levering & garantie' }}</button>
                 </div>
                 <div id="about" class="tab-content p-6 lg:p-8">
                     @if(!empty($product->description))
@@ -394,9 +403,13 @@
                 </div>
                 <div id="tabWarranty" class="tab-content hidden p-6 lg:p-8">
                     <div class="space-y-4 text-[13px]">
-                        <p><i class="fa-solid fa-circle-check text-emerald-500 mr-2"></i> Gratis verzending vanaf €75</p>
-                        <p><i class="fa-solid fa-circle-check text-emerald-500 mr-2"></i> Afhalen bij Slimme-PC in Apeldoorn mogelijk</p>
-                        <p><i class="fa-solid fa-circle-check text-emerald-500 mr-2"></i> 2 jaar garantie</p>
+                        @php
+                            $warrantyItems = $piInfo['warranty_items'] ?? [];
+                            if (empty($warrantyItems)) $warrantyItems = [['label' => 'Gratis verzending vanaf €75'], ['label' => 'Afhalen bij Slimme-PC in Apeldoorn mogelijk'], ['label' => '2 jaar garantie']];
+                        @endphp
+                        @foreach($warrantyItems as $wi)
+                            <p><i class="fa-solid fa-circle-check text-emerald-500 mr-2"></i> {{ is_array($wi) ? ($wi['label'] ?? '') : $wi }}</p>
+                        @endforeach
                     </div>
                 </div>
             </div>
@@ -404,13 +417,16 @@
                 <div class="absolute w-[180px] h-[180px] bg-blue-400/10 rounded-full -right-20 -top-16"></div>
                 <div class="relative">
                     <div class="w-11 h-11 bg-white/10 rounded-xl flex items-center justify-center mb-5"><i class="fa-solid fa-truck-fast text-blue-300"></i></div>
-                    <h3 class="font-bold text-[16px]">Snel in huis</h3>
-                    <p class="text-[11px] text-blue-100/70 mt-2 leading-5">Bestel vandaag en wij zorgen dat jouw laptop zo snel mogelijk onderweg is.</p>
+                    <h3 class="font-bold text-[16px]">{{ $piInfo['snel_title'] ?? 'Snel in huis' }}</h3>
+                    <p class="text-[11px] text-blue-100/70 mt-2 leading-5">{{ $piInfo['snel_subtitle'] ?? 'Bestel vandaag en wij zorgen dat jouw laptop zo snel mogelijk onderweg is.' }}</p>
                     <div class="space-y-4 mt-6 text-[11px]">
-                        <div class="flex gap-3"><i class="fa-solid fa-check text-emerald-400 mt-[2px]"></i> Gratis verzending vanaf €75</div>
-                        <div class="flex gap-3"><i class="fa-solid fa-check text-emerald-400 mt-[2px]"></i> Afhalen in Apeldoorn</div>
-                        <div class="flex gap-3"><i class="fa-solid fa-check text-emerald-400 mt-[2px]"></i> 2 jaar garantie</div>
-                        <div class="flex gap-3"><i class="fa-solid fa-check text-emerald-400 mt-[2px]"></i> Veilig online betalen</div>
+                        @php
+                            $snelItems = $piInfo['snel_items'] ?? [];
+                            if (empty($snelItems)) $snelItems = [['label' => 'Gratis verzending vanaf €75'], ['label' => 'Afhalen in Apeldoorn'], ['label' => '2 jaar garantie'], ['label' => 'Veilig online betalen']];
+                        @endphp
+                        @foreach($snelItems as $si)
+                            <div class="flex gap-3"><i class="fa-solid fa-check text-emerald-400 mt-[2px]"></i> {{ is_array($si) ? ($si['label'] ?? '') : $si }}</div>
+                        @endforeach
                     </div>
                 </div>
             </aside>

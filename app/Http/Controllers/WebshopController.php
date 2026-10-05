@@ -269,6 +269,8 @@ class WebshopController extends Controller
     public function show(Request $request, string $categorySlug, string $productSlug)
     {
         $c = Cms::page('home');
+        // Productinfo (levering & garantie) — single source for product page + cart
+        $pi = Cms::page('productinfo');
         $design = Cms::design();
 
         $category = Category::where('slug', $categorySlug)
@@ -303,7 +305,7 @@ class WebshopController extends Controller
 
         // Nooit uit de browser-cache: prijzen/voorraad en pagina-JS moeten altijd vers zijn
         return response()
-            ->view('landing.product-details', compact('c', 'design', 'category', 'product', 'allCategories', 'relatedProducts', 'favoriteIds', 'isFavorite'))
+            ->view('landing.product-details', compact('c', 'design', 'category', 'product', 'allCategories', 'relatedProducts', 'favoriteIds', 'isFavorite', 'pi'))
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate')
             ->header('Pragma', 'no-cache');
     }

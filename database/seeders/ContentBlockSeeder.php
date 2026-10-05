@@ -269,6 +269,26 @@ class ContentBlockSeeder extends Seeder
             }
         }
 
+        $productinfo = require database_path('data/productinfo.php');
+
+        foreach ($productinfo as $section => $blocks) {
+            $sort = 0;
+
+            foreach ($blocks as $key => $value) {
+                $isJson = is_array($value);
+
+                ContentBlock::firstOrCreate(
+                    ['page' => 'productinfo', 'section' => $section, 'block_key' => $key],
+                    [
+                        'type' => $isJson ? 'json' : 'text',
+                        'value' => $isJson ? null : $value,
+                        'json_value' => $isJson ? $value : null,
+                        'sort_order' => $sort++,
+                    ]
+                );
+            }
+        }
+
         // Service detail pages (CMS-editable). First-or-create so admin edits are preserved on reseed.
         $laptop = [
             'hero' => [

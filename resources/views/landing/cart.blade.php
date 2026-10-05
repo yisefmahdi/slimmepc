@@ -261,10 +261,15 @@
                         <i data-lucide="arrow-right" class="w-[19px] h-[19px] transition-transform group-hover:translate-x-1"></i>
                     </button>
 
+                    @php
+                        $piInfo = $pi['info'] ?? [];
+                        $cartChecks = $piInfo['snel_items'] ?? [];
+                        if (empty($cartChecks)) $cartChecks = [['label' => 'Veilig betalen'], ['label' => '2 jaar garantie op al onze producten'], ['label' => 'Afhalen in Apeldoorn mogelijk']];
+                    @endphp
                     <div class="space-y-4 mt-7">
-                        <div class="flex items-center gap-3 text-[12px] text-[#354E78]"><i data-lucide="check" class="w-[16px] h-[16px] stroke-[2.5] text-[#059856]"></i> Veilig betalen</div>
-                        <div class="flex items-center gap-3 text-[12px] text-[#354E78]"><i data-lucide="check" class="w-[16px] h-[16px] stroke-[2.5] text-[#059856]"></i> 2 jaar garantie op al onze producten</div>
-                        <div class="flex items-center gap-3 text-[12px] text-[#354E78]"><i data-lucide="check" class="w-[16px] h-[16px] stroke-[2.5] text-[#059856]"></i> Afhalen in Apeldoorn mogelijk</div>
+                        @foreach($cartChecks as $cc)
+                            <div class="flex items-center gap-3 text-[12px] text-[#354E78]"><i data-lucide="check" class="w-[16px] h-[16px] stroke-[2.5] text-[#059856]"></i> {{ is_array($cc) ? ($cc['label'] ?? '') : $cc }}</div>
+                        @endforeach
                     </div>
 
                     <div class="h-px bg-[#DEE5EE] my-7"></div>
@@ -281,24 +286,24 @@
             @endif
 
             {{-- TRUST BAR --}}
+            @php
+                $cartTrust = $piInfo['cart_trust'] ?? [];
+                if (empty($cartTrust)) $cartTrust = [
+                    ['title' => 'Gratis verzending', 'subtitle' => 'vanaf €75'],
+                    ['title' => 'Afhalen in Apeldoorn', 'subtitle' => 'Binnen 24 uur klaar'],
+                    ['title' => '2 jaar garantie', 'subtitle' => 'Op al onze producten'],
+                    ['title' => 'Veilig betalen', 'subtitle' => 'iDEAL, Bancontact, PayPal'],
+                ];
+                $cartTrustIcons = ['truck', 'store', 'shield-check', 'wallet-cards'];
+            @endphp
             <div class="mt-8 sm:mt-10 rounded-[10px] bg-gradient-to-r from-[#F2F6FF] via-[#F8FAFF] to-[#F2F6FF] px-4 sm:px-6 py-5">
                 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 sm:gap-7">
-                    <div class="flex items-center gap-4">
-                        <div class="w-[50px] h-[50px] rounded-full bg-[#E2EBFF] flex items-center justify-center shrink-0"><i data-lucide="truck" class="w-[24px] h-[24px] text-[#0759F5]"></i></div>
-                        <div><h4 class="text-[13px] font-bold text-[#08193D]">Gratis verzending</h4><p class="text-[12px] text-[#41577D] mt-1">vanaf €75</p></div>
-                    </div>
-                    <div class="flex items-center gap-4 xl:border-l xl:border-[#DEE5EF] xl:pl-8">
-                        <div class="w-[50px] h-[50px] rounded-full bg-[#E2EBFF] flex items-center justify-center shrink-0"><i data-lucide="store" class="w-[24px] h-[24px] text-[#0759F5]"></i></div>
-                        <div><h4 class="text-[13px] font-bold text-[#08193D]">Afhalen in Apeldoorn</h4><p class="text-[12px] text-[#41577D] mt-1">Binnen 24 uur klaar</p></div>
-                    </div>
-                    <div class="flex items-center gap-4 xl:border-l xl:border-[#DEE5EF] xl:pl-8">
-                        <div class="w-[50px] h-[50px] rounded-full bg-[#E2EBFF] flex items-center justify-center shrink-0"><i data-lucide="shield-check" class="w-[24px] h-[24px] text-[#0759F5]"></i></div>
-                        <div><h4 class="text-[13px] font-bold text-[#08193D]">2 jaar garantie</h4><p class="text-[12px] text-[#41577D] mt-1">Op al onze producten</p></div>
-                    </div>
-                    <div class="flex items-center gap-4 xl:border-l xl:border-[#DEE5EF] xl:pl-8">
-                        <div class="w-[50px] h-[50px] rounded-full bg-[#E2EBFF] flex items-center justify-center shrink-0"><i data-lucide="wallet-cards" class="w-[24px] h-[24px] text-[#0759F5]"></i></div>
-                        <div><h4 class="text-[13px] font-bold text-[#08193D]">Veilig betalen</h4><p class="text-[12px] text-[#41577D] mt-1">iDEAL, Bancontact, PayPal</p></div>
-                    </div>
+                    @foreach(array_slice($cartTrust, 0, 4) as $i => $ct)
+                        <div class="flex items-center gap-4 @if($i > 0) xl:border-l xl:border-[#DEE5EF] xl:pl-8 @endif">
+                            <div class="w-[50px] h-[50px] rounded-full bg-[#E2EBFF] flex items-center justify-center shrink-0"><i data-lucide="{{ $cartTrustIcons[$i] ?? 'check' }}" class="w-[24px] h-[24px] text-[#0759F5]"></i></div>
+                            <div><h4 class="text-[13px] font-bold text-[#08193D]">{{ is_array($ct) ? ($ct['title'] ?? '') : $ct }}</h4><p class="text-[12px] text-[#41577D] mt-1">{{ is_array($ct) ? ($ct['subtitle'] ?? '') : '' }}</p></div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </section>

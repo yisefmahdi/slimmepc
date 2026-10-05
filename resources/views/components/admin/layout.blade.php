@@ -422,7 +422,7 @@
 
 
                 {{-- 🛒 Webshop Dropdown --}}
-                <div x-data="{ open: {{ request()->routeIs('admin.webshop.*') ? 'true' : 'false' }}, init() { if (localStorage.getItem('nav-webshop') !== null) { this.open = localStorage.getItem('nav-webshop') === '1'; } }, toggle() { this.open = !this.open; localStorage.setItem('nav-webshop', this.open ? '1' : '0'); } }" class="space-y-1">
+                <div x-data="{ open: {{ (request()->routeIs('admin.webshop.*') || (request()->routeIs('admin.content.section.edit') && request()->route('page') === 'productinfo')) ? 'true' : 'false' }}, init() { if (localStorage.getItem('nav-webshop') !== null) { this.open = localStorage.getItem('nav-webshop') === '1'; } }, toggle() { this.open = !this.open; localStorage.setItem('nav-webshop', this.open ? '1' : '0'); } }" class="space-y-1">
                     <button type="button" @click="toggle()"
                             class="group flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition duration-200 hover:bg-white/10 hover:text-white"
                             style="color: rgba(255,255,255,0.95)">
@@ -460,6 +460,10 @@
                         <a href="{{ route('admin.shipping.index') }}"
                            class="block rounded-lg px-3 py-2 transition {{ request()->routeIs('admin.shipping.*') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
                             Verzendopties
+                        </a>
+                        <a href="{{ route('admin.content.section.edit', ['page' => 'productinfo', 'section' => 'info']) }}"
+                           class="block rounded-lg px-3 py-2 transition {{ (request()->routeIs('admin.content.section.edit') && request()->route('page') === 'productinfo') ? 'bg-white/10 text-white font-bold shadow-sm' : 'text-blue-50 hover:bg-white/15 hover:text-white' }}">
+                            Productinfo
                         </a>
                     </div>
                 </div>
