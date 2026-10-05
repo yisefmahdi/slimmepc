@@ -135,9 +135,9 @@
                                 <div class="grid grid-cols-2 md:grid-cols-[minmax(0,1fr)_110px_150px_125px_48px] items-center gap-3 md:gap-2 px-4 sm:px-5 md:px-6 py-4 sm:py-5 border-b border-[#DFE6EF] last:border-0">
                                     {{-- PRODUCT INFO — full width on mobile --}}
                                     <div class="col-span-2 md:col-span-1 flex items-center gap-3 sm:gap-5 min-w-0">
-                                        <div class="w-[84px] h-[64px] sm:w-[96px] sm:h-[76px] md:w-[108px] md:h-[84px] rounded-[6px] bg-[#F3F5F8] overflow-hidden flex items-center justify-center shrink-0">
-                                            <a href="{{ $product ? route('webshop.product', [$product->category->slug, $product->slug]) : '#' }}">
-                                                <img src="{{ $imgSrc }}" alt="{{ $product->title ?? 'Product' }}" class="w-full h-full object-cover" onerror="this.src='{{ $placeholderSrc }}'">
+                                        <div class="w-[64px] h-[64px] sm:w-[76px] sm:h-[76px] md:w-[84px] md:h-[84px] rounded-[6px] bg-[#F3F5F8] overflow-hidden shrink-0">
+                                            <a href="{{ $product ? route('webshop.product', [$product->category->slug, $product->slug]) : '#' }}" class="flex h-full w-full items-center justify-center p-1.5">
+                                                <img src="{{ $imgSrc }}" alt="{{ $product->title ?? 'Product' }}" class="max-h-full max-w-full object-contain" loading="lazy" onerror="this.src='{{ $placeholderSrc }}'">
                                             </a>
                                         </div>
                                         <div class="min-w-0">
@@ -214,9 +214,9 @@
                                 <p class="text-[13px] leading-6 text-[#41577F] mt-1.5">Maak je setup compleet met deze populaire accessoires.</p>
                             </div>
                             <div class="flex flex-col sm:flex-row sm:items-center gap-4 lg:border-l lg:border-[#E3E8F0] lg:pl-7">
-                                <div class="w-full sm:w-[115px] h-[90px] border border-[#DDE4ED] rounded-[6px] bg-[#F6F8FA] overflow-hidden shrink-0 flex items-center justify-center">
-                                    <a href="{{ route('webshop.product', [$upsell->category->slug, $upsell->slug]) }}">
-                                        <img src="{{ $upsSrc }}" alt="{{ $upsell->title }}" class="w-full h-full object-cover" onerror="this.src='{{ $placeholderSrc }}'">
+                                <div class="w-full aspect-square sm:w-[115px] sm:aspect-auto sm:h-[115px] border border-[#DDE4ED] rounded-[6px] bg-[#F6F8FA] overflow-hidden shrink-0">
+                                    <a href="{{ route('webshop.product', [$upsell->category->slug, $upsell->slug]) }}" class="flex h-full w-full items-center justify-center p-2">
+                                        <img src="{{ $upsSrc }}" alt="{{ $upsell->title }}" class="max-h-full max-w-full object-contain" onerror="this.src='{{ $placeholderSrc }}'" loading="lazy">
                                     </a>
                                 </div>
                                 <div class="flex-1 min-w-0">
@@ -547,9 +547,9 @@
             <div id="product-${item.id}" class="product-row" data-price="${item.price_snapshot}">
                 <div class="grid grid-cols-2 md:grid-cols-[minmax(0,1fr)_110px_150px_125px_48px] items-center gap-3 md:gap-2 px-4 sm:px-5 md:px-6 py-4 sm:py-5 border-b border-[#DFE6EF] last:border-0">
                     <div class="col-span-2 md:col-span-1 flex items-center gap-3 sm:gap-5 min-w-0">
-                        <div class="w-[84px] h-[64px] sm:w-[96px] sm:h-[76px] md:w-[108px] md:h-[84px] rounded-[6px] bg-[#F3F5F8] overflow-hidden flex items-center justify-center shrink-0">
-                            <a href="/webshop/${product.category ? product.category.slug : 'laptops'}/${product.slug}">
-                                <img src="${img}" alt="${product.title}" class="w-full h-full object-cover" onerror="this.src='${placeholder}'">
+                        <div class="w-[64px] h-[64px] sm:w-[76px] sm:h-[76px] md:w-[84px] md:h-[84px] rounded-[6px] bg-[#F3F5F8] overflow-hidden shrink-0">
+                            <a href="/webshop/${product.category ? product.category.slug : 'laptops'}/${product.slug}" class="flex h-full w-full items-center justify-center p-1.5">
+                                <img src="${img}" alt="${product.title}" class="max-h-full max-w-full object-contain" loading="lazy" onerror="this.src='${placeholder}'">
                             </a>
                         </div>
                         <div class="min-w-0">

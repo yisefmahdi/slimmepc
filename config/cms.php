@@ -2174,7 +2174,7 @@ return [
                         'type' => 'json',
                         'columns' => 1,
                         'fields' => [
-                            ['key' => 'icon', 'label' => 'Pictogram (FontAwesome class, bijv. fa-solid fa-lock)', 'type' => 'text'],
+                            ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
                             ['key' => 'label', 'label' => 'Tekst', 'type' => 'text'],
                         ],
                     ],

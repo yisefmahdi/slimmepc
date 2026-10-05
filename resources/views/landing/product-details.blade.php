@@ -347,14 +347,14 @@
                     $piInfo = $pi['info'] ?? [];
                     $trustItems = $piInfo['trust_items'] ?? [];
                     if (empty($trustItems)) $trustItems = [
-                        ['icon' => 'fa-regular fa-circle-check', 'label' => '2 jaar garantie'],
-                        ['icon' => 'fa-solid fa-location-dot', 'label' => 'Afhalen Apeldoorn'],
-                        ['icon' => 'fa-solid fa-lock', 'label' => 'Veilig betalen'],
+                        ['icon' => 'badge-check', 'label' => '2 jaar garantie'],
+                        ['icon' => 'map-pin', 'label' => 'Afhalen Apeldoorn'],
+                        ['icon' => 'lock', 'label' => 'Veilig betalen'],
                     ];
                 @endphp
                 <div class="grid grid-cols-3 gap-3 mt-6 pt-5 border-t border-slate-200">
                     @foreach(array_slice($trustItems, 0, 3) as $i => $ti)
-                        <div class="text-center @if($i === 1) border-x border-slate-100 @endif"><i class="{{ $ti['icon'] ?? 'fa-solid fa-circle-check' }} {{ $i === 0 ? 'text-emerald-500' : 'text-slimme-500' }}"></i><div class="text-[11px] font-medium mt-2">{{ $ti['label'] ?? '' }}</div></div>
+                        <div class="text-center @if($i === 1) border-x border-slate-100 @endif"><i data-lucide="{{ $ti['icon'] ?? 'badge-check' }}" class="w-4 h-4 inline-block {{ $i === 0 ? 'text-emerald-500' : 'text-slimme-500' }}"></i><div class="text-[11px] font-medium mt-2">{{ $ti['label'] ?? '' }}</div></div>
                     @endforeach
                 </div>
             </div>

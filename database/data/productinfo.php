@@ -6,9 +6,9 @@
 return [
     'info' => [
         'trust_items' => [
-            ['icon' => 'fa-regular fa-circle-check', 'label' => '2 jaar garantie'],
-            ['icon' => 'fa-solid fa-location-dot', 'label' => 'Afhalen Apeldoorn'],
-            ['icon' => 'fa-solid fa-lock', 'label' => 'Veilig betalen'],
+            ['icon' => 'badge-check', 'label' => '2 jaar garantie'],
+            ['icon' => 'map-pin', 'label' => 'Afhalen Apeldoorn'],
+            ['icon' => 'lock', 'label' => 'Veilig betalen'],
         ],
         'warranty_tab_title' => 'Levering & garantie',
         'warranty_items' => [
