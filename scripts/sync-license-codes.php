@@ -451,11 +451,11 @@ if ($dryRun) {
 
 // ------------------------------------------------------------- confirm
 if (!$yes) {
-    fwrite(STDERR, "Refusing to TRUNCATE without --yes. Re-run with --yes.\n");
+    fwrite(STDERR, "Refusing to CLEAR without --yes. Re-run with --yes.\n");
     exit(2);
 }
 
-echo "\nThis will TRUNCATE [license_codes] in `$dbName` and refill from dump"
+echo "\nThis will CLEAR [license_codes] in `$dbName` and refill from dump"
     . (empty($linkBackfills) ? '' : ' (+ backfill product download links, + flag digital products)') . ".\n";
 
 // ------------------------------------------------------------------ backup
@@ -496,8 +496,10 @@ $log[] = "backup: $backupFile";
 try {
     $pdo->beginTransaction();
     $pdo->exec('SET FOREIGN_KEY_CHECKS=0');
-    $pdo->exec('TRUNCATE TABLE `license_codes`');
-    echo "TRUNCATED license_codes\n";
+    // NOTE: DELETE (not TRUNCATE) — TRUNCATE is DDL in MySQL and implicitly
+    // commits, which would silently break the transaction below.
+    $pdo->exec('DELETE FROM `license_codes`');
+    echo "CLEARED license_codes\n";
 
     $ins = $pdo->prepare('INSERT INTO license_codes (id, product_id, code, status, order_id, order_item_id, assigned_at, created_at, updated_at) VALUES (:id, :product_id, :code, :status, :order_id, :order_item_id, :assigned_at, :created_at, :updated_at)');
     foreach ($preparedCodes as $c) {
