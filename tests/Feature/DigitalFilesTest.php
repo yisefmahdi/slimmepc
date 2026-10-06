@@ -183,6 +183,43 @@ it('blocks deleting a file that is linked from a product', function () {
     $this->assertDatabaseMissing('digital_files', ['id' => $free->id]);
 });
 
+it('renders license codes and signed download links in the invoice email', function () {
+    Storage::fake('local');
+    $file = makeStoredFile();
+    $product = makeDigitalProductWithFile($file);
+    $user = User::factory()->create(['email_verified_at' => now()]);
+    $order = makePaidOrderFor($user, $product);
+
+    $code = \App\Models\LicenseCode::create([
+        'product_id' => $product->id,
+        'code' => 'TEST-EMAIL-1234',
+        'status' => 'sold',
+        'order_id' => $order->id,
+        'order_item_id' => $order->items()->first()->id,
+        'assigned_at' => now(),
+    ]);
+
+    $invoice = \App\Models\OrderInvoice::create([
+        'order_id' => $order->id,
+        'invoice_number' => 'INV-2026-EMAIL1',
+        'invoice_date' => now()->toDateString(),
+        'customer_name' => 'Jan Jansen',
+        'customer_email' => $user->email,
+        'subtotal' => 60,
+        'tax_percentage' => 21,
+        'tax_amount' => 10.41,
+        'total' => 60,
+    ]);
+
+    $html = view('emails.order-invoice', ['invoice' => $invoice->fresh()])->render();
+
+    expect($html)->toContain('TEST-EMAIL-1234')
+        ->and($html)->toContain('Jouw digitale producten')
+        ->and($html)->toContain('/download/bestand/' . $file->id)
+        ->and($html)->toContain('signature=')
+        ->and($html)->toContain($order->order_number);
+});
+
 it('resolves order-aware links via the helper', function () {
     $file = makeStoredFile();
     $product = makeDigitalProductWithFile($file);
