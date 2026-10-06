@@ -9,7 +9,9 @@
         $oldPriceVal = (float) ($product->old_price ?: $product->price);
         $inStock = $product->stock_status === 'in_stock';
         $isDigital = (bool) ($product->is_digital ?? false);
-        $canBuy = $isDigital ? true : $inStock;
+        // Digital products are only buyable while AVAILABLE license codes exist
+        $hasLicenses = ! $isDigital || $product->hasAvailableLicenses(1);
+        $canBuy = $isDigital ? $hasLicenses : $inStock;
         $deliveryText = $isDigital ? null : ($product->delivery_time ?: null);
         $placeholderSrc = asset('assets/img/product-placeholder.jpg');
         $gallery = [];
@@ -298,6 +300,7 @@
                 </div>
                 <div class="mt-6 bg-gradient-to-r from-emerald-50/80 via-white to-white border border-emerald-100 rounded-xl px-4 py-3.5">
                     @if($isDigital)
+                    @if($hasLicenses)
                     <div class="flex items-center gap-3">
                         <span class="stock-dot w-2.5 h-2.5 rounded-full bg-cyan-500"></span>
                         <span class="text-[13px] font-semibold text-cyan-700">Digitaal product</span>
@@ -305,6 +308,12 @@
                     <div class="flex items-center gap-3 text-[12px] text-slate-700 font-medium mt-2.5">
                         <i class="fa-solid fa-envelope-circle-check text-slimme-600"></i> Directe levering per e-mail na betaling
                     </div>
+                    @else
+                    <div class="flex items-center gap-3">
+                        <span class="stock-dot w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                        <span class="text-[13px] font-semibold text-red-600">Tijdelijk uitverkocht — geen licenties beschikbaar</span>
+                    </div>
+                    @endif
                     @else
                     <div class="flex items-center gap-3">
                         <span class="stock-dot w-2.5 h-2.5 rounded-full {{ $inStock ? 'bg-emerald-500' : 'bg-red-500' }}"></span>
@@ -517,8 +526,9 @@
                         $relImgSrc = $resolveImg($rel->main_image ?: ($rel->gallery_images[0] ?? null));
                         $relPrice = $rel->discount_value ? $rel->discounted_price : (float)$rel->price;
                         $relHasDiscount = $rel->old_price && (float)$rel->old_price > (float)$rel->price;
-                        $relBadge = $rel->is_featured ? 'Aanrader' : ($relHasDiscount ? 'Aanbieding' : 'Populair');
-                        $relBadgeClass = $rel->is_featured ? 'bg-emerald-500' : ($relHasDiscount ? 'bg-red-500' : 'bg-blue-500');
+                        $relSoldOut = (bool) ($rel->is_digital ?? false) && ! $rel->hasAvailableLicenses(1);
+                        $relBadge = $relSoldOut ? 'Tijdelijk uitverkocht' : ($rel->is_featured ? 'Aanrader' : ($relHasDiscount ? 'Aanbieding' : 'Populair'));
+                        $relBadgeClass = $relSoldOut ? 'bg-red-500' : ($rel->is_featured ? 'bg-emerald-500' : ($relHasDiscount ? 'bg-red-500' : 'bg-blue-500'));
                     @endphp
                     <article class="shop-card group relative bg-white border border-slate-200 rounded-[17px] overflow-hidden">
                         @php $relFav = in_array($rel->id, $favoriteIds ?? [], true); @endphp
@@ -537,8 +547,14 @@
                             <p class="text-[10px] text-slate-600 font-medium mt-1">{{ $rel->brand ?: $category->name }}@if(!empty($relFeatStrs)) · {{ Str::limit(implode(' · ', array_slice($relFeatStrs,0,2)), 30) }}@endif</p>
                             <div class="mt-4"><div class="text-[18px] font-extrabold text-[#071638]">€{{ number_format($relPrice, 2, ',', '.') }}</div></div>
                             <div class="flex items-center justify-between mt-4">
-                                <div class="text-[10px] text-emerald-600 font-semibold"><i class="fa-solid fa-circle text-[6px] mr-1"></i> Op voorraad</div>
-                                <x-add-to-cart :product="$rel" variant="grid" />
+                                <div class="text-[10px] {{ $relSoldOut ? 'text-red-500' : 'text-emerald-600' }} font-semibold"><i class="fa-solid fa-circle text-[6px] mr-1"></i> {{ $relSoldOut ? 'Tijdelijk uitverkocht' : 'Op voorraad' }}</div>
+                                @if($relSoldOut)
+                                    <button type="button" disabled title="Tijdelijk uitverkocht" class="flex w-9 h-9 items-center justify-center rounded-lg bg-slate-200 text-slate-400 cursor-not-allowed shrink-0" aria-label="Tijdelijk uitverkocht">
+                                        <i data-lucide="ban" class="w-4 h-4"></i>
+                                    </button>
+                                @else
+                                    <x-add-to-cart :product="$rel" variant="grid" />
+                                @endif
                             </div>
                         </div>
                     </article>
@@ -615,9 +631,9 @@
             </div>
             <div class="hidden sm:block min-w-[125px]">
                 <strong class="text-[18px]">€{{ number_format($finalPrice, 2, ',', '.') }}</strong>
-                <div class="text-[10px] {{ $inStock ? 'text-emerald-600' : 'text-red-500' }} font-semibold mt-1">● {{ $inStock ? 'Op voorraad' : 'Niet op voorraad' }}</div>
+                <div class="text-[10px] {{ $canBuy ? 'text-emerald-600' : 'text-red-500' }} font-semibold mt-1">● {{ $canBuy ? ($isDigital ? 'Direct leverbaar' : 'Op voorraad') : ($isDigital ? 'Tijdelijk uitverkocht' : 'Niet op voorraad') }}</div>
             </div>
-            @if($inStock)
+            @if($canBuy)
                 <x-add-to-cart :product="$product" variant="sticky" />
             @else
                 <button type="button" disabled class="h-11 flex-1 md:flex-none md:min-w-[260px] px-6 bg-slate-200 text-slate-500 rounded-lg text-sm font-semibold flex items-center justify-center gap-3 cursor-not-allowed">

@@ -68,12 +68,19 @@ class CheckoutController extends Controller
             return response()->json(['message' => 'Je winkelwagen is leeg.'], 422);
         }
 
-        // Refuse unavailable products (digital stock lives in the license-code pool)
+        // Refuse unavailable products (digital stock lives in the license-code pool:
+        // enough AVAILABLE codes must exist for the ordered quantity)
         foreach ($cart->items as $item) {
             if (! $item->product || ! $item->product->status) {
                 return response()->json(['message' => 'Een product in je winkelwagen is niet meer beschikbaar.'], 422);
             }
-            if (! $item->product->is_digital && $item->product->stock_status !== 'in_stock') {
+            if ($item->product->is_digital) {
+                if (! $item->product->hasAvailableLicenses((int) $item->quantity)) {
+                    return response()->json(['message' => 'Een digitaal product in je winkelwagen is (tijdelijk) uitverkocht — er zijn geen licentiecodes meer beschikbaar.'], 422);
+                }
+                continue;
+            }
+            if ($item->product->stock_status !== 'in_stock') {
                 return response()->json(['message' => 'Een product in je winkelwagen is niet meer beschikbaar.'], 422);
             }
         }

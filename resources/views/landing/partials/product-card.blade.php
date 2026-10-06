@@ -60,6 +60,13 @@
     $reviewCount = (int) ($product->rating_count ?? 0);
     $avgRating = (float) ($product->rating_avg ?? 0);
 
+    // Digital products without AVAILABLE codes cannot be sold
+    $cardSoldOut = (bool) ($product->is_digital ?? false) && ! $product->hasAvailableLicenses(1);
+    if ($cardSoldOut) {
+        $badge = 'Tijdelijk uitverkocht';
+        $badgeClass = 'bg-red-500';
+    }
+
     $isFav = in_array($product->id, $favoriteIds, true);
 @endphp
 
@@ -137,7 +144,13 @@
                 <span class="text-slate-500 font-medium">({{ $reviewCount }})</span>
             </div>
 
-            <x-add-to-cart :product="$product" variant="grid" />
+            @if($cardSoldOut)
+                <button type="button" disabled title="Tijdelijk uitverkocht" class="flex w-9 h-9 items-center justify-center rounded-lg bg-slate-200 text-slate-400 cursor-not-allowed shrink-0" aria-label="Tijdelijk uitverkocht">
+                    <i data-lucide="ban" class="w-4 h-4"></i>
+                </button>
+            @else
+                <x-add-to-cart :product="$product" variant="grid" />
+            @endif
         </div>
     </div>
 </article>

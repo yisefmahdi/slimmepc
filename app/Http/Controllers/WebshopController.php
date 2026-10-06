@@ -27,6 +27,7 @@ class WebshopController extends Controller
 
         // Base products query — only products of this category
         $query = Product::where('status', true)->with('category')
+            ->withCount('availableLicenseCodes')
             ->where('category_id', $currentCategory->id);
 
         // Brand filter ?brand=HP,Lenovo
@@ -196,7 +197,7 @@ class WebshopController extends Controller
 
         $searchQuery = trim((string) $request->query('q', ''));
 
-        $query = Product::where('status', true)->with('category');
+        $query = Product::where('status', true)->with('category')->withCount('availableLicenseCodes');
 
         if ($searchQuery !== '') {
             $query->where(function ($q) use ($searchQuery) {
@@ -281,6 +282,7 @@ class WebshopController extends Controller
             ->where('status', true)
             ->where('category_id', $category->id)
             ->with('category')
+            ->withCount('availableLicenseCodes')
             ->firstOrFail();
 
         // All active categories for header chips
@@ -293,6 +295,7 @@ class WebshopController extends Controller
         $relatedProducts = Product::where('status', true)
             ->where('category_id', $category->id)
             ->where('id', '!=', $product->id)
+            ->withCount('availableLicenseCodes')
             ->inRandomOrder()
             ->limit(4)
             ->get();

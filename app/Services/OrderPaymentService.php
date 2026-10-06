@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Mail\AdminOrderNotificationMail;
+use App\Mail\LicenseShortageMail;
 use App\Mail\OrderInvoiceMail;
 use App\Models\Cart;
 use App\Models\CouponUsage;
@@ -52,10 +53,11 @@ class OrderPaymentService
 
         // Digital products: assign one license code per purchased unit.
         // Runs inside a transaction with row locks so concurrent webhooks
-        // can never hand out the same code twice.
-        $licenseShortage = $this->assignLicenseCodes($order);
-        if ($licenseShortage) {
-            Log::warning('License pool ran out during finalize', ['order_id' => $order->id]);
+        // can never hand out the same code twice. Returns per-product
+        // shortages (empty when everything was served).
+        $licenseShortages = $this->assignLicenseCodes($order);
+        if ($licenseShortages !== []) {
+            Log::warning('License pool ran out during finalize', ['order_id' => $order->id, 'shortages' => $licenseShortages]);
         }
 
         $invoice = $this->ensureInvoice($order);
@@ -92,6 +94,19 @@ class OrderPaymentService
                     'Totaal € '.number_format((float) $order->fresh()->total_price, 2, ',', '.'),
                     route('admin.orders.show', $order->fresh(), absolute: true)
                 );
+
+                // License pool ran dry mid-sale (race window): loud alert so an
+                // admin refills the pool instead of silently completing.
+                if ($licenseShortages !== []) {
+                    Mail::to($notify)->send(new LicenseShortageMail($order->fresh(), $licenseShortages));
+                    AdminPushNotifier::notify(
+                        'license-shortage',
+                        (string) $order->fresh()->order_number,
+                        'Licentiecodes op: '.$order->fresh()->order_number,
+                        'Bestelling betaald zonder (voldoende) codes — pool aanvullen.',
+                        route('admin.orders.show', $order->fresh(), absolute: true)
+                    );
+                }
             })->afterResponse();
         }
     }
@@ -99,16 +114,15 @@ class OrderPaymentService
     /**
      * Assign available license codes to the digital items of a paid order.
      *
-     * @return bool true when at least one digital unit could NOT be served
-     *              (pool empty) — the order then stays `processing` so an
-     *              admin refills the pool instead of silently completing.
+     * @return array<int, array{title: string, quantity: int, available: int}> per-product
+     *         shortages (empty when every digital unit was served).
      */
-    public function assignLicenseCodes(Order $order): bool
+    public function assignLicenseCodes(Order $order): array
     {
         $order->loadMissing(['items.product']);
-        $shortage = false;
+        $shortages = [];
 
-        DB::transaction(function () use ($order, &$shortage) {
+        DB::transaction(function () use ($order, &$shortages) {
             foreach ($order->items as $item) {
                 $product = $item->product;
                 if (! $product || ! (bool) $product->is_digital) {
@@ -129,7 +143,11 @@ class OrderPaymentService
                     ->get();
 
                 if ($codes->count() < $needed) {
-                    $shortage = true;
+                    $shortages[] = [
+                        'title' => $item->product_name ?: ($product->title ?? 'Onbekend product'),
+                        'quantity' => (int) $item->quantity,
+                        'available' => $codes->count() + $already,
+                    ];
                 }
 
                 foreach ($codes as $code) {
@@ -143,7 +161,7 @@ class OrderPaymentService
             }
         });
 
-        return $shortage;
+        return $shortages;
     }
 
     public function ensureInvoice(Order $order): OrderInvoice

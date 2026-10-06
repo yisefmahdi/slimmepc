@@ -88,7 +88,25 @@ class Product extends Model
 
     public function availableLicenseCount(): int
     {
+        // Prefer the eager-loaded count (listing pages) to avoid N+1 queries.
+        if (array_key_exists('available_license_codes_count', $this->attributes)) {
+            return (int) $this->attributes['available_license_codes_count'];
+        }
+
         return $this->availableLicenseCodes()->count();
+    }
+
+    /**
+     * A digital product may only be sold while the pool holds enough
+     * AVAILABLE codes (sold codes never count).
+     */
+    public function hasAvailableLicenses(int $quantity = 1): bool
+    {
+        if (! $this->isDigital()) {
+            return true;
+        }
+
+        return $this->availableLicenseCount() >= max(1, $quantity);
     }
 
     public function isDigital(): bool

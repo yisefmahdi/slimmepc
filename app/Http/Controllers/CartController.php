@@ -63,13 +63,22 @@ class CartController extends Controller
         if (!$product->status) {
             return response()->json(['message' => 'Dit product is niet beschikbaar.'], 422);
         }
-        // Digital stock lives in the license-code pool, not in stock_status
+        // Digital stock lives in the license-code pool, not in stock_status.
+        // A digital product may only be sold while enough AVAILABLE codes exist.
         if (! $product->is_digital && $product->stock_status !== 'in_stock') {
             return response()->json(['message' => 'Dit product is niet op voorraad.'], 422);
         }
 
         $qty = (int) ($data['quantity'] ?? 1);
         $cart = $this->cartService->resolveCart($request);
+
+        if ($product->is_digital) {
+            $alreadyInCart = (int) ($cart->items()->where('product_id', $product->id)->first()?->quantity ?? 0);
+            if (! $product->hasAvailableLicenses($qty + $alreadyInCart)) {
+                return response()->json(['message' => 'Dit digitale product is (tijdelijk) uitverkocht — er zijn geen licentiecodes meer beschikbaar.'], 422);
+            }
+        }
+
         $this->cartService->addItem($cart, $product, $qty);
 
         $cart->refresh()->load(['items.product.category', 'coupon']);
@@ -114,6 +123,12 @@ class CartController extends Controller
 
         $cart = $this->cartService->resolveCart($request);
         $cartItem = $cart->items()->where('id', $item)->firstOrFail();
+
+        $product = $cartItem->product;
+        if ($product && $product->is_digital && ! $product->hasAvailableLicenses((int) $data['quantity'])) {
+            return response()->json(['message' => 'Niet genoeg licentiecodes beschikbaar voor dit aantal.'], 422);
+        }
+
         $cartItem->update(['quantity' => $data['quantity']]);
 
         $cart->refresh()->load(['items', 'coupon']);

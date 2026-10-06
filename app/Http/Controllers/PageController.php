@@ -33,6 +33,7 @@ class PageController extends Controller
         $homeProducts = Product::where('status', true)
             ->where('is_featured', true)
             ->with('category')
+            ->withCount('availableLicenseCodes')
             ->latest()
             ->take(12)
             ->get();
@@ -41,6 +42,7 @@ class PageController extends Controller
         if ($homeProducts->isEmpty()) {
             $homeProducts = Product::where('status', true)
                 ->with('category')
+                ->withCount('availableLicenseCodes')
                 ->latest()
                 ->take(4)
                 ->get();
@@ -92,7 +94,7 @@ class PageController extends Controller
                     'specs' => $specs,
                     'price' => '€' . number_format($hasDiscount ? $fp->discounted_price : $fp->price, 2),
                     'old_price' => $hasDiscount ? '€' . number_format($fp->price, 2) : null,
-                    'in_stock' => $fp->stock_status === 'in_stock',
+                    'in_stock' => $fp->is_digital ? $fp->availableLicenseCount() > 0 : $fp->stock_status === 'in_stock',
                     'image' => $imageUrl,
                     'is_db_image' => true,
                     'link' => $productLink,
