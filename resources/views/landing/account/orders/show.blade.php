@@ -143,6 +143,49 @@
                                 </div>
                             </dl>
                         </div>
+
+                        {{-- DIGITALE LEVERING (alleen na betaling) --}}
+                        @php $digitalItems = $order->items->filter(fn ($it) => (bool) ($it->product?->is_digital)); @endphp
+                        @if($order->payment_status === 'paid' && $digitalItems->isNotEmpty())
+                            <div class="reveal rounded-2xl border border-cyan-200 bg-gradient-to-b from-cyan-50/60 to-white p-5 sm:p-6">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="key-round" class="w-4 h-4 text-cyan-600"></i>
+                                    <h2 class="text-[15px] font-extrabold text-[#0b1734]">Digitale levering</h2>
+                                </div>
+                                <p class="mt-1 text-[12px] text-slate-500">Jouw licentiecodes en downloadlinks. Bewaar ze goed.</p>
+                                <div class="mt-4 space-y-4">
+                                    @foreach($digitalItems as $dItem)
+                                        @php $dProduct = $dItem->product; @endphp
+                                        <div class="rounded-xl border border-slate-200 bg-white p-4">
+                                            <p class="text-[13px] font-extrabold text-[#0b1734]">{{ $dItem->product_name }}</p>
+                                            @if($dItem->licenseCodes->isNotEmpty())
+                                                <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-slate-500">Licentiecode{{ $dItem->licenseCodes->count() > 1 ? 's' : '' }}</p>
+                                                @foreach($dItem->licenseCodes as $lc)
+                                                    <p class="mt-1.5 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-3 py-2 font-mono text-[13px] font-bold text-[#0b1734]">{{ $lc->code }}</p>
+                                                @endforeach
+                                            @else
+                                                <p class="mt-2 text-[12px] text-slate-500">Je licentiecode wordt zo snel mogelijk toegevoegd. Neem bij vragen contact met ons op.</p>
+                                            @endif
+                                            @php
+                                                $dLinks = [];
+                                                if ($dProduct?->download_32bit_url) $dLinks[] = ['label' => 'Download 32-bit', 'icon' => 'download', 'url' => $dProduct->download_32bit_url];
+                                                if ($dProduct?->download_64bit_url) $dLinks[] = ['label' => 'Download 64-bit', 'icon' => 'download', 'url' => $dProduct->download_64bit_url];
+                                                if ($dProduct?->manual_url) $dLinks[] = ['label' => 'Handleiding', 'icon' => 'book-open', 'url' => $dProduct->manual_url];
+                                            @endphp
+                                            @if(!empty($dLinks))
+                                                <div class="mt-3 flex flex-wrap gap-2">
+                                                    @foreach($dLinks as $lnk)
+                                                        <a href="{{ $lnk['url'] }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-[12px] font-bold text-white hover:bg-blue-700 transition">
+                                                            <i data-lucide="{{ $lnk['icon'] }}" class="w-4 h-4"></i> {{ $lnk['label'] }}
+                                                        </a>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                     </div>
 
                     {{-- SIDE --}}

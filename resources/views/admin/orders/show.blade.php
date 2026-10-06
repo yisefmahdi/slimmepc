@@ -46,7 +46,21 @@
                             <tbody>
                                 @foreach($order->items as $item)
                                     <tr class="border-b transition hover:bg-blue-50/40 dark:hover:bg-slate-800/40" style="border-color: rgba(148,163,184,.12)">
-                                        <td class="py-2.5 pr-3 text-sm font-semibold" style="color: var(--c-heading)">{{ $item->product_name }}</td>
+                                        <td class="py-2.5 pr-3 text-sm font-semibold" style="color: var(--c-heading)">
+                                            {{ $item->product_name }}
+                                            @if($item->product?->is_digital)
+                                                <span class="ml-1.5 inline-flex items-center rounded-full bg-cyan-50 px-2 py-0.5 text-[10px] font-bold text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300">Digitaal</span>
+                                            @endif
+                                            @if($item->licenseCodes->isNotEmpty())
+                                                <div class="mt-1.5 space-y-1">
+                                                    @foreach($item->licenseCodes as $lc)
+                                                        <span class="inline-block rounded-md border border-dashed px-2 py-0.5 font-mono text-[11px] font-bold" style="border-color: rgba(148,163,184,.4); color: var(--c-heading)">{{ $lc->code }}</span>
+                                                    @endforeach
+                                                </div>
+                                            @elseif($item->product?->is_digital && $order->payment_status === 'paid')
+                                                <div class="mt-1.5 text-[11px] font-bold text-red-500">Geen code toegewezen — vul de pool aan bij Licentiecodes.</div>
+                                            @endif
+                                        </td>
                                         <td class="px-3 py-2.5 text-sm whitespace-nowrap">€{{ number_format($item->product_price, 2, ',', '.') }}</td>
                                         <td class="px-3 py-2.5 text-sm">{{ $item->quantity }}</td>
                                         <td class="py-2.5 pl-3 text-end text-sm font-bold whitespace-nowrap" style="color: var(--c-heading)">€{{ number_format($item->total_price, 2, ',', '.') }}</td>

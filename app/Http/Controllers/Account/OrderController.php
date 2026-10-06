@@ -58,7 +58,7 @@ class OrderController extends Controller
         $c = Cms::page('home');
         $design = Cms::design();
 
-        $order = Order::with(['items.product', 'invoice', 'billingAddress'])
+        $order = Order::with(['items.product', 'items.licenseCodes', 'invoice', 'billingAddress'])
             ->where('user_id', $request->user()->id)
             ->where('order_number', $orderNumber)
             ->firstOrFail();

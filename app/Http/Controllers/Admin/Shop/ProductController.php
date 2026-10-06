@@ -22,7 +22,7 @@ class ProductController extends Controller
 
     public function data(Request $request)
     {
-        $query = Product::query()->with('category');
+        $query = Product::query()->with('category')->withCount('availableLicenseCodes');
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -49,6 +49,10 @@ class ProductController extends Controller
             $query->where('stock_status', $request->stock_status);
         }
 
+        if ($request->filled('is_digital') && $request->is_digital !== 'all') {
+            $query->where('is_digital', $request->is_digital === '1' ? 1 : 0);
+        }
+
         if ($request->filled('min_price')) {
             $query->where('price', '>=', $request->min_price);
         }
@@ -70,6 +74,7 @@ class ProductController extends Controller
             'inactive' => Product::where('status', 0)->count(),
             'in_stock' => Product::where('stock_status', 'in_stock')->count(),
             'featured' => Product::where('is_featured', 1)->count(),
+            'digital' => Product::where('is_digital', 1)->count(),
         ];
 
         return response()->json([
@@ -102,8 +107,9 @@ class ProductController extends Controller
             'sku' => 'nullable|string|max:64|unique:products,sku',
             'price' => 'required|numeric|min:0',
             'old_price' => 'nullable|numeric|min:0',
-            'stock_status' => 'required|in:in_stock,out_of_stock',
+            'stock_status' => 'nullable|in:in_stock,out_of_stock',
             'status' => 'required|boolean',
+            'is_digital' => 'nullable|boolean',
             'is_featured' => 'nullable|boolean',
             'description' => 'nullable|string',
             'features' => 'nullable|array|max:20',
@@ -133,6 +139,12 @@ class ProductController extends Controller
 
         $data['slug'] = Str::slug($data['title']);
         $data['is_featured'] = $request->boolean('is_featured');
+        $data['is_digital'] = $request->boolean('is_digital');
+        // Digital products have no physical stock — default to in_stock (license pool is the real stock)
+        if ($data['is_digital'] && empty($data['stock_status'])) {
+            $data['stock_status'] = 'in_stock';
+        }
+        $data['stock_status'] = $data['stock_status'] ?? 'in_stock';
 
         // Clean features: keep only rows where both title and value are filled
         $rawFeatures = $request->input('features', []);
@@ -213,8 +225,9 @@ class ProductController extends Controller
             'sku' => 'nullable|string|max:64|unique:products,sku,' . $product->id,
             'price' => 'required|numeric|min:0',
             'old_price' => 'nullable|numeric|min:0',
-            'stock_status' => 'required|in:in_stock,out_of_stock',
+            'stock_status' => 'nullable|in:in_stock,out_of_stock',
             'status' => 'required|boolean',
+            'is_digital' => 'nullable|boolean',
             'is_featured' => 'nullable|boolean',
             'description' => 'nullable|string',
             'features' => 'nullable|array|max:20',
@@ -247,6 +260,11 @@ class ProductController extends Controller
 
         $data['slug'] = Str::slug($data['title']);
         $data['is_featured'] = $request->boolean('is_featured');
+        $data['is_digital'] = $request->boolean('is_digital');
+        if ($data['is_digital'] && empty($data['stock_status'])) {
+            $data['stock_status'] = 'in_stock';
+        }
+        $data['stock_status'] = $data['stock_status'] ?? $product->stock_status ?? 'in_stock';
         $rawFeatures = $request->input('features', []);
         if (!empty($rawFeatures) && is_string(reset($rawFeatures))) {
             $mapped = [];

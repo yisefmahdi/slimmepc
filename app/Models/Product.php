@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 class Product extends Model
 {
     protected $fillable = [
-        'category_id', 'title', 'brand', 'sku', 'price', 'old_price', 'stock_status', 'status', 'is_featured',
+        'category_id', 'title', 'brand', 'sku', 'price', 'old_price', 'stock_status', 'status', 'is_digital', 'is_featured',
         'description', 'features', 'highlights', 'colors', 'sizes', 'main_image', 'gallery_images',
         'external_link', 'delivery_time', 'slug', 'discount_type', 'discount_value', 'discount_start_date', 'discount_end_date',
         'download_32bit_url', 'download_64bit_url', 'manual_url', 'rating_avg', 'rating_count',
@@ -23,6 +23,7 @@ class Product extends Model
         'discount_start_date' => 'datetime',
         'discount_end_date' => 'datetime',
         'status' => 'boolean',
+        'is_digital' => 'boolean',
         'is_featured' => 'boolean',
         'price' => 'decimal:2',
         'old_price' => 'decimal:2',
@@ -73,6 +74,26 @@ class Product extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function licenseCodes()
+    {
+        return $this->hasMany(LicenseCode::class);
+    }
+
+    public function availableLicenseCodes()
+    {
+        return $this->hasMany(LicenseCode::class)->where('status', 'available');
+    }
+
+    public function availableLicenseCount(): int
+    {
+        return $this->availableLicenseCodes()->count();
+    }
+
+    public function isDigital(): bool
+    {
+        return (bool) $this->is_digital;
     }
 
     public function reviews()

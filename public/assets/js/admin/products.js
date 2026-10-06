@@ -8,6 +8,8 @@
     status: $('#productStatusFilter'),
     brand: $('#productBrandFilter'),
     stock: $('#productStockFilter'),
+    digital: $('#productDigitalFilter'),
+    countDigital: $('#countDigital'),
     minPrice: $('#productMinPrice'),
     maxPrice: $('#productMaxPrice'),
     perPage: $('#productPerPage'),
@@ -20,7 +22,7 @@
     countFeatured: $('#countFeatured'),
   };
 
-  let state = { page: 1, search: '', category_id: 'all', brand: 'all', status: 'all', stock_status: 'all', min_price: '', max_price: '', per_page: 15 };
+  let state = { page: 1, search: '', category_id: 'all', brand: 'all', status: 'all', stock_status: 'all', is_digital: 'all', min_price: '', max_price: '', per_page: 15 };
   let currentData = [];
   let deleteId = null;
   let editId = null;
@@ -60,7 +62,7 @@
   async function fetchData() {
     const params = new URLSearchParams({
       page: state.page, search: state.search, category_id: state.category_id, brand: state.brand,
-      status: state.status, stock_status: state.stock_status, min_price: state.min_price, max_price: state.max_price, per_page: state.per_page
+      status: state.status, stock_status: state.stock_status, is_digital: state.is_digital, min_price: state.min_price, max_price: state.max_price, per_page: state.per_page
     });
     const res = await fetch(`/admin/webshop/products/data?${params}`, { headers: { 'Accept':'application/json','X-Requested-With':'XMLHttpRequest' } });
     if (!res.ok) throw new Error('Failed');
@@ -78,6 +80,16 @@
       const stockBadge = p.stock_status==='in_stock'
         ? `<span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>Op voorraad</span>`
         : `<span class="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-1 text-[11px] font-bold text-red-600 dark:bg-red-900/30 dark:text-red-400"><span class="h-1.5 w-1.5 rounded-full bg-red-500"></span>Niet op voorraad</span>`;
+      const isDigital = Number(p.is_digital) === 1;
+      const digitalBadge = isDigital
+        ? `<span class="ml-1.5 inline-flex items-center gap-1 rounded-full bg-cyan-50 px-2 py-0.5 text-[10px] font-bold text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300" title="Digitaal product — licentiecodes + downloadlinks na betaling">Digitaal</span>`
+        : '';
+      const codesCount = (p.available_license_codes_count ?? p.available_codes ?? null);
+      const codesLine = isDigital
+        ? (codesCount === 0
+          ? `<div class="mt-1 text-[10px] font-bold text-red-500">0 codes — voorraad op!</div>`
+          : (codesCount != null ? `<div class="mt-1 text-[10px] font-bold text-cyan-600">${codesCount} code${codesCount == 1 ? '' : 's'} beschikbaar</div>` : ''))
+        : '';
       
       const homeSwitch = `<button type="button" role="switch" aria-checked="${p.is_featured ? 'true' : 'false'}" data-toggle-featured="${p.id}" data-featured="${p.is_featured ? 1 : 0}" class="apple-switch ${p.is_featured ? 'is-active' : 'is-inactive'}" title="${p.is_featured ? 'Op Home (klik om te verbergen)' : 'Niet op Home (klik om te tonen)'}"><span class="apple-knob"></span></button>`;
 
@@ -90,13 +102,13 @@
       const ratingCell = `<button type="button" data-reviews="${p.id}" title="Beoordelingen bekijken" class="inline-flex items-center gap-1.5 rounded-full ${cnt>0 ? 'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 hover:bg-amber-100' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'} px-2.5 py-1 text-[11px] font-bold"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3.5 w-3.5 ${cnt>0 ? 'text-amber-400' : 'text-slate-400'}"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.37 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.84-.197-1.54-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.34 8.719c-.783-.57-.38-1.81.588-1.81h3.462a1 1 0 00.95-.69l1.07-3.292z"/></svg>${avg}<span class="font-normal">(${cnt})</span></button>`;
       return `<tr class="border-b transition hover:bg-blue-50/40 dark:hover:bg-slate-800/40" style="border-color:rgba(148,163,184,.12)">
         <td class="px-3 py-3">${img}</td>
-        <td class="px-3 py-3"><div class="text-sm font-semibold line-clamp-1" style="color:var(--c-heading)">${escapeHtml(p.title)}</div></td>
+        <td class="px-3 py-3"><div class="text-sm font-semibold line-clamp-1" style="color:var(--c-heading)">${escapeHtml(p.title)}${digitalBadge}</div></td>
         <td class="px-3 py-3 text-xs" style="color:var(--c-muted)">${escapeHtml(p.brand||'—')}</td>
         <td class="px-3 py-3 text-xs"><span class="rounded-full bg-slate-100 px-2 py-1 font-bold" style="color:var(--c-heading)">${escapeHtml(p.category?.name||'—')}</span></td>
         <td class="px-3 py-3 text-sm font-bold" style="color:var(--c-heading)">€${Number(p.price).toFixed(2)}</td>
         <td class="px-3 py-3 text-xs line-through" style="color:var(--c-muted)">${oldPrice}</td>
         <td class="px-3 py-3 text-xs font-bold">${discount}</td>
-        <td class="px-3 py-3">${stockBadge}</td>
+        <td class="px-3 py-3">${stockBadge}${codesLine}</td>
         <td class="px-3 py-3">${homeSwitch}</td>
         <td class="px-3 py-3 text-center">${ratingCell}</td>
         <td class="px-3 py-3">${statusSwitch}</td>
@@ -253,6 +265,7 @@
     if (els.countInactive) els.countInactive.textContent=`Inactief: ${c.inactive}`;
     if (els.countInStock) els.countInStock.textContent=`Op voorraad: ${c.in_stock}`;
     if (els.countFeatured) els.countFeatured.textContent=`Op Home: ${c.featured ?? 0}`;
+    if (els.countDigital) els.countDigital.textContent=`Digitaal: ${c.digital ?? 0}`;
   }
 
   async function load(){
@@ -267,9 +280,9 @@
 
   let t;
   els.search?.addEventListener('input', e=>{ clearTimeout(t); t=setTimeout(()=>{ state.search=e.target.value; state.page=1; load(); },350); });
-  ['category','status','brand','stock'].forEach(k=>{
+  ['category','status','brand','stock','digital'].forEach(k=>{
     const el = els[k]; if(!el) return;
-    el.addEventListener('change', e=>{ state[k==='category'?'category_id':k==='stock'?'stock_status':k]=e.target.value; state.page=1; load(); });
+    el.addEventListener('change', e=>{ state[k==='category'?'category_id':k==='stock'?'stock_status':k==='digital'?'is_digital':k]=e.target.value; state.page=1; load(); });
   });
   els.minPrice?.addEventListener('change', e=>{ state.min_price=e.target.value; state.page=1; load(); });
   els.maxPrice?.addEventListener('change', e=>{ state.max_price=e.target.value; state.page=1; load(); });
@@ -299,7 +312,7 @@
       const res=await fetch(`/admin/webshop/products/${id}`,{headers:{'Accept':'application/json'}});
       const json=await res.json(); const p=json.product;
       deleteId=p.id;
-      const html=`<div class="flex gap-4">${p.main_image?`<img src="/storage/${p.main_image}" class="h-20 w-20 rounded-xl border object-cover">`:`<span class="flex h-20 w-20 items-center justify-center rounded-xl border bg-slate-50 text-xs">Geen</span>`}<div><h3 class="text-lg font-extrabold" style="color:var(--c-heading)">${escapeHtml(p.title)}</h3><p class="text-xs" style="color:var(--c-muted)">${escapeHtml(p.category?.name||'')} — €${Number(p.price).toFixed(2)}</p></div></div><div class="grid grid-cols-2 gap-3 text-sm"><div><span style="color:var(--c-muted)">Merk:</span> <b style="color:var(--c-heading)">${escapeHtml(p.brand||'—')}</b></div><div><span style="color:var(--c-muted)">SKU:</span> <b>${escapeHtml(p.sku||'—')}</b></div><div><span style="color:var(--c-muted)">Voorraad:</span> <b>${p.stock_status==='in_stock' ? 'Op voorraad' : 'Niet op voorraad'}</b></div><div><span style="color:var(--c-muted)">Status:</span> <b>${p.status?'Actief':'Inactief'}</b></div></div><p class="text-sm" style="color:var(--c-body)">${escapeHtml(p.description||'Geen beschrijving')}</p>`;
+      const html=`<div class="flex gap-4">${p.main_image?`<img src="/storage/${p.main_image}" class="h-20 w-20 rounded-xl border object-cover">`:`<span class="flex h-20 w-20 items-center justify-center rounded-xl border bg-slate-50 text-xs">Geen</span>`}<div><h3 class="text-lg font-extrabold" style="color:var(--c-heading)">${escapeHtml(p.title)}</h3><p class="text-xs" style="color:var(--c-muted)">${escapeHtml(p.category?.name||'')} — €${Number(p.price).toFixed(2)}</p></div></div><div class="grid grid-cols-2 gap-3 text-sm"><div><span style="color:var(--c-muted)">Merk:</span> <b style="color:var(--c-heading)">${escapeHtml(p.brand||'—')}</b></div><div><span style="color:var(--c-muted)">SKU:</span> <b>${escapeHtml(p.sku||'—')}</b></div><div><span style="color:var(--c-muted)">Voorraad:</span> <b>${p.stock_status==='in_stock' ? 'Op voorraad' : 'Niet op voorraad'}</b></div><div><span style="color:var(--c-muted)">Status:</span> <b>${p.status?'Actief':'Inactief'}</b></div><div><span style="color:var(--c-muted)">Type:</span> <b>${Number(p.is_digital)===1 ? 'Digitaal (licentie + downloadlinks)' : 'Fysiek'}</b></div>${Number(p.is_digital)===1 ? `<div><span style="color:var(--c-muted)">Download 32-bit:</span> <b>${escapeHtml(p.download_32bit_url||'—')}</b></div><div><span style="color:var(--c-muted)">Download 64-bit:</span> <b>${escapeHtml(p.download_64bit_url||'—')}</b></div><div><span style="color:var(--c-muted)">Handleiding:</span> <b>${escapeHtml(p.manual_url||'—')}</b></div>` : ''}</div><p class="text-sm" style="color:var(--c-body)">${escapeHtml(p.description||'Geen beschrijving')}</p>`;
       $('#productDetailsContent').innerHTML=html;
       showModal('modal-productDetailsModal');
     }catch(e){ alert('Fout'); }

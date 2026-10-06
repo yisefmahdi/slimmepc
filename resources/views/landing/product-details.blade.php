@@ -8,7 +8,9 @@
         $finalPrice = $hasDiscount && $product->discount_value ? $product->discounted_price : (float) $product->price;
         $oldPriceVal = (float) ($product->old_price ?: $product->price);
         $inStock = $product->stock_status === 'in_stock';
-        $deliveryText = $product->delivery_time ?: null;
+        $isDigital = (bool) ($product->is_digital ?? false);
+        $canBuy = $isDigital ? true : $inStock;
+        $deliveryText = $isDigital ? null : ($product->delivery_time ?: null);
         $placeholderSrc = asset('assets/img/product-placeholder.jpg');
         $gallery = [];
         if ($product->main_image) $gallery[] = $product->main_image;
@@ -295,6 +297,15 @@
                     @if($product->sku)<div class="text-[11px] text-slate-600">SKU: {{ $product->sku }}</div>@endif
                 </div>
                 <div class="mt-6 bg-gradient-to-r from-emerald-50/80 via-white to-white border border-emerald-100 rounded-xl px-4 py-3.5">
+                    @if($isDigital)
+                    <div class="flex items-center gap-3">
+                        <span class="stock-dot w-2.5 h-2.5 rounded-full bg-cyan-500"></span>
+                        <span class="text-[13px] font-semibold text-cyan-700">Digitaal product</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-[12px] text-slate-700 font-medium mt-2.5">
+                        <i class="fa-solid fa-envelope-circle-check text-slimme-600"></i> Directe levering per e-mail na betaling
+                    </div>
+                    @else
                     <div class="flex items-center gap-3">
                         <span class="stock-dot w-2.5 h-2.5 rounded-full {{ $inStock ? 'bg-emerald-500' : 'bg-red-500' }}"></span>
                         <span class="text-[13px] font-semibold {{ $inStock ? 'text-emerald-700' : 'text-red-600' }}">{{ $inStock ? 'Op voorraad' : 'Niet op voorraad' }}</span>
@@ -303,6 +314,7 @@
                     <div class="flex items-center gap-3 text-[12px] text-slate-700 font-medium mt-2.5">
                         <i class="fa-solid fa-truck-fast text-slimme-600"></i> {{ $deliveryText }}
                     </div>
+                    @endif
                     @endif
                 </div>
                 @if(!empty($quickSpecs))
@@ -334,7 +346,7 @@
                         <div id="quantity" class="w-12 border-x border-slate-200 flex items-center justify-center font-semibold">1</div>
                         <button type="button" onclick="changeQuantity(1)" class="w-12 hover:bg-slimme-50 hover:text-slimme-600 transition"><i class="fa-solid fa-plus text-xs"></i></button>
                     </div>
-                    @if($inStock)
+                    @if($canBuy)
                         <x-add-to-cart :product="$product" variant="details" />
                     @else
                         <button type="button" disabled class="flex-1 h-[58px] rounded-xl bg-slate-200 text-slate-500 font-semibold flex items-center justify-center gap-3 cursor-not-allowed">

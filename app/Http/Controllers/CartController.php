@@ -63,7 +63,8 @@ class CartController extends Controller
         if (!$product->status) {
             return response()->json(['message' => 'Dit product is niet beschikbaar.'], 422);
         }
-        if ($product->stock_status !== 'in_stock') {
+        // Digital stock lives in the license-code pool, not in stock_status
+        if (! $product->is_digital && $product->stock_status !== 'in_stock') {
             return response()->json(['message' => 'Dit product is niet op voorraad.'], 422);
         }
 
@@ -90,6 +91,7 @@ class CartController extends Controller
                     'title' => $product->title,
                     'slug' => $product->slug,
                     'brand' => $product->brand,
+                    'is_digital' => (bool) $product->is_digital,
                     'category' => $product->category ? ['slug' => $product->category->slug, 'name' => $product->category->name] : null,
                     'image' => $product->main_image ?: ($product->gallery_images[0] ?? null),
                     'features' => $product->features,

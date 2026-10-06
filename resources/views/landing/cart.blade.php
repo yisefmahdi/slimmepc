@@ -116,7 +116,8 @@
                                 $product = $item->product;
                                 $pImg = $product ? ($product->main_image ?: ($product->gallery_images[0] ?? null)) : null;
                                 $imgSrc = $resolveImg($pImg);
-                                $inStock = $product && $product->stock_status === 'in_stock';
+                                $isDigitalRow = $product && (bool) ($product->is_digital ?? false);
+                                $inStock = $product && ($isDigitalRow || $product->stock_status === 'in_stock');
                                 // Build specs string
                                 $specs = '';
                                 if($product && !empty($product->features) && is_array($product->features)){
@@ -147,9 +148,9 @@
                                             @if($specs)
                                             <p class="mt-1 text-[13px] leading-5 text-[#3D527D] line-clamp-1">{{ $specs }}</p>
                                             @endif
-                                            <div class="flex items-center gap-2 mt-1.5 text-[12px] {{ $inStock ? 'text-[#087F49]' : 'text-red-500' }}">
-                                                <span class="w-[8px] h-[8px] rounded-full {{ $inStock ? 'bg-[#08AF5A]' : 'bg-red-500' }}"></span>
-                                                {{ $inStock ? 'Op voorraad' : 'Niet op voorraad' }}
+                                            <div class="flex items-center gap-2 mt-1.5 text-[12px] {{ $isDigitalRow ? 'text-[#0e7490]' : ($inStock ? 'text-[#087F49]' : 'text-red-500') }}">
+                                                <span class="w-[8px] h-[8px] rounded-full {{ $isDigitalRow ? 'bg-cyan-500' : ($inStock ? 'bg-[#08AF5A]' : 'bg-red-500') }}"></span>
+                                                {{ $isDigitalRow ? 'Digitaal — levering per e-mail' : ($inStock ? 'Op voorraad' : 'Niet op voorraad') }}
                                             </div>
                                         </div>
                                     </div>
@@ -555,9 +556,9 @@
                                 <h3 class="text-[14px] leading-5 font-semibold text-[#081A40] hover:text-[#0759F5] transition line-clamp-2">${product.title}</h3>
                             </a>
                             ${specs ? `<p class="mt-1 text-[13px] leading-5 text-[#3D527D] line-clamp-1">${specs}</p>` : ''}
-                            <div class="flex items-center gap-2 mt-1.5 text-[12px] text-[#087F49]">
-                                <span class="w-[8px] h-[8px] rounded-full bg-[#08AF5A]"></span>
-                                Op voorraad
+                            <div class="flex items-center gap-2 mt-1.5 text-[12px] ${product.is_digital ? 'text-[#0e7490]' : 'text-[#087F49]'}">
+                                <span class="w-[8px] h-[8px] rounded-full ${product.is_digital ? 'bg-cyan-500' : 'bg-[#08AF5A]'}"></span>
+                                ${product.is_digital ? 'Digitaal — levering per e-mail' : 'Op voorraad'}
                             </div>
                         </div>
                     </div>

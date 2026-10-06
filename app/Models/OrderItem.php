@@ -24,4 +24,9 @@ class OrderItem extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    public function licenseCodes()
+    {
+        return $this->hasMany(LicenseCode::class, 'order_item_id');
+    }
 }

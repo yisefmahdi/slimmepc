@@ -6,10 +6,13 @@ use App\Mail\AdminOrderNotificationMail;
 use App\Mail\OrderInvoiceMail;
 use App\Models\Cart;
 use App\Models\CouponUsage;
+use App\Models\LicenseCode;
 use App\Models\Order;
 use App\Models\OrderInvoice;
 use App\Services\AdminPushNotifier;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -45,6 +48,14 @@ class OrderPaymentService
                 ],
                 ['used_at' => now()]
             );
+        }
+
+        // Digital products: assign one license code per purchased unit.
+        // Runs inside a transaction with row locks so concurrent webhooks
+        // can never hand out the same code twice.
+        $licenseShortage = $this->assignLicenseCodes($order);
+        if ($licenseShortage) {
+            Log::warning('License pool ran out during finalize', ['order_id' => $order->id]);
         }
 
         $invoice = $this->ensureInvoice($order);
@@ -83,6 +94,56 @@ class OrderPaymentService
                 );
             })->afterResponse();
         }
+    }
+
+    /**
+     * Assign available license codes to the digital items of a paid order.
+     *
+     * @return bool true when at least one digital unit could NOT be served
+     *              (pool empty) — the order then stays `processing` so an
+     *              admin refills the pool instead of silently completing.
+     */
+    public function assignLicenseCodes(Order $order): bool
+    {
+        $order->loadMissing(['items.product']);
+        $shortage = false;
+
+        DB::transaction(function () use ($order, &$shortage) {
+            foreach ($order->items as $item) {
+                $product = $item->product;
+                if (! $product || ! (bool) $product->is_digital) {
+                    continue;
+                }
+
+                // Idempotency: codes already linked to this item (webhook + return race)
+                $already = LicenseCode::where('order_item_id', $item->id)->count();
+                $needed = max((int) $item->quantity - $already, 0);
+                if ($needed <= 0) {
+                    continue;
+                }
+
+                $codes = LicenseCode::where('product_id', $product->id)
+                    ->where('status', 'available')
+                    ->lockForUpdate()
+                    ->limit($needed)
+                    ->get();
+
+                if ($codes->count() < $needed) {
+                    $shortage = true;
+                }
+
+                foreach ($codes as $code) {
+                    $code->update([
+                        'status' => 'sold',
+                        'order_id' => $order->id,
+                        'order_item_id' => $item->id,
+                        'assigned_at' => now(),
+                    ]);
+                }
+            }
+        });
+
+        return $shortage;
     }
 
     public function ensureInvoice(Order $order): OrderInvoice

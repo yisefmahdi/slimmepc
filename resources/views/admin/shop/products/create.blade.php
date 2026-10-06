@@ -63,7 +63,7 @@
                         <x-text-input id="old_price" name="old_price" type="number" step="0.01" value="{{ old('old_price') }}" placeholder="0.00" />
                         @error('old_price')<p class="mt-1 text-xs font-medium text-red-500">{{ $message }}</p>@enderror
                     </div>
-                    <div>
+                    <div id="delivery-time-wrap">
                         <x-input-label for="delivery_time">Levertijd</x-input-label>
                         <x-text-input id="delivery_time" name="delivery_time" value="{{ old('delivery_time') }}" placeholder="Bijv. 1-2 werkdagen" />
                         @error('delivery_time')<p class="mt-1 text-xs font-medium text-red-500">{{ $message }}</p>@enderror
@@ -77,8 +77,16 @@
                 <h3 class="text-xs font-bold uppercase tracking-wider text-blue-600">Voorraad & Status</h3>
             </div>
             <div class="p-4 sm:p-6">
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <div>
+                        <x-input-label for="is_digital">Digitaal product</x-input-label>
+                        <select id="is_digital" name="is_digital" class="h-[52px] w-full rounded-xl border px-4 text-[15px] outline-none" style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading)">
+                            <option value="0" @selected(old('is_digital', '0')=='0')>Nee (fysiek product)</option>
+                            <option value="1" @selected(old('is_digital')=='1')>Ja (digitaal: licentie + downloadlinks)</option>
+                        </select>
+                        @error('is_digital')<p class="mt-1 text-xs font-medium text-red-500">{{ $message }}</p>@enderror
+                    </div>
+                    <div id="stock-status-wrap">
                         <x-input-label for="stock_status">Voorraad status <span class="text-red-500">*</span></x-input-label>
                         <select id="stock_status" name="stock_status" class="h-[52px] w-full rounded-xl border px-4 text-[15px] outline-none" style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading)">
                             <option value="in_stock" @selected(old('stock_status')=='in_stock')>Op voorraad</option>
@@ -349,7 +357,8 @@
                         <button type="button" onclick="addField('sizes-container','sizes')" class="mt-2 inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-600 hover:bg-blue-100">+ Maat toevoegen</button>
                     </div>
                 </div>
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div id="digital-links-block" class="rounded-xl border border-blue-200 bg-blue-50/50 p-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <p class="sm:col-span-2 text-xs font-bold uppercase tracking-wider text-blue-600">Digitale levering <span class="normal-case font-medium text-blue-400">(alleen zichtbaar voor digitale producten — klant ontvangt dit na betaling per e-mail)</span></p>
                     <div>
                         <x-input-label for="external_link">Externe link</x-input-label>
                         <x-text-input id="external_link" name="external_link" value="{{ old('external_link') }}" placeholder="https://..." />
@@ -381,6 +390,22 @@
     </form>
 
     <script>
+        (function () {
+            const digitalSel = document.getElementById('is_digital');
+            const stockWrap = document.getElementById('stock-status-wrap');
+            const stockSel = document.getElementById('stock_status');
+            const deliveryWrap = document.getElementById('delivery-time-wrap');
+            function syncDigital() {
+                const isDigital = digitalSel && digitalSel.value === '1';
+                if (stockWrap) stockWrap.style.display = isDigital ? 'none' : '';
+                if (stockSel && isDigital) stockSel.value = 'in_stock';
+                if (deliveryWrap) deliveryWrap.style.display = isDigital ? 'none' : '';
+            }
+            if (digitalSel) {
+                digitalSel.addEventListener('change', syncDigital);
+                syncDigital();
+            }
+        })();
         function addField(containerId, name) {
             const container = document.getElementById(containerId);
             const div = document.createElement('div');

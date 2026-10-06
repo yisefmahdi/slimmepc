@@ -119,7 +119,7 @@ class CartService
 
         $afterDiscount = round(max($subtotal - $discount, 0), 2);
 
-        $shipping = $this->shippingCost($afterDiscount, $shippingMethod);
+        $shipping = $this->shippingCost($afterDiscount, $shippingMethod, $this->isAllDigital($cart));
 
         // Inclusive VAT 21%: tax = total * 21 / 121, subtotal excl = total - tax
         $totalIncl = round($afterDiscount + $shipping, 2);
@@ -144,11 +144,30 @@ class CartService
         ];
     }
 
-    public function shippingCost(float $afterDiscount, ?string $method = null): float
+    /**
+     * A cart with only digital products needs no shipping.
+     * Mixed carts (any physical product) pay normal shipping.
+     */
+    public function isAllDigital(Cart $cart): bool
+    {
+        $cart->loadMissing(['items.product']);
+        if ($cart->items->isEmpty()) {
+            return false;
+        }
+
+        return $cart->items->every(fn ($item) => (bool) ($item->product?->is_digital));
+    }
+
+    public function shippingCost(float $afterDiscount, ?string $method = null, bool $allDigital = false): float
     {
         $method = $method ?? 'delivery';
 
         if ($afterDiscount <= 0) {
+            return 0.0;
+        }
+
+        // Purely digital carts are delivered by e-mail — no shipping cost
+        if ($allDigital && $method !== 'pickup') {
             return 0.0;
         }
 

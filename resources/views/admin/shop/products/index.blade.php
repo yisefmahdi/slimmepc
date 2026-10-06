@@ -99,6 +99,13 @@
                             <option value="in_stock">Op voorraad</option>
                             <option value="out_of_stock">Niet op voorraad</option>
                         </select>
+                        <select id="productDigitalFilter"
+                                class="h-9 shrink-0 rounded-lg border px-2 text-xs outline-none sm:w-32"
+                                style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading)">
+                            <option value="all">Fysiek + digitaal</option>
+                            <option value="1">Digitaal</option>
+                            <option value="0">Fysiek</option>
+                        </select>
                         <div class="flex gap-2">
                             <input type="number" id="productMinPrice" placeholder="Min €" step="0.01"
                                    class="h-9 w-24 rounded-lg border px-2 text-xs outline-none" style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading)">
@@ -121,6 +128,7 @@
                     <span class="rounded-full bg-red-50 px-3 py-1.5 font-bold text-red-600 dark:bg-red-900/30 dark:text-red-400" id="countInactive">Inactief: 0</span>
                     <span class="rounded-full bg-amber-50 px-3 py-1.5 font-bold text-amber-600 dark:bg-amber-900/30 dark:text-amber-400" id="countInStock">Op voorraad: 0</span>
                     <span class="rounded-full bg-indigo-50 px-3 py-1.5 font-bold text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400" id="countFeatured">Op Home: 0</span>
+                    <span class="rounded-full bg-cyan-50 px-3 py-1.5 font-bold text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-400" id="countDigital">Digitaal: 0</span>
                 </div>
             </div>
 
