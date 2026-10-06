@@ -1,13 +1,10 @@
 <x-admin.layout title="Bestanden">
-    @php
-        $freeGb = $freeBytes > 0 ? number_format($freeBytes / 1024 / 1024 / 1024, 1, ',', '.') : '—';
-    @endphp
     <div class="flex h-[calc(100dvh-108px)] min-h-[24rem] flex-col overflow-hidden lg:h-[calc(100dvh-9rem)] lg:min-h-[26rem]">
 
         <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
                 <h2 class="text-base font-extrabold tracking-tight sm:text-lg" style="color: var(--c-heading)">Bestanden</h2>
-                <p class="mt-0.5 text-xs" style="color: var(--c-muted)">Upload installatiebestanden (geen limiet — vrije ruimte: {{ $freeGb }} GB). Kopieer de link en plak hem bij het product. Alleen kopers met een betaalde bestelling kunnen downloaden.</p>
+                <p class="mt-0.5 text-xs" style="color: var(--c-muted)">Upload installatiebestanden. Kopieer de link en plak hem bij het product. Alleen kopers met een betaalde bestelling kunnen downloaden.</p>
             </div>
             <button type="button" id="fileUploadBtn"
                class="inline-flex h-10 items-center gap-2 rounded-xl bg-blue-600 px-5 text-sm font-bold text-white shadow-[0_10px_25px_rgba(37,99,235,.25)] transition hover:-translate-y-0.5 hover:bg-blue-700">

@@ -21,10 +21,7 @@ class FilesController extends Controller
 
     public function index(Request $request)
     {
-        $freeBytes = @disk_free_space(Storage::disk('local')->path('')) ?: 0;
-
         return view('admin.shop.files.index', [
-            'freeBytes' => $freeBytes,
             'extensions' => self::ALLOWED_EXTENSIONS,
         ]);
     }
