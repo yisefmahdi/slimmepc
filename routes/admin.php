@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\MembershipController;
 use App\Http\Controllers\Admin\TechnicianController;
 use App\Http\Controllers\Admin\Shop\AiProductController;
 use App\Http\Controllers\Admin\Shop\CategoryController as ShopCategoryController;
+use App\Http\Controllers\Admin\Shop\FilesController as ShopFilesController;
 use App\Http\Controllers\Admin\Shop\LicenseCodeController as ShopLicenseCodeController;
 use App\Http\Controllers\Admin\Shop\ProductController as ShopProductController;
 use Illuminate\Support\Facades\Route;
@@ -309,6 +310,14 @@ Route::prefix('admin')
                     Route::post('/{product}/toggle', [ShopProductController::class, 'toggleStatus'])->name('toggle');
                     Route::post('/{product}/toggle-featured', [ShopProductController::class, 'toggleFeatured'])->name('toggle-featured');
                     Route::post('/generate-description', [AiProductController::class, 'generateDescription'])->name('generate-description');
+                });
+
+                Route::prefix('bestanden')->name('bestanden.')->group(function () {
+                    Route::get('/', [ShopFilesController::class, 'index'])->name('index');
+                    Route::get('/data', [ShopFilesController::class, 'data'])->name('data');
+                    Route::post('/chunk', [ShopFilesController::class, 'chunk'])->name('chunk');
+                    Route::post('/complete', [ShopFilesController::class, 'complete'])->name('complete');
+                    Route::delete('/{file}', [ShopFilesController::class, 'destroy'])->name('destroy');
                 });
 
                 Route::prefix('license-codes')->name('license-codes.')->group(function () {

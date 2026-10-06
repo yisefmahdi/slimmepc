@@ -5,6 +5,7 @@ use App\Http\Controllers\AfspraakController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\LidmaatschapController;
 use App\Http\Controllers\PageController;
@@ -120,6 +121,11 @@ Route::post('/payment/webhook', [PaymentController::class, 'webhook'])->name('pa
 Route::get('/payment/return/{order}', [PaymentController::class, 'return'])->name('payment.return');
 Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
 Route::get('/payment/failed', [PaymentController::class, 'failed'])->name('payment.failed');
+
+// Protected digital delivery files (ownership or per-order signature required)
+Route::get('/download/bestand/{file}', [DownloadController::class, 'file'])
+    ->middleware('throttle:120,1')
+    ->name('download.file');
 
 // Live Chat (AI + medewerker) — CSRF-protected, throttle per endpoint
 Route::prefix('ai-chat')->name('ai-chat.')->group(function () {

@@ -166,17 +166,12 @@
                                             @else
                                                 <p class="mt-2 text-[12px] text-slate-500">Je licentiecode wordt zo snel mogelijk toegevoegd. Neem bij vragen contact met ons op.</p>
                                             @endif
-                                            @php
-                                                $dLinks = [];
-                                                if ($dProduct?->download_32bit_url) $dLinks[] = ['label' => 'Download 32-bit', 'icon' => 'download', 'url' => $dProduct->download_32bit_url];
-                                                if ($dProduct?->download_64bit_url) $dLinks[] = ['label' => 'Download 64-bit', 'icon' => 'download', 'url' => $dProduct->download_64bit_url];
-                                                if ($dProduct?->manual_url) $dLinks[] = ['label' => 'Handleiding', 'icon' => 'book-open', 'url' => $dProduct->manual_url];
-                                            @endphp
+                                            @php $dLinks = $dProduct ? \App\Support\DigitalDelivery::linksForProduct($dProduct, $order) : []; @endphp
                                             @if(!empty($dLinks))
                                                 <div class="mt-3 flex flex-wrap gap-2">
                                                     @foreach($dLinks as $lnk)
-                                                        <a href="{{ $lnk['url'] }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-[12px] font-bold text-white hover:bg-blue-700 transition">
-                                                            <i data-lucide="{{ $lnk['icon'] }}" class="w-4 h-4"></i> {{ $lnk['label'] }}
+                                                        <a href="{{ $lnk['url'] }}" class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-[12px] font-bold text-white hover:bg-blue-700 transition">
+                                                            <i data-lucide="download" class="w-4 h-4"></i> {{ $lnk['label'] }}
                                                         </a>
                                                     @endforeach
                                                 </div>

@@ -27,7 +27,9 @@
 @endsection
 
 @php
+    use App\Support\DigitalDelivery;
     $digitalItems = collect();
+    $orderForMail = null;
     try {
         $orderForMail = $invoice->order()->with(['items.product', 'items.licenseCodes'])->first();
         $digitalItems = $orderForMail ? $orderForMail->items->filter(fn ($it) => (bool) ($it->product?->is_digital)) : collect();
@@ -51,12 +53,7 @@
       <div style="font-family:ui-monospace, Menlo, Consolas, monospace; font-size:13px; font-weight:700; color:#0b1734; background-color:#f8fafc; border:1px dashed #cbd5e1; border-radius:8px; padding:8px 12px; margin-bottom:6px;">{{ $lc->code }}</div>
       @endforeach
       @endif
-      @php
-        $links = [];
-        if ($dProduct?->download_32bit_url) $links[] = ['label' => 'Download 32-bit versie', 'url' => $dProduct->download_32bit_url];
-        if ($dProduct?->download_64bit_url) $links[] = ['label' => 'Download 64-bit versie', 'url' => $dProduct->download_64bit_url];
-        if ($dProduct?->manual_url) $links[] = ['label' => 'Installatiehandleiding', 'url' => $dProduct->manual_url];
-      @endphp
+      @php $links = $dProduct ? DigitalDelivery::linksForProduct($dProduct, $orderForMail) : []; @endphp
       @if(!empty($links))
       <div style="font-size:12px; font-weight:700; color:#64748b; margin:12px 0 6px;">Downloadlinks</div>
       @foreach($links as $lnk)
