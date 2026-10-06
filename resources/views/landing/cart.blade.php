@@ -274,12 +274,10 @@
 
                     <div class="h-px bg-[#DEE5EE] my-7"></div>
 
-                    <div class="grid grid-cols-5 gap-2">
+                    <div class="grid grid-cols-3 gap-2">
                         <div class="h-[40px] rounded-[5px] border border-[#DCE4EF] flex items-center justify-center"><span class="text-[10px] font-black text-[#D50067]">iDEAL</span></div>
                         <div class="h-[40px] rounded-[5px] border border-[#DCE4EF] flex items-center justify-center"><span class="text-[8px] font-black text-[#163A77]">Bancontact</span></div>
-                        <div class="h-[40px] rounded-[5px] border border-[#DCE4EF] flex items-center justify-center"><span class="text-[11px] font-black italic text-[#0070BA]">PayPal</span></div>
                         <div class="h-[40px] rounded-[5px] border border-[#DCE4EF] flex items-center justify-center"><span class="text-[12px] font-black italic text-[#17357A]">VISA</span></div>
-                        <div class="h-[40px] rounded-[5px] border border-[#DCE4EF] flex items-center justify-center"><div class="relative w-[31px] h-[18px]"><span class="absolute left-0 top-0 w-[18px] h-[18px] rounded-full bg-[#EB001B]"></span><span class="absolute right-0 top-0 w-[18px] h-[18px] rounded-full bg-[#F79E1B] opacity-90"></span></div></div>
                     </div>
                 </aside>
             </div>

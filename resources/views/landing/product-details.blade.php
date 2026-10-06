@@ -251,7 +251,7 @@
                                 @endfor
                             </div>
                             <span class="text-sm font-semibold text-slate-700">{{ $displayAvg }}</span>
-                            <span class="text-xs text-slate-400">({{ $ratingCount }} reviews)</span>
+                            <span class="text-xs text-slate-600 font-medium">({{ $ratingCount }} reviews)</span>
                             <span class="text-slate-300">|</span>
                             <button type="button" onclick="openReviewModal()" class="text-xs font-semibold text-slimme-600 hover:underline">Schrijf een review</button>
                         </div>
@@ -260,7 +260,7 @@
                         <i class="{{ ($isFavorite ?? false) ? 'fa-solid' : 'fa-regular' }} fa-heart"></i>
                     </button>
                 </div>
-                @if(!empty($shortSpecs))<p class="mt-6 text-[14px] text-slate-600 font-medium">{{ $shortSpecs }}</p>@endif
+                @if(!empty($shortSpecs))<p class="mt-6 text-[14px] text-slate-700 font-semibold">{{ $shortSpecs }}</p>@endif
                 <div class="mt-6">
                     <div class="flex items-end gap-3">
                         <span class="text-[38px] leading-none font-extrabold tracking-[-.03em] text-[#071638]">€{{ number_format($finalPrice, 2, ',', '.') }}</span>
@@ -271,7 +271,7 @@
                             @endif
                         @endif
                     </div>
-                    <div class="text-[11px] text-slate-400 mt-2">Inclusief btw</div>
+                    <div class="text-[11px] text-slate-600 mt-2">Inclusief btw</div>
                     @php
                         $colorNamesPd = ['zwart'=>'#000000','black'=>'#000000','wit'=>'#FFFFFF','white'=>'#FFFFFF','zilver'=>'#C0C0C0','silver'=>'#C0C0C0','grijs'=>'#808080','gray'=>'#808080','grey'=>'#808080','antraciet'=>'#2F3640','blauw'=>'#1D4ED8','blue'=>'#1D4ED8','rood'=>'#DC2626','red'=>'#DC2626','groen'=>'#16A34A','green'=>'#16A34A','geel'=>'#EAB308','yellow'=>'#EAB308','oranje'=>'#EA580C','orange'=>'#EA580C','paars'=>'#9333EA','purple'=>'#9333EA','roze'=>'#EC4899','pink'=>'#EC4899','bruin'=>'#78350F','brown'=>'#78350F','goud'=>'#C9A227','gold'=>'#C9A227','beige'=>'#E8DCC4'];
                         $displayColors = [];
@@ -292,7 +292,7 @@
                         </div>
                     </div>
                     @endif
-                    @if($product->sku)<div class="text-[11px] text-slate-400">SKU: {{ $product->sku }}</div>@endif
+                    @if($product->sku)<div class="text-[11px] text-slate-600">SKU: {{ $product->sku }}</div>@endif
                 </div>
                 <div class="mt-6 bg-gradient-to-r from-emerald-50/80 via-white to-white border border-emerald-100 rounded-xl px-4 py-3.5">
                     <div class="flex items-center gap-3">
@@ -300,7 +300,7 @@
                         <span class="text-[13px] font-semibold {{ $inStock ? 'text-emerald-700' : 'text-red-600' }}">{{ $inStock ? 'Op voorraad' : 'Niet op voorraad' }}</span>
                     </div>
                     @if(!empty($deliveryText))
-                    <div class="flex items-center gap-3 text-[12px] text-slate-600 mt-2.5">
+                    <div class="flex items-center gap-3 text-[12px] text-slate-700 font-medium mt-2.5">
                         <i class="fa-solid fa-truck-fast text-slimme-600"></i> {{ $deliveryText }}
                     </div>
                     @endif
@@ -322,8 +322,8 @@
                                     <i data-lucide="star" class="w-4 h-4"></i>
                                 @endif
                             </div>
-                            <strong class="block text-[12px] mt-3">{{ $qs['title'] }}</strong>
-                            @if(!empty($qs['sub']))<span class="text-[10px] text-slate-400">{{ $qs['sub'] }}</span>@endif
+                            <strong class="block text-[12px] mt-3 text-[#071638]">{{ $qs['title'] }}</strong>
+                            @if(!empty($qs['sub']))<span class="text-[11px] font-semibold text-slate-700">{{ $qs['sub'] }}</span>@endif
                         </div>
                     @endforeach
                 </div>
@@ -394,8 +394,8 @@
                                         <i data-lucide="star" class="w-4 h-4"></i>
                                     @endif
                                 </div>
-                                <strong class="block text-[11px] mt-3">{{ $h['title'] }}</strong>
-                                @if(!empty($h['subtitle']))<span class="text-[10px] text-slate-400">{{ $h['subtitle'] }}</span>@endif
+                                <strong class="block text-[11px] mt-3 text-[#071638]">{{ $h['title'] }}</strong>
+                                @if(!empty($h['subtitle']))<span class="text-[11px] font-semibold text-slate-700">{{ $h['subtitle'] }}</span>@endif
                             </div>
                         @endforeach
                     </div>
@@ -444,7 +444,7 @@
                 </div>
                 <div class="grid md:grid-cols-2 gap-x-10">
                     @foreach($specs as $row)
-                        <div class="spec-row flex justify-between gap-5 py-3 border-b border-slate-100 text-[12px]"><strong>{{ $row['label'] }}</strong><span class="text-slate-500 text-right">{{ $row['value'] }}</span></div>
+                        <div class="spec-row flex justify-between gap-5 py-3 border-b border-slate-100 text-[12px]"><strong>{{ $row['label'] }}</strong><span class="text-slate-700 font-semibold text-right">{{ $row['value'] }}</span></div>
                     @endforeach
                 </div>
             </div>
@@ -460,7 +460,7 @@
                     <div>
                         <div class="inline-flex items-center gap-2 bg-blue-50 text-slimme-600 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wide mb-3"><span class="w-1.5 h-1.5 bg-slimme-600 rounded-full"></span> Onze keuze</div>
                         <h2 class="font-extrabold text-[22px] tracking-[-.02em]">Geselecteerd door Slimme-PC</h2>
-                        <p class="text-[12px] text-slate-500 mt-1 mb-5">Geen willekeurig model — wij kijken naar prijs, prestaties en betrouwbaarheid.</p>
+                        <p class="text-[12px] text-slate-600 mt-1 mb-5">Geen willekeurig model — wij kijken naar prijs, prestaties en betrouwbaarheid.</p>
                         <div class="grid sm:grid-cols-2 gap-x-7 gap-y-3">
                             <div class="advantage text-[12px] text-slate-700"><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Sterke prijs/prestatie</div>
                             <div class="advantage text-[12px] text-slate-700"><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Ideaal voor studie & werk</div>
@@ -479,7 +479,7 @@
                         </div>
                         <div>
                             <h3 class="font-bold text-[15px]">Persoonlijk advies nodig?</h3>
-                            <p class="text-[12px] leading-5 text-slate-500 mt-2">Twijfel je of dit de juiste laptop is? Wij helpen je graag persoonlijk.</p>
+                            <p class="text-[12px] leading-5 text-slate-600 mt-2">Twijfel je of dit de juiste laptop is? Wij helpen je graag persoonlijk.</p>
                             <a href="{{ route('contact') }}" class="inline-flex mt-4 px-4 py-2.5 bg-slimme-50 text-slimme-600 rounded-lg text-xs font-semibold border border-blue-100 hover:bg-slimme-600 hover:text-white transition">Neem contact op <i class="fa-solid fa-arrow-right ml-2"></i></a>
                         </div>
                     </div>
@@ -492,7 +492,7 @@
                 <div>
                     <span class="text-[10px] uppercase tracking-[.12em] font-bold text-slimme-600">Handig erbij</span>
                     <h2 class="font-extrabold text-[20px] mt-1">Maak je setup compleet</h2>
-                    <p class="text-[12px] text-slate-500 mt-1">Accessoires die goed passen bij deze laptop.</p>
+                    <p class="text-[12px] text-slate-600 mt-1">Accessoires die goed passen bij deze laptop.</p>
                 </div>
                 @if($relatedProducts->isNotEmpty())
                 <a href="{{ route('webshop.category', $category->slug) }}" class="hidden sm:flex items-center gap-2 text-[11px] font-semibold text-slimme-600 hover:gap-3 transition-all">Bekijk alle accessoires <i class="fa-solid fa-arrow-right"></i></a>
@@ -522,7 +522,7 @@
                                 $relFeatStrs = array_map(function($f){ if(is_array($f) && isset($f['value'])){ $t=trim($f['title']??''); $v=trim($f['value']); return $t!==''? $t.': '.$v : $v; } return (string)$f; }, $relFeats);
                                 $relFeatStrs = array_values(array_filter($relFeatStrs));
                             @endphp
-                            <p class="text-[10px] text-slate-400 mt-1">{{ $rel->brand ?: $category->name }}@if(!empty($relFeatStrs)) · {{ Str::limit(implode(' · ', array_slice($relFeatStrs,0,2)), 30) }}@endif</p>
+                            <p class="text-[10px] text-slate-600 font-medium mt-1">{{ $rel->brand ?: $category->name }}@if(!empty($relFeatStrs)) · {{ Str::limit(implode(' · ', array_slice($relFeatStrs,0,2)), 30) }}@endif</p>
                             <div class="mt-4"><div class="text-[18px] font-extrabold text-[#071638]">€{{ number_format($relPrice, 2, ',', '.') }}</div></div>
                             <div class="flex items-center justify-between mt-4">
                                 <div class="text-[10px] text-emerald-600 font-semibold"><i class="fa-solid fa-circle text-[6px] mr-1"></i> Op voorraad</div>
@@ -598,7 +598,7 @@
                 </div>
                 <div>
                     <strong class="text-[12px]">{{ $product->title }}</strong>
-                    @if(!empty($shortSpecs))<div class="text-[10px] text-slate-400 mt-1">{{ Str::limit($shortSpecs, 50) }}</div>@endif
+                    @if(!empty($shortSpecs))<div class="text-[10px] text-slate-600 mt-1">{{ Str::limit($shortSpecs, 50) }}</div>@endif
                 </div>
             </div>
             <div class="hidden sm:block min-w-[125px]">

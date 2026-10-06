@@ -274,12 +274,10 @@
                     </section>
                     <section class="bg-white border border-borderBlue rounded-2xl p-4">
                         <div class="text-center text-[11px] uppercase tracking-[.14em] font-semibold text-slate-400 mb-3">Veilig betalen met</div>
-                        <div class="grid grid-cols-5 gap-2 text-center">
+                        <div class="grid grid-cols-3 gap-2 text-center">
                             <div class="h-11 rounded-lg border flex items-center justify-center text-[11px] font-bold text-pink-700">iDEAL</div>
                             <div class="h-11 rounded-lg border flex items-center justify-center text-[9px] font-bold text-blue-700">Bancontact</div>
-                            <div class="h-11 rounded-lg border flex items-center justify-center font-bold text-blue-600 text-xs">PayPal</div>
                             <div class="h-11 rounded-lg border flex items-center justify-center font-bold text-blue-700 text-xs">VISA</div>
-                            <div class="h-11 rounded-lg border flex items-center justify-center"><div class="flex"><span class="block w-5 h-5 bg-red-500 rounded-full"></span><span class="block w-5 h-5 bg-yellow-400 rounded-full -ml-2"></span></div></div>
                         </div>
                     </section>
                 </aside>
