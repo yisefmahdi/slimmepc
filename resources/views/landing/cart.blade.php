@@ -156,7 +156,7 @@
 
                                     {{-- PRICE --}}
                                     <div class="col-span-1">
-                                        <span class="md:hidden block mb-1 text-[11px] text-[#7685A4]">Prijs</span>
+                                        <span class="md:hidden block mb-1 text-[11px] font-semibold text-[#354D78]">Prijs</span>
                                         <span class="text-[15px] sm:text-[17px] font-bold whitespace-nowrap text-[#07163B]">€{{ number_format($item->price_snapshot, 2, ',', '.') }}</span>
                                     </div>
 
@@ -175,7 +175,7 @@
 
                                     {{-- SUBTOTAL --}}
                                     <div class="col-span-1 md:text-center">
-                                        <span class="md:hidden block mb-1 text-[11px] text-[#7685A4]">Subtotaal</span>
+                                        <span class="md:hidden block mb-1 text-[11px] font-semibold text-[#354D78]">Subtotaal</span>
                                         <span id="subtotal-{{ $item->id }}" class="text-[15px] sm:text-[17px] font-bold whitespace-nowrap text-[#07163B]">€{{ number_format($item->price_snapshot * $item->quantity, 2, ',', '.') }}</span>
                                     </div>
 
@@ -562,7 +562,7 @@
                         </div>
                     </div>
                     <div class="col-span-1">
-                        <span class="md:hidden block mb-1 text-[11px] text-[#7685A4]">Prijs</span>
+                        <span class="md:hidden block mb-1 text-[11px] font-semibold text-[#354D78]">Prijs</span>
                         <span class="text-[15px] sm:text-[17px] font-bold whitespace-nowrap text-[#07163B]">${price}</span>
                     </div>
                     <div class="col-span-1 flex justify-end md:justify-center">
@@ -577,7 +577,7 @@
                         </div>
                     </div>
                     <div class="col-span-1 md:text-center">
-                        <span class="md:hidden block mb-1 text-[11px] text-[#7685A4]">Subtotaal</span>
+                        <span class="md:hidden block mb-1 text-[11px] font-semibold text-[#354D78]">Subtotaal</span>
                         <span id="subtotal-${item.id}" class="text-[15px] sm:text-[17px] font-bold whitespace-nowrap text-[#07163B]">${subtotal}</span>
                     </div>
                     <div class="col-span-1 flex justify-end md:justify-center">

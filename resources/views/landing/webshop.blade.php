@@ -159,7 +159,7 @@
             min-height: unset !important;
             font-size: 10px !important;
             line-height: 1rem !important;
-            color: #64748b !important;
+            color: #334155 !important;
         }
         .webshop-root .product-image {
             width: auto !important;
@@ -344,7 +344,7 @@
                             {{ $isSearch ? 'Zoekresultaten' : $currentCategory->name }}
                         </h1>
 
-                        <p class="mt-4 max-w-[360px] text-[14px] sm:text-[15px] leading-6 text-slate-500">
+                        <p class="mt-4 max-w-[360px] text-[14px] sm:text-[15px] leading-6 text-slate-600">
                             @if($isSearch)
                                 {{ $products->total() }} {{ $products->total() === 1 ? 'resultaat' : 'resultaten' }}{{ $searchQuery !== '' ? ' voor "'.$searchQuery.'"' : '' }} in alle categorieën.
                             @else
@@ -384,7 +384,7 @@
                                     <h3 class="text-[13px] font-extrabold">
                                         Getest door Slimme-PC
                                     </h3>
-                                    <p class="mt-1 text-[11px] leading-5 text-slate-500">
+                                    <p class="mt-1 text-[11px] leading-5 text-slate-600">
                                         Alle systemen zijn door ons getest en gecontroleerd.
                                     </p>
                                 </div>
@@ -492,7 +492,7 @@
                                         class="w-full"
                                     >
 
-                                    <div class="mt-1 flex justify-between text-[10px] text-slate-500">
+                                    <div class="mt-1 flex justify-between text-[10px] font-medium text-slate-600">
                                         <span>€0</span>
                                         <span>€2000+</span>
                                     </div>
@@ -614,7 +614,7 @@
                             </div>
 
                             <div class="flex items-center gap-2">
-                                <span class="hidden sm:block text-[11px] text-slate-500">
+                                <span class="hidden sm:block text-[11px] font-medium text-slate-600">
                                     Sorteren op:
                                 </span>
 
@@ -675,7 +675,7 @@
                         <!-- PAGINATION -->
                         @if($products->hasPages())
                             <div class="reveal mt-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                                <div class="text-[11px] text-slate-500">
+                                <div class="text-[11px] text-slate-600">
                                     Toont {{ $products->firstItem() }}–{{ $products->lastItem() }} van de {{ $products->total() }} resultaten
                                 </div>
 
@@ -691,7 +691,7 @@
                             </div>
                         @else
                             <div class="reveal mt-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                                <div class="text-[11px] text-slate-500">
+                                <div class="text-[11px] text-slate-600">
                                     Toont {{ $products->firstItem() ?? 1 }}–{{ $products->lastItem() ?? $products->count() }} van de {{ $products->total() }} resultaten
                                 </div>
 
@@ -760,7 +760,7 @@
                         </div>
                         <div>
                             <div class="text-[12px] font-bold">Gratis verzending</div>
-                            <div class="text-[10px] text-slate-500 mt-1">vanaf €75</div>
+                            <div class="text-[10px] text-slate-600 mt-1">vanaf €75</div>
                         </div>
                     </div>
 
@@ -770,7 +770,7 @@
                         </div>
                         <div>
                             <div class="text-[12px] font-bold">Afhalen in Apeldoorn</div>
-                            <div class="text-[10px] text-slate-500 mt-1">Binnen openingstijden</div>
+                            <div class="text-[10px] text-slate-600 mt-1">Binnen openingstijden</div>
                         </div>
                     </div>
 
@@ -780,7 +780,7 @@
                         </div>
                         <div>
                             <div class="text-[12px] font-bold">Garantie</div>
-                            <div class="text-[10px] text-slate-500 mt-1">Op onze producten</div>
+                            <div class="text-[10px] text-slate-600 mt-1">Op onze producten</div>
                         </div>
                     </div>
 
@@ -790,7 +790,7 @@
                         </div>
                         <div>
                             <div class="text-[12px] font-bold">Veilig betalen</div>
-                            <div class="text-[10px] text-slate-500 mt-1">Betrouwbare betaalmethodes</div>
+                            <div class="text-[10px] text-slate-600 mt-1">Betrouwbare betaalmethodes</div>
                         </div>
                     </div>
                 </div>

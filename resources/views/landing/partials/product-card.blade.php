@@ -104,7 +104,7 @@
             </h3>
         </a>
 
-        <p class="mt-1 text-[10px] text-slate-500">
+        <p class="mt-1 text-[10px] font-semibold text-slate-700">
             {{ $specs }}
         </p>
     </div>
@@ -134,7 +134,7 @@
                     @endfor
                 </span>
                 <span class="font-bold {{ $reviewCount>0 ? 'text-slate-700' : 'text-slate-400' }}">{{ $reviewCount>0 ? number_format($avgRating,1) : '—' }}</span>
-                <span class="text-slate-400">({{ $reviewCount }})</span>
+                <span class="text-slate-500 font-medium">({{ $reviewCount }})</span>
             </div>
 
             <x-add-to-cart :product="$product" variant="grid" />

@@ -194,7 +194,7 @@ function showToast(message, type) {
     let $container = $('[data-toast-container]');
     if (!$container.length) {
         $container = $(
-            '<div data-toast-container class="pointer-events-none fixed bottom-5 right-5 z-[70] flex w-auto max-w-sm flex-col gap-3"></div>'
+            '<div data-toast-container class="pointer-events-none fixed bottom-5 right-5 z-[1200] flex w-auto max-w-sm flex-col gap-3"></div>'
         ).appendTo('body');
     }
 

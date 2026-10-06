@@ -73,7 +73,7 @@
                             <div class="w-11 h-11 rounded-xl bg-blue-50 text-brand flex items-center justify-center shrink-0"><i data-lucide="user" class="w-5 h-5"></i></div>
                             <div class="flex-1">
                                 <h2 class="font-bold text-lg">Contactgegevens</h2>
-                                <p class="text-sm text-slate-500 mt-1">We gebruiken deze gegevens voor je bestelling.</p>
+                                <p class="text-sm text-slate-600 mt-1">We gebruiken deze gegevens voor je bestelling.</p>
                             </div>
                         </div>
                         <div class="mt-6 md:pl-[60px]">
@@ -91,7 +91,7 @@
                     @if($savedAddresses->isNotEmpty())
                         <section class="bg-white border border-borderBlue rounded-2xl shadow-card p-5 md:p-7">
                             <h2 class="font-bold text-lg">Opgeslagen adressen</h2>
-                            <p class="text-sm text-slate-500 mt-1">Kies een eerder gebruikt adres of vul een nieuw adres in.</p>
+                            <p class="text-sm text-slate-600 mt-1">Kies een eerder gebruikt adres of vul een nieuw adres in.</p>
                             <select id="savedAddress" name="saved_address_id" class="field mt-4 w-full h-11 border border-slate-300 bg-slate-50/60 rounded-xl px-4 text-sm">
                                 <option value="">Nieuw adres invoeren</option>
                                 @foreach($savedAddresses as $a)
@@ -107,7 +107,7 @@
                             <div class="w-11 h-11 rounded-xl bg-blue-50 text-brand flex items-center justify-center shrink-0"><i data-lucide="map-pin" class="w-5 h-5"></i></div>
                             <div>
                                 <h2 class="font-bold text-lg">Verzendadres</h2>
-                                <p class="text-sm text-slate-500 mt-1">Waar mogen we jouw bestelling bezorgen?</p>
+                                <p class="text-sm text-slate-600 mt-1">Waar mogen we jouw bestelling bezorgen?</p>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-4 mt-6 md:pl-[60px]">
@@ -164,7 +164,7 @@
                             <div class="w-11 h-11 rounded-xl bg-blue-50 text-brand flex items-center justify-center shrink-0"><i data-lucide="truck" class="w-5 h-5"></i></div>
                             <div>
                                 <h2 class="font-bold text-lg">Verzendmethode</h2>
-                                <p class="text-sm text-slate-500 mt-1">Kies hoe je jouw bestelling wilt ontvangen.</p>
+                                <p class="text-sm text-slate-600 mt-1">Kies hoe je jouw bestelling wilt ontvangen.</p>
                             </div>
                         </div>
                         <div class="mt-6 md:pl-[60px] space-y-3">
@@ -176,7 +176,7 @@
                                     </div>
                                     <div class="flex-1">
                                         <span class="font-semibold text-sm">{{ $rate->name }}</span>
-                                        <span class="block text-xs text-slate-500 mt-1">
+<span class="block text-xs font-medium text-slate-600 mt-1">
                                             @if($rate->slug === 'pickup') We laten je weten zodra de bestelling klaarstaat in Apeldoorn
                                             @elseif($rate->free_above) Gratis vanaf €{{ number_format($rate->free_above, 2, ',', '.') }} · anders €{{ number_format($rate->price, 2, ',', '.') }}
                                             @else €{{ number_format($rate->price, 2, ',', '.') }} @endif
@@ -214,7 +214,7 @@
                             <div class="flex items-center justify-between gap-4">
                                 <div>
                                     <h2 class="font-bold text-lg">Jouw bestelling</h2>
-                                    <span class="text-xs text-slate-500" id="summaryCount">{{ $totals['count'] }} producten</span>
+                                    <span class="text-xs font-semibold text-slate-600" id="summaryCount">{{ $totals['count'] }} producten</span>
                                 </div>
                                 <a href="{{ route('cart.index') }}" class="text-sm text-brand font-semibold hover:underline">Wijzig</a>
                             </div>
@@ -253,14 +253,14 @@
                                 @endif
                             </div>
                             <div class="space-y-3">
-                                <div class="flex justify-between text-sm"><span class="text-slate-500">Subtotaal</span><span id="sumSubtotal">€{{ number_format($totals['subtotal'], 2, ',', '.') }}</span></div>
-                                <div id="discountRow" class="{{ $totals['discount'] > 0 ? '' : 'hidden' }} flex justify-between text-sm"><span class="text-slate-500">Korting</span><span id="sumDiscount" class="text-emerald-600 font-semibold">−€{{ number_format($totals['discount'], 2, ',', '.') }}</span></div>
-                                <div class="flex justify-between text-sm"><span class="text-slate-500">Verzending</span><span id="sumShipping" class="font-semibold {{ $totals['shipping'] == 0 ? 'text-emerald-600' : '' }}">@if($totals['shipping'] == 0) Gratis @else €{{ number_format($totals['shipping'], 2, ',', '.') }} @endif</span></div>
-                                <div class="flex justify-between text-sm"><span class="text-slate-500">BTW (21% incl.)</span><span id="sumTax">€{{ number_format($totals['tax'], 2, ',', '.') }}</span></div>
+                                <div class="flex justify-between text-sm"><span class="font-medium text-slate-600">Subtotaal</span><span id="sumSubtotal">€{{ number_format($totals['subtotal'], 2, ',', '.') }}</span></div>
+                                <div id="discountRow" class="{{ $totals['discount'] > 0 ? '' : 'hidden' }} flex justify-between text-sm"><span class="font-medium text-slate-600">Korting</span><span id="sumDiscount" class="text-emerald-600 font-semibold">−€{{ number_format($totals['discount'], 2, ',', '.') }}</span></div>
+                                <div class="flex justify-between text-sm"><span class="font-medium text-slate-600">Verzending</span><span id="sumShipping" class="font-semibold {{ $totals['shipping'] == 0 ? 'text-emerald-600' : '' }}">@if($totals['shipping'] == 0) Gratis @else €{{ number_format($totals['shipping'], 2, ',', '.') }} @endif</span></div>
+                                <div class="flex justify-between text-sm"><span class="font-medium text-slate-600">BTW (21% incl.)</span><span id="sumTax">€{{ number_format($totals['tax'], 2, ',', '.') }}</span></div>
                             </div>
                             <div class="border-t border-slate-200 mt-5 pt-5">
                                 <div class="flex justify-between items-end">
-                                    <div><span class="block text-lg font-bold">Totaal</span><span class="block text-xs text-slate-500 mt-1">Inclusief btw</span></div>
+                                    <div><span class="block text-lg font-bold">Totaal</span><span class="block text-xs text-slate-600 mt-1">Inclusief btw</span></div>
                                     <span id="sumTotal" class="block text-2xl font-bold text-brand">€{{ number_format($totals['total'], 2, ',', '.') }}</span>
                                 </div>
                             </div>
@@ -273,7 +273,7 @@
                         </div>
                     </section>
                     <section class="bg-white border border-borderBlue rounded-2xl p-4">
-                        <div class="text-center text-[11px] uppercase tracking-[.14em] font-semibold text-slate-400 mb-3">Veilig betalen met</div>
+                        <div class="text-center text-[11px] uppercase tracking-[.14em] font-semibold text-slate-600 mb-3">Veilig betalen met</div>
                         <div class="grid grid-cols-3 gap-2 text-center">
                             <div class="h-11 rounded-lg border flex items-center justify-center text-[11px] font-bold text-pink-700">iDEAL</div>
                             <div class="h-11 rounded-lg border flex items-center justify-center text-[9px] font-bold text-blue-700">Bancontact</div>
