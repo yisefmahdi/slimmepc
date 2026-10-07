@@ -9,6 +9,19 @@ return [
                 'badge_icon' => 'shield-check',
                 'badge_title' => 'Veilig aanmelden',
                 'badge_subtitle' => 'Binnen ongeveer 2 minuten',
+                'why_title' => 'Waarom aanmelden?',
+                'why_items' => [
+                    ['icon' => 'clipboard-check', 'title' => 'Duidelijke registratie', 'subtitle' => 'We weten direct om welk apparaat en probleem het gaat.'],
+                    ['icon' => 'zap', 'title' => 'Snellere verwerking', 'subtitle' => 'Je reparatie komt direct en volledig in ons systeem.'],
+                    ['icon' => 'badge-euro', 'title' => 'Reparatie pas na akkoord', 'subtitle' => 'Je ontvangt altijd eerst advies en een prijsopgave.'],
+                    ['icon' => 'lock-keyhole', 'title' => 'Jouw data is veilig', 'subtitle' => 'We behandelen jouw apparaat en gegevens met zorg.'],
+                ],
+                'why_contact_title' => 'Liever direct contact?',
+                'why_contact_subtitle' => 'Bel of stuur ons een WhatsApp-bericht.',
+                'why_whatsapp_label' => 'WhatsApp',
+                'why_whatsapp_number' => '31552032145',
+                'why_phone_label' => '055 203 21 45',
+                'why_phone_number' => '+31552032145',
             ],
             'devices' => [
                 'title' => 'Kies je apparaat',
@@ -23,21 +36,6 @@ return [
                     ['id' => 'network', 'label' => 'Printer / Netwerk', 'icon' => 'router'],
                     ['id' => 'other', 'label' => 'Anders', 'icon' => 'ellipsis'],
                 ],
-            ],
-            'why' => [
-                'title' => 'Waarom aanmelden?',
-                'items' => [
-                    ['icon' => 'clipboard-check', 'title' => 'Duidelijke registratie', 'subtitle' => 'We weten direct om welk apparaat en probleem het gaat.'],
-                    ['icon' => 'zap', 'title' => 'Snellere verwerking', 'subtitle' => 'Je reparatie komt direct en volledig in ons systeem.'],
-                    ['icon' => 'badge-euro', 'title' => 'Reparatie pas na akkoord', 'subtitle' => 'Je ontvangt altijd eerst advies en een prijsopgave.'],
-                    ['icon' => 'lock-keyhole', 'title' => 'Jouw data is veilig', 'subtitle' => 'We behandelen jouw apparaat en gegevens met zorg.'],
-                ],
-                'contact_title' => 'Liever direct contact?',
-                'contact_subtitle' => 'Bel of stuur ons een WhatsApp-bericht.',
-                'whatsapp_label' => 'WhatsApp',
-                'whatsapp_number' => '31552032145',
-                'phone_label' => '055 203 21 45',
-                'phone_number' => '+31552032145',
             ],
             'trust' => [
                 'items' => [

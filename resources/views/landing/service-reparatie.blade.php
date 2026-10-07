@@ -733,66 +733,50 @@
 
             <!-- SIDEBAR -->
             <aside class="space-y-5 lg:sticky lg:top-6">
+                @php
+                    $whyHero = $s['hero'] ?? [];
+                    $whyItems = $whyHero['why_items'] ?? [];
+                    if (empty($whyItems)) $whyItems = [
+                        ['icon' => 'clipboard-check', 'title' => 'Duidelijke registratie', 'subtitle' => 'We weten direct om welk apparaat en probleem het gaat.'],
+                        ['icon' => 'zap', 'title' => 'Snellere verwerking', 'subtitle' => 'Je reparatie komt direct en volledig in ons systeem.'],
+                        ['icon' => 'badge-euro', 'title' => 'Reparatie pas na akkoord', 'subtitle' => 'Je ontvangt altijd eerst advies en een prijsopgave.'],
+                        ['icon' => 'lock-keyhole', 'title' => 'Jouw data is veilig', 'subtitle' => 'We behandelen jouw apparaat en gegevens met zorg.'],
+                    ];
+                    $waNumber = preg_replace('/\D+/', '', $whyHero['why_whatsapp_number'] ?? '31552032145');
+                    $phoneHref = $whyHero['why_phone_number'] ?? '+31552032145';
+                @endphp
                 <div class="rounded-[28px] border border-blue-100 bg-white p-6 shadow-card">
-                    <h2 class="text-xl font-black tracking-tight text-slate-950">Waarom aanmelden?</h2>
+                    <h2 class="text-xl font-black tracking-tight text-slate-950">{{ $whyHero['why_title'] ?? 'Waarom aanmelden?' }}</h2>
 
                     <div class="mt-6 space-y-5">
+                        @foreach($whyItems as $wi)
                         <div class="flex gap-4">
                             <div class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-blue-50 text-slimme-600">
-                                <i data-lucide="clipboard-check" class="h-6 w-6"></i>
+                                <i data-lucide="{{ $wi['icon'] ?? 'badge-check' }}" class="h-6 w-6"></i>
                             </div>
                             <div>
-                                <h3 class="text-sm font-black text-slate-900">Duidelijke registratie</h3>
-                                <p class="mt-1 text-xs leading-5 text-slate-500">We weten direct om welk apparaat en probleem het gaat.</p>
+                                <h3 class="text-sm font-black text-slate-900">{{ $wi['title'] ?? '' }}</h3>
+                                @if(!empty($wi['subtitle']))<p class="mt-1 text-xs leading-5 text-slate-500">{{ $wi['subtitle'] }}</p>@endif
                             </div>
                         </div>
-
-                        <div class="flex gap-4">
-                            <div class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-blue-50 text-slimme-600">
-                                <i data-lucide="zap" class="h-6 w-6"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-sm font-black text-slate-900">Snellere verwerking</h3>
-                                <p class="mt-1 text-xs leading-5 text-slate-500">Je reparatie komt direct en volledig in ons systeem.</p>
-                            </div>
-                        </div>
-
-                        <div class="flex gap-4">
-                            <div class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-blue-50 text-slimme-600">
-                                <i data-lucide="badge-euro" class="h-6 w-6"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-sm font-black text-slate-900">Reparatie pas na akkoord</h3>
-                                <p class="mt-1 text-xs leading-5 text-slate-500">Je ontvangt altijd eerst advies en een prijsopgave.</p>
-                            </div>
-                        </div>
-
-                        <div class="flex gap-4">
-                            <div class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-blue-50 text-slimme-600">
-                                <i data-lucide="lock-keyhole" class="h-6 w-6"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-sm font-black text-slate-900">Jouw data is veilig</h3>
-                                <p class="mt-1 text-xs leading-5 text-slate-500">We behandelen jouw apparaat en gegevens met zorg.</p>
-                            </div>
-                        </div>
+                        @endforeach
                     </div>
 
                     <div class="my-6 h-px bg-slate-200"></div>
 
-                    <h3 class="text-base font-black text-slate-950">Liever direct contact?</h3>
-                    <p class="mt-1 text-xs leading-5 text-slate-500">Bel of stuur ons een WhatsApp-bericht.</p>
+                    <h3 class="text-base font-black text-slate-950">{{ $whyHero['why_contact_title'] ?? 'Liever direct contact?' }}</h3>
+                    <p class="mt-1 text-xs leading-5 text-slate-500">{{ $whyHero['why_contact_subtitle'] ?? 'Bel of stuur ons een WhatsApp-bericht.' }}</p>
 
                     <div class="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                        <a href="https://wa.me/31552032145"
+                        <a href="https://wa.me/{{ $waNumber }}"
                            class="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-green-300 bg-green-50 px-3 text-xs font-black text-green-700 transition hover:bg-green-100">
                             <i data-lucide="message-circle" class="h-4 w-4"></i>
-                            WhatsApp
+                            {{ $whyHero['why_whatsapp_label'] ?? 'WhatsApp' }}
                         </a>
-                        <a href="tel:+31552032145"
+                        <a href="tel:{{ $phoneHref }}"
                            class="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 text-xs font-black text-slimme-700 transition hover:bg-blue-100">
                             <i data-lucide="phone" class="h-4 w-4"></i>
-                            055 203 21 45
+                            {{ $whyHero['why_phone_label'] ?? '055 203 21 45' }}
                         </a>
                     </div>
                 </div>

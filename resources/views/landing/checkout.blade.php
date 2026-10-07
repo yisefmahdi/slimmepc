@@ -291,11 +291,7 @@
                     </section>
                     <section class="bg-white border border-borderBlue rounded-2xl p-4">
                         <div class="text-center text-[11px] uppercase tracking-[.14em] font-semibold text-slate-600 mb-3">Veilig betalen met</div>
-                        <div class="grid grid-cols-3 gap-2 text-center">
-                            <div class="h-11 rounded-lg border flex items-center justify-center text-[11px] font-bold text-pink-700">iDEAL</div>
-                            <div class="h-11 rounded-lg border flex items-center justify-center text-[9px] font-bold text-blue-700">Bancontact</div>
-                            <div class="h-11 rounded-lg border flex items-center justify-center font-bold text-blue-700 text-xs">VISA</div>
-                        </div>
+                        @include('landing.partials.payment-badges', ['payBadges' => ($pi['info']['payment_badges'] ?? []), 'variant' => 'checkout'])
                     </section>
                 </aside>
             </form>

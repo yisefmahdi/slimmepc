@@ -32,6 +32,9 @@
                     img.style.display = '';
                 }
 
+                var emptySingle = block.querySelector('[data-image-empty]');
+                if (emptySingle) emptySingle.style.display = 'none';
+
                 var name = block.querySelector('[data-image-name]');
                 if (name) {
                     name.textContent = val.split('/').pop();
@@ -65,6 +68,9 @@
                             img.src = fv.indexOf('/') !== -1 ? '/' + fv : '/assets/img/landing/' + fv;
                             img.style.display = '';
                         }
+
+                        var emptyJson = imageBlock.querySelector('[data-image-empty]');
+                        if (emptyJson) emptyJson.style.display = 'none';
 
                         var name = imageBlock.querySelector('[data-image-name]');
                         if (name) {
@@ -227,13 +233,20 @@
                 var fileInput = e.target;
                 if (fileInput.type !== 'file' || !fileInput.files || !fileInput.files[0]) return;
 
-                var preview = fileInput.closest('div').parentElement.querySelector('[data-image-preview]');
+                var block = fileInput.closest('[data-image-block]');
+                var preview = block
+                    ? block.querySelector('[data-image-preview]')
+                    : fileInput.closest('div').parentElement.querySelector('[data-image-preview]');
                 if (!preview) return;
 
                 var reader = new FileReader();
                 reader.onload = function () {
                     preview.src = reader.result;
                     preview.style.display = '';
+                    // Hide the "Geen voorbeeld" placeholder immediately so the
+                    // chosen file is visible even before pressing Opslaan.
+                    var emptyNote = block ? block.querySelector('[data-image-empty]') : null;
+                    if (emptyNote) emptyNote.style.display = 'none';
                 };
                 reader.readAsDataURL(fileInput.files[0]);
             });

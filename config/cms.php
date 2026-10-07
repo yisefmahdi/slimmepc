@@ -1452,6 +1452,23 @@ $reparatieSectionDef = [
             'badge_icon' => ['label' => 'Hero badge-pictogram (rechtsonder)', 'type' => 'icon', 'hint' => 'Pictogram van de badge "Veilig aanmelden".'],
             'badge_title' => ['label' => 'Hero badge-titel (Veilig aanmelden)', 'type' => 'text'],
             'badge_subtitle' => ['label' => 'Hero badge-ondertitel (Binnen ongeveer 2 minuten)', 'type' => 'text'],
+            'why_title' => ['label' => 'Zijbalk titel (Waarom aanmelden?)', 'type' => 'text'],
+            'why_items' => [
+                'label' => 'Zijbalk punten (toevoegen / verwijderen / bewerken)',
+                'type' => 'json',
+                'columns' => 1,
+                'fields' => [
+                    ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                    ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                ],
+            ],
+            'why_contact_title' => ['label' => 'Zijbalk contacttitel (Liever direct contact?)', 'type' => 'text'],
+            'why_contact_subtitle' => ['label' => 'Zijbalk contact ondertitel', 'type' => 'text'],
+            'why_whatsapp_label' => ['label' => 'WhatsApp knoptekst', 'type' => 'text'],
+            'why_whatsapp_number' => ['label' => 'WhatsApp nummer (cijfers, landcode zonder +, bijv. 31552032145)', 'type' => 'text'],
+            'why_phone_label' => ['label' => 'Telefoon knoptekst (bijv. 055 203 21 45)', 'type' => 'text'],
+            'why_phone_number' => ['label' => 'Telefoonnummer (met +, bijv. +31552032145)', 'type' => 'text'],
         ],
     ],
     'devices' => [
@@ -1469,28 +1486,6 @@ $reparatieSectionDef = [
                     ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
                 ],
             ],
-        ],
-    ],
-    'why' => [
-        'label' => 'Zijbalk — Waarom aanmelden?',
-        'blocks' => [
-            'title' => ['label' => 'Titel', 'type' => 'text'],
-            'items' => [
-                'label' => 'Punten (4)',
-                'type' => 'json',
-                'columns' => 1,
-                'fields' => [
-                    ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
-                    ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
-                    ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
-                ],
-            ],
-            'contact_title' => ['label' => 'Contacttitel (Liever direct contact?)', 'type' => 'text'],
-            'contact_subtitle' => ['label' => 'Contact ondertitel', 'type' => 'text'],
-            'whatsapp_label' => ['label' => 'WhatsApp label', 'type' => 'text'],
-            'whatsapp_number' => ['label' => 'WhatsApp nummer (zonder +, bijv. 31552032145)', 'type' => 'text'],
-            'phone_label' => ['label' => 'Telefoon label', 'type' => 'text'],
-            'phone_number' => ['label' => 'Telefoonnummer (met landcode, bijv. +31552032145)', 'type' => 'text'],
         ],
     ],
     'trust' => [
@@ -2204,6 +2199,25 @@ return [
                         'fields' => [
                             ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
                             ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                        ],
+                    ],
+                    'webshop_trust' => [
+                        'label' => 'Webshop vertrouwensbalk (categoriepagina + verlanglijst + bestellingen — rijen toevoegen/verwijderen)',
+                        'type' => 'json',
+                        'columns' => 1,
+                        'fields' => [
+                            ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                            ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                            ['key' => 'subtitle', 'label' => 'Ondertitel', 'type' => 'text'],
+                        ],
+                    ],
+                    'payment_badges' => [
+                        'label' => 'Betaalmethodes (winkelwagen + afrekenen — logo uploaden of tekst, rijen toevoegen/verwijderen)',
+                        'type' => 'json',
+                        'columns' => 1,
+                        'fields' => [
+                            ['key' => 'image', 'label' => 'Logo (leeg = tekst tonen)', 'type' => 'image'],
+                            ['key' => 'label', 'label' => 'Tekst (bijv. iDEAL)', 'type' => 'text'],
                         ],
                     ],
                 ],

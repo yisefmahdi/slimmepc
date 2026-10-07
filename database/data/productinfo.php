@@ -30,5 +30,16 @@ return [
             ['title' => '2 jaar garantie', 'subtitle' => 'Op al onze producten'],
             ['title' => 'Veilig betalen', 'subtitle' => 'iDEAL, Bancontact, PayPal'],
         ],
+        'webshop_trust' => [
+            ['icon' => 'truck', 'title' => 'Gratis verzending', 'subtitle' => 'vanaf €75'],
+            ['icon' => 'map-pin', 'title' => 'Afhalen in Apeldoorn', 'subtitle' => 'Binnen openingstijden'],
+            ['icon' => 'shield-check', 'title' => 'Garantie', 'subtitle' => 'Op onze producten'],
+            ['icon' => 'lock-keyhole', 'title' => 'Veilig betalen', 'subtitle' => 'Betrouwbare betaalmethodes'],
+        ],
+        'payment_badges' => [
+            ['image' => null, 'label' => 'iDEAL'],
+            ['image' => null, 'label' => 'Bancontact'],
+            ['image' => null, 'label' => 'VISA'],
+        ],
     ],
 ];

@@ -46,6 +46,7 @@ class OrderController extends Controller
         return view('landing.account.orders.index', [
             'c' => $c,
             'design' => $design,
+            'pi' => Cms::page('productinfo'),
             'orders' => $orders,
             'orderStatusLabels' => self::ORDER_STATUS_LABELS,
             'orderStatusStyles' => self::ORDER_STATUS_STYLES,

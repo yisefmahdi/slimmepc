@@ -230,7 +230,7 @@
                                                 <img data-image-preview src="{{ $blockValue ? asset($blockValue) : '' }}"
                                                      alt="" class="h-full w-full object-contain p-1"
                                                      style="{{ $blockValue ? '' : 'display: none' }}">
-                                                <span class="text-[10px] text-slate-400 absolute" style="{{ $blockValue ? 'display: none' : '' }}">Geen voorbeeld</span>
+                                                <span data-image-empty class="text-[10px] text-slate-400 absolute" style="{{ $blockValue ? 'display: none' : '' }}">Geen voorbeeld</span>
                                             </div>
                                             <div class="text-xs space-y-1" style="color: var(--c-muted)">
                                                 <span class="block font-bold text-sm" style="color: var(--c-heading)" data-image-name>

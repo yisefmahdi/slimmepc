@@ -87,7 +87,7 @@
                                                 <img data-image-preview src="{{ $value ? asset(str_starts_with($value, 'assets/') ? $value : 'assets/img/landing/' . ltrim($value, '/')) : '' }}"
                                                      alt="" class="h-full w-full object-contain p-1"
                                                      style="{{ $value ? '' : 'display: none' }}">
-                                                <span class="text-[10px] text-slate-400 absolute" style="{{ $value ? 'display: none' : '' }}">Geen voorbeeld</span>
+                                                <span data-image-empty class="text-[10px] text-slate-400 absolute" style="{{ $value ? 'display: none' : '' }}">Geen voorbeeld</span>
                                             </div>
                                             <div class="text-xs space-y-1" style="color: var(--c-muted)">
                                                 <span class="block">Ondersteund: PNG, JPG, WEBP (Max 5MB).</span>

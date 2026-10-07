@@ -52,7 +52,9 @@ class CheckoutController extends Controller
         $c = Cms::page('home');
         $design = Cms::design();
 
-        return view('landing.checkout', array_merge(compact('c', 'design', 'cart', 'totals', 'rates', 'method', 'savedAddresses'), ['isAllDigital' => $isAllDigital]));
+        $pi = Cms::page('productinfo');
+
+        return view('landing.checkout', array_merge(compact('c', 'design', 'cart', 'totals', 'rates', 'method', 'savedAddresses'), ['isAllDigital' => $isAllDigital, 'pi' => $pi]));
     }
 
     public function totals(Request $request)

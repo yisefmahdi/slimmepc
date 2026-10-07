@@ -275,11 +275,7 @@
 
                     <div class="h-px bg-[#DEE5EE] my-7"></div>
 
-                    <div class="grid grid-cols-3 gap-2">
-                        <div class="h-[40px] rounded-[5px] border border-[#DCE4EF] flex items-center justify-center"><span class="text-[10px] font-black text-[#D50067]">iDEAL</span></div>
-                        <div class="h-[40px] rounded-[5px] border border-[#DCE4EF] flex items-center justify-center"><span class="text-[8px] font-black text-[#163A77]">Bancontact</span></div>
-                        <div class="h-[40px] rounded-[5px] border border-[#DCE4EF] flex items-center justify-center"><span class="text-[12px] font-black italic text-[#17357A]">VISA</span></div>
-                    </div>
+                    @include('landing.partials.payment-badges', ['payBadges' => $piInfo['payment_badges'] ?? [], 'variant' => 'cart'])
                 </aside>
             </div>
             @endif

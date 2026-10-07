@@ -179,7 +179,9 @@ class WebshopController extends Controller
             ? Favorite::where('user_id', $request->user()->id)->pluck('product_id')->all()
             : [];
 
-        return view('landing.webshop', compact('c', 'design', 'allCategories', 'currentCategory', 'products', 'availableBrands', 'sort', 'filterGroups', 'favoriteIds'));
+        $pi = Cms::page('productinfo');
+
+        return view('landing.webshop', compact('c', 'design', 'allCategories', 'currentCategory', 'products', 'availableBrands', 'sort', 'filterGroups', 'favoriteIds', 'pi'));
     }
 
     /**
@@ -263,8 +265,9 @@ class WebshopController extends Controller
 
         $currentCategory = null;
         $filterGroups = [];
+        $pi = Cms::page('productinfo');
 
-        return view('landing.webshop', compact('c', 'design', 'allCategories', 'currentCategory', 'products', 'availableBrands', 'sort', 'filterGroups', 'favoriteIds', 'searchQuery'));
+        return view('landing.webshop', compact('c', 'design', 'allCategories', 'currentCategory', 'products', 'availableBrands', 'sort', 'filterGroups', 'favoriteIds', 'searchQuery', 'pi'));
     }
 
     public function show(Request $request, string $categorySlug, string $productSlug)

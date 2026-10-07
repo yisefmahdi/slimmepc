@@ -39,8 +39,9 @@ class FavoriteController extends Controller
 
         $favoriteIds = $products->pluck('id')->all();
         $categories = Category::where('status', true)->orderBy('sort_order')->orderBy('id')->get();
+        $pi = Cms::page('productinfo');
 
-        return view('landing.wishlist', compact('c', 'design', 'products', 'favoriteIds', 'categories'));
+        return view('landing.wishlist', compact('c', 'design', 'products', 'favoriteIds', 'categories', 'pi'));
     }
 
     public function toggle(Request $request)

@@ -748,54 +748,7 @@
         </section>
 
 
-        <!-- =====================================================
-             TRUST BAR
-        ====================================================== -->
-        <section class="pb-12">
-            <div class="max-w-[1450px] mx-auto px-5 sm:px-7 lg:px-10 xl:px-12">
-                <div class="reveal grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 rounded-2xl bg-white border border-slate-200 p-5">
-                    <div class="flex items-center gap-3">
-                        <div class="flex w-10 h-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-                            <i data-lucide="truck" class="w-5 h-5"></i>
-                        </div>
-                        <div>
-                            <div class="text-[12px] font-bold">Gratis verzending</div>
-                            <div class="text-[10px] text-slate-600 mt-1">vanaf €75</div>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center gap-3">
-                        <div class="flex w-10 h-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-                            <i data-lucide="map-pin" class="w-5 h-5"></i>
-                        </div>
-                        <div>
-                            <div class="text-[12px] font-bold">Afhalen in Apeldoorn</div>
-                            <div class="text-[10px] text-slate-600 mt-1">Binnen openingstijden</div>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center gap-3">
-                        <div class="flex w-10 h-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-                            <i data-lucide="shield-check" class="w-5 h-5"></i>
-                        </div>
-                        <div>
-                            <div class="text-[12px] font-bold">Garantie</div>
-                            <div class="text-[10px] text-slate-600 mt-1">Op onze producten</div>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center gap-3">
-                        <div class="flex w-10 h-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-                            <i data-lucide="lock-keyhole" class="w-5 h-5"></i>
-                        </div>
-                        <div>
-                            <div class="text-[12px] font-bold">Veilig betalen</div>
-                            <div class="text-[10px] text-slate-600 mt-1">Betrouwbare betaalmethodes</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+        @include('landing.partials.trust-bar')
 
     </main>
 
