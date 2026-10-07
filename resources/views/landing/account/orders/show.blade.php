@@ -26,7 +26,7 @@
         $steps = [
             ['key' => 'ordered', 'label' => 'Besteld', 'done' => true],
             ['key' => 'paid', 'label' => 'Betaald', 'done' => $order->payment_status === 'paid'],
-            ['key' => 'shipped', 'label' => $order->shipping_method === 'pickup' ? 'Klaar voor afhalen' : 'Verzonden', 'done' => in_array($order->order_status, ['shipped', 'completed'], true)],
+            ['key' => 'shipped', 'label' => $order->shipping_method === 'pickup' ? 'Klaar voor afhalen' : ($order->isDigitalDelivery() ? 'Geleverd per e-mail' : 'Verzonden'), 'done' => in_array($order->order_status, ['shipped', 'completed'], true)],
             ['key' => 'done', 'label' => 'Afgerond', 'done' => $order->order_status === 'completed'],
         ];
         $isCancelled = $order->order_status === 'cancelled';
@@ -51,7 +51,7 @@
                                 {{ $order->order_number }}
                             </h1>
                             <p class="mt-2 text-[13px] text-slate-500">
-                                Geplaatst op {{ $order->created_at->format('d-m-Y H:i') }} · {{ $order->shipping_method === 'pickup' ? 'Afhalen in Apeldoorn' : 'Bezorging' }}
+                                Geplaatst op {{ $order->created_at->format('d-m-Y H:i') }} · {{ $order->shipping_method === 'pickup' ? 'Afhalen in Apeldoorn' : ($order->isDigitalDelivery() ? 'Digitale levering' : 'Bezorging') }}
                             </p>
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
@@ -134,7 +134,7 @@
                                     </div>
                                 @endif
                                 <div class="flex justify-between text-slate-600">
-                                    <dt>{{ $order->shipping_method === 'pickup' ? 'Afhalen' : 'Verzendkosten' }}</dt>
+                                    <dt>{{ $order->shipping_method === 'pickup' ? 'Afhalen' : ($order->isDigitalDelivery() ? 'Digitaal' : 'Verzendkosten') }}</dt>
                                     <dd class="font-semibold">{{ (float) $order->shipping_cost > 0 ? '€'.number_format($order->shipping_cost, 2, ',', '.') : 'Gratis' }}</dd>
                                 </div>
                                 <div class="flex justify-between border-t border-slate-100 pt-3 text-[16px] font-black text-[#0b1734]">

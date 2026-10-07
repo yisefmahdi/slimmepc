@@ -132,7 +132,7 @@
     @if((float) $invoice->discount_amount > 0)
         <tr><td>Korting</td><td class="right">−€ {{ number_format($invoice->discount_amount, 2, ',', '.') }}</td></tr>
     @endif
-    <tr><td>Verzending</td><td class="right">@if((float) $invoice->shipping_cost > 0) € {{ number_format($invoice->shipping_cost, 2, ',', '.') }} @else Gratis @endif</td></tr>
+    <tr><td>{{ $invoice->order && $invoice->order->isDigitalDelivery() ? 'Digitale levering' : 'Verzending' }}</td><td class="right">@if((float) $invoice->shipping_cost > 0) € {{ number_format($invoice->shipping_cost, 2, ',', '.') }} @else Gratis @endif</td></tr>
     <tr><td>BTW ({{ number_format($invoice->tax_percentage, 0) }}%)</td><td class="right">€ {{ number_format($invoice->tax_amount, 2, ',', '.') }}</td></tr>
     <tr class="grand"><td>Totaal (incl. btw)</td><td class="right">€ {{ number_format($invoice->total, 2, ',', '.') }}</td></tr>
 </table>

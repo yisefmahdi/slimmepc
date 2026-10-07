@@ -142,6 +142,68 @@ it('flags shortage and renders the admin alert mail on partial pool', function (
         ->and($html)->toContain($product->title);
 });
 
+it('hides the shipping section on checkout for purely digital carts', function () {
+    $product = makeLicenseProduct(1);
+    $cart = Cart::create(['cart_token' => (string) Str::uuid()]);
+    app(CartService::class)->addItem($cart, $product, 1);
+
+    $this->withCookie(CartService::COOKIE_NAME, $cart->cart_token)
+        ->get('/checkout')
+        ->assertOk()
+        ->assertDontSee('Verzendmethode', false)
+        ->assertSee('Digitale levering', false);
+});
+
+it('shows the shipping section for mixed carts', function () {
+    $product = makeLicenseProduct(1);
+    $cart = Cart::create(['cart_token' => (string) Str::uuid()]);
+    app(CartService::class)->addItem($cart, $product, 1);
+
+    // Add a physical product to make it mixed
+    $category = Category::create(['name' => 'Fysiek', 'status' => true, 'sort_order' => 0]);
+    $physical = Product::create([
+        'category_id' => $category->id, 'title' => 'Fysieke muis',
+        'price' => 20.00, 'stock_status' => 'in_stock', 'status' => true,
+    ]);
+    app(CartService::class)->addItem($cart, $physical, 1);
+
+    $this->withCookie(CartService::COOKIE_NAME, $cart->cart_token)
+        ->get('/checkout')
+        ->assertOk()
+        ->assertSee('Verzendmethode', false);
+});
+
+it('stores digital-only orders with digital method and zero shipping', function () {
+    config(['services.mollie.key' => '']);
+    $product = makeLicenseProduct(2);
+    $cart = Cart::create(['cart_token' => (string) Str::uuid()]);
+    app(CartService::class)->addItem($cart, $product, 1);
+
+    $this->withCookie(CartService::COOKIE_NAME, $cart->cart_token)
+        ->withCredentials()
+        ->postJson('/checkout', array_merge(checkoutPayload(), [
+            'street' => 'Hoofdstraat', 'house_number' => '12',
+            'postcode' => '1234 AB', 'city' => 'Apeldoorn',
+        ]))
+        ->assertStatus(201);
+
+    $order = Order::latest('id')->first();
+    expect($order->shipping_method)->toBe('digital');
+    expect((float) $order->shipping_cost)->toBe(0.0);
+});
+
+it('ignores a tampered shipping method on digital carts', function () {
+    $product = makeLicenseProduct(1);
+    $cart = Cart::create(['cart_token' => (string) Str::uuid()]);
+    app(CartService::class)->addItem($cart, $product, 1);
+
+    $res = $this->withCookie(CartService::COOKIE_NAME, $cart->cart_token)
+        ->postJson('/checkout/totals', ['shipping_method' => 'delivery'])
+        ->assertOk();
+
+    expect((float) $res->json('shipping'))->toBe(0.0);
+});
+
 it('counts only available codes toward saleability', function () {
     $product = makeLicenseProduct(0);
 

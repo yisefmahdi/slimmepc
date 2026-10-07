@@ -158,8 +158,11 @@
                         </div>
                     </section>
 
-                    {{-- SHIPPING --}}
+                    {{-- SHIPPING (hidden for purely digital carts — no delivery involved) --}}
                     <section class="bg-white border border-borderBlue rounded-2xl shadow-card p-5 md:p-7">
+                        @if(!empty($isAllDigital))
+                            <input type="hidden" name="shipping_method" value="digital">
+                        @else
                         <div class="flex items-start gap-4">
                             <div class="w-11 h-11 rounded-xl bg-blue-50 text-brand flex items-center justify-center shrink-0"><i data-lucide="truck" class="w-5 h-5"></i></div>
                             <div>
@@ -167,7 +170,20 @@
                                 <p class="text-sm text-slate-600 mt-1">Kies hoe je jouw bestelling wilt ontvangen.</p>
                             </div>
                         </div>
+                        @endif
                         <div class="mt-6 md:pl-[60px] space-y-3">
+                            @if(!empty($isAllDigital))
+                            <div class="rounded-xl border border-blue-100 bg-blue-50/70 px-4 py-4 flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-brand shrink-0">
+                                    <i data-lucide="mail-check" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-sm">Digitale levering</div>
+                                    <p class="text-slate-600 text-xs mt-1">Je ontvangt je licentiecodes en downloadlinks per e-mail. Geen verzendkosten, geen levertijd.</p>
+                                </div>
+                            </div>
+                            @endif
+                            @if(empty($isAllDigital))
                             @foreach($rates as $rate)
                                 <label class="shipping-card {{ $rate->slug === $method ? 'active' : '' }} relative flex gap-4 items-center border border-slate-300 rounded-xl px-4 py-4 cursor-pointer">
                                     <input type="radio" name="shipping_method" value="{{ $rate->slug }}" {{ $rate->slug === $method ? 'checked' : '' }} class="shipping-radio w-5 h-5 accent-[#155EEF] shrink-0">
@@ -191,6 +207,7 @@
                                 <div class="font-semibold">Afhalen bij Slimme-PC</div>
                                 <p class="text-slate-600 text-xs mt-1">Je hoeft geen verzendadres in te vullen. Je ontvangt een bericht zodra je bestelling klaarstaat.</p>
                             </div>
+                            @endif
                             <p class="err hidden mt-1 text-xs font-semibold text-red-600" data-err="shipping_method"></p>
                             <label class="mt-4 flex cursor-pointer items-start gap-2.5 rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3">
                                 <input type="checkbox" name="terms" value="1" class="field mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 accent-[#155EEF]">
@@ -255,7 +272,7 @@
                             <div class="space-y-3">
                                 <div class="flex justify-between text-sm"><span class="font-medium text-slate-600">Subtotaal</span><span id="sumSubtotal">€{{ number_format($totals['subtotal'], 2, ',', '.') }}</span></div>
                                 <div id="discountRow" class="{{ $totals['discount'] > 0 ? '' : 'hidden' }} flex justify-between text-sm"><span class="font-medium text-slate-600">Korting</span><span id="sumDiscount" class="text-emerald-600 font-semibold">−€{{ number_format($totals['discount'], 2, ',', '.') }}</span></div>
-                                <div class="flex justify-between text-sm"><span class="font-medium text-slate-600">Verzending</span><span id="sumShipping" class="font-semibold {{ $totals['shipping'] == 0 ? 'text-emerald-600' : '' }}">@if($totals['shipping'] == 0) Gratis @else €{{ number_format($totals['shipping'], 2, ',', '.') }} @endif</span></div>
+                                <div class="flex justify-between text-sm"><span class="font-medium text-slate-600">@if(!empty($isAllDigital)) Levering (digitaal) @else Verzending @endif</span><span id="sumShipping" class="font-semibold {{ $totals['shipping'] == 0 ? 'text-emerald-600' : '' }}">@if($totals['shipping'] == 0) Gratis @else €{{ number_format($totals['shipping'], 2, ',', '.') }} @endif</span></div>
                                 <div class="flex justify-between text-sm"><span class="font-medium text-slate-600">BTW (21% incl.)</span><span id="sumTax">€{{ number_format($totals['tax'], 2, ',', '.') }}</span></div>
                             </div>
                             <div class="border-t border-slate-200 mt-5 pt-5">

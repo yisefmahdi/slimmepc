@@ -72,4 +72,19 @@ class Order extends Model
     {
         return $this->payment_status === 'paid';
     }
+
+    public function isDigitalDelivery(): bool
+    {
+        return $this->shipping_method === 'digital';
+    }
+
+    /** Short human label: Afhalen / Bezorging / Digitaal. */
+    public function shippingMethodLabel(): string
+    {
+        return match ($this->shipping_method) {
+            'pickup' => 'Afhalen',
+            'digital' => 'Digitaal',
+            default => 'Bezorging',
+        };
+    }
 }

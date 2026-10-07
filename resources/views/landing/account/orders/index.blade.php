@@ -109,7 +109,7 @@
                                                 </span>
                                             </div>
                                             <p class="mt-1.5 text-[12px] text-slate-500">
-                                                {{ $order->created_at->format('d-m-Y H:i') }} · {{ $order->items_count }} artikel{{ $order->items_count !== 1 ? 'en' : '' }} · {{ $order->shipping_method === 'pickup' ? 'Afhalen' : 'Bezorging' }}
+                                                {{ $order->created_at->format('d-m-Y H:i') }} · {{ $order->items_count }} artikel{{ $order->items_count !== 1 ? 'en' : '' }} · {{ $order->shippingMethodLabel() }}
                                             </p>
                                         </div>
                                     </div>

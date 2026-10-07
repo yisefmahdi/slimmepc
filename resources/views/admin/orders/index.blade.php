@@ -158,7 +158,7 @@
                         <td class="px-3 py-3"><div class="text-sm font-semibold line-clamp-1" style="color:var(--c-heading)">${esc(o.customer)}</div><div class="text-xs" style="color:var(--c-muted)">${esc(o.email)}</div></td>
                         <td class="px-3 py-3 text-sm font-bold whitespace-nowrap" style="color:var(--c-heading)">€${Number(o.total).toFixed(2).replace('.', ',')}</td>
                         <td class="px-3 py-3">${payBadge(o.payment_status)}</td>
-                        <td class="px-3 py-3"><span class="rounded-full bg-slate-100 px-2 py-1 text-[11px] font-bold" style="color:var(--c-heading)">${o.shipping_method === 'pickup' ? 'Afhalen' : 'Bezorging'}</span></td>
+                        <td class="px-3 py-3"><span class="rounded-full bg-slate-100 px-2 py-1 text-[11px] font-bold" style="color:var(--c-heading)">${o.shipping_method === 'pickup' ? 'Afhalen' : (o.shipping_method === 'digital' ? 'Digitaal' : 'Bezorging')}</span></td>
                         <td class="px-3 py-3">${statusBadge(o.order_status)}</td>
                         <td class="px-3 py-3 text-xs whitespace-nowrap" style="color:var(--c-muted)">${esc(o.created_at)}</td>
                         <td class="w-[100px] min-w-[100px] max-w-[100px] px-3 py-2 text-right sticky right-0" style="background-color: var(--c-card); box-shadow: -8px 0 12px -4px rgba(15,23,42,.06);">

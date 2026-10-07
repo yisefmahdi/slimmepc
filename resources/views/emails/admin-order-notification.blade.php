@@ -24,7 +24,7 @@
   </tr>
   <tr>
     <td style="font-size:13px; color:#64748b; padding:4px 0;">Verzendmethode</td>
-    <td align="right" style="font-size:13px; font-weight:700; color:#0b1734; padding:4px 0;">{{ $order->shipping_method === 'pickup' ? 'Afhalen' : 'Verzending' }}</td>
+    <td align="right" style="font-size:13px; font-weight:700; color:#0b1734; padding:4px 0;">{{ $order->shipping_method === 'pickup' ? 'Afhalen' : ($order->isDigitalDelivery() ? 'Digitaal (e-mail)' : 'Verzending') }}</td>
   </tr>
   <tr>
     <td colspan="2" style="border-top:1px solid #e2e8f0; padding:0; font-size:0; line-height:0;">&nbsp;</td>

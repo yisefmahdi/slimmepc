@@ -24,7 +24,7 @@ class StoreCheckoutRequest extends FormRequest
             'city' => 'required_unless:shipping_method,pickup|string|max:50',
             'country' => 'nullable|string|max:50',
             'phone' => 'required|string|min:6|max:20',
-            'shipping_method' => 'required|in:delivery,pickup',
+            'shipping_method' => 'required|in:delivery,pickup,digital',
             'saved_address_id' => 'nullable|exists:addresses,id',
             'newsletter' => 'nullable|boolean',
             'terms' => 'accepted',

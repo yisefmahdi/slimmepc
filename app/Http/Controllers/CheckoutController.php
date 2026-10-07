@@ -27,13 +27,21 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'Je winkelwagen is leeg.');
         }
 
+        // Purely digital carts need no shipping choice at all
+        $isAllDigital = $this->cartService->isAllDigital($cart);
+
         $method = $request->query('shipping_method', 'delivery');
         if (! in_array($method, ['delivery', 'pickup'], true)) {
             $method = 'delivery';
         }
+        if ($isAllDigital) {
+            $method = 'digital';
+        }
 
         $totals = $this->cartService->totals($cart, $method);
-        $rates = ShippingRate::where('is_active', true)->orderBy('sort_order')->get();
+        $rates = $isAllDigital
+            ? collect()
+            : ShippingRate::where('is_active', true)->orderBy('sort_order')->get();
 
         $savedAddresses = collect();
         if ($request->user()) {
@@ -44,7 +52,7 @@ class CheckoutController extends Controller
         $c = Cms::page('home');
         $design = Cms::design();
 
-        return view('landing.checkout', compact('c', 'design', 'cart', 'totals', 'rates', 'method', 'savedAddresses'));
+        return view('landing.checkout', array_merge(compact('c', 'design', 'cart', 'totals', 'rates', 'method', 'savedAddresses'), ['isAllDigital' => $isAllDigital]));
     }
 
     public function totals(Request $request)
@@ -52,8 +60,12 @@ class CheckoutController extends Controller
         $cart = $this->cartService->resolveCart($request);
         $cart->load(['items', 'coupon']);
         $method = $request->input('shipping_method', 'delivery');
-        if (! in_array($method, ['delivery', 'pickup'], true)) {
+        if (! in_array($method, ['delivery', 'pickup', 'digital'], true)) {
             $method = 'delivery';
+        }
+        // A tampered method can never reintroduce shipping on a digital cart
+        if ($this->cartService->isAllDigital($cart)) {
+            $method = 'digital';
         }
 
         return response()->json($this->cartService->totals($cart, $method));
@@ -86,7 +98,8 @@ class CheckoutController extends Controller
         }
 
         $data = $request->validated();
-        $method = $data['shipping_method'];
+        // The shipping method always follows the cart, never the request
+        $method = $this->cartService->isAllDigital($cart) ? 'digital' : $data['shipping_method'];
         $totals = $this->cartService->totals($cart, $method);
 
         $user = $request->user();

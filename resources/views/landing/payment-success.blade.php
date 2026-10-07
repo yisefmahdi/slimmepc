@@ -6,6 +6,7 @@
     @php
         $contactRows = $c['footer']['contact'] ?? [];
         $isPickup = !empty($orderModel) && $orderModel->shipping_method === 'pickup';
+        $isDigitalOrder = !empty($orderModel) && $orderModel->isDigitalDelivery();
     @endphp
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -85,6 +86,8 @@
                             <li>Je ontvangt de factuur per e-mail{{ !empty($orderModel) ? ' op ' . $orderModel->customer_email : '' }}.</li>
                             @if($isPickup)
                                 <li>We laten je weten zodra je bestelling klaarstaat om af te halen in Apeldoorn.</li>
+                            @elseif($isDigitalOrder)
+                                <li>Je ontvangt je licentiecodes en downloadlinks per e-mail.</li>
                             @else
                                 <li>We maken je bestelling klaar en versturen deze zo snel mogelijk.</li>
                             @endif

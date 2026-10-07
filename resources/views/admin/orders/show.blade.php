@@ -74,7 +74,7 @@
                         @if((float) $order->discount_amount > 0)
                             <div class="flex justify-between text-emerald-600"><span>Korting {{ $order->discount_code ? '(' . $order->discount_code . ')' : '' }}</span><span>−€{{ number_format($order->discount_amount, 2, ',', '.') }}</span></div>
                         @endif
-                        <div class="flex justify-between"><span>Verzending ({{ $order->shipping_method === 'pickup' ? 'afhalen' : 'verzending' }})</span><span>@if((float) $order->shipping_cost > 0) €{{ number_format($order->shipping_cost, 2, ',', '.') }} @else Gratis @endif</span></div>
+                        <div class="flex justify-between"><span>Verzending ({{ $order->shipping_method === 'pickup' ? 'afhalen' : ($order->isDigitalDelivery() ? 'digitaal' : 'verzending') }})</span><span>@if((float) $order->shipping_cost > 0) €{{ number_format($order->shipping_cost, 2, ',', '.') }} @else Gratis @endif</span></div>
                         <div class="flex justify-between"><span>BTW ({{ number_format($order->tax_percentage, 0) }}% incl.)</span><span>€{{ number_format($order->tax_amount, 2, ',', '.') }}</span></div>
                         <div class="flex justify-between border-t pt-2.5 text-base font-extrabold" style="color: var(--c-heading); border-color: rgba(148,163,184,.15)"><span>Totaal</span><span>€{{ number_format($order->total_price, 2, ',', '.') }}</span></div>
                     </div>
