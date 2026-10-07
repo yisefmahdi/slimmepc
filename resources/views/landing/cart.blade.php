@@ -280,8 +280,9 @@
             </div>
             @endif
 
-            {{-- TRUST BAR — shared CMS strip (identical with and without products) --}}
-            @include('landing.partials.trust-bar')
+            {{-- TRUST BAR — shared CMS strip (identical with and without products).
+                 Bare mode: the cart page already provides section + container. --}}
+            @include('landing.partials.trust-bar', ['bare' => true])
         </section>
     </main>
 

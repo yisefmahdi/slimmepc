@@ -63,10 +63,11 @@ it('shows identical CMS trust texts on cart with and without products', function
     );
     \App\Support\Cms::bust();
 
-    // Empty cart
+    // Empty cart — no nested page container around the strip
     $this->get('/cart')
         ->assertOk()
-        ->assertSee('Unieke leverbelofte', false);
+        ->assertSee('Unieke leverbelofte', false)
+        ->assertDontSee('max-w-[1450px]', false);
 
     // Non-empty cart
     $cart = \App\Models\Cart::create(['cart_token' => (string) \Illuminate\Support\Str::uuid()]);
@@ -75,7 +76,8 @@ it('shows identical CMS trust texts on cart with and without products', function
     $this->withCookie(\App\Services\CartService::COOKIE_NAME, $cart->cart_token)
         ->get('/cart')
         ->assertOk()
-        ->assertSee('Unieke leverbelofte', false);
+        ->assertSee('Unieke leverbelofte', false)
+        ->assertDontSee('max-w-[1450px]', false);
 });
 
 it('shows the webshop trust block in the productinfo admin editor', function () {

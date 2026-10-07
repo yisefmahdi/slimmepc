@@ -1,7 +1,10 @@
-{{-- Shared webshop trust bar (category page + wishlist + order history).
+{{-- Shared webshop trust bar (category page + wishlist + order history + cart).
      Driven by productinfo CMS block `webshop_trust` (icon/title/subtitle rows,
-     add & delete in admin). Falls back to the 4 hardcoded cards pre-seed. --}}
+     add & delete in admin). Falls back to the 4 hardcoded cards pre-seed.
+     Pass ['bare' => true] to render only the inner card (for pages that
+     already provide their own section/container, like the cart page). --}}
 @php
+    $trustBarBare = $bare ?? false;
     $trustBarItems = isset($pi) ? ($pi['info']['webshop_trust'] ?? []) : [];
     if (empty($trustBarItems)) $trustBarItems = [
         ['icon' => 'truck', 'title' => 'Gratis verzending', 'subtitle' => 'vanaf €75'],
@@ -13,9 +16,11 @@
         : (count($trustBarItems) === 2 ? 'lg:grid-cols-2'
         : (count($trustBarItems) === 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-4'));
 @endphp
+@if(!$trustBarBare)
 <section class="pb-12">
     <div class="max-w-[1450px] mx-auto px-5 sm:px-7 lg:px-10 xl:px-12">
-        <div class="reveal grid grid-cols-1 sm:grid-cols-2 {{ $trustBarCols }} gap-5 rounded-2xl bg-white border border-slate-200 p-5">
+@endif
+        <div class="reveal grid grid-cols-1 sm:grid-cols-2 {{ $trustBarCols }} gap-5 rounded-2xl bg-white border border-slate-200 p-5 {{ $trustBarBare ? 'mt-8 sm:mt-10' : '' }}">
             @foreach($trustBarItems as $tbi)
                 <div class="flex items-center gap-3">
                     <div class="flex w-10 h-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
@@ -28,5 +33,7 @@
                 </div>
             @endforeach
         </div>
+@if(!$trustBarBare)
     </div>
 </section>
+@endif
