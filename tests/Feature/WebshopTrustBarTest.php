@@ -48,6 +48,36 @@ it('renders CMS-edited trust items on the webshop page', function () {
         ->assertDontSee('Gratis verzending', false);
 });
 
+it('shows identical CMS trust texts on cart with and without products', function () {
+    $cat = makeTrustCategory();
+    $product = Product::create([
+        'category_id' => $cat->id, 'title' => 'Trust Laptop', 'price' => 500,
+        'stock_status' => 'in_stock', 'status' => true,
+    ]);
+
+    ContentBlock::updateOrCreate(
+        ['page' => 'productinfo', 'section' => 'info', 'block_key' => 'webshop_trust'],
+        ['type' => 'json', 'json_value' => [
+            ['icon' => 'rocket', 'title' => 'Unieke leverbelofte', 'subtitle' => 'Alleen in CMS'],
+        ]]
+    );
+    \App\Support\Cms::bust();
+
+    // Empty cart
+    $this->get('/cart')
+        ->assertOk()
+        ->assertSee('Unieke leverbelofte', false);
+
+    // Non-empty cart
+    $cart = \App\Models\Cart::create(['cart_token' => (string) \Illuminate\Support\Str::uuid()]);
+    app(\App\Services\CartService::class)->addItem($cart, $product, 1);
+
+    $this->withCookie(\App\Services\CartService::COOKIE_NAME, $cart->cart_token)
+        ->get('/cart')
+        ->assertOk()
+        ->assertSee('Unieke leverbelofte', false);
+});
+
 it('shows the webshop trust block in the productinfo admin editor', function () {
     $u = User::factory()->create(['email_verified_at' => now()]);
     $u->role = 'admin';
