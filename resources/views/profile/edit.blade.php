@@ -72,7 +72,7 @@
                                         {{ auth()->user()->email }}
                                     </h3>
                                     <p class="mt-1 text-[11px] leading-5 text-slate-500">
-                                        Lid sinds {{ auth()->user()->created_at->format('d-m-Y') }}
+                                        Lid sinds {{ auth()->user()->created_at?->format('d-m-Y') ?? '—' }}
                                     </p>
                                 </div>
                             </div>
