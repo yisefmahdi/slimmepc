@@ -127,9 +127,17 @@ class RepairInboxController extends Controller
 
     /**
      * Stream a stored photo for display in the admin detail pane.
+     *
+     * The {file} segment is untrusted: only serve names that are actually
+     * registered on this submission (server-generated uuid filenames), so
+     * "../" traversal can never reach other submissions or system files.
      */
     public function photo(RepairSubmission $repairSubmission, string $file): BinaryFileResponse
     {
+        $file = basename($file);
+
+        abort_unless(in_array($file, (array) ($repairSubmission->photos ?? []), true), 404);
+
         $path = 'repair/'.$repairSubmission->id.'/'.$file;
 
         abort_unless(Storage::disk('local')->exists($path), 404);

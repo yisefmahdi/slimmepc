@@ -34,6 +34,8 @@ class StoreAfspraakSubmissionRequest extends FormRequest
             'problem'        => ['required', 'string', 'max:5000'],
             'preferred_date' => ['required', 'date', 'after_or_equal:today'],
             'preferred_time' => ['required', 'string', 'in:09:00 - 11:00,11:00 - 13:00,13:00 - 15:00,15:00 - 17:00,17:00 - 19:00'],
+            // Honeypot like the contact/repair/chat forms (bots fill it).
+            'website' => ['prohibited'],
         ];
     }
 

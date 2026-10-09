@@ -14,6 +14,16 @@ class FilesController extends Controller
     /** Max single chunk size: 8 MB (keeps every request far below PHP limits). */
     public const CHUNK_MAX_KB = 8192;
 
+    /**
+     * Absolute upload caps (disk-fill / inode-exhaustion guard).
+     * 2048 chunks × 8 MB = 16 GB of declared chunks can never exceed the
+     * 10 GB assembled-file ceiling below.
+     */
+    public const MAX_CHUNKS = 2048;
+
+    /** Max assembled file size: 10 GB (covers large ISOs, blocks absurd claims). */
+    public const MAX_FILE_SIZE = 10 * 1024 * 1024 * 1024;
+
     /** Allowed installer/document extensions. */
     public const ALLOWED_EXTENSIONS = [
         'zip', 'iso', 'exe', 'msi', 'pdf', 'dmg', 'pkg', '7z', 'rar',
@@ -60,10 +70,14 @@ class FilesController extends Controller
     {
         $data = $request->validate([
             'upload_id' => ['required', 'string', 'max:64', 'regex:/^[A-Za-z0-9_-]+$/'],
-            'index' => ['required', 'integer', 'min:0', 'max:100000'],
-            'total' => ['required', 'integer', 'min:1', 'max:100000'],
+            'index' => ['required', 'integer', 'min:0', 'max:' . (self::MAX_CHUNKS - 1)],
+            'total' => ['required', 'integer', 'min:1', 'max:' . self::MAX_CHUNKS],
             'chunk' => ['required', 'file', 'max:' . self::CHUNK_MAX_KB],
         ]);
+
+        if ($data['index'] >= $data['total']) {
+            return response()->json(['message' => 'Ongeldig chunk-nummer.'], 422);
+        }
 
         $dir = 'tmp/chunks/' . $data['upload_id'];
         Storage::disk('local')->putFileAs($dir, $data['chunk'], (string) $data['index']);
@@ -78,10 +92,18 @@ class FilesController extends Controller
     {
         $data = $request->validate([
             'upload_id' => ['required', 'string', 'max:64', 'regex:/^[A-Za-z0-9_-]+$/'],
-            'total' => ['required', 'integer', 'min:1', 'max:100000'],
+            'total' => ['required', 'integer', 'min:1', 'max:' . self::MAX_CHUNKS],
             'name' => ['required', 'string', 'max:255'],
-            'size' => ['required', 'integer', 'min:1'],
+            'size' => ['required', 'integer', 'min:1', 'max:' . self::MAX_FILE_SIZE],
         ]);
+
+        // The declared size must fit inside the declared chunk count —
+        // otherwise the client is lying and we refuse before touching disk.
+        if ($data['size'] > $data['total'] * self::CHUNK_MAX_KB * 1024) {
+            $this->dropChunks($data['upload_id']);
+
+            return response()->json(['message' => 'Opgegeven bestandsgrootte past niet bij het aantal delen.'], 422);
+        }
 
         $this->pruneStaleChunks();
 

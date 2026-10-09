@@ -347,6 +347,10 @@ class InboundContactFetcher
 
                 $name = $attachment->decodeName($rawName);
                 $name = $this->decodeMimeHeader($name);
+                // Attachment names are fully attacker-controlled (anyone can
+                // e-mail the inbox). Reduce to a flat, safe basename so
+                // "../../.env"-style names can never escape $dir.
+                $name = \App\Support\SafeFilename::fromExternal($name);
 
                 $content = $attachment->getContent();
 
@@ -540,6 +544,9 @@ class InboundContactFetcher
 
                 $name = $attachment->decodeName($rawName);
                 $name = $this->decodeMimeHeader($name);
+                // See storeFirstAttachment: attachment names are
+                // attacker-controlled and must never carry path segments.
+                $name = \App\Support\SafeFilename::fromExternal($name);
 
                 $content = $attachment->getContent();
 

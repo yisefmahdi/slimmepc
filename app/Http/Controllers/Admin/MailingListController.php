@@ -49,7 +49,9 @@ class MailingListController extends Controller
         $request->validate([
             'recipients' => 'required|array|min:1',
             'recipients.*' => 'email',
-            'subject' => 'required|string|max:255',
+            // Newlines in the subject would split mail headers (header
+            // injection) — admin input still goes to the wire verbatim.
+            'subject' => ['required', 'string', 'max:255', 'not_regex:/[\r\n]/'],
             'message' => 'required|string',
             'type' => 'nullable|string|max:50',
         ]);

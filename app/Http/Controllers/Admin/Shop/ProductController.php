@@ -123,9 +123,9 @@ class ProductController extends Controller
             'colors.*' => 'nullable|string',
             'sizes' => 'nullable|array',
             'sizes.*' => 'nullable|string',
-            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp,avif|max:10240',
+            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp,avif|max:10240',
             'gallery_images' => 'nullable|array|max:10',
-            'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp,avif|max:10240',
+            'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp,avif|max:10240',
             'external_link' => 'nullable|url',
             'delivery_time' => 'nullable|string|max:255',
             'discount_type' => 'nullable|in:percentage,fixed',
@@ -145,6 +145,11 @@ class ProductController extends Controller
             $data['stock_status'] = 'in_stock';
         }
         $data['stock_status'] = $data['stock_status'] ?? 'in_stock';
+
+        // The description is rendered RAW ({!! !!}) on the public product
+        // page — strip active content (scripts, event handlers,
+        // javascript: URLs) while keeping everyday formatting.
+        $data['description'] = \App\Support\HtmlSanitizer::productDescription($data['description'] ?? null);
 
         // Clean features: keep only rows where both title and value are filled
         $rawFeatures = $request->input('features', []);
@@ -242,9 +247,9 @@ class ProductController extends Controller
             'sizes' => 'nullable|array',
             'sizes.*' => 'nullable|string',
             'remove_main_image' => 'nullable|boolean',
-            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp,avif|max:10240',
+            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp,avif|max:10240',
             'gallery_images' => 'nullable|array|max:10',
-            'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp,avif|max:10240',
+            'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp,avif|max:10240',
             'existing_gallery' => 'nullable|array',
             'existing_gallery.*' => 'nullable|string',
             'external_link' => 'nullable|url',
@@ -265,6 +270,8 @@ class ProductController extends Controller
             $data['stock_status'] = 'in_stock';
         }
         $data['stock_status'] = $data['stock_status'] ?? $product->stock_status ?? 'in_stock';
+        // See store(): the description is rendered raw on the public page.
+        $data['description'] = \App\Support\HtmlSanitizer::productDescription($data['description'] ?? null);
         $rawFeatures = $request->input('features', []);
         if (!empty($rawFeatures) && is_string(reset($rawFeatures))) {
             $mapped = [];
