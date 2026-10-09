@@ -1,3 +1,30 @@
+# Never serve dotfiles (.env, .git/*), database dumps or logs.
+<FilesMatch "(^\.|^composer\.(json|lock)$|\.(env|sql|dump|log|sqlite)$)">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# No directory listings anywhere under the docroot.
+Options -Indexes
+
+# Security headers (Hostinger Apache). Frame-ancestors kept SAMEORIGIN
+# because the admin panel embeds same-origin previews; adjust if a
+# payment provider requires framing (Mollie hosted checkout does not).
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+</IfModule>
+
+# HTTPS + canonical host are enforced in the Hostinger panel
+# (SSL "Force HTTPS"), not here, so local http:// development keeps working.
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes

@@ -1,4 +1,11 @@
 *.log
+*.sql
+*.dump
+# Sync-script DB credentials (scripts/*.php --config=db.json). Never commit.
+db.json
+*-db.json
+*-db-credentials.json
+/scripts/backups/
 .DS_Store
 .env
 .env.backup
