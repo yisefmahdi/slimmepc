@@ -83,7 +83,7 @@
                     <div class="rounded-3xl border border-slate-100 bg-slate-50 p-6 sm:p-8 text-left text-sm text-slate-600">
                         <p class="font-bold text-slate-800 text-base">Wat gebeurt er nu?</p>
                         <ul class="mt-3 list-disc space-y-2 pl-5">
-                            <li>Je ontvangt de factuur per e-mail{{ !empty($orderModel) ? ' op ' . $orderModel->customer_email : '' }}.</li>
+                            <li>Je ontvangt de factuur per e-mail.</li>
                             @if($isPickup)
                                 <li>We laten je weten zodra je bestelling klaarstaat om af te halen in Apeldoorn.</li>
                             @elseif($isDigitalOrder)

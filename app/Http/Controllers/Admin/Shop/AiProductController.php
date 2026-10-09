@@ -20,7 +20,10 @@ class AiProductController extends Controller
             'sku'                     => 'nullable|string|max:100',
             'category_name'           => 'nullable|string|max:100',
             'price'                   => 'nullable|numeric',
-            'features'                => 'nullable|array',
+            // Cap the item count: each feature grows the prompt, and an
+            // unbounded array turns this paid-per-token call into a cost
+            // amplifier (plus a prompt-injection carrier).
+            'features'                => 'nullable|array|max:20',
             'features.*'              => 'nullable|string|max:255',
             'additional_instructions' => 'nullable|string|max:500',
             'enable_search'           => 'nullable|boolean',
@@ -39,9 +42,13 @@ class AiProductController extends Controller
                 'search_count'   => $result['search_count'],
             ]);
         } catch (\Throwable $e) {
+            // Never forward provider internals (key names, quota/billing
+            // state, upstream bodies) to the browser; log them instead.
+            report($e);
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
+                'message' => 'De AI-beschrijving kon niet worden gegenereerd. Probeer het later opnieuw.',
             ], 422);
         }
     }

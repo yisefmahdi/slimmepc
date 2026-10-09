@@ -39,8 +39,12 @@ class TechnicianController extends Controller
             'klantnummer' => 'required|string|max:30',
         ]);
 
+        // Generic message on every failure: distinct errors would let
+        // attackers enumerate technician accounts and klantnummers ([AUTH-09]).
+        $failed = fn (string $field) => back()->withErrors([$field => 'Verkeerde inloggegevens.'])->withInput();
+
         if (! Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-            return back()->withErrors(['email' => 'Verkeerde inloggegevens.'])->withInput();
+            return $failed('email');
         }
 
         $user = Auth::user();
@@ -48,13 +52,13 @@ class TechnicianController extends Controller
         if ($user instanceof User && (bool) ($user->is_blocked ?? false)) {
             Auth::logout();
 
-            return back()->withErrors(['email' => \App\Http\Middleware\CheckIfBlocked::MESSAGE])->withInput();
+            return $failed('email');
         }
 
         if (! $user instanceof User || $user->role !== 'technician') {
             Auth::logout();
 
-            return back()->withErrors(['email' => 'Je hebt geen toegang tot deze pagina.']);
+            return $failed('email');
         }
 
         $clientExists = User::where('klantnummer', $request->input('klantnummer'))->exists();
@@ -62,8 +66,12 @@ class TechnicianController extends Controller
         if (! $clientExists) {
             Auth::logout();
 
-            return back()->withErrors(['klantnummer' => 'Klantnummer staat niet op ons data.'])->withInput();
+            return $failed('klantnummer');
         }
+
+        // Prevent session fixation: the pre-login session must never survive
+        // the privilege change ([AUTH-08]).
+        $request->session()->regenerate();
 
         return redirect()->route('technician.payment', ['klantnummer' => $request->input('klantnummer')]);
     }
@@ -73,10 +81,39 @@ class TechnicianController extends Controller
     ) {}
 
     /**
+     * Only a logged-in technician (or admin) may operate the payment flow.
+     * The payment page exposes client PII (name, address, membership status)
+     * by klantnummer and creates payable invoices — it must never be
+     * reachable anonymously by guessing SLP-###### numbers ([AUTH-02]).
+     *
+     * Returns null when authorised, otherwise a redirect (web) or 403 (JSON).
+     */
+    protected function requireTechnician(Request $request)
+    {
+        $user = $request->user();
+
+        if ($user instanceof User
+            && in_array($user->role, ['technician', 'admin'], true)
+            && ! (bool) ($user->is_blocked ?? false)) {
+            return null;
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json(['message' => 'Geen toegang. Log in als monteur.'], 403);
+        }
+
+        return redirect()->route('technician.login')->withErrors(['email' => 'Log eerst in als monteur.']);
+    }
+
+    /**
      * Betaalformulier voor een klant. Toont lidmaatschapsvoordelen (check op e-mail).
      */
-    public function paymentPage(string $klantnummer): View
+    public function paymentPage(Request $request, string $klantnummer): View|RedirectResponse
     {
+        if ($gate = $this->requireTechnician($request)) {
+            return $gate;
+        }
+
         $client = User::where('klantnummer', $klantnummer)->firstOrFail();
 
         $c = Cms::page('home');
@@ -192,6 +229,9 @@ class TechnicianController extends Controller
         if ($coupon->isMaxedOut()) {
             return ['error' => 'De kortingscode is al maximaal gebruikt.'];
         }
+        if ($coupon->min_amount !== null && $amount < (float) $coupon->min_amount) {
+            return ['error' => 'Deze kortingscode geldt pas vanaf €'.number_format((float) $coupon->min_amount, 2, ',', '.').'.'];
+        }
         $alreadyUsed = CouponUsage::where('coupon_id', $coupon->id)
             ->where('user_id', $client->id)
             ->exists();
@@ -205,6 +245,10 @@ class TechnicianController extends Controller
     /** Live prijscheck voor het formulier (AJAX). */
     public function checkCoupon(Request $request): JsonResponse
     {
+        if ($gate = $this->requireTechnician($request)) {
+            return $gate;
+        }
+
         $data = $request->validate([
             'klantnummer' => 'required|string|max:30',
             'start_time' => 'required|date_format:H:i',
@@ -236,6 +280,10 @@ class TechnicianController extends Controller
     /** Live totaal zonder coupon (AJAX). */
     public function quote(Request $request): JsonResponse
     {
+        if ($gate = $this->requireTechnician($request)) {
+            return $gate;
+        }
+
         $data = $request->validate([
             'klantnummer' => 'required|string|max:30',
             'start_time' => 'required|date_format:H:i',
@@ -269,6 +317,10 @@ class TechnicianController extends Controller
 
     public function storePaymentForm(Request $request)
     {
+        if ($gate = $this->requireTechnician($request)) {
+            return $gate;
+        }
+
         $data = $request->validate([
             'klantnummer' => 'required|string|max:30',
             'start_time' => 'required|date_format:H:i',
@@ -332,14 +384,9 @@ class TechnicianController extends Controller
             'status' => 'unpaid',
         ]);
 
-        if ($calc['coupon']) {
-            CouponUsage::firstOrCreate(
-                ['coupon_id' => $calc['coupon']['id'], 'user_id' => $client->id],
-                ['used_at' => now()]
-            );
-            $coupon = Coupon::find($calc['coupon']['id']);
-            $coupon?->increment('used_count');
-        }
+        // Coupon usage is only consumed in finalizeForm() after Mollie
+        // confirms payment — an unpaid form must never burn a single-use
+        // code or inflate the global used_count.
 
         if (! $this->payments->isConfigured()) {
             $msg = 'Formulier opgeslagen, maar de betaalkoppeling is nog niet ingesteld.';
@@ -401,6 +448,12 @@ class TechnicianController extends Controller
         }
 
         if ($this->payments->isPaid($payment)) {
+            if (! $this->payments->amountMatches($payment, (float) $form->total)) {
+                report(new \RuntimeException('Mollie amount mismatch for technician form '.$form->id));
+                $form->update(['payment_status' => 'cancelled']);
+
+                return response()->json(['status' => 'amount-mismatch'], 200);
+            }
             $this->finalizeForm($form, $payment->method ?? null);
         } else {
             $status = (string) ($payment->status ?? '');
@@ -418,7 +471,8 @@ class TechnicianController extends Controller
         if ($form->payment_status !== 'paid' && $form->mollie_payment_id && $this->payments->isConfigured()) {
             try {
                 $payment = $this->payments->getPayment($form->mollie_payment_id);
-                if ($this->payments->isPaid($payment)) {
+                if ($this->payments->isPaid($payment)
+                    && $this->payments->amountMatches($payment, (float) $form->total)) {
                     $this->finalizeForm($form, $payment->method ?? null);
                 }
             } catch (\Throwable $e) {
@@ -429,6 +483,8 @@ class TechnicianController extends Controller
         $form->refresh();
 
         if ($form->payment_status === 'paid') {
+            $request->session()->put('technician_form_'.$form->id, true);
+
             return redirect()->route('technician.success', ['form' => $form->id]);
         }
 
@@ -438,6 +494,7 @@ class TechnicianController extends Controller
     public function success(Request $request, TechnicianForm $form)
     {
         abort_unless($form->payment_status === 'paid', 404);
+        abort_unless($this->mayViewForm($request, $form), 404);
 
         // Voor veiligheid: na een geslaagde betaling de monteur direct uitloggen.
         if (Auth::check()) {
@@ -465,16 +522,42 @@ class TechnicianController extends Controller
      */
     protected function finalizeForm(TechnicianForm $form, ?string $mollieMethod = null): void
     {
-        $form->refresh();
+        $finalized = \Illuminate\Support\Facades\DB::transaction(function () use ($form, $mollieMethod) {
+            $locked = TechnicianForm::whereKey($form->id)->lockForUpdate()->first();
+            if (! $locked || $locked->payment_status === 'paid') {
+                return null;
+            }
 
-        if ($form->payment_status === 'paid') {
+            $locked->update([
+                'payment_status' => 'paid',
+                'payment_method' => $mollieMethod ?? $locked->payment_method ?? 'mollie',
+            ]);
+
+            // Consume the coupon only now that money has arrived. Re-check
+            // validity at payment time; firstOrCreate keeps concurrent
+            // finalizations from double-counting a single-use code.
+            if ($locked->coupon_id) {
+                $coupon = Coupon::find($locked->coupon_id);
+                $usage = CouponUsage::firstOrCreate(
+                    ['coupon_id' => $locked->coupon_id, 'user_id' => $locked->user_id],
+                    ['used_at' => now()]
+                );
+                if ($coupon && $usage->wasRecentlyCreated) {
+                    $coupon->increment('used_count');
+                } elseif (! $usage->wasRecentlyCreated) {
+                    \Illuminate\Support\Facades\Log::warning('Coupon already consumed at technician finalize', [
+                        'form_id' => $locked->id, 'coupon_id' => $locked->coupon_id,
+                    ]);
+                }
+            }
+
+            return $locked->fresh();
+        });
+
+        if ($finalized === null) {
             return;
         }
-
-        $form->update([
-            'payment_status' => 'paid',
-            'payment_method' => $mollieMethod ?? $form->payment_method ?? 'mollie',
-        ]);
+        $form = $finalized;
 
         $invoice = $form->technicianInvoice()->latest('id')->first();        if ($invoice) {
             $invoice->update(['status' => 'paid']);
@@ -497,6 +580,20 @@ class TechnicianController extends Controller
             $fresh = $form->fresh()->load('user');
             Mail::to($fresh->user->email)->send(new TechnicianInvoiceMail($fresh));
         })->afterResponse();
+    }
+
+    /**
+     * Whether the visitor may see this form's success page (sequential ids
+     * are enumerable; the operator session or an admin always may).
+     */
+    protected function mayViewForm(Request $request, TechnicianForm $form): bool
+    {
+        $user = $request->user();
+        if ($user && ($user->isAdmin() || $user->role === 'technician')) {
+            return true;
+        }
+
+        return (bool) $request->session()->get('technician_form_'.$form->id, false);
     }
 
     /**

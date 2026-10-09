@@ -42,13 +42,16 @@ class DigitalFile extends Model
 
     /**
      * Personal signed link for one order (emailed to guests too).
-     * The signature stays valid, but DownloadController re-checks
+     * Expires after 30 days (previously never); the signature itself is a
+     * keyed HMAC over the URL (Laravel signed routes). The signature stays
+     * valid within its lifetime, but DownloadController re-checks
      * payment_status=paid live on every hit.
      */
     public function signedUrlForOrder(Order $order): string
     {
-        return \Illuminate\Support\Facades\URL::signedRoute(
+        return \Illuminate\Support\Facades\URL::temporarySignedRoute(
             'download.file',
+            now()->addDays(30),
             ['file' => $this->id, 'order' => $order->order_number]
         );
     }

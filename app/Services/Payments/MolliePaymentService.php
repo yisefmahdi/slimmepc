@@ -61,4 +61,28 @@ class MolliePaymentService
     {
         return $payment->isPaid();
     }
+
+    /**
+     * Verify the amount actually collected by Mollie matches the expected
+     * order/form total. Guards against underpayment being marked as paid
+     * (e.g. amount changed after the payment was created).
+     */
+    public function amountMatches(Payment $payment, float $expected): bool
+    {
+        $amount = $payment->amount ?? null;
+        $value = null;
+        if (is_object($amount) && isset($amount->value)) {
+            $value = (string) $amount->value;
+        } elseif (is_array($amount) && isset($amount['value'])) {
+            $value = (string) $amount['value'];
+        } elseif (is_numeric($amount)) {
+            $value = (string) $amount;
+        }
+
+        if ($value === null || ! is_numeric($value)) {
+            return false;
+        }
+
+        return number_format((float) $value, 2, '.', '') === number_format($expected, 2, '.', '');
+    }
 }

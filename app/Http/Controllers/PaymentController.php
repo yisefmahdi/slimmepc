@@ -38,6 +38,14 @@ class PaymentController extends Controller
         }
 
         if ($this->payments->isPaid($payment)) {
+            // Never trust a paid flag alone: the collected amount must equal
+            // the order total, otherwise an underpaid order would be fulfilled.
+            if (! $this->payments->amountMatches($payment, (float) $order->total_price)) {
+                report(new \RuntimeException('Mollie amount mismatch for order '.$order->id));
+                $order->update(['payment_status' => 'failed']);
+
+                return response()->json(['status' => 'amount-mismatch'], 200);
+            }
             $this->orderPayments->finalizeOrder($order, $payment->method ?? null);
         } else {
             $status = (string) ($payment->status ?? '');
@@ -57,7 +65,8 @@ class PaymentController extends Controller
         if ($orderModel->payment_status !== 'paid' && $orderModel->mollie_payment_id && $this->payments->isConfigured()) {
             try {
                 $payment = $this->payments->getPayment($orderModel->mollie_payment_id);
-                if ($this->payments->isPaid($payment)) {
+                if ($this->payments->isPaid($payment)
+                    && $this->payments->amountMatches($payment, (float) $orderModel->total_price)) {
                     $this->orderPayments->finalizeOrder($orderModel, $payment->method ?? null);
                 }
             } catch (\Throwable $e) {
@@ -71,17 +80,45 @@ class PaymentController extends Controller
         $design = Cms::design();
 
         if ($orderModel->payment_status === 'paid') {
-            return view('landing.payment-success', compact('c', 'design', 'orderModel'));
+            // Only the buyer (or an admin) may see order details: sequential
+            // ids are trivially enumerable, so strangers get the generic page.
+            $viewModel = $this->mayViewOrder($request, $orderModel) ? $orderModel : null;
+
+            return view('landing.payment-success', ['c' => $c, 'design' => $design, 'orderModel' => $viewModel]);
         }
 
         return redirect()->route('payment.failed', ['order' => $orderModel->id]);
+    }
+
+    /**
+     * Whether the current visitor may see this order's details.
+     * Registered orders are bound to their owner; guest orders to the
+     * checkout session that created them (Mollie redirects back into the
+     * same browser session). Admins may always view.
+     */
+    protected function mayViewOrder(Request $request, Order $order): bool
+    {
+        $user = $request->user();
+        if ($user && $user->isAdmin()) {
+            return true;
+        }
+        if ($order->user_id) {
+            return $user !== null && (int) $user->id === (int) $order->user_id;
+        }
+
+        return in_array($order->id, (array) $request->session()->get('owned_orders', []), false);
     }
 
     public function success(Request $request)
     {
         $orderModel = null;
         if ($request->has('order')) {
-            $orderModel = Order::with(['items'])->find($request->input('order'));
+            $candidate = Order::with(['items'])->find($request->input('order'));
+            // Never celebrate (or leak details of) an unpaid order, and only
+            // show details the visitor is entitled to see.
+            if ($candidate && $candidate->payment_status === 'paid' && $this->mayViewOrder($request, $candidate)) {
+                $orderModel = $candidate;
+            }
         }
 
         $c = Cms::page('home');
@@ -94,7 +131,10 @@ class PaymentController extends Controller
     {
         $orderModel = null;
         if ($request->has('order')) {
-            $orderModel = Order::with(['items'])->find($request->input('order'));
+            $candidate = Order::with(['items'])->find($request->input('order'));
+            if ($candidate && $this->mayViewOrder($request, $candidate)) {
+                $orderModel = $candidate;
+            }
         }
 
         $c = Cms::page('home');

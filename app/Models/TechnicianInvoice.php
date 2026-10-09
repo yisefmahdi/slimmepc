@@ -32,7 +32,12 @@ class TechnicianInvoice extends Model
         parent::boot();
         static::creating(function (TechnicianInvoice $invoice) {
             if (empty($invoice->invoice_number)) {
-                $invoice->invoice_number = 'SLP-' . strtoupper(uniqid());
+                // Random + retry loop (uniqid() is time-based/predictable and
+                // can collide under concurrency); the DB unique index is the
+                // final guard.
+                do {
+                    $invoice->invoice_number = 'SLP-'.strtoupper(\Illuminate\Support\Str::random(8));
+                } while (self::where('invoice_number', $invoice->invoice_number)->exists());
             }
         });
     }

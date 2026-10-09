@@ -26,42 +26,55 @@ class OrderPaymentService
 {
     public function finalizeOrder(Order $order, ?string $mollieMethod = null): void
     {
-        $order->refresh();
+        // Serialize concurrent finalizations (double webhook + return race)
+        // on the order row: the paid-check and all side effects below run
+        // atomically, so a second caller always sees payment_status=paid
+        // and becomes a no-op instead of duplicating invoices/licences.
+        $finalized = DB::transaction(function () use ($order, $mollieMethod) {
+            $locked = Order::whereKey($order->id)->lockForUpdate()->first();
+            if (! $locked || $locked->payment_status === 'paid') {
+                return null;
+            }
 
-        if ($order->payment_status === 'paid') {
+            $locked->update([
+                'payment_status' => 'paid',
+                'order_status' => $locked->order_status === 'pending' ? 'processing' : $locked->order_status,
+                'payment_method' => $mollieMethod ?? $locked->payment_method,
+            ]);
+
+            // Coupon usage bookkeeping
+            if ($locked->coupon_id) {
+                $locked->coupon?->increment('used_count');
+                CouponUsage::firstOrCreate(
+                    [
+                        'coupon_id' => $locked->coupon_id,
+                        'user_id' => $locked->user_id,
+                        'guest_token' => $locked->user_id ? null : ('order-'.$locked->id),
+                    ],
+                    ['used_at' => now()]
+                );
+            }
+
+            // Digital products: assign one license code per purchased unit.
+            // Runs inside a transaction with row locks so concurrent webhooks
+            // can never hand out the same code twice. Returns per-product
+            // shortages (empty when everything was served).
+            $licenseShortages = $this->assignLicenseCodes($locked);
+            if ($licenseShortages !== []) {
+                Log::warning('License pool ran out during finalize', ['order_id' => $locked->id, 'shortages' => $licenseShortages]);
+            }
+
+            $invoice = $this->ensureInvoice($locked);
+            $this->ensurePdf($invoice);
+
+            return ['order' => $locked->fresh(), 'invoice' => $invoice->fresh(), 'shortages' => $licenseShortages];
+        });
+
+        if ($finalized === null) {
             return;
         }
 
-        $order->update([
-            'payment_status' => 'paid',
-            'order_status' => $order->order_status === 'pending' ? 'processing' : $order->order_status,
-            'payment_method' => $mollieMethod ?? $order->payment_method,
-        ]);
-
-        // Coupon usage bookkeeping
-        if ($order->coupon_id) {
-            $order->coupon?->increment('used_count');
-            CouponUsage::firstOrCreate(
-                [
-                    'coupon_id' => $order->coupon_id,
-                    'user_id' => $order->user_id,
-                    'guest_token' => $order->user_id ? null : ('order-'.$order->id),
-                ],
-                ['used_at' => now()]
-            );
-        }
-
-        // Digital products: assign one license code per purchased unit.
-        // Runs inside a transaction with row locks so concurrent webhooks
-        // can never hand out the same code twice. Returns per-product
-        // shortages (empty when everything was served).
-        $licenseShortages = $this->assignLicenseCodes($order);
-        if ($licenseShortages !== []) {
-            Log::warning('License pool ran out during finalize', ['order_id' => $order->id, 'shortages' => $licenseShortages]);
-        }
-
-        $invoice = $this->ensureInvoice($order);
-        $this->ensurePdf($invoice);
+        ['order' => $order, 'invoice' => $invoice, 'shortages' => $licenseShortages] = $finalized;
 
         // Clear the cart snapshot source
         $cartId = (int) ($order->cart_id ?? 0);
@@ -83,7 +96,7 @@ class OrderPaymentService
         // Owner notification mail
         $notify = (string) (config('contact-inbox.notify_email') ?: env('CONTACT_NOTIFY_EMAIL', ''));
         if ($notify !== '') {
-            dispatch(function () use ($order, $notify) {
+            dispatch(function () use ($order, $notify, $licenseShortages) {
                 Mail::to($notify)->send(new AdminOrderNotificationMail($order->fresh()));
 
                 // Same moment as the admin e-mail: push to all admin devices.

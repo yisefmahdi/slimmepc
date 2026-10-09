@@ -60,9 +60,16 @@ class DownloadController extends Controller
         ]);
         $file->increment('downloads_count');
 
+        // Sanitize the download filename: it originates from an admin upload
+        // and ends up in the Content-Disposition header (CRLF/header injection).
+        $filename = str_replace(["\r", "\n", '"'], '', basename((string) $file->name));
+        if ($filename === '' || $filename === '.' || $filename === '..') {
+            $filename = 'bestand-'.$file->id;
+        }
+
         return response()->download(
             Storage::disk('local')->path($file->path),
-            $file->name,
+            $filename,
             [
                 // Never let browsers, proxies or search engines keep a copy
                 'Cache-Control' => 'no-store, no-cache, must-revalidate',

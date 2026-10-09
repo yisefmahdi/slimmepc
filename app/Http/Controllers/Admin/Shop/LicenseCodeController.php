@@ -90,6 +90,14 @@ class LicenseCodeController extends Controller
 
     public function destroy(LicenseCode $licenseCode)
     {
+        // Sold codes are proof of purchase for paid orders — deleting one
+        // would silently rob a customer of their licence.
+        if ($licenseCode->status !== 'available' || $licenseCode->order_id !== null) {
+            return response()->json([
+                'message' => 'Deze code is al verkocht/toegewezen en kan niet worden verwijderd.',
+            ], 422);
+        }
+
         $licenseCode->delete();
 
         return response()->json([

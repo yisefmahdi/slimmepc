@@ -309,7 +309,7 @@ Route::prefix('admin')
                     Route::delete('/{product}', [ShopProductController::class, 'destroy'])->name('destroy');
                     Route::post('/{product}/toggle', [ShopProductController::class, 'toggleStatus'])->name('toggle');
                     Route::post('/{product}/toggle-featured', [ShopProductController::class, 'toggleFeatured'])->name('toggle-featured');
-                    Route::post('/generate-description', [AiProductController::class, 'generateDescription'])->name('generate-description');
+                    Route::post('/generate-description', [AiProductController::class, 'generateDescription'])->middleware('throttle:10,1')->name('generate-description');
                 });
 
                 Route::prefix('bestanden')->name('bestanden.')->group(function () {

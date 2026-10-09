@@ -67,7 +67,9 @@ class LidmaatschapController extends Controller
         $user = Auth::user();
         if ($user instanceof User) {
             if (! $user->klantnummer) {
-                $user->update(['klantnummer' => $this->makeKlantnummer($data['name'])]);
+                // Explicit assignment: klantnummer is not mass assignable ([AUTH-01]).
+                $user->klantnummer = $this->makeKlantnummer($data['name']);
+                $user->save();
                 $user->refresh();
             }
             $klantnummer = $user->klantnummer;
@@ -102,7 +104,7 @@ class LidmaatschapController extends Controller
 
         $membership->invoices()->create([
             'klantnummer' => $membership->klantnummer,
-            'invoice_number' => 'LID-' . random_int(100000, 999999),
+            'invoice_number' => $this->makeInvoiceNumber(),
             'invoice_date' => now(),
             'payment_method' => 'mollie',
             'subtotal' => $subtotal,
@@ -175,6 +177,12 @@ class LidmaatschapController extends Controller
         }
 
         if ($this->payments->isPaid($payment)) {
+            if (! $this->payments->amountMatches($payment, (float) $membership->total)) {
+                report(new \RuntimeException('Mollie amount mismatch for membership '.$membership->id));
+                $membership->update(['payment_status' => 'cancelled']);
+
+                return response()->json(['status' => 'amount-mismatch'], 200);
+            }
             $this->finalizeMembership($membership, $payment->method ?? null);
         } else {
             $status = (string) ($payment->status ?? '');
@@ -194,7 +202,8 @@ class LidmaatschapController extends Controller
         if ($lidmaatschap->payment_status !== 'paid' && $lidmaatschap->mollie_payment_id && $this->payments->isConfigured()) {
             try {
                 $payment = $this->payments->getPayment($lidmaatschap->mollie_payment_id);
-                if ($this->payments->isPaid($payment)) {
+                if ($this->payments->isPaid($payment)
+                    && $this->payments->amountMatches($payment, (float) $lidmaatschap->total)) {
                     $this->finalizeMembership($lidmaatschap, $payment->method ?? null);
                 }
             } catch (\Throwable $e) {
@@ -205,6 +214,10 @@ class LidmaatschapController extends Controller
         $lidmaatschap->refresh();
 
         if ($lidmaatschap->payment_status === 'paid') {
+            // Bind to this browser session so the success page can tell the
+            // member apart from strangers (ids are sequential/enumerable).
+            $request->session()->put('lidmaatschap_'.$lidmaatschap->id, true);
+
             return redirect()->route('lidmaatschap.success', ['lidmaatschap' => $lidmaatschap->id]);
         }
 
@@ -214,6 +227,7 @@ class LidmaatschapController extends Controller
     public function success(Request $request, Membership $lidmaatschap)
     {
         abort_unless($lidmaatschap->payment_status === 'paid', 404);
+        abort_unless($this->mayViewMembership($request, $lidmaatschap), 404);
 
         $c = Cms::page('home');
         $design = Cms::design();
@@ -234,16 +248,24 @@ class LidmaatschapController extends Controller
      */
     protected function finalizeMembership(Membership $membership, ?string $mollieMethod = null): void
     {
-        $membership->refresh();
+        $finalized = \Illuminate\Support\Facades\DB::transaction(function () use ($membership, $mollieMethod) {
+            $locked = Membership::whereKey($membership->id)->lockForUpdate()->first();
+            if (! $locked || $locked->payment_status === 'paid') {
+                return null;
+            }
 
-        if ($membership->payment_status === 'paid') {
+            $locked->update([
+                'payment_status' => 'paid',
+                'payment_method' => $mollieMethod ?? $locked->payment_method,
+            ]);
+
+            return $locked->fresh();
+        });
+
+        if ($finalized === null) {
             return;
         }
-
-        $membership->update([
-            'payment_status' => 'paid',
-            'payment_method' => $mollieMethod ?? $membership->payment_method,
-        ]);
+        $membership = $finalized;
 
         $invoice = $membership->invoices()->latest('id')->first();
         if ($invoice && ! $invoice->pdf_path) {
@@ -262,6 +284,31 @@ class LidmaatschapController extends Controller
         dispatch(function () use ($membership) {
             Mail::to($membership->customer_email)->send(new MembershipWelcomeMail($membership->fresh()));
         })->afterResponse();
+    }
+
+    protected function makeInvoiceNumber(): string
+    {
+        do {
+            $candidate = 'LID-'.random_int(100000, 999999);
+        } while (\App\Models\MembershipInvoice::where('invoice_number', $candidate)->exists());
+
+        return $candidate;
+    }
+
+    /**
+     * Whether the visitor may see this membership's success page.
+     */
+    protected function mayViewMembership(Request $request, Membership $membership): bool
+    {
+        $user = $request->user();
+        if ($user && $user->isAdmin()) {
+            return true;
+        }
+        if ($membership->user_id) {
+            return $user !== null && (int) $user->id === (int) $membership->user_id;
+        }
+
+        return (bool) $request->session()->get('lidmaatschap_'.$membership->id, false);
     }
 
     protected function makeKlantnummer(string $name): string

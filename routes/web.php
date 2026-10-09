@@ -99,10 +99,10 @@ Route::post('/checkout', [CheckoutController::class, 'store'])->middleware('thro
 // Monteur (technician) — login, klantfactuur aan huis, Mollie
 Route::get('/betaal/login', [TechnicianController::class, 'technicialogin'])->name('technician.login');
 Route::post('/betaal/login', [TechnicianController::class, 'loginSubmit'])->middleware('throttle:10,1')->name('technician.login.submit');
-Route::get('/technician/payment/{klantnummer}', [TechnicianController::class, 'paymentPage'])->name('technician.payment');
-Route::post('/technician/payment/submit', [TechnicianController::class, 'storePaymentForm'])->middleware('throttle:10,1')->name('technician.payment.store');
-Route::post('/technician/quote', [TechnicianController::class, 'quote'])->middleware('throttle:30,1')->name('technician.quote');
-Route::post('/technician/check-coupon', [TechnicianController::class, 'checkCoupon'])->middleware('throttle:30,1')->name('technician.coupon.check');
+Route::get('/technician/payment/{klantnummer}', [TechnicianController::class, 'paymentPage'])->middleware('auth')->name('technician.payment');
+Route::post('/technician/payment/submit', [TechnicianController::class, 'storePaymentForm'])->middleware(['auth', 'throttle:10,1'])->name('technician.payment.store');
+Route::post('/technician/quote', [TechnicianController::class, 'quote'])->middleware(['auth', 'throttle:30,1'])->name('technician.quote');
+Route::post('/technician/check-coupon', [TechnicianController::class, 'checkCoupon'])->middleware(['auth', 'throttle:30,1'])->name('technician.coupon.check');
 Route::post('/technician/webhook', [TechnicianController::class, 'webhook'])->name('technician.webhook');
 Route::get('/technician/return/{form}', [TechnicianController::class, 'mollieReturn'])->name('technician.return');
 Route::get('/technician/success/{form}', [TechnicianController::class, 'success'])->name('technician.success');
@@ -161,8 +161,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Public Device Receipt Tracking
+// Public Device Receipt Tracking (CSRF-exempt by design — the form lives on
+// uncached pages but shares the exemption list; throttle is the anti-
+// enumeration control: t_number + email pairs must not be brute-forcible).
 Route::get('/track', [TrackingController::class, 'index'])->name('tracking.index');
-Route::post('/track', [TrackingController::class, 'track'])->name('tracking.track');
+Route::post('/track', [TrackingController::class, 'track'])->middleware('throttle:10,1')->name('tracking.track');
 
 require __DIR__.'/auth.php';

@@ -168,6 +168,14 @@ class CheckoutController extends Controller
             ]);
         }
 
+        // Bind guest orders to this browser session so the return/success
+        // pages can tell the buyer apart from strangers (see PaymentController).
+        if (! $order->user_id) {
+            $owned = (array) $request->session()->get('owned_orders', []);
+            $owned[] = $order->id;
+            $request->session()->put('owned_orders', array_values(array_unique($owned)));
+        }
+
         if (! $this->payments->isConfigured()) {
             return response()->json([
                 'message' => 'Bestelling aangemaakt, maar de betaalkoppeling (MOLLIE_KEY) is nog niet ingesteld.',

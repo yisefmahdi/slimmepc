@@ -58,7 +58,7 @@
                     <div class="rounded-3xl border border-slate-100 bg-slate-50 p-6 sm:p-8 text-left text-sm text-slate-600">
                         <p class="font-bold text-slate-800 text-base">Wat gebeurt er nu?</p>
                         <ul class="mt-3 list-disc space-y-2 pl-5">
-                            <li>Je ontvangt de factuur per e-mail op {{ $lidmaatschap->customer_email }}.</li>
+                            <li>Je ontvangt de factuur per e-mail.</li>
                             <li>Je lidmaatschap is geldig tot {{ $lidmaatschap->end_date->format('d-m-Y') }}.</li>
                             <li>Vragen? Neem gerust contact met ons op — we helpen je graag.</li>
                         </ul>

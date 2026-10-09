@@ -17,23 +17,18 @@ class AfspraakController extends Controller
     public function submit(StoreAfspraakSubmissionRequest $request): JsonResponse
     {
         $data = $request->validated();
+        unset($data['website']);
 
-        $year = now()->year;
-        $last = AfspraakSubmission::where('afspraak_number', 'like', "AF-{$year}-%")
-            ->orderByDesc('id')
-            ->value('afspraak_number');
-
-        if ($last) {
-            $seq = (int) substr($last, -5);
-            $seq = str_pad($seq + 1, 5, '0', STR_PAD_LEFT);
-        } else {
-            $seq = '00001';
-        }
-
-        $afspraakNumber = "AF-{$year}-{$seq}";
-
-        $submission = AfspraakSubmission::create([
-            'afspraak_number' => $afspraakNumber,
+        // Sequential numbers race under concurrent submits: retry on a
+        // duplicate-key hit (afspraak_number is unique) instead of 500ing.
+        $submission = null;
+        $attempts = 0;
+        while ($submission === null && $attempts < 5) {
+            $attempts++;
+            $afspraakNumber = $this->nextNumber();
+            try {
+                $submission = AfspraakSubmission::create([
+                    'afspraak_number' => $afspraakNumber,
             'name'            => $data['name'],
             'email'           => $data['email'],
             'street'          => $data['street'],
@@ -47,7 +42,17 @@ class AfspraakController extends Controller
             'preferred_time'  => $data['preferred_time'],
             'status'          => 'new',
             'ip_address'      => $request->ip(),
-        ]);
+                ]);
+            } catch (\Illuminate\Database\QueryException $e) {
+                // 23000 = duplicate entry: another request grabbed the same
+                // sequence number concurrently — retry with the next one.
+                if (($e->errorInfo[0] ?? null) !== '23000' || $attempts >= 5) {
+                    throw $e;
+                }
+            }
+        }
+
+        $afspraakNumber = $submission->afspraak_number;
 
         $notifyEmail = config('contact-inbox.notify_email');
 
@@ -75,5 +80,21 @@ class AfspraakController extends Controller
             'afspraak_number' => $afspraakNumber,
             'message'         => 'Bedankt! We hebben uw aanvraag ontvangen en nemen spoedig contact met u op.',
         ], 201);
+    }
+
+    protected function nextNumber(): string
+    {
+        $year = now()->year;
+        $last = AfspraakSubmission::where('afspraak_number', 'like', "AF-{$year}-%")
+            ->orderByDesc('id')
+            ->value('afspraak_number');
+
+        if ($last) {
+            $seq = str_pad((int) substr($last, -5) + 1, 5, '0', STR_PAD_LEFT);
+        } else {
+            $seq = '00001';
+        }
+
+        return "AF-{$year}-{$seq}";
     }
 }

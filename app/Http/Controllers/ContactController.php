@@ -35,17 +35,20 @@ class ContactController extends Controller
             $submission->update(['attachment' => $name]);
         }
 
-        Mail::to($submission->email)
-            ->send(new ContactReceived($submission));
+        // Deferred until after the response: synchronous SMTP inside the
+        // request turns this throttled public endpoint into a mail-flood
+        // amplifier and lets a slow mail server hold connections open (DoS).
+        dispatch(function () use ($submission) {
+            Mail::to($submission->email)
+                ->send(new ContactReceived($submission->fresh()));
 
-        $notifyEmail = config('contact-inbox.notify_email');
+            $notifyEmail = config('contact-inbox.notify_email');
 
-        if ($notifyEmail) {
-            Mail::to($notifyEmail)
-                ->send(new AdminContactNotification($submission));
+            if ($notifyEmail) {
+                Mail::to($notifyEmail)
+                    ->send(new AdminContactNotification($submission->fresh()));
 
-            // Same moment as the admin e-mail: push to all admin devices.
-            dispatch(function () use ($submission) {
+                // Same moment as the admin e-mail: push to all admin devices.
                 AdminPushNotifier::notify(
                     'contact',
                     (string) $submission->id,
@@ -53,8 +56,8 @@ class ContactController extends Controller
                     mb_substr((string) $submission->message, 0, 120),
                     route('admin.contact-inbox.index', ['submission' => $submission->id], absolute: true)
                 );
-            })->afterResponse();
-        }
+            }
+        })->afterResponse();
 
         return response()->json([
             'message' => 'Bedankt! Je bericht is verzonden.',
