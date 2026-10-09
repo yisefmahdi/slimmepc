@@ -241,7 +241,7 @@
                                 @php $pImg = $item->product ? ($item->product->main_image ?: ($item->product->gallery_images[0] ?? null)) : null; @endphp
                                 <div class="flex gap-4 py-5 border-b border-slate-100">
                                     <div class="w-20 h-20 rounded-xl bg-[#F7F9FC] border border-slate-100 flex items-center justify-center shrink-0 overflow-hidden">
-                                        <img src="{{ $resolveImg($pImg) }}" class="w-16 h-16 object-contain rounded-lg" alt="">
+                                        <img src="{{ $resolveImg($pImg) }}" class="w-16 h-16 object-contain rounded-lg" alt="{{ $item->product->title ?? 'Product' }}" loading="lazy">
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <h3 class="font-semibold text-sm leading-5">{{ $item->product->title ?? 'Product' }}</h3>

@@ -30,7 +30,7 @@ class DeviceReceipt extends Model
 
     public function receiptNumber(): string
     {
-        return 'DR-' . str_pad((string) $this->id, 5, '0', STR_PAD_LEFT);
+        return 'DR-'.str_pad((string) $this->id, 5, '0', STR_PAD_LEFT);
     }
 
     public function photos(): HasMany

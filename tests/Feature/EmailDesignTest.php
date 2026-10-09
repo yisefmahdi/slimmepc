@@ -1,10 +1,15 @@
 <?php
 
 use App\Mail\AdminAfspraakNotification;
+use App\Mail\AdminChatNotification;
 use App\Mail\AdminContactNotification;
 use App\Mail\AdminOrderNotificationMail;
 use App\Mail\AdminRepairNotification;
 use App\Mail\AfspraakReceived;
+use App\Mail\ChatClosedMail;
+use App\Mail\ChatOfflineReceived;
+use App\Mail\ChatReplyMail;
+use App\Mail\ChatTicketMail;
 use App\Mail\ContactReceived;
 use App\Mail\ContactReplyMail;
 use App\Mail\DeviceReceiptCompletedMail;
@@ -14,6 +19,7 @@ use App\Mail\OrderInvoiceMail;
 use App\Mail\OrderStatusMail;
 use App\Mail\RepairReceived;
 use App\Models\AfspraakSubmission;
+use App\Models\ChatConversation;
 use App\Models\ContactSubmission;
 use App\Models\DeviceReceipt;
 use App\Models\ManualInvoice;
@@ -162,7 +168,7 @@ it('renders device receipt mails in the new design', function () {
 });
 
 it('renders chat mails in the new design', function () {
-    $conv = App\Models\ChatConversation::create([
+    $conv = ChatConversation::create([
         'guest_token' => Str::random(64),
         'name' => 'Jan Jansen',
         'email' => 'jan@example.com',
@@ -172,11 +178,11 @@ it('renders chat mails in the new design', function () {
     $conv->messages()->create(['sender' => 'customer', 'body' => 'Mijn scherm is kapot', 'source' => 'widget']);
     $reply = $conv->messages()->create(['sender' => 'admin', 'body' => 'Wij kijken ernaar.', 'source' => 'dashboard']);
 
-    assertMailLayout((new App\Mail\ChatOfflineReceived($conv->fresh()))->render(), 'goed ontvangen');
-    assertMailLayout((new App\Mail\AdminChatNotification($conv->fresh(), 'handover'))->render(), 'Open gesprek');
-    assertMailLayout((new App\Mail\ChatReplyMail($conv->fresh(), $reply->fresh()))->render(), 'Wij kijken ernaar.');
-    assertMailLayout((new App\Mail\ChatClosedMail($conv->fresh()))->render(), 'Bedankt voor je chat');
-    assertMailLayout((new App\Mail\ChatTicketMail($conv->fresh(), 'Ticket aangemaakt! Even geduld alsjeblieft.'))->render(), 'Ticket aangemaakt');
+    assertMailLayout((new ChatOfflineReceived($conv->fresh()))->render(), 'goed ontvangen');
+    assertMailLayout((new AdminChatNotification($conv->fresh(), 'handover'))->render(), 'Open gesprek');
+    assertMailLayout((new ChatReplyMail($conv->fresh(), $reply->fresh()))->render(), 'Wij kijken ernaar.');
+    assertMailLayout((new ChatClosedMail($conv->fresh()))->render(), 'Bedankt voor je chat');
+    assertMailLayout((new ChatTicketMail($conv->fresh(), 'Ticket aangemaakt! Even geduld alsjeblieft.'))->render(), 'Ticket aangemaakt');
 });
 
 it('renders the manual invoice mail in the new design', function () {

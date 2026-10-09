@@ -16,8 +16,6 @@ class DuckDuckGoDriver implements SearchDriverInterface
     }
 
     /**
-     * @param string $query
-     * @param int $limit
      * @return array<int, array{title: string, snippet: string, url: string}>
      */
     public function search(string $query, int $limit = 5): array
@@ -29,7 +27,7 @@ class DuckDuckGoDriver implements SearchDriverInterface
 
         // 1. Try DuckDuckGo HTML search first
         $results = $this->searchDdgHtml($cleanQuery, $limit);
-        if (!empty($results)) {
+        if (! empty($results)) {
             return $results;
         }
 
@@ -40,8 +38,6 @@ class DuckDuckGoDriver implements SearchDriverInterface
     /**
      * Search via DuckDuckGo HTML.
      *
-     * @param string $query
-     * @param int $limit
      * @return array<int, array{title: string, snippet: string, url: string}>
      */
     protected function searchDdgHtml(string $query, int $limit): array
@@ -52,12 +48,12 @@ class DuckDuckGoDriver implements SearchDriverInterface
                 'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
                 'Accept-Language' => 'nl-NL,nl;q=0.9,en-US;q=0.8,en;q=0.7',
             ])
-            ->timeout($this->timeout)
-            ->get('https://html.duckduckgo.com/html/', [
-                'q' => $query,
-            ]);
+                ->timeout($this->timeout)
+                ->get('https://html.duckduckgo.com/html/', [
+                    'q' => $query,
+                ]);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return [];
             }
 
@@ -78,9 +74,9 @@ class DuckDuckGoDriver implements SearchDriverInterface
 
                     if ($snippet !== '') {
                         $results[] = [
-                            'title'   => 'Specificaties ' . ($idx + 1),
+                            'title' => 'Specificaties '.($idx + 1),
                             'snippet' => $snippet,
-                            'url'     => $url ? 'https://' . ltrim($url, '/') : '',
+                            'url' => $url ? 'https://'.ltrim($url, '/') : '',
                         ];
                     }
                 }
@@ -88,7 +84,8 @@ class DuckDuckGoDriver implements SearchDriverInterface
 
             return $results;
         } catch (\Throwable $e) {
-            Log::warning('DuckDuckGo HTML search error: ' . $e->getMessage());
+            Log::warning('DuckDuckGo HTML search error: '.$e->getMessage());
+
             return [];
         }
     }
@@ -96,8 +93,6 @@ class DuckDuckGoDriver implements SearchDriverInterface
     /**
      * Fallback search combining DDG Instant Answers and Wikipedia.
      *
-     * @param string $query
-     * @param int $limit
      * @return array<int, array{title: string, snippet: string, url: string}>
      */
     protected function searchFallback(string $query, int $limit): array
@@ -109,13 +104,13 @@ class DuckDuckGoDriver implements SearchDriverInterface
             $response = Http::withHeaders([
                 'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
             ])
-            ->timeout($this->timeout)
-            ->get('https://api.duckduckgo.com/', [
-                'q' => $query,
-                'format' => 'json',
-                'no_html' => 1,
-                'skip_disambig' => 1,
-            ]);
+                ->timeout($this->timeout)
+                ->get('https://api.duckduckgo.com/', [
+                    'q' => $query,
+                    'format' => 'json',
+                    'no_html' => 1,
+                    'skip_disambig' => 1,
+                ]);
 
             if ($response->successful()) {
                 $data = $response->json();
@@ -125,9 +120,9 @@ class DuckDuckGoDriver implements SearchDriverInterface
 
                 if ($abstract !== '') {
                     $results[] = [
-                        'title'   => $heading ?: $query,
+                        'title' => $heading ?: $query,
                         'snippet' => $abstract,
-                        'url'     => $url,
+                        'url' => $url,
                     ];
                 }
             }
@@ -141,14 +136,14 @@ class DuckDuckGoDriver implements SearchDriverInterface
                 $wikiRes = Http::withHeaders([
                     'User-Agent' => 'SlimmePC-ProductBot/1.0 (info@slimme-pc.nl)',
                 ])
-                ->timeout($this->timeout)
-                ->get('https://en.wikipedia.org/w/api.php', [
-                    'action'   => 'query',
-                    'list'     => 'search',
-                    'srsearch' => $query,
-                    'format'   => 'json',
-                    'srlimit'  => $limit - count($results),
-                ]);
+                    ->timeout($this->timeout)
+                    ->get('https://en.wikipedia.org/w/api.php', [
+                        'action' => 'query',
+                        'list' => 'search',
+                        'srsearch' => $query,
+                        'format' => 'json',
+                        'srlimit' => $limit - count($results),
+                    ]);
 
                 if ($wikiRes->successful()) {
                     $items = $wikiRes->json('query.search') ?? [];
@@ -156,9 +151,9 @@ class DuckDuckGoDriver implements SearchDriverInterface
                         $snippet = trim(html_entity_decode(strip_tags($item['snippet'] ?? '')));
                         if ($snippet !== '') {
                             $results[] = [
-                                'title'   => $item['title'] ?? '',
+                                'title' => $item['title'] ?? '',
                                 'snippet' => $snippet,
-                                'url'     => 'https://en.wikipedia.org/wiki/' . urlencode($item['title'] ?? ''),
+                                'url' => 'https://en.wikipedia.org/wiki/'.urlencode($item['title'] ?? ''),
                             ];
                         }
                     }

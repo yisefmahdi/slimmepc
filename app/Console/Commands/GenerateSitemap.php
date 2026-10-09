@@ -23,7 +23,7 @@ class GenerateSitemap extends Command
         // Houd de dynamische /sitemap.xml-route in sync.
         Cache::put('sitemap.xml', $xml, now()->addDay());
 
-        $this->info('Sitemap gegenereerd: ' . $path . ' (' . count($urls) . ' URL\'s)');
+        $this->info('Sitemap gegenereerd: '.$path.' ('.count($urls).' URL\'s)');
 
         return self::SUCCESS;
     }

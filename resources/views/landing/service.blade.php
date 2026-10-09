@@ -240,7 +240,7 @@
 
                     <div class="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-card">
                         <div class="relative h-[175px]">
-                            <img src="{{ asset($s['example']['before_image'] ?? 'assets/img/landing/kO1LIJHDa11tczsJsamOPZfBGTjhLrQnH18u2AZ4.webp') }}" class="w-full h-full" alt="">
+                            <img src="{{ asset($s['example']['before_image'] ?? 'assets/img/landing/kO1LIJHDa11tczsJsamOPZfBGTjhLrQnH18u2AZ4.webp') }}" class="w-full h-full object-cover" alt="{{ $s['example']['before_label'] ?? 'Voor reparatie' }}" loading="lazy" decoding="async">
                             <span class="absolute top-0 left-0 bg-red-500 text-white font-bold text-[11px] px-4 py-2 rounded-br-xl">{{ $s['example']['before_label'] ?? 'Voor' }}</span>
                         </div>
                         <div class="p-4 text-center">
@@ -256,7 +256,7 @@
 
                     <div class="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-card">
                         <div class="relative h-[175px]">
-                            <img src="{{ asset($s['example']['diagnose_image'] ?? 'assets/img/landing/363f8f55-fba7-4f23-88db-8c8e728d522e.png') }}" class="w-full h-full object-cover" alt="">
+                            <img src="{{ asset($s['example']['diagnose_image'] ?? 'assets/img/landing/363f8f55-fba7-4f23-88db-8c8e728d522e.png') }}" class="w-full h-full object-cover" alt="{{ $s['example']['diagnose_label'] ?? 'Diagnose' }}" loading="lazy" decoding="async">
                             <span class="absolute top-0 left-0 bg-[#ff7200] text-white font-bold text-[11px] px-4 py-2 rounded-br-xl">{{ $s['example']['diagnose_label'] ?? 'Diagnose' }}</span>
                         </div>
                         <div class="p-4 text-center">
@@ -272,7 +272,7 @@
 
                     <div class="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-card">
                         <div class="relative h-[175px]">
-                            <img src="{{ asset($s['example']['after_image'] ?? 'assets/img/landing/53f89edd-3207-4891-b580-7246605e1858.png') }}" class="w-full h-full object-cover" alt="">
+                            <img src="{{ asset($s['example']['after_image'] ?? 'assets/img/landing/53f89edd-3207-4891-b580-7246605e1858.png') }}" class="w-full h-full object-cover" alt="{{ $s['example']['after_label'] ?? 'Na reparatie' }}" loading="lazy" decoding="async">
                             <span class="absolute top-0 left-0 bg-emerald-500 text-white font-bold text-[11px] px-4 py-2 rounded-br-xl">{{ $s['example']['after_label'] ?? 'Na' }}</span>
                         </div>
                         <div class="p-4 text-center">
@@ -302,7 +302,7 @@
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                     @foreach ($s['other']['items'] ?? [] as $item)
                         <a href="#" class="repair-card overflow-hidden border border-gray-200 rounded-lg bg-white shadow-card">
-                            <img src="{{ asset('assets/img/landing/'.basename($item['image'] ?? '')) }}" class="w-full h-[140px] object-cover" alt="">
+                            <img src="{{ asset('assets/img/landing/'.basename($item['image'] ?? '')) }}" class="w-full h-[140px] object-cover" alt="{{ $item['title'] ?? 'Reparatie' }}" loading="lazy" decoding="async">
                             <div class="text-center py-4">
                                 <div class="font-bold text-[12px]">{{ $item['title'] ?? '' }}</div>
                                 @if (!empty($item['subtitle']))

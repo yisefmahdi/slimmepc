@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreDeviceReceiptRequest;
+use App\Mail\DeviceReceiptCompletedMail;
 use App\Mail\DeviceReceiptMail;
 use App\Models\DeviceReceipt;
 use App\Models\DeviceReceiptPhoto;
@@ -20,7 +21,7 @@ class DeviceReceiptController extends Controller
     public function index(Request $request): View
     {
         $type = $request->query('type', 'laptop');
-        if (!in_array($type, ['laptop', 'ipad_iphone', 'playstation_xbox'], true)) {
+        if (! in_array($type, ['laptop', 'ipad_iphone', 'playstation_xbox'], true)) {
             $type = 'laptop';
         }
 
@@ -30,7 +31,7 @@ class DeviceReceiptController extends Controller
     public function create(Request $request): View
     {
         $type = $request->query('type', 'laptop');
-        if (!in_array($type, ['laptop', 'ipad_iphone', 'playstation_xbox'], true)) {
+        if (! in_array($type, ['laptop', 'ipad_iphone', 'playstation_xbox'], true)) {
             $type = 'laptop';
         }
 
@@ -67,6 +68,7 @@ class DeviceReceiptController extends Controller
             $arr = $row->toArray();
             $arr['receipt_number'] = $row->receiptNumber();
             $arr['photos_count'] = $row->photos_count ?? 0;
+
             return $arr;
         });
 
@@ -102,7 +104,7 @@ class DeviceReceiptController extends Controller
 
         if ($newStatus === 'completed') {
             // Send email immediately to ensure delivery in local/production environments
-            Mail::to($receipt->customer_email)->send(new \App\Mail\DeviceReceiptCompletedMail($receipt));
+            Mail::to($receipt->customer_email)->send(new DeviceReceiptCompletedMail($receipt));
         }
 
         return response()->json(['message' => 'Status bijgewerkt succesvol.']);
@@ -149,7 +151,7 @@ class DeviceReceiptController extends Controller
         })->afterResponse();
 
         return response()->json([
-            'message' => 'Ontvangstbevestiging succesvol aangemaakt en verzonden naar ' . $receipt->customer_email,
+            'message' => 'Ontvangstbevestiging succesvol aangemaakt en verzonden naar '.$receipt->customer_email,
             'receipt' => array_merge($receipt->toArray(), ['receipt_number' => $receipt->receiptNumber()]),
             'photos_count' => $receipt->photos_count ?? 0,
         ], 201);

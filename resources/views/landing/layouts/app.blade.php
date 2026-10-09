@@ -7,6 +7,13 @@
 
     <title>{{ $design['meta_title'] ?? 'Slimme-PC' }}</title>
     <meta name="description" content="{{ $design['meta_description'] ?? '' }}">
+    <link rel="canonical" href="{{ url()->current() }}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Slimme-PC">
+    <meta property="og:title" content="{{ $design['meta_title'] ?? 'Slimme-PC' }}">
+    <meta property="og:description" content="{{ $design['meta_description'] ?? '' }}">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta name="twitter:card" content="summary">
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 

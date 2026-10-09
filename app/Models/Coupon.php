@@ -41,20 +41,28 @@ class Coupon extends Model
 
     public function isExpired(): bool
     {
-        if ($this->end_date && now()->gt($this->end_date)) return true;
-        if ($this->start_date && now()->lt($this->start_date)) return true;
+        if ($this->end_date && now()->gt($this->end_date)) {
+            return true;
+        }
+        if ($this->start_date && now()->lt($this->start_date)) {
+            return true;
+        }
+
         return false;
     }
 
     public function isMaxedOut(): bool
     {
-        if ($this->usage_limit === null) return false;
+        if ($this->usage_limit === null) {
+            return false;
+        }
+
         return $this->used_count >= $this->usage_limit;
     }
 
     public function isActive(): bool
     {
-        return $this->status && !$this->isExpired() && !$this->isMaxedOut();
+        return $this->status && ! $this->isExpired() && ! $this->isMaxedOut();
     }
 
     public function discountAmount(float $subtotal): float
@@ -62,6 +70,7 @@ class Coupon extends Model
         if ($this->discount_type === 'percentage') {
             return round($subtotal * (float) $this->discount_value / 100, 2);
         }
+
         return min((float) $this->discount_value, $subtotal);
     }
 }

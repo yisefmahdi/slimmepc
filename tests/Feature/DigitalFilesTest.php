@@ -2,7 +2,9 @@
 
 use App\Models\Category;
 use App\Models\DigitalFile;
+use App\Models\LicenseCode;
 use App\Models\Order;
+use App\Models\OrderInvoice;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\User;
@@ -59,11 +61,11 @@ function makePaidOrderFor(User $user, Product $product, int $qty = 1): Order
 
 function makeStoredFile(string $name = 'setup.zip'): DigitalFile
 {
-    Storage::disk('local')->put('digital/test-' . $name, 'fake-binary-content');
+    Storage::disk('local')->put('digital/test-'.$name, 'fake-binary-content');
 
     return DigitalFile::create([
         'name' => $name,
-        'path' => 'digital/test-' . $name,
+        'path' => 'digital/test-'.$name,
         'size' => 19,
         'mime' => 'application/zip',
     ]);
@@ -173,12 +175,12 @@ it('blocks deleting a file that is linked from a product', function () {
     makeDigitalProductWithFile($file);
 
     $this->actingAs(makeFilesAdmin())
-        ->deleteJson('/admin/webshop/bestanden/' . $file->id)
+        ->deleteJson('/admin/webshop/bestanden/'.$file->id)
         ->assertStatus(422);
 
     $free = makeStoredFile('vrij.zip');
     $this->actingAs(makeFilesAdmin())
-        ->deleteJson('/admin/webshop/bestanden/' . $free->id)
+        ->deleteJson('/admin/webshop/bestanden/'.$free->id)
         ->assertOk();
     $this->assertDatabaseMissing('digital_files', ['id' => $free->id]);
 });
@@ -190,7 +192,7 @@ it('renders license codes and signed download links in the invoice email', funct
     $user = User::factory()->create(['email_verified_at' => now()]);
     $order = makePaidOrderFor($user, $product);
 
-    $code = \App\Models\LicenseCode::create([
+    $code = LicenseCode::create([
         'product_id' => $product->id,
         'code' => 'TEST-EMAIL-1234',
         'status' => 'sold',
@@ -199,7 +201,7 @@ it('renders license codes and signed download links in the invoice email', funct
         'assigned_at' => now(),
     ]);
 
-    $invoice = \App\Models\OrderInvoice::create([
+    $invoice = OrderInvoice::create([
         'order_id' => $order->id,
         'invoice_number' => 'INV-2026-EMAIL1',
         'invoice_date' => now()->toDateString(),
@@ -215,7 +217,7 @@ it('renders license codes and signed download links in the invoice email', funct
 
     expect($html)->toContain('TEST-EMAIL-1234')
         ->and($html)->toContain('Jouw digitale producten')
-        ->and($html)->toContain('/download/bestand/' . $file->id)
+        ->and($html)->toContain('/download/bestand/'.$file->id)
         ->and($html)->toContain('signature=')
         ->and($html)->toContain($order->order_number);
 });
@@ -226,7 +228,7 @@ it('resolves order-aware links via the helper', function () {
     $order = makePaidOrderFor(User::factory()->create(['email_verified_at' => now()]), $product);
 
     $plain = DigitalDelivery::linksForProduct($product);
-    expect($plain[0]['url'])->toContain('/download/bestand/' . $file->id)
+    expect($plain[0]['url'])->toContain('/download/bestand/'.$file->id)
         ->and($plain[0]['url'])->not->toContain('signature');
 
     $signed = DigitalDelivery::linksForProduct($product, $order);

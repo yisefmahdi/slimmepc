@@ -2,10 +2,17 @@
 
 namespace App\Services;
 
+use App\Mail\ChatReplyMail;
+use App\Models\ChatConversation;
+use App\Models\ChatMessage;
 use App\Models\ContactReply;
 use App\Models\ContactSubmission;
+use App\Services\Chat\ChatAvailabilityService;
+use App\Support\SafeFilename;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Webklex\PHPIMAP\Attachment;
 use Webklex\PHPIMAP\Client;
 use Webklex\PHPIMAP\ClientManager;
 
@@ -111,7 +118,7 @@ class InboundContactFetcher
             $processed++;
 
             $token = $this->findChatToken($message);
-            $conversation = $token ? \App\Models\ChatConversation::find($token) : null;
+            $conversation = $token ? ChatConversation::find($token) : null;
 
             if (! $conversation) {
                 $errors[] = sprintf(
@@ -308,7 +315,7 @@ class InboundContactFetcher
     /**
      * Persist the first storable attachment of the message.
      *
-     * @param  iterable<int, \Webklex\PHPIMAP\Attachment>  $attachments
+     * @param  iterable<int, Attachment>  $attachments
      *
      * @throws \RuntimeException when an attachment was expected but none could be saved
      */
@@ -350,7 +357,7 @@ class InboundContactFetcher
                 // Attachment names are fully attacker-controlled (anyone can
                 // e-mail the inbox). Reduce to a flat, safe basename so
                 // "../../.env"-style names can never escape $dir.
-                $name = \App\Support\SafeFilename::fromExternal($name);
+                $name = SafeFilename::fromExternal($name);
 
                 $content = $attachment->getContent();
 
@@ -420,7 +427,7 @@ class InboundContactFetcher
      * rij + ongelezen laten), daarna pas de row. Gesloten/offline threads met
      * een terugkerende klant gaan weer open.
      */
-    private function appendChatMessage($message, \App\Models\ChatConversation $conversation): void
+    private function appendChatMessage($message, ChatConversation $conversation): void
     {
         $body = $message->getTextBody();
 
@@ -437,7 +444,7 @@ class InboundContactFetcher
 
         $isEmployee = $this->isEmployeeAddress($this->senderMail($message));
 
-        $row = \App\Models\ChatMessage::create([
+        $row = ChatMessage::create([
             'chat_conversation_id' => $conversation->id,
             'sender' => $isEmployee ? 'admin' : 'customer',
             'body' => trim($body) ?: '(Geen tekst)',
@@ -452,7 +459,7 @@ class InboundContactFetcher
         }
 
         if (in_array($conversation->status, ['closed', 'offline'], true)) {
-            $openNow = app(\App\Services\Chat\ChatAvailabilityService::class)->isOpen();
+            $openNow = app(ChatAvailabilityService::class)->isOpen();
             $updates['status'] = $openNow ? 'open' : 'offline';
         }
 
@@ -462,8 +469,8 @@ class InboundContactFetcher
         // (widget kan dicht zijn); klant-antwoorden komen vanzelf binnen.
         if ($isEmployee) {
             try {
-                \Illuminate\Support\Facades\Mail::to($conversation->email)->send(
-                    new \App\Mail\ChatReplyMail($conversation->fresh(), $row->fresh())
+                Mail::to($conversation->email)->send(
+                    new ChatReplyMail($conversation->fresh(), $row->fresh())
                 );
             } catch (\Throwable $e) {
                 Log::warning('[chat-inbox] Could not forward employee mail: '.$e->getMessage());
@@ -514,11 +521,11 @@ class InboundContactFetcher
     /**
      * Persist the first storable attachment of a chat e-mail.
      *
-     * @param  iterable<int, \Webklex\PHPIMAP\Attachment>  $attachments
+     * @param  iterable<int, Attachment>  $attachments
      *
      * @throws \RuntimeException when an attachment was expected but none could be saved
      */
-    private function storeChatAttachment(iterable $attachments, \App\Models\ChatConversation $conversation): ?string
+    private function storeChatAttachment(iterable $attachments, ChatConversation $conversation): ?string
     {
         $dir = 'chat/'.$conversation->id.'/inbound';
 
@@ -546,7 +553,7 @@ class InboundContactFetcher
                 $name = $this->decodeMimeHeader($name);
                 // See storeFirstAttachment: attachment names are
                 // attacker-controlled and must never carry path segments.
-                $name = \App\Support\SafeFilename::fromExternal($name);
+                $name = SafeFilename::fromExternal($name);
 
                 $content = $attachment->getContent();
 

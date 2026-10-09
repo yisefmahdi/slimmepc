@@ -96,7 +96,7 @@ class TechnicianController extends Controller
 
         return response()->download(
             Storage::disk('local')->path($invoice->pdf_path),
-            'factuur-' . $invoice->invoice_number . '.pdf'
+            'factuur-'.$invoice->invoice_number.'.pdf'
         );
     }
 

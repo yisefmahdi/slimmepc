@@ -16,13 +16,12 @@ class ManualInvoiceMail extends Mailable
 
     public function __construct(
         public ManualInvoice $invoice
-    ) {
-    }
+    ) {}
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Uw Factuur ' . $this->invoice->invoice_number . ' - Slimme-PC',
+            subject: 'Uw Factuur '.$this->invoice->invoice_number.' - Slimme-PC',
         );
     }
 
@@ -36,10 +35,10 @@ class ManualInvoiceMail extends Mailable
 
     public function attachments(): array
     {
-        if ($this->invoice->pdf_path && \Illuminate\Support\Facades\Storage::disk('local')->exists($this->invoice->pdf_path)) {
+        if ($this->invoice->pdf_path && Storage::disk('local')->exists($this->invoice->pdf_path)) {
             return [
                 Attachment::fromPath(Storage::disk('local')->path($this->invoice->pdf_path))
-                    ->as($this->invoice->invoice_number . '.pdf')
+                    ->as($this->invoice->invoice_number.'.pdf')
                     ->withMime('application/pdf'),
             ];
         }

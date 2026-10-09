@@ -88,7 +88,7 @@ class RegisteredUserController extends Controller
             }
 
             return redirect(route('technician.login', absolute: false))
-                ->with('status', 'Account aangemaakt! Klantnummer: ' . $user->klantnummer);
+                ->with('status', 'Account aangemaakt! Klantnummer: '.$user->klantnummer);
         }
 
         event(new Registered($user));
@@ -98,4 +98,3 @@ class RegisteredUserController extends Controller
         return redirect(route('home', absolute: false));
     }
 }
-

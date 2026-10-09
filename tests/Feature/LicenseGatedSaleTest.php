@@ -6,10 +6,8 @@ use App\Models\Category;
 use App\Models\LicenseCode;
 use App\Models\Order;
 use App\Models\Product;
-use App\Models\User;
 use App\Services\CartService;
 use App\Services\OrderPaymentService;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 function makeLicenseProduct(int $availableCodes = 0): Product
@@ -17,7 +15,7 @@ function makeLicenseProduct(int $availableCodes = 0): Product
     $category = Category::create(['name' => 'Software', 'status' => true, 'sort_order' => 0]);
     $product = Product::create([
         'category_id' => $category->id,
-        'title' => 'Gated Office ' . Str::random(6),
+        'title' => 'Gated Office '.Str::random(6),
         'price' => 60.00,
         'stock_status' => 'in_stock',
         'status' => true,
@@ -27,14 +25,14 @@ function makeLicenseProduct(int $availableCodes = 0): Product
     for ($i = 1; $i <= $availableCodes; $i++) {
         LicenseCode::create([
             'product_id' => $product->id,
-            'code' => 'GATE-' . $product->id . '-' . $i . '-' . Str::random(4),
+            'code' => 'GATE-'.$product->id.'-'.$i.'-'.Str::random(4),
             'status' => 'available',
         ]);
     }
     // A sold code must never count toward availability
     LicenseCode::create([
         'product_id' => $product->id,
-        'code' => 'GATE-SOLD-' . $product->id . '-' . Str::random(4),
+        'code' => 'GATE-SOLD-'.$product->id.'-'.Str::random(4),
         'status' => 'sold',
     ]);
 
@@ -92,7 +90,7 @@ it('refuses raising cart quantity above the available pool', function () {
 
     $this->withCookie(CartService::COOKIE_NAME, $cart->cart_token)
         ->withCredentials()
-        ->patchJson('/cart/items/' . $item->id, ['quantity' => 3])
+        ->patchJson('/cart/items/'.$item->id, ['quantity' => 3])
         ->assertStatus(422);
 });
 
@@ -209,7 +207,7 @@ it('counts only available codes toward saleability', function () {
 
     expect($product->hasAvailableLicenses(1))->toBeFalse();
 
-    LicenseCode::create(['product_id' => $product->id, 'code' => 'ONE-' . Str::random(6), 'status' => 'available']);
+    LicenseCode::create(['product_id' => $product->id, 'code' => 'ONE-'.Str::random(6), 'status' => 'available']);
 
     expect($product->fresh()->hasAvailableLicenses(1))->toBeTrue();
     expect($product->fresh()->hasAvailableLicenses(2))->toBeFalse();

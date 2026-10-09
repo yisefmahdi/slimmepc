@@ -3,13 +3,17 @@
 namespace App\Http\Controllers\Admin\Chat;
 
 use App\Http\Controllers\Controller;
+use App\Mail\ChatClosedMail;
 use App\Mail\ChatReplyMail;
 use App\Models\ChatConversation;
 use App\Models\ChatMessage;
+use App\Services\Chat\ChatMailer;
+use App\Services\InboundContactFetcher;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -175,7 +179,7 @@ class InboxController extends Controller
         $conversation->touchActivity();
 
         dispatch(function () use ($conversation, $reply) {
-            \App\Services\Chat\ChatMailer::send($conversation->email, new ChatReplyMail($conversation->fresh(), $reply->fresh()), 'inbox-reply');
+            ChatMailer::send($conversation->email, new ChatReplyMail($conversation->fresh(), $reply->fresh()), 'inbox-reply');
         })->afterResponse();
 
         return response()->json([
@@ -212,7 +216,7 @@ class InboxController extends Controller
 
         if ($conversation->status === 'closed' && ! $wasClosed) {
             dispatch(function () use ($conversation) {
-                \App\Services\Chat\ChatMailer::send($conversation->email, new \App\Mail\ChatClosedMail($conversation->fresh()), 'close-admin');
+                ChatMailer::send($conversation->email, new ChatClosedMail($conversation->fresh()), 'close-admin');
             })->afterResponse();
         }
 
@@ -263,14 +267,14 @@ class InboxController extends Controller
                 $last = Cache::get('chat:inbox-page-last-sync');
 
                 if (! $last || now()->getTimestamp() - (int) $last >= 15) {
-                    $result = app(\App\Services\InboundContactFetcher::class)->run();
+                    $result = app(InboundContactFetcher::class)->run();
                     $processed = $result['processed'];
                     $matched = $result['matched'];
 
                     Cache::put('chat:inbox-page-last-sync', now()->getTimestamp(), now()->addMinutes(10));
                 }
             } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning('[chat-inbox] inbox sync failed: '.$e->getMessage());
+                Log::warning('[chat-inbox] inbox sync failed: '.$e->getMessage());
             } finally {
                 $lock->release();
             }

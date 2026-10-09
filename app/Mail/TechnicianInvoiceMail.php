@@ -16,15 +16,14 @@ class TechnicianInvoiceMail extends Mailable
 
     public function __construct(
         public TechnicianForm $form
-    ) {
-    }
+    ) {}
 
     public function envelope(): Envelope
     {
         $invoice = $this->form->technicianInvoice;
 
         return new Envelope(
-            subject: 'Uw factuur ' . ($invoice?->invoice_number ?? '') . ' - Slimme-PC',
+            subject: 'Uw factuur '.($invoice?->invoice_number ?? '').' - Slimme-PC',
         );
     }
 
@@ -46,7 +45,7 @@ class TechnicianInvoiceMail extends Mailable
         if ($invoice && $invoice->pdf_path && Storage::disk('local')->exists($invoice->pdf_path)) {
             return [
                 Attachment::fromPath(Storage::disk('local')->path($invoice->pdf_path))
-                    ->as($invoice->invoice_number . '.pdf')
+                    ->as($invoice->invoice_number.'.pdf')
                     ->withMime('application/pdf'),
             ];
         }

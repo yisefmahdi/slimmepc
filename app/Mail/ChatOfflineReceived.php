@@ -7,7 +7,6 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Mail\Mailables\Headers;
 
 class ChatOfflineReceived extends Mailable
 {
@@ -15,8 +14,7 @@ class ChatOfflineReceived extends Mailable
 
     public function __construct(
         public ChatConversation $conversation
-    ) {
-    }
+    ) {}
 
     public function envelope(): Envelope
     {

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use App\Support\Cms;
+use App\Support\HtmlSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -28,8 +29,8 @@ class ProductController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('brand', 'like', "%{$search}%")
-                  ->orWhere('slug', 'like', "%{$search}%");
+                    ->orWhere('brand', 'like', "%{$search}%")
+                    ->orWhere('slug', 'like', "%{$search}%");
             });
         }
 
@@ -149,36 +150,42 @@ class ProductController extends Controller
         // The description is rendered RAW ({!! !!}) on the public product
         // page — strip active content (scripts, event handlers,
         // javascript: URLs) while keeping everyday formatting.
-        $data['description'] = \App\Support\HtmlSanitizer::productDescription($data['description'] ?? null);
+        $data['description'] = HtmlSanitizer::productDescription($data['description'] ?? null);
 
         // Clean features: keep only rows where both title and value are filled
         $rawFeatures = $request->input('features', []);
         // Backwards compatibility: if legacy string[] sent, map to title/value
-        if (!empty($rawFeatures) && is_string(reset($rawFeatures))) {
+        if (! empty($rawFeatures) && is_string(reset($rawFeatures))) {
             $mapped = [];
             foreach ($rawFeatures as $i => $v) {
-                $v = trim((string)$v);
-                if ($v !== '') $mapped[] = ['title' => 'Specificatie ' . ($i + 1), 'value' => $v];
+                $v = trim((string) $v);
+                if ($v !== '') {
+                    $mapped[] = ['title' => 'Specificatie '.($i + 1), 'value' => $v];
+                }
             }
             $rawFeatures = $mapped;
         }
         $data['features'] = array_values(array_filter(array_map(function ($f) {
             $t = trim($f['title'] ?? '');
             $v = trim($f['value'] ?? '');
+
             return ($t !== '' && $v !== '') ? ['title' => $t, 'value' => $v] : null;
-        }, (array)$rawFeatures)));
+        }, (array) $rawFeatures)));
 
         // Clean highlights
         $rawHighlights = $request->input('highlights', []);
         $data['highlights'] = array_values(array_filter(array_map(function ($h) {
             $t = trim($h['title'] ?? '');
-            if ($t === '') return null;
+            if ($t === '') {
+                return null;
+            }
+
             return [
                 'icon' => trim($h['icon'] ?? ''),
                 'title' => $t,
                 'subtitle' => trim($h['subtitle'] ?? ''),
             ];
-        }, (array)$rawHighlights)));
+        }, (array) $rawHighlights)));
 
         // Colors are hex-only (#RRGGBB from <input type="color">) — drop anything else silently
         $data['colors'] = array_values(array_filter(array_map(fn ($v) => strtoupper(trim((string) $v)), (array) $request->input('colors', [])), fn ($v) => (bool) preg_match('/^#[0-9A-F]{6}$/', $v)));
@@ -225,9 +232,9 @@ class ProductController extends Controller
     {
         $data = $request->validate([
             'category_id' => 'required|exists:categories,id',
-            'title' => 'required|string|max:255|unique:products,title,' . $product->id,
+            'title' => 'required|string|max:255|unique:products,title,'.$product->id,
             'brand' => 'nullable|string|max:255',
-            'sku' => 'nullable|string|max:64|unique:products,sku,' . $product->id,
+            'sku' => 'nullable|string|max:64|unique:products,sku,'.$product->id,
             'price' => 'required|numeric|min:0',
             'old_price' => 'nullable|numeric|min:0',
             'stock_status' => 'nullable|in:in_stock,out_of_stock',
@@ -271,27 +278,33 @@ class ProductController extends Controller
         }
         $data['stock_status'] = $data['stock_status'] ?? $product->stock_status ?? 'in_stock';
         // See store(): the description is rendered raw on the public page.
-        $data['description'] = \App\Support\HtmlSanitizer::productDescription($data['description'] ?? null);
+        $data['description'] = HtmlSanitizer::productDescription($data['description'] ?? null);
         $rawFeatures = $request->input('features', []);
-        if (!empty($rawFeatures) && is_string(reset($rawFeatures))) {
+        if (! empty($rawFeatures) && is_string(reset($rawFeatures))) {
             $mapped = [];
             foreach ($rawFeatures as $i => $v) {
-                $v = trim((string)$v);
-                if ($v !== '') $mapped[] = ['title' => 'Specificatie ' . ($i + 1), 'value' => $v];
+                $v = trim((string) $v);
+                if ($v !== '') {
+                    $mapped[] = ['title' => 'Specificatie '.($i + 1), 'value' => $v];
+                }
             }
             $rawFeatures = $mapped;
         }
         $data['features'] = array_values(array_filter(array_map(function ($f) {
             $t = trim($f['title'] ?? '');
             $v = trim($f['value'] ?? '');
+
             return ($t !== '' && $v !== '') ? ['title' => $t, 'value' => $v] : null;
-        }, (array)$rawFeatures)));
+        }, (array) $rawFeatures)));
         $rawHighlights = $request->input('highlights', []);
         $data['highlights'] = array_values(array_filter(array_map(function ($h) {
             $t = trim($h['title'] ?? '');
-            if ($t === '') return null;
+            if ($t === '') {
+                return null;
+            }
+
             return ['icon' => trim($h['icon'] ?? ''), 'title' => $t, 'subtitle' => trim($h['subtitle'] ?? '')];
-        }, (array)$rawHighlights)));
+        }, (array) $rawHighlights)));
         // Colors are hex-only (#RRGGBB from <input type="color">) — drop anything else silently
         $data['colors'] = array_values(array_filter(array_map(fn ($v) => strtoupper(trim((string) $v)), (array) $request->input('colors', [])), fn ($v) => (bool) preg_match('/^#[0-9A-F]{6}$/', $v)));
         $data['sizes'] = array_values(array_filter($request->input('sizes', [])));
@@ -313,7 +326,7 @@ class ProductController extends Controller
         // Gallery management: Selective deletion and merging
         $keep = $request->input('existing_gallery', []);
         $currentGallery = (array) $product->gallery_images;
-        
+
         $toDelete = array_diff($currentGallery, $keep);
         foreach ($toDelete as $oldImage) {
             Storage::disk('public')->delete($oldImage);
@@ -324,7 +337,7 @@ class ProductController extends Controller
                 $newPaths[] = $file->store('products/gallery', 'public');
             }
         }
-        
+
         $finalGallery = array_merge($keep, $newPaths);
         // Limit total images to 10
         $data['gallery_images'] = array_slice($finalGallery, 0, 10);

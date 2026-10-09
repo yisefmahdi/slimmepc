@@ -32,7 +32,7 @@ class LaptopLoan extends Model
 
     public function loanNumber(): string
     {
-        return 'LL-' . str_pad((string) $this->id, 5, '0', STR_PAD_LEFT);
+        return 'LL-'.str_pad((string) $this->id, 5, '0', STR_PAD_LEFT);
     }
 
     public function photos(): HasMany

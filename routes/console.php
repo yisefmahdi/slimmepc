@@ -10,4 +10,3 @@ Artisan::command('inspire', function () {
 
 // Sitemap dagelijks verversen voor Google (statisch bestand + cache).
 Schedule::command('sitemap:generate')->daily();
-

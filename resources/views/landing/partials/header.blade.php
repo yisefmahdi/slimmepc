@@ -542,7 +542,7 @@
                         </a>
                     @endforeach
                 @else
-                    <p class="px-3 py-2 text-sm text-slate-400">Geen categorieën</p>
+                    <p class="px-3 py-2 text-sm text-slate-500">Geen categorieën</p>
                 @endif
             </div>
 
@@ -723,7 +723,7 @@
                         text-slate-400
                     "></i>
 
-                <input id="searchInput" type="search" name="q" placeholder="{{ $c['header']['search_placeholder'] ?? 'Bijvoorbeeld: laptop, MSI, HP' }}" class="
+                <input id="searchInput" type="search" name="q" aria-label="Zoeken naar producten" placeholder="{{ $c['header']['search_placeholder'] ?? 'Bijvoorbeeld: laptop, MSI, HP' }}" class="
                         h-14 w-full rounded-2xl
                         border border-slate-300
                         bg-slate-50

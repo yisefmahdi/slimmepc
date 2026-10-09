@@ -68,6 +68,7 @@ class LaptopLoanController extends Controller
             $arr = $row->toArray();
             $arr['loan_number'] = $row->loanNumber();
             $arr['photos_count'] = $row->photos_count ?? 0;
+
             return $arr;
         });
 
@@ -120,7 +121,7 @@ class LaptopLoanController extends Controller
         })->afterResponse();
 
         return response()->json([
-            'message' => 'Laptop succesvol uitgeleend. Bevestiging verzonden naar ' . $loan->customer_email,
+            'message' => 'Laptop succesvol uitgeleend. Bevestiging verzonden naar '.$loan->customer_email,
             'loan' => array_merge($loan->toArray(), ['loan_number' => $loan->loanNumber()]),
             'photos_count' => $loan->photos_count ?? 0,
         ], 201);
@@ -170,14 +171,14 @@ class LaptopLoanController extends Controller
         })->afterResponse();
 
         return response()->json([
-            'message' => 'Laptop gemarkeerd als teruggebracht. Bevestiging verzonden naar ' . $loan->customer_email,
+            'message' => 'Laptop gemarkeerd als teruggebracht. Bevestiging verzonden naar '.$loan->customer_email,
             'loan' => array_merge($loan->toArray(), ['loan_number' => $loan->loanNumber()]),
         ]);
     }
 
     public function destroy(LaptopLoan $loan): JsonResponse
     {
-        Storage::disk('local')->deleteDirectory('leen-huur/' . $loan->id);
+        Storage::disk('local')->deleteDirectory('leen-huur/'.$loan->id);
         if ($loan->pdf_path) {
             Storage::disk('local')->delete($loan->pdf_path);
         }
@@ -223,7 +224,7 @@ class LaptopLoanController extends Controller
 
         return response()->download(
             Storage::disk('local')->path($loan->pdf_path),
-            $loan->loanNumber() . '.pdf',
+            $loan->loanNumber().'.pdf',
             ['Content-Type' => 'application/pdf']
         );
     }
@@ -239,8 +240,8 @@ class LaptopLoanController extends Controller
             if (! $file || ! $file->isValid()) {
                 continue;
             }
-            $name = Str::uuid() . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('leen-huur/' . $loan->id, $name, 'local');
+            $name = Str::uuid().'.'.$file->getClientOriginalExtension();
+            $path = $file->storeAs('leen-huur/'.$loan->id, $name, 'local');
             $loan->photos()->create([
                 'path' => $path,
                 'original_name' => $file->getClientOriginalName(),
@@ -257,7 +258,7 @@ class LaptopLoanController extends Controller
         $pdf->setPaper('a4', 'portrait');
 
         $pdfDir = 'leen-huur-overeenkomsten';
-        $pdfFile = $pdfDir . '/' . $loan->loanNumber() . '.pdf';
+        $pdfFile = $pdfDir.'/'.$loan->loanNumber().'.pdf';
 
         Storage::disk('local')->makeDirectory($pdfDir);
         Storage::disk('local')->put($pdfFile, $pdf->output());

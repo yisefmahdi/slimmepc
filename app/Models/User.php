@@ -69,7 +69,7 @@ class User extends Authenticatable
         static::creating(function (User $user) {
             if (empty($user->klantnummer)) {
                 do {
-                    $number = 'SLP-' . random_int(100000, 999999);
+                    $number = 'SLP-'.random_int(100000, 999999);
                 } while (static::where('klantnummer', $number)->exists());
 
                 $user->klantnummer = $number;
@@ -101,4 +101,3 @@ class User extends Authenticatable
         return $this->role === 'user';
     }
 }
-

@@ -17,8 +17,7 @@ class RepairReceived extends Mailable
      */
     public function __construct(
         public RepairSubmission $submission
-    ) {
-    }
+    ) {}
 
     /**
      * Get the message envelope.

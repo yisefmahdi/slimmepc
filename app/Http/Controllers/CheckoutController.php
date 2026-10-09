@@ -92,6 +92,7 @@ class CheckoutController extends Controller
                 if (! $item->product->hasAvailableLicenses((int) $item->quantity)) {
                     return response()->json(['message' => 'Een digitaal product in je winkelwagen is (tijdelijk) uitverkocht — er zijn geen licentiecodes meer beschikbaar.'], 422);
                 }
+
                 continue;
             }
             if ($item->product->stock_status !== 'in_stock') {

@@ -41,7 +41,7 @@ class FilesController extends Controller
         $query = DigitalFile::query()->with('uploader')->orderByDesc('id');
 
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $query->where('name', 'like', '%'.$request->search.'%');
         }
 
         $perPage = (int) $request->integer('per_page', 15);
@@ -70,16 +70,16 @@ class FilesController extends Controller
     {
         $data = $request->validate([
             'upload_id' => ['required', 'string', 'max:64', 'regex:/^[A-Za-z0-9_-]+$/'],
-            'index' => ['required', 'integer', 'min:0', 'max:' . (self::MAX_CHUNKS - 1)],
-            'total' => ['required', 'integer', 'min:1', 'max:' . self::MAX_CHUNKS],
-            'chunk' => ['required', 'file', 'max:' . self::CHUNK_MAX_KB],
+            'index' => ['required', 'integer', 'min:0', 'max:'.(self::MAX_CHUNKS - 1)],
+            'total' => ['required', 'integer', 'min:1', 'max:'.self::MAX_CHUNKS],
+            'chunk' => ['required', 'file', 'max:'.self::CHUNK_MAX_KB],
         ]);
 
         if ($data['index'] >= $data['total']) {
             return response()->json(['message' => 'Ongeldig chunk-nummer.'], 422);
         }
 
-        $dir = 'tmp/chunks/' . $data['upload_id'];
+        $dir = 'tmp/chunks/'.$data['upload_id'];
         Storage::disk('local')->putFileAs($dir, $data['chunk'], (string) $data['index']);
 
         return response()->json(['message' => 'Chunk ontvangen.', 'index' => $data['index']]);
@@ -92,9 +92,9 @@ class FilesController extends Controller
     {
         $data = $request->validate([
             'upload_id' => ['required', 'string', 'max:64', 'regex:/^[A-Za-z0-9_-]+$/'],
-            'total' => ['required', 'integer', 'min:1', 'max:' . self::MAX_CHUNKS],
+            'total' => ['required', 'integer', 'min:1', 'max:'.self::MAX_CHUNKS],
             'name' => ['required', 'string', 'max:255'],
-            'size' => ['required', 'integer', 'min:1', 'max:' . self::MAX_FILE_SIZE],
+            'size' => ['required', 'integer', 'min:1', 'max:'.self::MAX_FILE_SIZE],
         ]);
 
         // The declared size must fit inside the declared chunk count —
@@ -112,17 +112,17 @@ class FilesController extends Controller
             $this->dropChunks($data['upload_id']);
 
             return response()->json([
-                'message' => 'Bestandstype niet toegestaan. Toegestaan: ' . implode(', ', self::ALLOWED_EXTENSIONS),
+                'message' => 'Bestandstype niet toegestaan. Toegestaan: '.implode(', ', self::ALLOWED_EXTENSIONS),
             ], 422);
         }
 
         $disk = Storage::disk('local');
-        $dir = 'tmp/chunks/' . $data['upload_id'];
+        $dir = 'tmp/chunks/'.$data['upload_id'];
 
         for ($i = 0; $i < $data['total']; $i++) {
-            if (! $disk->exists($dir . '/' . $i)) {
+            if (! $disk->exists($dir.'/'.$i)) {
                 return response()->json([
-                    'message' => 'Upload onvolledig — deel ' . ($i + 1) . ' ontbreekt. Probeer het opnieuw.',
+                    'message' => 'Upload onvolledig — deel '.($i + 1).' ontbreekt. Probeer het opnieuw.',
                 ], 422);
             }
         }
@@ -138,7 +138,7 @@ class FilesController extends Controller
 
         set_time_limit(0);
 
-        $stored = 'digital/' . Str::random(40) . '.' . $ext;
+        $stored = 'digital/'.Str::random(40).'.'.$ext;
         $target = $disk->path($stored);
         @mkdir(dirname($target), 0775, true);
 
@@ -151,7 +151,7 @@ class FilesController extends Controller
 
         try {
             for ($i = 0; $i < $data['total']; $i++) {
-                $in = fopen($disk->path($dir . '/' . $i), 'rb');
+                $in = fopen($disk->path($dir.'/'.$i), 'rb');
                 stream_copy_to_stream($in, $out);
                 fclose($in);
             }
@@ -203,17 +203,17 @@ class FilesController extends Controller
     /** Products whose download fields point at this file's route. */
     protected function usedInProducts(DigitalFile $file): bool
     {
-        $needle = '/download/bestand/' . $file->id;
+        $needle = '/download/bestand/'.$file->id;
 
-        return Product::where('download_32bit_url', 'like', '%' . $needle . '%')
-            ->orWhere('download_64bit_url', 'like', '%' . $needle . '%')
-            ->orWhere('manual_url', 'like', '%' . $needle . '%')
+        return Product::where('download_32bit_url', 'like', '%'.$needle.'%')
+            ->orWhere('download_64bit_url', 'like', '%'.$needle.'%')
+            ->orWhere('manual_url', 'like', '%'.$needle.'%')
             ->exists();
     }
 
     protected function dropChunks(string $uploadId): void
     {
-        Storage::disk('local')->deleteDirectory('tmp/chunks/' . $uploadId);
+        Storage::disk('local')->deleteDirectory('tmp/chunks/'.$uploadId);
     }
 
     /** Remove abandoned chunk dirs older than 24 hours. */
@@ -225,7 +225,7 @@ class FilesController extends Controller
                 return;
             }
             foreach ($disk->directories('tmp/chunks') as $dir) {
-                $stamp = $disk->lastModified($dir . '/0');
+                $stamp = $disk->lastModified($dir.'/0');
                 if ($stamp && $stamp < now()->subDay()->timestamp) {
                     $disk->deleteDirectory($dir);
                 }

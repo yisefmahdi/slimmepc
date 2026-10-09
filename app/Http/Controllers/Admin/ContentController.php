@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ContentBlock;
 use App\Models\ContentMeta;
 use App\Support\Cms;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -43,7 +44,7 @@ class ContentController extends Controller
         $content = Cms::page($page);
 
         return view('admin.content.section', [
-            'title' => $pages[$page]['label'] . ' - ' . $sectionConfig['label'],
+            'title' => $pages[$page]['label'].' - '.$sectionConfig['label'],
             'page' => $page,
             'pageLabel' => $pages[$page]['label'],
             'sectionKey' => $section,
@@ -55,7 +56,7 @@ class ContentController extends Controller
     /**
      * Save one section of one page (accordion "save" button per section).
      */
-    public function updateSection(Request $request, string $page, string $section): \Illuminate\Http\JsonResponse
+    public function updateSection(Request $request, string $page, string $section): JsonResponse
     {
         $schema = config("cms.pages.{$page}.sections.{$section}");
 
@@ -67,13 +68,20 @@ class ContentController extends Controller
         $saved = [];
 
         DB::transaction(function () use ($payload, $page, $section, $schema, $request, &$saved) {
-            foreach ($payload['blocks'] as $key => $value) {
+            $uploadedFileKeys = array_map(
+                fn ($k) => (string) preg_replace('/_file$/', '', (string) $k),
+                array_keys(is_array($request->file('blocks')) ? $request->file('blocks') : [])
+            );
+            $blockKeys = array_unique(array_merge(array_keys($payload['blocks']), $uploadedFileKeys));
+
+            foreach ($blockKeys as $key) {
                 $blockSchema = $schema['blocks'][$key] ?? null;
 
                 if (! $blockSchema) {
                     continue;
                 }
 
+                $value = $payload['blocks'][$key] ?? null;
                 $jsonValue = null;
                 $stringValue = null;
 
@@ -93,14 +101,14 @@ class ContentController extends Controller
                             ], [], ["blocks.{$key}_file" => 'afbeelding']);
                             $name = $file->hashName();
                             $file->move(public_path('assets/img/landing'), $name);
-                            $stringValue = 'assets/img/landing/' . $name;
+                            $stringValue = 'assets/img/landing/'.$name;
                         } else {
                             $request->validate([
                                 "blocks.{$key}_file" => ['file', 'mimes:mp4,mov,webm', 'max:51200'],
                             ], [], ["blocks.{$key}_file" => 'video']);
                             $name = $file->hashName();
                             $file->move(public_path('assets/video'), $name);
-                            $stringValue = 'assets/video/' . $name;
+                            $stringValue = 'assets/video/'.$name;
                         }
                     } else {
                         $stringValue = $value === null ? null : (string) $value;
@@ -128,7 +136,7 @@ class ContentController extends Controller
     /**
      * Save the design settings (content_meta key 'design').
      */
-    public function updateDesign(Request $request): \Illuminate\Http\JsonResponse
+    public function updateDesign(Request $request): JsonResponse
     {
         $groups = $request->validate(['design' => ['required', 'array']]);
 
@@ -158,7 +166,7 @@ class ContentController extends Controller
      */
     private function normalizeJson(Request $request, string $blockKey, mixed $value, array $blockSchema): array
     {
-        return $this->normalizeItems($request, 'blocks.' . $blockKey, $value, $blockSchema['fields'] ?? []);
+        return $this->normalizeItems($request, 'blocks.'.$blockKey, $value, $blockSchema['fields'] ?? []);
     }
 
     /**
@@ -186,11 +194,13 @@ class ContentController extends Controller
 
                 if (! array_key_exists($fieldKey, $item)) {
                     $clean[$fieldKey] = null;
+
                     continue;
                 }
 
                 if ($fieldType === 'boolean') {
                     $clean[$fieldKey] = filter_var($item[$fieldKey], FILTER_VALIDATE_BOOLEAN);
+
                     continue;
                 }
 
@@ -204,11 +214,13 @@ class ContentController extends Controller
 
                         $name = $file->hashName();
                         $file->move(public_path('assets/img/landing'), $name);
-                        $clean[$fieldKey] = 'assets/img/landing/' . $name;
+                        $clean[$fieldKey] = 'assets/img/landing/'.$name;
+
                         continue;
                     }
 
                     $clean[$fieldKey] = (string) $item[$fieldKey];
+
                     continue;
                 }
 
@@ -219,6 +231,7 @@ class ContentController extends Controller
                         (array) $item[$fieldKey],
                         $field['fields'] ?? []
                     );
+
                     continue;
                 }
 
@@ -235,7 +248,7 @@ class ContentController extends Controller
      * Progressive ajax upload for images/videos used inside the section editor.
      * Returns a stored path (e.g. assets/video/NAME or assets/img/landing/NAME).
      */
-    public function uploadMedia(Request $request): \Illuminate\Http\JsonResponse
+    public function uploadMedia(Request $request): JsonResponse
     {
         $data = $request->validate([
             'file' => ['required', 'file', 'mimes:jpeg,png,webp,mp4,mov,webm', 'max:51200'],
@@ -247,13 +260,12 @@ class ContentController extends Controller
 
         if (in_array($ext, ['mp4', 'mov', 'webm'], true)) {
             $file->move(public_path('assets/video'), $name);
-            $path = 'assets/video/' . $name;
+            $path = 'assets/video/'.$name;
         } else {
             $file->move(public_path('assets/img/landing'), $name);
-            $path = 'assets/img/landing/' . $name;
+            $path = 'assets/img/landing/'.$name;
         }
 
         return response()->json(['path' => $path]);
     }
 }
-

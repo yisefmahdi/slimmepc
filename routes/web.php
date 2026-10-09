@@ -3,17 +3,18 @@
 use App\Http\Controllers\Account\OrderController;
 use App\Http\Controllers\AfspraakController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\LidmaatschapController;
 use App\Http\Controllers\PageController;
-use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RepairController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\TechnicianController;
 use App\Http\Controllers\TrackingController;
 use App\Http\Controllers\VideoStreamController;
 use App\Http\Controllers\WebshopController;
@@ -129,16 +130,16 @@ Route::get('/download/bestand/{file}', [DownloadController::class, 'file'])
 
 // Live Chat (AI + medewerker) — CSRF-protected, throttle per endpoint
 Route::prefix('ai-chat')->name('ai-chat.')->group(function () {
-    Route::get('/status', [App\Http\Controllers\ChatController::class, 'status'])->name('status');
-    Route::post('/start', [App\Http\Controllers\ChatController::class, 'start'])->middleware('throttle:10,1')->name('start');
-    Route::get('/messages', [App\Http\Controllers\ChatController::class, 'messages'])->middleware('throttle:60,1')->name('messages');
-    Route::post('/send', [App\Http\Controllers\ChatController::class, 'send'])->middleware('throttle:30,1')->name('send');
-    Route::post('/handover', [App\Http\Controllers\ChatController::class, 'handover'])->middleware('throttle:10,1')->name('handover');
-    Route::post('/offline', [App\Http\Controllers\ChatController::class, 'offline'])->middleware('throttle:5,1')->name('offline');
-    Route::post('/close', [App\Http\Controllers\ChatController::class, 'close'])->middleware('throttle:10,1')->name('close');
-    Route::post('/rate', [App\Http\Controllers\ChatController::class, 'rate'])->middleware('throttle:10,1')->name('rate');
-    Route::get('/history', [App\Http\Controllers\ChatController::class, 'history'])->middleware('throttle:30,1')->name('history');
-    Route::get('/photo/{message}', [App\Http\Controllers\ChatController::class, 'photo'])->middleware('throttle:60,1')->name('photo');
+    Route::get('/status', [ChatController::class, 'status'])->name('status');
+    Route::post('/start', [ChatController::class, 'start'])->middleware('throttle:10,1')->name('start');
+    Route::get('/messages', [ChatController::class, 'messages'])->middleware('throttle:60,1')->name('messages');
+    Route::post('/send', [ChatController::class, 'send'])->middleware('throttle:30,1')->name('send');
+    Route::post('/handover', [ChatController::class, 'handover'])->middleware('throttle:10,1')->name('handover');
+    Route::post('/offline', [ChatController::class, 'offline'])->middleware('throttle:5,1')->name('offline');
+    Route::post('/close', [ChatController::class, 'close'])->middleware('throttle:10,1')->name('close');
+    Route::post('/rate', [ChatController::class, 'rate'])->middleware('throttle:10,1')->name('rate');
+    Route::get('/history', [ChatController::class, 'history'])->middleware('throttle:30,1')->name('history');
+    Route::get('/photo/{message}', [ChatController::class, 'photo'])->middleware('throttle:60,1')->name('photo');
 });
 
 // Wishlist — login required (guests are sent to login, then back via intended URL)

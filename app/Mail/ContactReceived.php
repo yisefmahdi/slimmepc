@@ -7,7 +7,6 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Mail\Mailables\Headers;
 
 class ContactReceived extends Mailable
 {
@@ -18,8 +17,7 @@ class ContactReceived extends Mailable
      */
     public function __construct(
         public ContactSubmission $submission
-    ) {
-    }
+    ) {}
 
     /**
      * Get the message envelope.

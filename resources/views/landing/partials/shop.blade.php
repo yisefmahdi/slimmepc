@@ -100,7 +100,7 @@
                             hover:-translate-y-1
                             sm:justify-start
                         ">
-                        {{ $c['shop']['cta_label'] ?? 'Bekijk All!' }}
+                        {{ $c['shop']['cta_label'] ?? 'Bekijk alles' }}
 
                         <i data-lucide="arrow-right" class="h-5 w-5"></i>
                     </a>

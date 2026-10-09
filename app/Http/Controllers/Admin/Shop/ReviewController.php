@@ -26,10 +26,10 @@ class ReviewController extends Controller
             $s = $request->search;
             $query->where(function ($q) use ($s) {
                 $q->where('body', 'like', "%{$s}%")
-                  ->orWhere('title', 'like', "%{$s}%")
-                  ->orWhere('guest_name', 'like', "%{$s}%")
-                  ->orWhereHas('user', fn($uq) => $uq->where('name', 'like', "%{$s}%"))
-                  ->orWhereHas('product', fn($pq) => $pq->where('title', 'like', "%{$s}%"));
+                    ->orWhere('title', 'like', "%{$s}%")
+                    ->orWhere('guest_name', 'like', "%{$s}%")
+                    ->orWhereHas('user', fn ($uq) => $uq->where('name', 'like', "%{$s}%"))
+                    ->orWhereHas('product', fn ($pq) => $pq->where('title', 'like', "%{$s}%"));
             });
         }
 
@@ -52,6 +52,7 @@ class ReviewController extends Controller
     {
         $review->update(['is_approved' => true]);
         $review->product->recalcRating();
+
         return response()->json(['message' => 'Review goedgekeurd.', 'review' => $review]);
     }
 
@@ -59,7 +60,10 @@ class ReviewController extends Controller
     {
         $wasApproved = $review->is_approved;
         $review->update(['is_approved' => false]);
-        if ($wasApproved) $review->product->recalcRating();
+        if ($wasApproved) {
+            $review->product->recalcRating();
+        }
+
         return response()->json(['message' => 'Review afgekeurd.', 'review' => $review]);
     }
 
@@ -68,13 +72,17 @@ class ReviewController extends Controller
         $product = $review->product;
         $wasApproved = $review->is_approved;
         $review->delete();
-        if ($wasApproved) $product->recalcRating();
+        if ($wasApproved) {
+            $product->recalcRating();
+        }
+
         return response()->json(['message' => 'Review verwijderd.']);
     }
 
     public function productReviews(Product $product)
     {
         $reviews = $product->reviews()->with('user:id,name')->latest()->paginate(10);
+
         return response()->json(['reviews' => $reviews, 'avg' => $product->rating_avg, 'count' => $product->rating_count]);
     }
 }

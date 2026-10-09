@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('device_receipts', function (Blueprint $table) {
-            $table->string('status')->default('completed')->after('type'); 
+            $table->string('status')->default('completed')->after('type');
             // Defaults to 'completed' to handle existing data as requested
         });
     }

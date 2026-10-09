@@ -38,7 +38,7 @@ $serviceSectionDef = [
         ],
     ],
     'problems' => [
-                'label' => 'Wat is er mis?',
+        'label' => 'Wat is er mis?',
         'blocks' => [
             'title' => ['label' => 'Titel (voor highlight)', 'type' => 'text'],
             'title_highlight' => ['label' => 'Titel (gekleurde highlight)', 'type' => 'text'],
@@ -55,7 +55,7 @@ $serviceSectionDef = [
         ],
     ],
     'speciality' => [
-                'label' => 'Onze specialiteit',
+        'label' => 'Onze specialiteit',
         'blocks' => [
             'badge' => ['label' => 'Badge', 'type' => 'text'],
             'title1' => ['label' => 'Titel regel 1', 'type' => 'text'],
@@ -716,10 +716,10 @@ $softwareSectionDef = [
                     ['key' => 'image', 'label' => 'Afbeelding (paneel)', 'type' => 'image'],
                     ['key' => 'image_text', 'label' => 'Afbeelding tekst', 'type' => 'textarea'],
                     ['key' => 'problems', 'label' => 'Problemen (lijst)',
-                     'type' => 'nested',
-                     'fields' => [
-                         ['key' => 'title', 'label' => 'Probleem', 'type' => 'text'],
-                     ],
+                        'type' => 'nested',
+                        'fields' => [
+                            ['key' => 'title', 'label' => 'Probleem', 'type' => 'text'],
+                        ],
                     ],
                 ],
             ],
@@ -1768,13 +1768,13 @@ return [
                                 ['key' => 'image', 'label' => 'Afbeelding (paneel)', 'type' => 'image'],
                                 ['key' => 'notice', 'label' => 'Let op-tekst', 'type' => 'textarea'],
                                 ['key' => 'prices', 'label' => 'Prijzen (onderstaande regels)',
-                                 'type' => 'nested',
-                                 'fields' => [
-                                     ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
-                                     ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
-                                     ['key' => 'prefix', 'label' => 'Voorvoegsel (bijv. vanaf)', 'type' => 'text'],
-                                     ['key' => 'price', 'label' => 'Prijs (bijv. €35)', 'type' => 'text'],
-                                 ],
+                                    'type' => 'nested',
+                                    'fields' => [
+                                        ['key' => 'icon', 'label' => 'Pictogram', 'type' => 'icon'],
+                                        ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                                        ['key' => 'prefix', 'label' => 'Voorvoegsel (bijv. vanaf)', 'type' => 'text'],
+                                        ['key' => 'price', 'label' => 'Prijs (bijv. €35)', 'type' => 'text'],
+                                    ],
                                 ],
                             ],
                         ],
@@ -1794,12 +1794,12 @@ return [
                                 ['key' => 'accent', 'label' => 'Accentkleur (blue of green)', 'type' => 'text'],
                                 ['key' => 'description', 'label' => 'Ondertitel', 'type' => 'text'],
                                 ['key' => 'prices', 'label' => 'Prijzen',
-                                 'type' => 'nested',
-                                 'fields' => [
-                                     ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
-                                     ['key' => 'description', 'label' => 'Omschrijving', 'type' => 'text'],
-                                     ['key' => 'price', 'label' => 'Prijs (bijv. €35)', 'type' => 'text'],
-                                 ],
+                                    'type' => 'nested',
+                                    'fields' => [
+                                        ['key' => 'title', 'label' => 'Titel', 'type' => 'text'],
+                                        ['key' => 'description', 'label' => 'Omschrijving', 'type' => 'text'],
+                                        ['key' => 'price', 'label' => 'Prijs (bijv. €35)', 'type' => 'text'],
+                                    ],
                                 ],
                             ],
                         ],
@@ -2252,4 +2252,3 @@ return [
         ],
     ],
 ];
-

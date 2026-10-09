@@ -9,6 +9,7 @@
  */
 
 use App\Models\Address;
+use App\Models\Category;
 use App\Models\Coupon;
 use App\Models\CouponUsage;
 use App\Models\DigitalFile;
@@ -19,7 +20,6 @@ use App\Models\MembershipSetting;
 use App\Models\Order;
 use App\Models\OrderInvoice;
 use App\Models\Product;
-use App\Models\Category;
 use App\Models\TechnicianForm;
 use App\Models\TechnicianSetting;
 use App\Models\User;

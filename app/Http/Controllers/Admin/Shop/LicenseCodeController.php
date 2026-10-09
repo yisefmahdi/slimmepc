@@ -25,8 +25,8 @@ class LicenseCodeController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('code', 'like', "%{$search}%")
-                  ->orWhereHas('product', fn ($qq) => $qq->where('title', 'like', "%{$search}%"))
-                  ->orWhereHas('order', fn ($qq) => $qq->where('order_number', 'like', "%{$search}%"));
+                    ->orWhereHas('product', fn ($qq) => $qq->where('title', 'like', "%{$search}%"))
+                    ->orWhereHas('order', fn ($qq) => $qq->where('order_number', 'like', "%{$search}%"));
             });
         }
 

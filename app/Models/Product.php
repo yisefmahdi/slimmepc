@@ -34,7 +34,7 @@ class Product extends Model
 
     public function getDiscountedPriceAttribute(): float
     {
-        if (!$this->discount_type || !$this->discount_value || !$this->discount_start_date || !$this->discount_end_date) {
+        if (! $this->discount_type || ! $this->discount_value || ! $this->discount_start_date || ! $this->discount_end_date) {
             return (float) $this->price;
         }
 
@@ -59,7 +59,7 @@ class Product extends Model
         parent::boot();
 
         static::creating(function (Product $product) {
-            if (empty($product->slug) && !empty($product->title)) {
+            if (empty($product->slug) && ! empty($product->title)) {
                 $product->slug = Str::slug($product->title);
             }
         });

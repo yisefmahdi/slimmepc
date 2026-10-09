@@ -9,6 +9,7 @@ use App\Services\Ai\Search\WebSearchService;
 class ProductDescriptionGenerator
 {
     protected AiClientInterface $aiClient;
+
     protected WebSearchService $searchService;
 
     public function __construct(
@@ -16,14 +17,14 @@ class ProductDescriptionGenerator
         ?WebSearchService $searchService = null
     ) {
         $this->aiClient = $aiClient;
-        $this->searchService = $searchService ?? new WebSearchService();
+        $this->searchService = $searchService ?? new WebSearchService;
     }
 
     /**
      * Generate a rich e-commerce product description.
      *
-     * @param array<string, mixed> $productData
-     * @param array<string, mixed> $options
+     * @param  array<string, mixed>  $productData
+     * @param  array<string, mixed>  $options
      * @return array{description: string, search_results: array<int, array{title: string, snippet: string, url: string}>, search_count: int}
      */
     public function generate(array $productData, array $options = []): array
@@ -52,18 +53,18 @@ class ProductDescriptionGenerator
 
         // 3. Call AI Client
         $rawOutput = $this->aiClient->chat($messages, [
-            'model'       => $options['model'] ?? null,
+            'model' => $options['model'] ?? null,
             'temperature' => 0.7,
-            'max_tokens'  => $options['max_tokens'] ?? 1000,
+            'max_tokens' => $options['max_tokens'] ?? 1000,
         ]);
 
         // 4. Clean output: strip markdown code blocks if the model wrapped the HTML in ```html ... ```
         $cleaned = $this->cleanHtmlOutput($rawOutput);
 
         return [
-            'description'    => $cleaned,
+            'description' => $cleaned,
             'search_results' => $searchResults,
-            'search_count'   => count($searchResults),
+            'search_count' => count($searchResults),
         ];
     }
 

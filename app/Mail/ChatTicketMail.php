@@ -15,8 +15,7 @@ class ChatTicketMail extends Mailable
     public function __construct(
         public ChatConversation $conversation,
         public string $ticketText
-    ) {
-    }
+    ) {}
 
     public function envelope(): Envelope
     {

@@ -14,13 +14,12 @@ class LaptopLoanReturnMail extends Mailable
 
     public function __construct(
         public LaptopLoan $loan
-    ) {
-    }
+    ) {}
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Bevestiging retour laptop ' . $this->loan->loanNumber() . ' - Slimme-PC',
+            subject: 'Bevestiging retour laptop '.$this->loan->loanNumber().' - Slimme-PC',
         );
     }
 

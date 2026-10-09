@@ -36,4 +36,3 @@ class AdminUserSeeder extends Seeder
         ])->save();
     }
 }
-

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AfspraakSubmission;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Response;
 
 class AfspraakInboxController extends Controller
 {
@@ -47,41 +46,41 @@ class AfspraakInboxController extends Controller
         $submissions = $query->orderByDesc('created_at')->paginate($perPage);
 
         $statusLabels = [
-            'new'         => 'Nieuw',
+            'new' => 'Nieuw',
             'in_progress' => 'In behandeling',
-            'completed'   => 'Afgerond',
+            'completed' => 'Afgerond',
         ];
 
         $rows = $submissions->getCollection()->map(function ($s) use ($statusLabels) {
             return [
-                'id'              => $s->id,
-                'afspraak_number'=> $s->afspraak_number,
-                'name'            => $s->name,
-                'email'           => $s->email,
-                'phone'           => $s->phone,
-                'device'          => $s->device,
-                'preferred_date'  => $s->preferred_date ? $s->preferred_date->format('d-m-Y') : '-',
-                'preferred_time'  => $s->preferred_time,
-                'status'          => $s->status,
-                'status_label'    => $statusLabels[$s->status] ?? $s->status,
-                'is_new'          => $s->status === 'new',
-                'created_at'      => $s->created_at->format('d-m-Y H:i'),
+                'id' => $s->id,
+                'afspraak_number' => $s->afspraak_number,
+                'name' => $s->name,
+                'email' => $s->email,
+                'phone' => $s->phone,
+                'device' => $s->device,
+                'preferred_date' => $s->preferred_date ? $s->preferred_date->format('d-m-Y') : '-',
+                'preferred_time' => $s->preferred_time,
+                'status' => $s->status,
+                'status_label' => $statusLabels[$s->status] ?? $s->status,
+                'is_new' => $s->status === 'new',
+                'created_at' => $s->created_at->format('d-m-Y H:i'),
             ];
         });
 
         return response()->json([
             'data' => $rows,
             'counts' => [
-                'new'  => AfspraakSubmission::new()->count(),
+                'new' => AfspraakSubmission::new()->count(),
                 'total' => AfspraakSubmission::count(),
             ],
             'pagination' => [
                 'current_page' => $submissions->currentPage(),
-                'last_page'    => $submissions->lastPage(),
-                'per_page'     => $submissions->perPage(),
-                'total'        => $submissions->total(),
-                'from'         => $submissions->firstItem(),
-                'to'           => $submissions->lastItem(),
+                'last_page' => $submissions->lastPage(),
+                'per_page' => $submissions->perPage(),
+                'total' => $submissions->total(),
+                'from' => $submissions->firstItem(),
+                'to' => $submissions->lastItem(),
             ],
         ]);
     }
@@ -96,21 +95,21 @@ class AfspraakInboxController extends Controller
     public function show(AfspraakSubmission $afspraakSubmission)
     {
         return response()->json([
-            'id'              => $afspraakSubmission->id,
-            'afspraak_number'=> $afspraakSubmission->afspraak_number,
-            'name'            => $afspraakSubmission->name,
-            'email'           => $afspraakSubmission->email,
-            'phone'           => $afspraakSubmission->phone,
-            'street'          => $afspraakSubmission->street,
-            'house_number'    => $afspraakSubmission->house_number,
-            'postcode'        => $afspraakSubmission->postcode,
-            'city'            => $afspraakSubmission->city,
-            'device'          => $afspraakSubmission->device,
-            'problem'         => $afspraakSubmission->problem,
-            'preferred_date'  => $afspraakSubmission->preferred_date ? $afspraakSubmission->preferred_date->format('d-m-Y') : null,
-            'preferred_time'  => $afspraakSubmission->preferred_time,
-            'status'          => $afspraakSubmission->status,
-            'created_at'      => $afspraakSubmission->created_at->format('d-m-Y H:i'),
+            'id' => $afspraakSubmission->id,
+            'afspraak_number' => $afspraakSubmission->afspraak_number,
+            'name' => $afspraakSubmission->name,
+            'email' => $afspraakSubmission->email,
+            'phone' => $afspraakSubmission->phone,
+            'street' => $afspraakSubmission->street,
+            'house_number' => $afspraakSubmission->house_number,
+            'postcode' => $afspraakSubmission->postcode,
+            'city' => $afspraakSubmission->city,
+            'device' => $afspraakSubmission->device,
+            'problem' => $afspraakSubmission->problem,
+            'preferred_date' => $afspraakSubmission->preferred_date ? $afspraakSubmission->preferred_date->format('d-m-Y') : null,
+            'preferred_time' => $afspraakSubmission->preferred_time,
+            'status' => $afspraakSubmission->status,
+            'created_at' => $afspraakSubmission->created_at->format('d-m-Y H:i'),
         ]);
     }
 
@@ -123,8 +122,8 @@ class AfspraakInboxController extends Controller
         $afspraakSubmission->update(['status' => $request->input('status')]);
 
         return response()->json([
-            'success'  => true,
-            'status'   => $afspraakSubmission->status,
+            'success' => true,
+            'status' => $afspraakSubmission->status,
             'newCount' => AfspraakSubmission::new()->count(),
         ]);
     }

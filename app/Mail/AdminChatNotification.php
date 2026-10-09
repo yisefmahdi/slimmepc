@@ -8,19 +8,20 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class AdminChatNotification extends Mailable
 {
     use Queueable;
 
     /**
-     * @param 'offline'|'handover' $reason
+     * @param  'offline'|'handover'  $reason
      */
     public function __construct(
         public ChatConversation $conversation,
         public string $reason = 'offline',
-    ) {
-    }
+    ) {}
 
     public function envelope(): Envelope
     {
@@ -59,16 +60,16 @@ class AdminChatNotification extends Mailable
             ->pluck('attachment');
 
         foreach ($photos as $path) {
-            if (! $path || ! \Illuminate\Support\Facades\Storage::disk('local')->exists($path)) {
+            if (! $path || ! Storage::disk('local')->exists($path)) {
                 continue;
             }
-            $size = \Illuminate\Support\Facades\Storage::disk('local')->size($path);
+            $size = Storage::disk('local')->size($path);
             if ($total + $size > 10 * 1024 * 1024 || count($files) >= 3) {
                 break;
             }
             $total += $size;
             $files[] = Attachment::fromStorageDisk('local', $path)
-                ->as(\Illuminate\Support\Str::afterLast($path, '/'));
+                ->as(Str::afterLast($path, '/'));
         }
 
         return $files;

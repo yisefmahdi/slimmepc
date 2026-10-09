@@ -110,7 +110,7 @@ class ManualInvoiceController extends Controller
         $pdf->setPaper('a4', 'portrait');
 
         $pdfDir = 'invoices';
-        $pdfFile = $pdfDir . '/' . $invoiceNumber . '.pdf';
+        $pdfFile = $pdfDir.'/'.$invoiceNumber.'.pdf';
 
         Storage::disk('local')->makeDirectory($pdfDir);
         Storage::disk('local')->put($pdfFile, $pdf->output());
@@ -123,7 +123,7 @@ class ManualInvoiceController extends Controller
         })->afterResponse();
 
         return response()->json([
-            'message' => 'Factuur succesvol aangemaakt en verzonden naar ' . $invoice->email,
+            'message' => 'Factuur succesvol aangemaakt en verzonden naar '.$invoice->email,
             'invoice' => $invoice,
         ], 201);
     }
@@ -133,11 +133,11 @@ class ManualInvoiceController extends Controller
      */
     public function download(ManualInvoice $invoice): BinaryFileResponse
     {
-        abort_if(!$invoice->pdf_path || !Storage::disk('local')->exists($invoice->pdf_path), 404, 'PDF niet gevonden');
+        abort_if(! $invoice->pdf_path || ! Storage::disk('local')->exists($invoice->pdf_path), 404, 'PDF niet gevonden');
 
         return response()->download(
             Storage::disk('local')->path($invoice->pdf_path),
-            $invoice->invoice_number . '.pdf',
+            $invoice->invoice_number.'.pdf',
             ['Content-Type' => 'application/pdf']
         );
     }
@@ -161,7 +161,7 @@ class ManualInvoiceController extends Controller
             $suffix = strtoupper(Str::random(6));
             // Ensure only A-Z0-9 (Str::random includes letters)
             $suffix = preg_replace('/[^A-Z0-9]/', 'A', $suffix);
-            $candidate = 'SLM-' . $suffix;
+            $candidate = 'SLM-'.$suffix;
         } while (ManualInvoice::where('invoice_number', $candidate)->exists());
 
         return $candidate;

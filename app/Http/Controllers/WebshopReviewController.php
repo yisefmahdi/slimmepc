@@ -11,17 +11,17 @@ class WebshopReviewController extends Controller
     public function store(Request $request, string $categorySlug, string $productSlug)
     {
         $product = Product::where('slug', $productSlug)
-            ->whereHas('category', fn($q) => $q->where('slug', $categorySlug))
+            ->whereHas('category', fn ($q) => $q->where('slug', $categorySlug))
             ->where('status', true)
             ->firstOrFail();
 
-        $isGuest = !auth()->check();
+        $isGuest = ! auth()->check();
 
         $rules = [
             'rating' => 'required|integer|min:1|max:5',
             'body' => 'required|string|min:10|max:1000',
             'title' => 'nullable|string|max:120',
-            'guest_name' => ($isGuest ? 'required' : 'required') . '|string|max:80',
+            'guest_name' => ($isGuest ? 'required' : 'required').'|string|max:80',
         ];
 
         if ($isGuest) {

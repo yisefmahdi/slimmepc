@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 it('shows the redesigned account page', function () {
     $user = User::factory()->create(['name' => 'Jan Jansen']);
@@ -20,7 +21,7 @@ it('shows the redesigned account page', function () {
 it('renders the profile page for legacy users without created_at', function () {
     $user = User::factory()->create();
     // Legacy/synced accounts may have NULL timestamps — the page must not 500.
-    \Illuminate\Support\Facades\DB::table('users')->where('id', $user->id)->update(['created_at' => null]);
+    DB::table('users')->where('id', $user->id)->update(['created_at' => null]);
 
     $this->actingAs($user->fresh())
         ->get('/profile')

@@ -13,9 +13,7 @@ class DeviceReceiptCompletedMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public DeviceReceipt $receipt)
-    {
-    }
+    public function __construct(public DeviceReceipt $receipt) {}
 
     public function envelope(): Envelope
     {

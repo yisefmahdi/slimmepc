@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Chat;
 
 use App\Http\Controllers\Controller;
 use App\Models\ChatFaq;
+use App\Services\Ai\Features\FaqEmbedder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -75,7 +76,7 @@ class FaqController extends Controller
         ]);
 
         dispatch(function () use ($faq) {
-            app(\App\Services\Ai\Features\FaqEmbedder::class)->embedFaq($faq->fresh());
+            app(FaqEmbedder::class)->embedFaq($faq->fresh());
         })->afterResponse();
 
         return response()->json(['message' => 'Vraag toegevoegd.', 'faq' => $faq], 201);
@@ -102,7 +103,7 @@ class FaqController extends Controller
         $faq->update($validated);
 
         dispatch(function () use ($faq) {
-            app(\App\Services\Ai\Features\FaqEmbedder::class)->embedFaq($faq->fresh());
+            app(FaqEmbedder::class)->embedFaq($faq->fresh());
         })->afterResponse();
 
         return response()->json(['message' => 'Vraag bijgewerkt.', 'faq' => $faq->fresh()]);

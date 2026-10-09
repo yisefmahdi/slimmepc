@@ -3,11 +3,14 @@
 namespace App\Mail;
 
 use App\Models\ChatConversation;
+use App\Models\ChatMessage;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ChatReplyMail extends Mailable
 {
@@ -15,9 +18,8 @@ class ChatReplyMail extends Mailable
 
     public function __construct(
         public ChatConversation $conversation,
-        public \App\Models\ChatMessage $reply
-    ) {
-    }
+        public ChatMessage $reply
+    ) {}
 
     public function envelope(): Envelope
     {
@@ -41,13 +43,13 @@ class ChatReplyMail extends Mailable
     {
         $path = $this->reply->attachment;
 
-        if (! $path || ! \Illuminate\Support\Facades\Storage::disk('local')->exists($path)) {
+        if (! $path || ! Storage::disk('local')->exists($path)) {
             return [];
         }
 
         return [
             Attachment::fromStorageDisk('local', $path)
-                ->as(\Illuminate\Support\Str::afterLast($path, '/')),
+                ->as(Str::afterLast($path, '/')),
         ];
     }
 

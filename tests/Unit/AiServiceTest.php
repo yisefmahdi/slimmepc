@@ -35,7 +35,8 @@ class AiServiceTest extends TestCase
 
     public function test_product_description_generator_with_mocked_client(): void
     {
-        $mockAiClient = new class implements AiClientInterface {
+        $mockAiClient = new class implements AiClientInterface
+        {
             public function chat(array $messages, array $options = []): string
             {
                 return "```html\n<p>De HP Victus 15 is een krachtige gaming laptop.</p>\n<h3>Belangrijkste kenmerken</h3>\n<ul><li><strong>GPU:</strong> RTX 4060</li></ul>\n```";
@@ -52,7 +53,8 @@ class AiServiceTest extends TestCase
             }
         };
 
-        $mockSearchDriver = new class implements SearchDriverInterface {
+        $mockSearchDriver = new class implements SearchDriverInterface
+        {
             public function search(string $query, int $limit = 5): array
             {
                 return [
@@ -78,7 +80,8 @@ class AiServiceTest extends TestCase
 
     public function test_ai_service_facade_swap_and_chat(): void
     {
-        $mockAiClient = new class implements AiClientInterface {
+        $mockAiClient = new class implements AiClientInterface
+        {
             public function chat(array $messages, array $options = []): string
             {
                 return 'Mocked AI response';

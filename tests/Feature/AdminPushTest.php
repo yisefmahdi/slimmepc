@@ -4,6 +4,7 @@ use App\Models\AdminPushLog;
 use App\Models\FcmToken;
 use App\Models\User;
 use App\Services\AdminPushNotifier;
+use Illuminate\Support\Facades\Mail;
 
 function makePushAdmin(array $overrides = []): User
 {
@@ -101,7 +102,7 @@ it('serves the firebase service worker as javascript', function () {
 });
 
 it('audits a push alongside the contact submit', function () {
-    \Illuminate\Support\Facades\Mail::fake();
+    Mail::fake();
     config(['firebase.credentials' => '']);
     config(['contact-inbox.imap.username' => '', 'contact-inbox.imap.password' => '']);
     config(['contact-inbox.notify_email' => 'admin@voorbeeld.nl']);

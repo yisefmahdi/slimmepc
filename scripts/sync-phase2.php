@@ -1,4 +1,5 @@
 <?php
+
 /**
  * sync-phase2.php — Legacy → New DB sync (PHASE 2)
  *
@@ -37,21 +38,35 @@ ini_set('display_errors', '1');
 // ---------------------------------------------------------------- options
 $opt = getopt('', [
     'file:', 'host::', 'port::', 'db::', 'user::', 'pass::',
-    'tables::', 'dry-run', 'yes',
+    'tables::', 'dry-run', 'yes', 'config::',
 ]);
 
 $sqlFile = $opt['file'] ?? null;
-if (!$sqlFile || !is_file($sqlFile)) {
+if (! $sqlFile || ! is_file($sqlFile)) {
     fwrite(STDERR, "ERROR: --file=<dump.sql> is required and must exist.\n");
     exit(2);
 }
-$host   = $opt['host'] ?? '127.0.0.1';
-$port   = (int) ($opt['port'] ?? 3306);
+$host = $opt['host'] ?? '127.0.0.1';
+$port = (int) ($opt['port'] ?? 3306);
 $dbName = $opt['db'] ?? 'slimmepc_2026';
 $dbUser = $opt['user'] ?? 'root';
 $dbPass = $opt['pass'] ?? '';
 $dryRun = isset($opt['dry-run']);
-$yes    = isset($opt['yes']);
+$yes = isset($opt['yes']);
+// --config=/path/db.json overrides connection vars (password never touches the shell:
+// {"host":..,"port":..,"db":..,"user":..,"pass":..}). Used by the server runner.
+if (! empty($opt['config'])) {
+    $cfg = json_decode((string) @file_get_contents((string) $opt['config']), true);
+    if (! is_array($cfg)) {
+        fwrite(STDERR, "ERROR: cannot read --config file.\n");
+        exit(2);
+    }
+    foreach (['host' => 'host', 'port' => 'port', 'db' => 'dbName', 'user' => 'dbUser', 'pass' => 'dbPass'] as $k => $var) {
+        if (array_key_exists($k, $cfg)) {
+            $$var = $k === 'port' ? (int) $cfg[$k] : (string) $cfg[$k];
+        }
+    }
+}
 
 $ALL_TABLES = [
     'memberships', 'membership_invoices', 'membership_settings',
@@ -59,22 +74,22 @@ $ALL_TABLES = [
     'afspraak_submissions',
 ];
 $wanted = $ALL_TABLES;
-if (!empty($opt['tables'])) {
+if (! empty($opt['tables'])) {
     $wanted = array_values(array_intersect(
         array_map('trim', explode(',', strtolower($opt['tables']))),
         $ALL_TABLES
     ));
-    if (!$wanted) {
-        fwrite(STDERR, 'ERROR: --tables must be a subset of: ' . implode(',', $ALL_TABLES) . "\n");
+    if (! $wanted) {
+        fwrite(STDERR, 'ERROR: --tables must be a subset of: '.implode(',', $ALL_TABLES)."\n");
         exit(2);
     }
 }
 
 $log = [];
-$log[] = '=== sync-phase2 ' . date('Y-m-d H:i:s') . ' | dry-run=' . ($dryRun ? 'yes' : 'no') . ' ===';
+$log[] = '=== sync-phase2 '.date('Y-m-d H:i:s').' | dry-run='.($dryRun ? 'yes' : 'no').' ===';
 $warn = static function (string $m) use (&$log): void {
-    $log[] = 'WARN: ' . $m;
-    echo 'WARN: ' . $m . PHP_EOL;
+    $log[] = 'WARN: '.$m;
+    echo 'WARN: '.$m.PHP_EOL;
 };
 
 // ------------------------------------------------------- SQL dump parsing
@@ -110,17 +125,20 @@ function splitTuples(string $values): array
                     if ($i + 1 < $len) {
                         $buf .= $values[$i + 1];
                         $i += 2;
+
                         continue;
                     }
                 } elseif ($c === "'") {
                     if ($i + 1 < $len && $values[$i + 1] === "'") {
                         $buf .= "'";
                         $i += 2;
+
                         continue;
                     }
                     $inStr = false;
                 }
                 $i++;
+
                 continue;
             }
             if ($c === "'") {
@@ -151,6 +169,7 @@ function splitTuples(string $values): array
             $i++;
         }
     }
+
     return $out;
 }
 
@@ -165,7 +184,7 @@ function parseTuple(string $tuple): array
     $flush = static function () use (&$vals, &$cur, &$isStr): void {
         $v = trim($cur);
         if ($isStr) {
-            $v = str_replace(["\\'", '\\\\', "\\\r", "\\\n", "\\\t", "\\0", "''"], ["'", '\\', "\r", "\n", "\t", "\0", "'"], $v);
+            $v = str_replace(["\\'", '\\\\', "\\\r", "\\\n", "\\\t", '\\0', "''"], ["'", '\\', "\r", "\n", "\t", "\0", "'"], $v);
             $vals[] = $v;
         } elseif (strcasecmp($v, 'NULL') === 0 || $v === '') {
             $vals[] = null;
@@ -181,22 +200,26 @@ function parseTuple(string $tuple): array
         $c = $i < $len ? $tuple[$i] : ',';
         if ($inStr) {
             if ($c === '\\' && $i + 1 < $len) {
-                $cur .= $c . $tuple[$i + 1];
+                $cur .= $c.$tuple[$i + 1];
                 $i += 2;
+
                 continue;
             }
             if ($c === "'") {
                 if ($i + 1 < $len && $tuple[$i + 1] === "'") {
                     $cur .= "''";
                     $i += 2;
+
                     continue;
                 }
                 $inStr = false;
                 $i++;
+
                 continue;
             }
             $cur .= $c;
             $i++;
+
             continue;
         }
         if ($c === "'") {
@@ -211,15 +234,17 @@ function parseTuple(string $tuple): array
             $i++;
         }
     }
+
     return $vals;
 }
 
 function extractTable(string $raw, string $table, callable $warn): array
 {
     $rows = [];
-    $pattern = '/INSERT INTO `' . preg_quote($table, '/') . '` \(([^)]+)\) VALUES\s*/i';
-    if (!preg_match_all($pattern, $raw, $m, PREG_OFFSET_CAPTURE)) {
+    $pattern = '/INSERT INTO `'.preg_quote($table, '/').'` \(([^)]+)\) VALUES\s*/i';
+    if (! preg_match_all($pattern, $raw, $m, PREG_OFFSET_CAPTURE)) {
         $warn("no INSERT block found for `$table` in dump");
+
         return [];
     }
     foreach ($m[0] as $k => $full) {
@@ -240,6 +265,7 @@ function extractTable(string $raw, string $table, callable $warn): array
                         $inStr = false;
                     }
                 }
+
                 continue;
             }
             if ($ch === "'") {
@@ -255,18 +281,21 @@ function extractTable(string $raw, string $table, callable $warn): array
         }
         if ($semi === null) {
             $warn("unterminated INSERT for `$table`");
+
             continue;
         }
         $values = substr($raw, $start, $semi - $start);
         foreach (splitTuples($values) as $t) {
             $v = parseTuple($t);
             if (count($v) !== count($cols)) {
-                $warn("`$table`: column/value count mismatch (" . count($cols) . ' vs ' . count($v) . '), row skipped');
+                $warn("`$table`: column/value count mismatch (".count($cols).' vs '.count($v).'), row skipped');
+
                 continue;
             }
             $rows[] = array_combine($cols, $v);
         }
     }
+
     return $rows;
 }
 
@@ -285,8 +314,8 @@ $NEED = [
 $data = [];
 foreach ($NEED as $dumpTable => $label) {
     $data[$label] = extractTable($raw, $dumpTable, $warn);
-    echo str_pad($label, 24) . count($data[$label]) . " rows parsed\n";
-    $log[] = "$label parsed: " . count($data[$label]);
+    echo str_pad($label, 24).count($data[$label])." rows parsed\n";
+    $log[] = "$label parsed: ".count($data[$label]);
 }
 
 // lookups
@@ -297,10 +326,10 @@ foreach ($data['users'] as $u) {
 $hwByAppointment = []; // appointment_id => [device_type, image]
 foreach ($data['hardware_appointments'] as $h) {
     $aid = (int) $h['appointment_id'];
-    if (!isset($hwByAppointment[$aid])) {
+    if (! isset($hwByAppointment[$aid])) {
         $hwByAppointment[$aid] = ['device' => (string) $h['device_type'], 'image' => $h['problem_image']];
     }
-    if (!empty($h['problem_image'])) {
+    if (! empty($h['problem_image'])) {
         $warn("hardware_appointments id {$h['id']}: image '{$h['problem_image']}' has no target column → logged, skipped");
     }
 }
@@ -315,12 +344,13 @@ if (in_array('memberships', $wanted, true)) {
     foreach ($data['memberships'] as $r) {
         $kl = (string) ($r['klantnummer'] ?? '');
         if ($kl === '' || isset($seen[$kl])) {
-            $warn('memberships: duplicate/empty klantnummer skipped: ' . var_export($kl, true));
+            $warn('memberships: duplicate/empty klantnummer skipped: '.var_export($kl, true));
+
             continue;
         }
         $seen[$kl] = true;
         $uid = $r['user_id'] === null ? null : (int) $r['user_id'];
-        if ($uid !== null && !isset($userIds[$uid])) {
+        if ($uid !== null && ! isset($userIds[$uid])) {
             $warn("memberships id {$r['id']}: orphan user_id $uid → NULL");
             $uid = null;
         }
@@ -339,7 +369,7 @@ if (in_array('memberships', $wanted, true)) {
 
 // ---- membership_invoices from subscription_invoices (ALL rows, nothing dropped)
 if (in_array('membership_invoices', $wanted, true)) {
-    if (!isset($memberByKl)) { // --tables subset run: rebuild map from dump
+    if (! isset($memberByKl)) { // --tables subset run: rebuild map from dump
         $memberByKl = [];
         foreach ($data['memberships'] as $r) {
             $memberByKl[(string) $r['klantnummer']] = (int) $r['id'];
@@ -386,7 +416,8 @@ if (in_array('membership_invoices', $wanted, true)) {
     foreach ($data['subscription_invoices'] as $inv) {
         $num = (string) ($inv['invoice_number'] ?? '');
         if ($num === '' || isset($seenInv[$num])) {
-            $warn('membership_invoices: duplicate/empty number skipped: ' . var_export($num, true));
+            $warn('membership_invoices: duplicate/empty number skipped: '.var_export($num, true));
+
             continue;
         }
         $seenInv[$num] = true;
@@ -398,6 +429,7 @@ if (in_array('membership_invoices', $wanted, true)) {
         if ($mid === null) {
             if ($archiveRow === null) {
                 $warn("membership_invoices $num: orphan, no archive (memberships not in --tables) → row SKIPPED to protect FK");
+
                 continue;
             }
             $mid = $ARCHIVE_ID;
@@ -454,9 +486,9 @@ if (in_array('technician_forms', $wanted, true)) {
     foreach ($data['technician_forms'] as $r) {
         $uid = (int) $r['user_id'];
         $tid = (int) $r['technician_id'];
-        if (!isset($userIds[$uid]) || !isset($userIds[$tid])) {
+        if (! isset($userIds[$uid]) || ! isset($userIds[$tid])) {
             $warn("technician_forms id {$r['id']}: user/technician ($uid/$tid) missing in users → row kept ONLY if resolvable, else skipped");
-            if (!isset($userIds[$uid]) || !isset($userIds[$tid])) {
+            if (! isset($userIds[$uid]) || ! isset($userIds[$tid])) {
                 continue;
             }
         }
@@ -479,7 +511,7 @@ if (in_array('technician_forms', $wanted, true)) {
 
 // ---- technician_invoices: direct copy (identical schema)
 if (in_array('technician_invoices', $wanted, true)) {
-    if (!isset($formIds)) {
+    if (! isset($formIds)) {
         $formIds = [];
         foreach ($data['technician_forms'] as $r) {
             $formIds[(int) $r['id']] = true;
@@ -490,13 +522,15 @@ if (in_array('technician_invoices', $wanted, true)) {
     foreach ($data['technician_invoices'] as $r) {
         $num = (string) ($r['invoice_number'] ?? '');
         if ($num === '' || isset($seenInv[$num])) {
-            $warn('technician_invoices: duplicate/empty number skipped: ' . var_export($num, true));
+            $warn('technician_invoices: duplicate/empty number skipped: '.var_export($num, true));
+
             continue;
         }
         $seenInv[$num] = true;
         $fid = (int) $r['technician_form_id'];
-        if (!isset($formIds[$fid])) {
+        if (! isset($formIds[$fid])) {
             $warn("technician_invoices $num: form $fid missing → row SKIPPED to protect FK");
+
             continue;
         }
         $out[] = $r;
@@ -513,28 +547,28 @@ if (in_array('afspraak_submissions', $wanted, true)) {
         $title = trim((string) ($a['title'] ?? ''));
         $name = trim((string) $a['full_name']);
         if ($title !== '') {
-            $name = $title . ' ' . $name;
+            $name = $title.' '.$name;
         }
         $st = (string) $a['status'];
         $newStatus = $statusMap[$st] ?? 'new';
         $problem = (string) $a['problem_description'];
-        if (!empty($a['notes'])) {
-            $problem .= "\n\n[notitie] " . (string) $a['notes'];
+        if (! empty($a['notes'])) {
+            $problem .= "\n\n[notitie] ".(string) $a['notes'];
         }
         if ($st === 'cancelled') {
-            $problem = '[geannuleerd] ' . $problem;
+            $problem = '[geannuleerd] '.$problem;
         }
         $device = isset($hwByAppointment[$aid]) ? $hwByAppointment[$aid]['device'] : (string) $a['appointment_type'];
         $prefDate = null;
         $prefTime = null;
-        if (!empty($a['appointment_date'])) {
+        if (! empty($a['appointment_date'])) {
             $ts = strtotime((string) $a['appointment_date']);
             if ($ts !== false) {
                 $prefDate = date('Y-m-d', $ts);
                 $prefTime = date('H:i', $ts);
             }
         }
-        $year = !empty($a['created_at']) && ($t = strtotime((string) $a['created_at'])) !== false
+        $year = ! empty($a['created_at']) && ($t = strtotime((string) $a['created_at'])) !== false
             ? date('Y', $t) : date('Y');
         $dash = static fn ($v) => ($v === null || trim((string) $v) === '') ? '-' : (string) $v;
         $out[] = [
@@ -561,25 +595,25 @@ if (in_array('afspraak_submissions', $wanted, true)) {
 }
 
 foreach ($prepared as $t => $rows) {
-    echo str_pad($t . ' ready', 24) . count($rows) . " rows\n";
-    $log[] = "$t ready: " . count($rows);
+    echo str_pad($t.' ready', 24).count($rows)." rows\n";
+    $log[] = "$t ready: ".count($rows);
 }
 
 if ($dryRun) {
-    echo "\nDRY-RUN: nothing written. " . count($log) . " log lines.\n";
-    file_put_contents(__DIR__ . '/sync-phase2-report.log', implode("\n", $log) . "\n");
-    echo 'Report: scripts/sync-phase2-report.log' . PHP_EOL;
+    echo "\nDRY-RUN: nothing written. ".count($log)." log lines.\n";
+    file_put_contents(__DIR__.'/sync-phase2-report.log', implode("\n", $log)."\n");
+    echo 'Report: scripts/sync-phase2-report.log'.PHP_EOL;
     exit(0);
 }
 
 // ------------------------------------------------------------------ confirm
-if (!$yes && !(function_exists('stream_isatty') && stream_isatty(STDIN))) {
+if (! $yes && ! (function_exists('stream_isatty') && stream_isatty(STDIN))) {
     fwrite(STDERR, "Refusing to TRUNCATE without --yes in non-interactive mode. Re-run with --yes.\n");
     exit(3);
 }
-if (!$yes) {
-    echo "\nThis will TRUNCATE [" . implode(',', array_keys($prepared)) . "] in `$dbName` and refill from dump.\n";
-    echo "Type YES to continue: ";
+if (! $yes) {
+    echo "\nThis will TRUNCATE [".implode(',', array_keys($prepared))."] in `$dbName` and refill from dump.\n";
+    echo 'Type YES to continue: ';
     $answer = trim((string) fgets(STDIN));
     if ($answer !== 'YES') {
         echo "Aborted.\n";
@@ -596,17 +630,17 @@ try {
         [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_EMULATE_PREPARES => false]
     );
 } catch (Throwable $e) {
-    fwrite(STDERR, 'DB connection failed: ' . $e->getMessage() . "\n");
+    fwrite(STDERR, 'DB connection failed: '.$e->getMessage()."\n");
     exit(4);
 }
 
 // ------------------------------------------------------------------ backup
-$backupDir = __DIR__ . '/backups';
-if (!is_dir($backupDir)) {
+$backupDir = __DIR__.'/backups';
+if (! is_dir($backupDir)) {
     mkdir($backupDir, 0777, true);
 }
 $stamp = date('Ymd-His');
-$backupFile = $backupDir . "/phase2-$stamp.sql";
+$backupFile = $backupDir."/phase2-$stamp.sql";
 $dumpBins = ['mysqldump'];
 $laragonDump = 'C:\\laragon\\bin\\mysql\\mysql-5.7.39-winx64\\bin\\mysqldump.exe';
 if (is_file($laragonDump)) {
@@ -615,39 +649,45 @@ if (is_file($laragonDump)) {
 $backedUp = false;
 foreach ($dumpBins as $bin) {
     $tables = implode(' ', array_keys($prepared));
-    $cmd = ($dbPass === ''
-        ? sprintf('"%s" -h %s -P %d -u %s %s %s', $bin, $host, $port, $dbUser, $dbName, $tables)
-        : sprintf('"%s" -h %s -P %d -u %s -p%s %s %s', $bin, $host, $port, $dbUser, $dbPass, $dbName, $tables))
-        . ' > ' . escapeshellarg($backupFile) . ' 2>&1';
+    $cmd = sprintf(
+        '%s -h %s -P %s -u %s %s %s %s',
+        escapeshellarg($bin),
+        escapeshellarg($host),
+        escapeshellarg((string) $port),
+        escapeshellarg($dbUser),
+        $dbPass === '' ? '' : '-p'.escapeshellarg($dbPass),
+        escapeshellarg($dbName),
+        $tables // internal whitelist, never user input
+    ).' > '.escapeshellarg($backupFile).' 2>&1';
     exec($cmd, $o, $code);
     if ($code === 0 && is_file($backupFile) && filesize($backupFile) > 0) {
         $backedUp = true;
         break;
     }
 }
-if (!$backedUp) {
+if (! $backedUp) {
     fwrite(STDERR, "ERROR: backup failed, aborting (no data touched).\n");
     exit(5);
 }
-echo "Backup: $backupFile (" . filesize($backupFile) . " bytes)\n";
+echo "Backup: $backupFile (".filesize($backupFile)." bytes)\n";
 $log[] = "backup: $backupFile";
 
 // ------------------------------------------------------------------ import
 $insertCols = [
-    'memberships' => ['id','user_id','klantnummer','customer_type','customer_gender','name','customer_email','customer_phone','customer_address','postcode','city','start_date','end_date','total','payment_status','payment_method','mollie_payment_id','terms_accepted','created_at','updated_at'],
-    'membership_invoices' => ['id','membership_id','klantnummer','invoice_number','invoice_date','payment_method','subtotal','tax_percentage','tax_amount','total','pdf_path','created_at','updated_at'],
-    'membership_settings' => ['id','subscription_price','created_at','updated_at'],
-    'technician_forms' => ['id','user_id','technician_id','start_time','end_time','duration_minutes','quarter_count','quarter_price','travel_cost','subtotal','btw','total','payment_status','description','work_done','advice','rating','comment','member_discount','coupon_id','coupon_discount','mollie_payment_id','payment_method','created_at','updated_at'],
-    'technician_invoices' => ['id','technician_form_id','invoice_number','invoice_date','subtotal','btw','total','status','pdf_path','created_at','updated_at'],
-    'afspraak_submissions' => ['id','afspraak_number','name','email','street','phone','postcode','house_number','city','device','problem','preferred_date','preferred_time','status','ip_address','created_at','updated_at'],
+    'memberships' => ['id', 'user_id', 'klantnummer', 'customer_type', 'customer_gender', 'name', 'customer_email', 'customer_phone', 'customer_address', 'postcode', 'city', 'start_date', 'end_date', 'total', 'payment_status', 'payment_method', 'mollie_payment_id', 'terms_accepted', 'created_at', 'updated_at'],
+    'membership_invoices' => ['id', 'membership_id', 'klantnummer', 'invoice_number', 'invoice_date', 'payment_method', 'subtotal', 'tax_percentage', 'tax_amount', 'total', 'pdf_path', 'created_at', 'updated_at'],
+    'membership_settings' => ['id', 'subscription_price', 'created_at', 'updated_at'],
+    'technician_forms' => ['id', 'user_id', 'technician_id', 'start_time', 'end_time', 'duration_minutes', 'quarter_count', 'quarter_price', 'travel_cost', 'subtotal', 'btw', 'total', 'payment_status', 'description', 'work_done', 'advice', 'rating', 'comment', 'member_discount', 'coupon_id', 'coupon_discount', 'mollie_payment_id', 'payment_method', 'created_at', 'updated_at'],
+    'technician_invoices' => ['id', 'technician_form_id', 'invoice_number', 'invoice_date', 'subtotal', 'btw', 'total', 'status', 'pdf_path', 'created_at', 'updated_at'],
+    'afspraak_submissions' => ['id', 'afspraak_number', 'name', 'email', 'street', 'phone', 'postcode', 'house_number', 'city', 'device', 'problem', 'preferred_date', 'preferred_time', 'status', 'ip_address', 'created_at', 'updated_at'],
 ];
 // dependency-safe order (parents before children)
-$ORDER = ['memberships','membership_invoices','membership_settings','technician_settings','technician_forms','technician_invoices','afspraak_submissions'];
+$ORDER = ['memberships', 'membership_invoices', 'membership_settings', 'technician_settings', 'technician_forms', 'technician_invoices', 'afspraak_submissions'];
 
 try {
     $pdo->exec('SET FOREIGN_KEY_CHECKS=0');
     foreach ($ORDER as $t) {
-        if (!isset($prepared[$t])) {
+        if (! isset($prepared[$t])) {
             continue;
         }
         if ($t === 'technician_settings') {
@@ -658,7 +698,7 @@ try {
     }
 
     foreach ($ORDER as $t) {
-        if (!isset($prepared[$t])) {
+        if (! isset($prepared[$t])) {
             continue;
         }
         $rows = $prepared[$t];
@@ -668,15 +708,16 @@ try {
             foreach ($rows as $r) {
                 $st->execute([$r['key'], $r['value'], $now, $now]);
             }
-            echo "UPSERTED technician_settings: " . count($rows) . "\n";
-            $log[] = 'technician_settings upserted: ' . count($rows);
+            echo 'UPSERTED technician_settings: '.count($rows)."\n";
+            $log[] = 'technician_settings upserted: '.count($rows);
+
             continue;
         }
         $cols = $insertCols[$t];
-        $ph = '(' . implode(',', array_fill(0, count($cols), '?')) . ')';
+        $ph = '('.implode(',', array_fill(0, count($cols), '?')).')';
         foreach (array_chunk($rows, 200) as $chunk) {
             $place = implode(',', array_fill(0, count($chunk), $ph));
-            $st = $pdo->prepare("INSERT INTO `$t` (`" . implode('`,`', $cols) . "`) VALUES $place");
+            $st = $pdo->prepare("INSERT INTO `$t` (`".implode('`,`', $cols)."`) VALUES $place");
             $flat = [];
             foreach ($chunk as $r) {
                 foreach ($cols as $c) {
@@ -695,7 +736,7 @@ try {
         if ($t !== 'membership_settings') {
             $max = $pdo->query("SELECT MAX(id) FROM `$t`")->fetchColumn();
             if ($max) {
-                $pdo->exec("ALTER TABLE `$t` AUTO_INCREMENT=" . ((int) $max + 1));
+                $pdo->exec("ALTER TABLE `$t` AUTO_INCREMENT=".((int) $max + 1));
             }
         }
     }
@@ -705,13 +746,13 @@ try {
         $pdo->exec('SET FOREIGN_KEY_CHECKS=1');
     } catch (Throwable) {
     }
-    fwrite(STDERR, 'IMPORT FAILED: ' . $e->getMessage() . "\nRestore backup: " . $backupFile . "\n");
+    fwrite(STDERR, 'IMPORT FAILED: '.$e->getMessage()."\nRestore backup: ".$backupFile."\n");
     exit(6);
 }
 
 // -------------------------------------------------------------- verification
 $checks = [];
-foreach (['memberships','membership_invoices','membership_settings','technician_forms','technician_invoices','afspraak_submissions'] as $t) {
+foreach (['memberships', 'membership_invoices', 'membership_settings', 'technician_forms', 'technician_invoices', 'afspraak_submissions'] as $t) {
     if (isset($prepared[$t])) {
         $checks[$t] = (int) $pdo->query("SELECT COUNT(*) FROM `$t`")->fetchColumn();
     }
@@ -722,9 +763,9 @@ $checks['orphan_tech_forms'] = (int) $pdo->query('SELECT COUNT(*) FROM technicia
 $checks['afspraak_bad_status'] = (int) $pdo->query("SELECT COUNT(*) FROM afspraak_submissions WHERE status NOT IN ('new','in_progress','completed')")->fetchColumn();
 
 foreach ($checks as $k => $v) {
-    echo str_pad($k, 24) . $v . PHP_EOL;
+    echo str_pad($k, 24).$v.PHP_EOL;
     $log[] = "check $k: $v";
 }
-file_put_contents(__DIR__ . '/sync-phase2-report.log', implode("\n", $log) . "\n");
-echo 'Report: scripts/sync-phase2-report.log' . PHP_EOL;
+file_put_contents(__DIR__.'/sync-phase2-report.log', implode("\n", $log)."\n");
+echo 'Report: scripts/sync-phase2-report.log'.PHP_EOL;
 echo "DONE\n";

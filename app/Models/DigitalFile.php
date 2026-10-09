@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\URL;
 
 class DigitalFile extends Model
 {
@@ -49,7 +50,7 @@ class DigitalFile extends Model
      */
     public function signedUrlForOrder(Order $order): string
     {
-        return \Illuminate\Support\Facades\URL::temporarySignedRoute(
+        return URL::temporarySignedRoute(
             'download.file',
             now()->addDays(30),
             ['file' => $this->id, 'order' => $order->order_number]
@@ -60,11 +61,12 @@ class DigitalFile extends Model
     {
         $bytes = (int) $this->size;
         if ($bytes < 1024) {
-            return $bytes . ' B';
+            return $bytes.' B';
         }
         $units = ['KB', 'MB', 'GB', 'TB'];
         $i = (int) floor(log($bytes, 1024));
         $i = min($i, count($units));
-        return round($bytes / (1024 ** $i), $i >= 2 ? 2 : 0) . ' ' . $units[$i - 1];
+
+        return round($bytes / (1024 ** $i), $i >= 2 ? 2 : 0).' '.$units[$i - 1];
     }
 }

@@ -20,7 +20,7 @@ class ImportUsersCommand extends Command
         $path = (string) $this->argument('file');
 
         if (! is_file($path)) {
-            $this->error('Bestand niet gevonden: ' . $path);
+            $this->error('Bestand niet gevonden: '.$path);
 
             return self::FAILURE;
         }

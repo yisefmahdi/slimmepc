@@ -32,8 +32,13 @@ class ProductReview extends Model
 
     public function getAuthorNameAttribute(): string
     {
-        if ($this->guest_name) return $this->guest_name;
-        if ($this->user) return $this->user->name;
+        if ($this->guest_name) {
+            return $this->guest_name;
+        }
+        if ($this->user) {
+            return $this->user->name;
+        }
+
         return 'Gast';
     }
 }

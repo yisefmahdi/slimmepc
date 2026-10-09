@@ -10,7 +10,6 @@ use App\Models\CouponUsage;
 use App\Models\LicenseCode;
 use App\Models\Order;
 use App\Models\OrderInvoice;
-use App\Services\AdminPushNotifier;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -128,7 +127,7 @@ class OrderPaymentService
      * Assign available license codes to the digital items of a paid order.
      *
      * @return array<int, array{title: string, quantity: int, available: int}> per-product
-     *         shortages (empty when every digital unit was served).
+     *                                                                         shortages (empty when every digital unit was served).
      */
     public function assignLicenseCodes(Order $order): array
     {

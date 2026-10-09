@@ -10,4 +10,3 @@ class ContentMeta extends Model
 
     protected $fillable = ['meta_key', 'meta_value'];
 }
-

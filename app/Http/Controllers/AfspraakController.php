@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreAfspraakSubmissionRequest;
 use App\Mail\AdminAfspraakNotification;
 use App\Mail\AfspraakReceived;
 use App\Models\AfspraakSubmission;
-use App\Http\Requests\StoreAfspraakSubmissionRequest;
 use App\Services\AdminPushNotifier;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 
 class AfspraakController extends Controller
@@ -29,21 +30,21 @@ class AfspraakController extends Controller
             try {
                 $submission = AfspraakSubmission::create([
                     'afspraak_number' => $afspraakNumber,
-            'name'            => $data['name'],
-            'email'           => $data['email'],
-            'street'          => $data['street'],
-            'phone'           => $data['phone'],
-            'postcode'        => $data['postcode'],
-            'house_number'    => $data['house_number'],
-            'city'            => $data['city'],
-            'device'          => $data['device'],
-            'problem'         => $data['problem'],
-            'preferred_date'  => $data['preferred_date'],
-            'preferred_time'  => $data['preferred_time'],
-            'status'          => 'new',
-            'ip_address'      => $request->ip(),
+                    'name' => $data['name'],
+                    'email' => $data['email'],
+                    'street' => $data['street'],
+                    'phone' => $data['phone'],
+                    'postcode' => $data['postcode'],
+                    'house_number' => $data['house_number'],
+                    'city' => $data['city'],
+                    'device' => $data['device'],
+                    'problem' => $data['problem'],
+                    'preferred_date' => $data['preferred_date'],
+                    'preferred_time' => $data['preferred_time'],
+                    'status' => 'new',
+                    'ip_address' => $request->ip(),
                 ]);
-            } catch (\Illuminate\Database\QueryException $e) {
+            } catch (QueryException $e) {
                 // 23000 = duplicate entry: another request grabbed the same
                 // sequence number concurrently — retry with the next one.
                 if (($e->errorInfo[0] ?? null) !== '23000' || $attempts >= 5) {
@@ -76,9 +77,9 @@ class AfspraakController extends Controller
         })->afterResponse();
 
         return response()->json([
-            'success'         => true,
+            'success' => true,
             'afspraak_number' => $afspraakNumber,
-            'message'         => 'Bedankt! We hebben uw aanvraag ontvangen en nemen spoedig contact met u op.',
+            'message' => 'Bedankt! We hebben uw aanvraag ontvangen en nemen spoedig contact met u op.',
         ], 201);
     }
 

@@ -27,4 +27,3 @@ class EnsureUserIsAdmin
         return $response;
     }
 }
-

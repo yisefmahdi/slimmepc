@@ -5,8 +5,10 @@ namespace App\Mail;
 use App\Models\ContactSubmission;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Support\Str;
 
 class ContactReplyMail extends Mailable
 {
@@ -20,8 +22,7 @@ class ContactReplyMail extends Mailable
         public string $replyBody,
         public string $adminName,
         public ?string $attachment = null,
-    ) {
-    }
+    ) {}
 
     /**
      * Get the message envelope.
@@ -49,7 +50,7 @@ class ContactReplyMail extends Mailable
     /**
      * Attach the file the admin added from the dashboard (if any).
      *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     * @return array<int, Attachment>
      */
     public function attachments(): array
     {
@@ -64,8 +65,8 @@ class ContactReplyMail extends Mailable
         }
 
         return [
-            \Illuminate\Mail\Mailables\Attachment::fromPath($path)
-                ->as(\Illuminate\Support\Str::afterLast($this->attachment, '/')),
+            Attachment::fromPath($path)
+                ->as(Str::afterLast($this->attachment, '/')),
         ];
     }
 

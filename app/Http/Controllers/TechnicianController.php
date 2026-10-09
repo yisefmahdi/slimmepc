@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Mail\TechnicianInvoiceMail;
 use App\Models\Coupon;
 use App\Models\CouponUsage;
@@ -13,10 +12,13 @@ use App\Models\User;
 use App\Services\Payments\MolliePaymentService;
 use App\Support\Cms;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -161,8 +163,8 @@ class TechnicianController extends Controller
      */
     protected function calculate(User $client, string $start, string $end, ?string $couponCode): array
     {
-        $s = \Carbon\Carbon::createFromFormat('H:i', $start);
-        $e = \Carbon\Carbon::createFromFormat('H:i', $end);
+        $s = Carbon::createFromFormat('H:i', $start);
+        $e = Carbon::createFromFormat('H:i', $end);
         $minutes = $s->diffInMinutes($e);
 
         if ($minutes < 5) {
@@ -400,7 +402,7 @@ class TechnicianController extends Controller
         try {
             $payment = $this->payments->createPayment(
                 amount: (float) $calc['net'],
-                description: 'Slimme-PC monteur #' . $form->id . ' (' . $client->klantnummer . ')',
+                description: 'Slimme-PC monteur #'.$form->id.' ('.$client->klantnummer.')',
                 redirectUrl: route('technician.return', ['form' => $form->id]),
                 webhookUrl: $this->publicWebhookUrl($request),
                 metadata: ['technician_form_id' => $form->id],
@@ -522,7 +524,7 @@ class TechnicianController extends Controller
      */
     protected function finalizeForm(TechnicianForm $form, ?string $mollieMethod = null): void
     {
-        $finalized = \Illuminate\Support\Facades\DB::transaction(function () use ($form, $mollieMethod) {
+        $finalized = DB::transaction(function () use ($form, $mollieMethod) {
             $locked = TechnicianForm::whereKey($form->id)->lockForUpdate()->first();
             if (! $locked || $locked->payment_status === 'paid') {
                 return null;
@@ -545,7 +547,7 @@ class TechnicianController extends Controller
                 if ($coupon && $usage->wasRecentlyCreated) {
                     $coupon->increment('used_count');
                 } elseif (! $usage->wasRecentlyCreated) {
-                    \Illuminate\Support\Facades\Log::warning('Coupon already consumed at technician finalize', [
+                    Log::warning('Coupon already consumed at technician finalize', [
                         'form_id' => $locked->id, 'coupon_id' => $locked->coupon_id,
                     ]);
                 }
@@ -559,7 +561,8 @@ class TechnicianController extends Controller
         }
         $form = $finalized;
 
-        $invoice = $form->technicianInvoice()->latest('id')->first();        if ($invoice) {
+        $invoice = $form->technicianInvoice()->latest('id')->first();
+        if ($invoice) {
             $invoice->update(['status' => 'paid']);
 
             if (! $invoice->pdf_path) {
@@ -570,7 +573,7 @@ class TechnicianController extends Controller
                 $pdf->setPaper('a4', 'portrait');
 
                 Storage::disk('local')->makeDirectory('invoices/technician');
-                $path = 'invoices/technician/' . $invoice->invoice_number . '.pdf';
+                $path = 'invoices/technician/'.$invoice->invoice_number.'.pdf';
                 Storage::disk('local')->put($path, $pdf->output());
                 $invoice->update(['pdf_path' => $path]);
             }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreMembershipRequest;
 use App\Mail\MembershipWelcomeMail;
 use App\Models\Membership;
+use App\Models\MembershipInvoice;
 use App\Models\MembershipSetting;
 use App\Models\User;
 use App\Services\Payments\MolliePaymentService;
@@ -12,6 +13,7 @@ use App\Support\Cms;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
@@ -127,7 +129,7 @@ class LidmaatschapController extends Controller
         try {
             $payment = $this->payments->createPayment(
                 amount: $price,
-                description: 'Slimme-PC lidmaatschap ' . $membership->klantnummer,
+                description: 'Slimme-PC lidmaatschap '.$membership->klantnummer,
                 redirectUrl: route('lidmaatschap.return', ['lidmaatschap' => $membership->id]),
                 webhookUrl: $this->publicWebhookUrl($request),
                 metadata: ['membership_id' => $membership->id],
@@ -248,7 +250,7 @@ class LidmaatschapController extends Controller
      */
     protected function finalizeMembership(Membership $membership, ?string $mollieMethod = null): void
     {
-        $finalized = \Illuminate\Support\Facades\DB::transaction(function () use ($membership, $mollieMethod) {
+        $finalized = DB::transaction(function () use ($membership, $mollieMethod) {
             $locked = Membership::whereKey($membership->id)->lockForUpdate()->first();
             if (! $locked || $locked->payment_status === 'paid') {
                 return null;
@@ -276,7 +278,7 @@ class LidmaatschapController extends Controller
             $pdf->setPaper('a4', 'portrait');
 
             Storage::disk('local')->makeDirectory('invoices/membership');
-            $path = 'invoices/membership/' . $invoice->invoice_number . '.pdf';
+            $path = 'invoices/membership/'.$invoice->invoice_number.'.pdf';
             Storage::disk('local')->put($path, $pdf->output());
             $invoice->update(['pdf_path' => $path]);
         }
@@ -290,7 +292,7 @@ class LidmaatschapController extends Controller
     {
         do {
             $candidate = 'LID-'.random_int(100000, 999999);
-        } while (\App\Models\MembershipInvoice::where('invoice_number', $candidate)->exists());
+        } while (MembershipInvoice::where('invoice_number', $candidate)->exists());
 
         return $candidate;
     }
@@ -316,7 +318,7 @@ class LidmaatschapController extends Controller
         $base = strtoupper(substr(preg_replace('/[^a-zA-Z]/u', '', $name) ?: 'LID', 0, 5));
 
         do {
-            $number = 'SMP-' . $base . random_int(100000, 999999);
+            $number = 'SMP-'.$base.random_int(100000, 999999);
         } while (Membership::where('klantnummer', $number)->exists());
 
         return $number;

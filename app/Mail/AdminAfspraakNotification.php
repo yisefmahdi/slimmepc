@@ -6,6 +6,7 @@ use App\Models\AfspraakSubmission;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Address;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -32,7 +33,7 @@ class AdminAfspraakNotification extends Mailable
         $replyTo = config('contact-inbox.reply_to');
 
         return new Envelope(
-            subject: 'Nieuwe afspraak-aan-huis aanvraag – ' . $this->submission->afspraak_number,
+            subject: 'Nieuwe afspraak-aan-huis aanvraag – '.$this->submission->afspraak_number,
             replyTo: $replyTo ? [new Address($replyTo, 'Slimme-PC')] : [],
         );
     }
@@ -53,7 +54,7 @@ class AdminAfspraakNotification extends Mailable
     /**
      * Get the attachments for the message.
      *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     * @return array<int, Attachment>
      */
     public function attachments(): array
     {

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class VideoStreamController extends Controller
 {
@@ -17,7 +16,7 @@ class VideoStreamController extends Controller
      */
     public function show(Request $request, string $file)
     {
-        $path = public_path('assets/video/' . basename($file));
+        $path = public_path('assets/video/'.basename($file));
 
         if (! is_file($path)) {
             abort(404);
@@ -39,7 +38,8 @@ class VideoStreamController extends Controller
 
             if ($start < 0 || $end >= $size || $start > $end) {
                 fclose($handle);
-                return response('', 416, ['Content-Range' => 'bytes */' . $size]);
+
+                return response('', 416, ['Content-Range' => 'bytes */'.$size]);
             }
 
             fseek($handle, $start);
@@ -49,7 +49,7 @@ class VideoStreamController extends Controller
 
             return response($buffer, 206, [
                 'Content-Type' => $mime,
-                'Content-Range' => 'bytes ' . $start . '-' . $end . '/' . $size,
+                'Content-Range' => 'bytes '.$start.'-'.$end.'/'.$size,
                 'Accept-Ranges' => 'bytes',
                 'Content-Length' => $length,
             ]);

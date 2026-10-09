@@ -1,7 +1,9 @@
 <?php
 
 use App\Models\Order;
+use App\Models\OrderInvoice;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 function makeAdminRenderUser(): User
 {
@@ -29,7 +31,7 @@ it('renders the admin order show page', function () {
         'payment_status' => 'paid',
         'order_status' => 'processing',
     ]);
-    \App\Models\OrderInvoice::create([
+    OrderInvoice::create([
         'order_id' => $order->id,
         'invoice_number' => 'INV-2026-TEST01',
         'invoice_date' => now()->toDateString(),
@@ -67,7 +69,7 @@ it('regenerates the admin order invoice pdf from the current template', function
         'payment_status' => 'paid',
         'order_status' => 'processing',
     ]);
-    \App\Models\OrderInvoice::create([
+    OrderInvoice::create([
         'order_id' => $order->id,
         'invoice_number' => 'INV-2026-TEST02',
         'invoice_date' => now()->toDateString(),
@@ -84,5 +86,5 @@ it('regenerates the admin order invoice pdf from the current template', function
         ->assertOk()
         ->assertHeader('content-type', 'application/pdf');
 
-    expect(\Illuminate\Support\Facades\Storage::disk('local')->exists('invoices/orders/INV-2026-TEST02.pdf'))->toBeTrue();
+    expect(Storage::disk('local')->exists('invoices/orders/INV-2026-TEST02.pdf'))->toBeTrue();
 });

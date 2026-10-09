@@ -8,6 +8,7 @@
 
 use App\Http\Controllers\Admin\Shop\FilesController;
 use App\Models\Category;
+use App\Models\Product;
 use App\Models\RepairSubmission;
 use App\Models\User;
 use App\Support\HtmlSanitizer;
@@ -27,7 +28,7 @@ function makeInjectAdmin(): User
 function makeInjectCategory(): Category
 {
     return Category::create([
-        'name' => 'Inject Test ' . Str::random(6),
+        'name' => 'Inject Test '.Str::random(6),
         'status' => true,
         'sort_order' => 0,
     ]);
@@ -37,11 +38,11 @@ function makeInjectCategory(): Category
 
 it('strips scripts, event handlers and javascript urls from product html', function () {
     $dirty = '<p>Hallo <strong>wereld</strong></p>'
-        . '<script>alert(1)</script>'
-        . '<img src="x" onerror="alert(2)">'
-        . '<a href="javascript:alert(3)">klik</a>'
-        . '<a href="https://example.com" target="_blank">ok</a>'
-        . '<iframe src="https://evil.test"></iframe>';
+        .'<script>alert(1)</script>'
+        .'<img src="x" onerror="alert(2)">'
+        .'<a href="javascript:alert(3)">klik</a>'
+        .'<a href="https://example.com" target="_blank">ok</a>'
+        .'<iframe src="https://evil.test"></iframe>';
 
     $clean = HtmlSanitizer::productDescription($dirty);
 
@@ -101,22 +102,22 @@ it('serves only whitelisted repair photos and blocks traversal', function () {
         'privacy' => true,
         'photos' => ['a1b2c3.jpg'],
     ]);
-    Storage::disk('local')->put('repair/' . $sub->id . '/a1b2c3.jpg', 'fake-image');
+    Storage::disk('local')->put('repair/'.$sub->id.'/a1b2c3.jpg', 'fake-image');
     // Precondition guard: fail loudly here (not as a misleading 404 below)
     // if the fake disk ever misbehaves on this host.
-    expect(Storage::disk('local')->exists('repair/' . $sub->id . '/a1b2c3.jpg'))->toBeTrue();
+    expect(Storage::disk('local')->exists('repair/'.$sub->id.'/a1b2c3.jpg'))->toBeTrue();
 
-    $base = '/admin/reparatie-aanmeldingen/' . $sub->id . '/photo';
+    $base = '/admin/reparatie-aanmeldingen/'.$sub->id.'/photo';
 
     // Legit photo streams.
-    $this->actingAs($admin)->get($base . '/a1b2c3.jpg')->assertOk();
+    $this->actingAs($admin)->get($base.'/a1b2c3.jpg')->assertOk();
 
     // Unknown filename (even if it exists on disk elsewhere) → 404.
-    Storage::disk('local')->put('repair/' . $sub->id . '/stray.jpg', 'x');
-    $this->actingAs($admin)->get($base . '/stray.jpg')->assertNotFound();
+    Storage::disk('local')->put('repair/'.$sub->id.'/stray.jpg', 'x');
+    $this->actingAs($admin)->get($base.'/stray.jpg')->assertNotFound();
 
     // Traversal segment → 404.
-    $this->actingAs($admin)->get($base . '/..')->assertNotFound();
+    $this->actingAs($admin)->get($base.'/..')->assertNotFound();
 });
 
 /* ---------- Product images: SVG blocked ---------- */
@@ -133,7 +134,7 @@ it('rejects svg product images on the public disk', function () {
 
     $this->actingAs($admin)->postJson('/admin/webshop/products', [
         'category_id' => $cat->id,
-        'title' => 'Inject SVG ' . Str::random(6),
+        'title' => 'Inject SVG '.Str::random(6),
         'price' => 99.99,
         'status' => true,
         'main_image' => $svg,
@@ -145,7 +146,7 @@ it('rejects svg product images on the public disk', function () {
 it('sanitizes the product description on store', function () {
     $admin = makeInjectAdmin();
     $cat = makeInjectCategory();
-    $title = 'Inject Desc ' . Str::random(6);
+    $title = 'Inject Desc '.Str::random(6);
 
     $this->actingAs($admin)->postJson('/admin/webshop/products', [
         'category_id' => $cat->id,
@@ -153,10 +154,10 @@ it('sanitizes the product description on store', function () {
         'price' => 49.99,
         'status' => true,
         'description' => '<p>Mooie <strong>laptop</strong></p><script>alert(1)</script>'
-            . '<a href="javascript:alert(2)">x</a>',
+            .'<a href="javascript:alert(2)">x</a>',
     ])->assertCreated();
 
-    $stored = \App\Models\Product::where('title', $title)->firstOrFail()->description;
+    $stored = Product::where('title', $title)->firstOrFail()->description;
     expect($stored)->toContain('<strong>laptop</strong>')
         ->and($stored)->not->toContain('<script')
         ->and($stored)->not->toContain('javascript:');

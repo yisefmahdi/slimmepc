@@ -30,9 +30,10 @@ class CartController extends Controller
 
         // Queue cookie if newly created for guest
         $response = response()->view('landing.cart', compact('c', 'design', 'cart', 'totals', 'upsell', 'pi'));
-        if (!$request->user() && $cart->cart_token) {
+        if (! $request->user() && $cart->cart_token) {
             $response->withCookie(Cookie::forever(CartService::COOKIE_NAME, $cart->cart_token));
         }
+
         return $response;
     }
 
@@ -41,6 +42,7 @@ class CartController extends Controller
         $count = $this->cartService->countForRequest($request);
         $cart = $this->cartService->resolveCart($request);
         $totals = $this->cartService->totals($cart);
+
         return response()->json([
             'count' => $count,
             'subtotal' => $totals['subtotal'],
@@ -60,7 +62,7 @@ class CartController extends Controller
 
         $product = Product::findOrFail($data['product_id']);
 
-        if (!$product->status) {
+        if (! $product->status) {
             return response()->json(['message' => 'Dit product is niet beschikbaar.'], 422);
         }
         // Digital stock lives in the license-code pool, not in stock_status.
@@ -108,7 +110,7 @@ class CartController extends Controller
             ] : null,
         ]);
 
-        if (!$request->user() && $cart->cart_token) {
+        if (! $request->user() && $cart->cart_token) {
             $response->withCookie(Cookie::forever(CartService::COOKIE_NAME, $cart->cart_token));
         }
 
@@ -189,7 +191,7 @@ class CartController extends Controller
         }
 
         $result = $this->cartService->validateCoupon($data['code'], $cart);
-        if (!$result['valid']) {
+        if (! $result['valid']) {
             return response()->json(['message' => $result['message']], 422);
         }
 

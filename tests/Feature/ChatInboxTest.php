@@ -1,10 +1,18 @@
 <?php
 
+use App\Mail\AdminChatNotification;
+use App\Mail\ChatClosedMail;
+use App\Mail\ChatOfflineReceived;
+use App\Mail\ChatReplyMail;
+use App\Mail\ChatTicketMail;
 use App\Models\Category;
 use App\Models\ChatConversation;
+use App\Models\Product;
 use App\Models\User;
 use App\Services\Chat\ChatProductSearch;
+use App\Services\InboundContactFetcher;
 use Illuminate\Support\Facades\Storage;
+use Webklex\PHPIMAP\Message;
 
 function makeChatAdmin(): User
 {
@@ -117,7 +125,7 @@ it('admin reply always mails the customer (open threads too)', function () {
 
     $this->postJson('/admin/chat/inbox/'.$c->id.'/reply', ['body' => 'Hallo!'])->assertOk();
 
-    Mail::assertSent(App\Mail\ChatReplyMail::class, 1);
+    Mail::assertSent(ChatReplyMail::class, 1);
 });
 
 it('admin reply mails offline threads', function () {
@@ -128,7 +136,7 @@ it('admin reply mails offline threads', function () {
 
     $this->postJson('/admin/chat/inbox/'.$off->id.'/reply', ['body' => 'We zijn er weer.'])->assertOk();
 
-    Mail::assertSent(App\Mail\ChatReplyMail::class, 1);
+    Mail::assertSent(ChatReplyMail::class, 1);
 });
 
 it('toggles AI per conversation', function () {
@@ -159,8 +167,8 @@ it('offline submit opens a handed_over ticket with localized thanks (no thread)'
         ->and($c->handed_over_at)->not->toBeNull()
         ->and($c->messages()->count())->toBe(2);
 
-    Mail::assertSent(App\Mail\AdminChatNotification::class, 1);
-    Mail::assertSent(App\Mail\ChatOfflineReceived::class, 1);
+    Mail::assertSent(AdminChatNotification::class, 1);
+    Mail::assertSent(ChatOfflineReceived::class, 1);
 });
 
 it('handover mails the customer a ticket confirmation', function () {
@@ -169,8 +177,8 @@ it('handover mails the customer a ticket confirmation', function () {
     $c = makeThread(['status' => 'open']);
     $this->postJson('/ai-chat/handover', ['token' => $c->guest_token])->assertOk();
 
-    Mail::assertSent(App\Mail\ChatTicketMail::class, 1);
-    Mail::assertSent(App\Mail\AdminChatNotification::class, 1);
+    Mail::assertSent(ChatTicketMail::class, 1);
+    Mail::assertSent(AdminChatNotification::class, 1);
     expect($c->fresh()->status)->toBe('handed_over');
 });
 
@@ -194,7 +202,7 @@ it('sends thanks mail once when admin closes', function () {
 
     $c = makeThread(['status' => 'open']);
     $this->actingAs($admin)->postJson('/admin/chat/inbox/'.$c->id.'/status', ['status' => 'closed'])->assertOk();
-    Mail::assertSent(App\Mail\ChatClosedMail::class, 1);
+    Mail::assertSent(ChatClosedMail::class, 1);
 });
 
 it('sends no second thanks mail when re-closing', function () {
@@ -216,13 +224,13 @@ it('sends thanks mail when customer closes via widget', function () {
     Mail::fake();
 
     $this->postJson('/ai-chat/close', ['token' => $c2->guest_token])->assertOk();
-    Mail::assertSent(App\Mail\ChatClosedMail::class, 1);
+    Mail::assertSent(ChatClosedMail::class, 1);
 });
 
 it('ticket notification mail carries +chat reply-to', function () {
     $c = makeThread(['status' => 'handed_over']);
 
-    $mail = new App\Mail\AdminChatNotification($c, 'handover');
+    $mail = new AdminChatNotification($c, 'handover');
     $envelope = $mail->envelope();
 
     expect($envelope->replyTo)->toHaveCount(1)
@@ -238,9 +246,9 @@ it('employee email reply is stored as admin and forwarded to customer', function
 
     $raw = "From: notify@test.nl\r\nTo: info+chat-".$c->id."@slimme-pc.nl\r\nSubject: Re: ticket\r\n"
         ."Content-Type: text/plain; charset=UTF-8\r\n\r\nWij gaan dit morgen voor je nakijken.\r\n";
-    $mime = Webklex\PHPIMAP\Message::fromString($raw);
+    $mime = Message::fromString($raw);
 
-    $fetcher = new App\Services\InboundContactFetcher();
+    $fetcher = new InboundContactFetcher;
     $ref = new ReflectionMethod($fetcher, 'appendChatMessage');
     $ref->setAccessible(true);
     $ref->invoke($fetcher, $mime, $c->fresh());
@@ -250,7 +258,7 @@ it('employee email reply is stored as admin and forwarded to customer', function
         ->and($row->source)->toBe('email')
         ->and($c->fresh()->ai_enabled)->toBeFalse();
 
-    Mail::assertSent(App\Mail\ChatReplyMail::class, 1);
+    Mail::assertSent(ChatReplyMail::class, 1);
 });
 
 it('stores inbound attachments under the full chat path', function () {
@@ -279,7 +287,7 @@ it('stores inbound attachments under the full chat path', function () {
         }
     };
 
-    $fetcher = new App\Services\InboundContactFetcher();
+    $fetcher = new InboundContactFetcher;
     $ref = new ReflectionMethod($fetcher, 'storeChatAttachment');
     $ref->setAccessible(true);
     $path = $ref->invoke($fetcher, [$fakeAttachment], $c);
@@ -291,13 +299,13 @@ it('stores inbound attachments under the full chat path', function () {
 });
 
 it('inbound chat mail appends to thread and reopens closed tickets', function () {
-    $fetcher = new App\Services\InboundContactFetcher();
+    $fetcher = new InboundContactFetcher;
 
-    $makeMime = function (string $to, string $body): Webklex\PHPIMAP\Message {
+    $makeMime = function (string $to, string $body): Message {
         $raw = "From: klant@test.nl\r\nTo: {$to}\r\nSubject: Re: chat\r\n"
             ."Content-Type: text/plain; charset=UTF-8\r\n\r\n{$body}\r\n";
 
-        return Webklex\PHPIMAP\Message::fromString($raw);
+        return Message::fromString($raw);
     };
 
     // Simuleer: klant antwoordt per e-mail op gesloten ticket.
@@ -322,19 +330,19 @@ it('inbound chat mail appends to thread and reopens closed tickets', function ()
 
 it('product search returns closest in-stock match with real url', function () {
     $cat = Category::create(['name' => 'Laptops', 'status' => true, 'sort_order' => 0]);
-    App\Models\Product::create([
+    Product::create([
         'category_id' => $cat->id, 'title' => 'HP 15s Laptop Test', 'slug' => 'hp-15s-test-'.Str::random(6),
         'brand' => 'HP', 'price' => 599, 'stock_status' => 'in_stock', 'status' => true,
         'description' => 'Betrouwbare HP laptop voor dagelijks gebruik.',
     ]);
-    App\Models\Product::create([
+    Product::create([
         'category_id' => $cat->id, 'title' => 'Dell Budget Laptop Test', 'slug' => 'dell-budget-test-'.Str::random(6),
         'brand' => 'Dell', 'price' => 349, 'stock_status' => 'in_stock', 'status' => true,
         'description' => 'Goedkope Dell laptop voor studenten.',
     ]);
 
     // Het budget komt van de agent (tool-arg), niet uit de tekst.
-    $result = (new ChatProductSearch())->search('ik zoek een laptop', 3, 600);
+    $result = (new ChatProductSearch)->search('ik zoek een laptop', 3, 600);
 
     expect($result['budget'])->toBe(600)
         ->and($result['products'])->not->toBeEmpty()

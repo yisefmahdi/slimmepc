@@ -49,4 +49,3 @@ class UpdateKlantRequest extends FormRequest
         ];
     }
 }
-

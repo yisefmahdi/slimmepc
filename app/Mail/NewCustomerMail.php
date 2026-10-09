@@ -14,13 +14,12 @@ class NewCustomerMail extends Mailable
 
     public function __construct(
         public User $user
-    ) {
-    }
+    ) {}
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Nieuwe klant toegevoegd: ' . $this->user->name,
+            subject: 'Nieuwe klant toegevoegd: '.$this->user->name,
         );
     }
 

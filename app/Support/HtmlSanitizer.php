@@ -2,8 +2,6 @@
 
 namespace App\Support;
 
-use Illuminate\Support\Str;
-
 /**
  * Server-side HTML sanitizer for admin-authored rich text
  * (TinyMCE product descriptions, AI-generated descriptions, legacy imports).
@@ -49,7 +47,7 @@ class HtmlSanitizer
         $doc = new \DOMDocument('1.0', 'UTF-8');
         // Wrap in a container so fragments with several roots survive.
         $doc->loadHTML(
-            '<?xml encoding="UTF-8"><div id="__root__">' . $html . '</div>',
+            '<?xml encoding="UTF-8"><div id="__root__">'.$html.'</div>',
             LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
         );
         libxml_clear_errors();
@@ -76,6 +74,7 @@ class HtmlSanitizer
                     }
                     $el->parentNode?->replaceChild($frag, $el);
                 }
+
                 continue;
             }
 

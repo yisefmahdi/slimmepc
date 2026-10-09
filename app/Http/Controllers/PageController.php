@@ -19,7 +19,7 @@ class PageController extends Controller
          * Logged-in users get a personalized header (name + logout dropdown),
          * so never serve them the shared cached HTML.
          */
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             $cached = Cache::get($cacheKey);
 
             if (is_string($cached)) {
@@ -52,19 +52,24 @@ class PageController extends Controller
             $mappedProducts = [];
             foreach ($homeProducts as $fp) {
                 $specs = '';
-                if (!empty($fp->features) && is_array($fp->features)) {
+                if (! empty($fp->features) && is_array($fp->features)) {
                     $featStrs = array_map(function ($f) {
                         if (is_array($f) && isset($f['value'])) {
-                            $t = trim($f['title'] ?? ''); $v = trim($f['value']);
-                            return $t !== '' ? $t . ': ' . $v : $v;
+                            $t = trim($f['title'] ?? '');
+                            $v = trim($f['value']);
+
+                            return $t !== '' ? $t.': '.$v : $v;
                         }
+
                         return (string) $f;
                     }, $fp->features);
                     $featStrs = array_values(array_filter($featStrs));
-                    if (!empty($featStrs)) $specs = implode(' · ', array_slice($featStrs, 0, 3));
+                    if (! empty($featStrs)) {
+                        $specs = implode(' · ', array_slice($featStrs, 0, 3));
+                    }
                 }
                 if ($specs === '' && $fp->brand) {
-                    $specs = $fp->brand . ($fp->category ? ' · ' . $fp->category->name : '');
+                    $specs = $fp->brand.($fp->category ? ' · '.$fp->category->name : '');
                 }
 
                 $badge = '';
@@ -79,10 +84,15 @@ class PageController extends Controller
                 }
 
                 if ($fp->main_image) {
-                    if (str_starts_with($fp->main_image, 'http')) $imageUrl = $fp->main_image;
-                    elseif (str_starts_with($fp->main_image, 'assets/')) $imageUrl = asset($fp->main_image);
-                    elseif (str_starts_with($fp->main_image, 'storage/')) $imageUrl = asset($fp->main_image);
-                    else $imageUrl = asset('storage/' . $fp->main_image);
+                    if (str_starts_with($fp->main_image, 'http')) {
+                        $imageUrl = $fp->main_image;
+                    } elseif (str_starts_with($fp->main_image, 'assets/')) {
+                        $imageUrl = asset($fp->main_image);
+                    } elseif (str_starts_with($fp->main_image, 'storage/')) {
+                        $imageUrl = asset($fp->main_image);
+                    } else {
+                        $imageUrl = asset('storage/'.$fp->main_image);
+                    }
                 } else {
                     $imageUrl = asset('assets/img/landing/laptop-fallback.png');
                 }
@@ -92,8 +102,8 @@ class PageController extends Controller
                     'id' => $fp->id,
                     'title' => $fp->title,
                     'specs' => $specs,
-                    'price' => '€' . number_format($hasDiscount ? $fp->discounted_price : $fp->price, 2),
-                    'old_price' => $hasDiscount ? '€' . number_format($fp->price, 2) : null,
+                    'price' => '€'.number_format($hasDiscount ? $fp->discounted_price : $fp->price, 2),
+                    'old_price' => $hasDiscount ? '€'.number_format($fp->price, 2) : null,
                     'in_stock' => $fp->is_digital ? $fp->availableLicenseCount() > 0 : $fp->stock_status === 'in_stock',
                     'image' => $imageUrl,
                     'is_db_image' => true,
@@ -126,7 +136,7 @@ class PageController extends Controller
         $html = view('landing.home', compact('c', 'design'))->render();
 
         // Only cache for guests — a logged-in response must never pollute the shared cache
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             Cache::put($cacheKey, $html, now()->addMonth());
         }
 
@@ -138,7 +148,7 @@ class PageController extends Controller
         $version = Cms::version();
         $cacheKey = "cms.page.html.tarieven.{$version}";
 
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             $cached = Cache::get($cacheKey);
 
             if (is_string($cached)) {
@@ -153,7 +163,7 @@ class PageController extends Controller
 
         $html = view('landing.tarieven', compact('c', 't', 'design'))->render();
 
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             Cache::put($cacheKey, $html, now()->addMonth());
         }
 
@@ -165,7 +175,7 @@ class PageController extends Controller
         $version = Cms::version();
         $cacheKey = "cms.page.html.contact.{$version}";
 
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             $cached = Cache::get($cacheKey);
 
             if (is_string($cached)) {
@@ -180,7 +190,7 @@ class PageController extends Controller
 
         $html = view('landing.contact', compact('c', 'p', 'design'))->render();
 
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             Cache::put($cacheKey, $html, now()->addMonth());
         }
 
@@ -192,7 +202,7 @@ class PageController extends Controller
         $version = Cms::version();
         $cacheKey = "cms.page.html.overons.{$version}";
 
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             $cached = Cache::get($cacheKey);
 
             if (is_string($cached)) {
@@ -207,7 +217,7 @@ class PageController extends Controller
 
         $html = view('landing.overons', compact('c', 'o', 'design'))->render();
 
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             Cache::put($cacheKey, $html, now()->addMonth());
         }
 
@@ -219,7 +229,7 @@ class PageController extends Controller
         $version = Cms::version();
         $cacheKey = "cms.page.html.privacy.{$version}";
 
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             $cached = Cache::get($cacheKey);
 
             if (is_string($cached)) {
@@ -234,7 +244,7 @@ class PageController extends Controller
 
         $html = view('landing.privacy', compact('c', 'l', 'design'))->render();
 
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             Cache::put($cacheKey, $html, now()->addMonth());
         }
 
@@ -246,7 +256,7 @@ class PageController extends Controller
         $version = Cms::version();
         $cacheKey = "cms.page.html.voorwaarden.{$version}";
 
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             $cached = Cache::get($cacheKey);
 
             if (is_string($cached)) {
@@ -261,7 +271,7 @@ class PageController extends Controller
 
         $html = view('landing.voorwaarden', compact('c', 'l', 'design'))->render();
 
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             Cache::put($cacheKey, $html, now()->addMonth());
         }
 
@@ -314,7 +324,7 @@ class PageController extends Controller
         $version = Cms::version();
         $cacheKey = "cms.page.html.service.{$pageKey}.{$version}";
 
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             $cached = Cache::get($cacheKey);
             if (is_string($cached)) {
                 return response($cached)->header('Content-Type', 'text/html; charset=UTF-8');
@@ -332,14 +342,13 @@ class PageController extends Controller
         // Header/footer live on the 'home' page.
         $c = Cms::page('home');
 
-        $view = view()->exists('landing.service-' . $pageKey) ? 'landing.service-' . $pageKey : 'landing.service';
+        $view = view()->exists('landing.service-'.$pageKey) ? 'landing.service-'.$pageKey : 'landing.service';
         $html = view($view, compact('c', 's', 'design', 'slug', 'pageKey'))->render();
 
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             Cache::put($cacheKey, $html, now()->addMonth());
         }
 
         return response($html)->header('Content-Type', 'text/html; charset=UTF-8');
     }
 }
-

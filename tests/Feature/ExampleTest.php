@@ -5,4 +5,3 @@ it('returns a successful response', function () {
 
     $response->assertStatus(200);
 });
-

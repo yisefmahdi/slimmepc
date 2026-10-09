@@ -14,8 +14,7 @@ class DeviceReceiptMail extends Mailable
 
     public function __construct(
         public DeviceReceipt $receipt
-    ) {
-    }
+    ) {}
 
     public function envelope(): Envelope
     {

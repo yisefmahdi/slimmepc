@@ -7,7 +7,6 @@ use App\Mail\CustomEmail;
 use App\Models\MailingList;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Validation\Rule;
 
 class MailingListController extends Controller
 {

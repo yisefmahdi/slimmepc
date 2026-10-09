@@ -9,7 +9,7 @@ class ProductPromptBuilder
      */
     public static function buildSystemPrompt(): string
     {
-        return <<<PROMPT
+        return <<<'PROMPT'
 Je bent een ervaren e-commerce copywriter en SEO-specialist voor "Slimme-PC" (een toonaangevende computer- en elektronicawinkel in Nederland).
 Je taak is om een aantrekkelijke, professionele en conversiegerichte productbeschrijving te schrijven in vlekkeloos Nederlands.
 
@@ -28,10 +28,8 @@ PROMPT;
     /**
      * Build the user prompt combining product data and retrieved web search snippets.
      *
-     * @param array<string, mixed> $productData
-     * @param array<int, array{title: string, snippet: string, url: string}> $searchSnippets
-     * @param string|null $additionalInstructions
-     * @return string
+     * @param  array<string, mixed>  $productData
+     * @param  array<int, array{title: string, snippet: string, url: string}>  $searchSnippets
      */
     public static function buildUserPrompt(
         array $productData,
@@ -43,7 +41,7 @@ PROMPT;
         $sku = $productData['sku'] ?? '';
         $category = $productData['category_name'] ?? ($productData['category'] ?? '');
         $price = isset($productData['price']) && is_numeric($productData['price'])
-            ? '€' . number_format((float) $productData['price'], 2)
+            ? '€'.number_format((float) $productData['price'], 2)
             : '';
 
         $features = $productData['features'] ?? [];
@@ -66,16 +64,16 @@ PROMPT;
             $prompt .= "- Prijs: {$price}\n";
         }
 
-        if (!empty($features) && is_array($features)) {
+        if (! empty($features) && is_array($features)) {
             $prompt .= "- Ingevoerde specificaties/eigenschappen:\n";
             foreach ($features as $f) {
                 if (trim($f) !== '') {
-                    $prompt .= "  * " . trim($f) . "\n";
+                    $prompt .= '  * '.trim($f)."\n";
                 }
             }
         }
 
-        if (!empty($searchSnippets)) {
+        if (! empty($searchSnippets)) {
             $prompt .= "\n- Gevonden informatie en technische specificaties van het internet:\n";
             foreach (array_slice($searchSnippets, 0, 5) as $s) {
                 $snippet = trim($s['snippet'] ?? '');
@@ -85,7 +83,7 @@ PROMPT;
             }
         }
 
-        if (!empty($additionalInstructions)) {
+        if (! empty($additionalInstructions)) {
             $prompt .= "\n- Extra instructies van de beheerder:\n{$additionalInstructions}\n";
         }
 

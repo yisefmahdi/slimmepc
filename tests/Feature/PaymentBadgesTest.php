@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\User;
 use App\Services\CartService;
 use App\Support\Cms;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 
 function cartWithBadgeProduct(): Cart
@@ -59,7 +60,7 @@ it('saves a json-row logo upload for payment badges', function () {
     $u->role = 'admin';
     $u->save();
 
-    $logo = \Illuminate\Http\UploadedFile::fake()->image('ideal-logo.png', 200, 80);
+    $logo = UploadedFile::fake()->image('ideal-logo.png', 200, 80);
 
     $res = $this->actingAs($u)->post('/admin/content/productinfo/section/info', [
         'blocks' => [
@@ -78,7 +79,7 @@ it('saves a json-row logo upload for payment badges', function () {
     // Cleanup the uploaded test file
     @unlink(public_path($saved[0]['image']));
 
-    $stored = \App\Models\ContentBlock::where('page', 'productinfo')
+    $stored = ContentBlock::where('page', 'productinfo')
         ->where('section', 'info')->where('block_key', 'payment_badges')->first();
     expect($stored)->not->toBeNull();
 });

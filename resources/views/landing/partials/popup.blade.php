@@ -74,7 +74,7 @@
             <p class="mt-2.5 text-sm leading-relaxed" style="color: var(--c-body)">{{ $popupItem['message'] }}</p>
             @endif
             @if ($popupImageUrl !== '')
-            <img src="{{ $popupImageUrl }}" alt="" loading="lazy" decoding="async" class="mt-3 max-h-60 w-full rounded-xl bg-slate-100 object-contain dark:bg-slate-800">
+            <img src="{{ $popupImageUrl }}" alt="{{ $popupItem['title'] ?? 'Melding' }}" loading="lazy" decoding="async" class="mt-3 max-h-60 w-full rounded-xl bg-slate-100 object-contain dark:bg-slate-800">
             @endif
             @if (trim((string) ($popupItem['button_text'] ?? '')) !== '')
             <a href="{{ $popupItem['button_url'] ?: '#' }}"

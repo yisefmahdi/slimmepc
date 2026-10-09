@@ -24,7 +24,7 @@ class LicenseShortageMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Licentiecode tekort — bestelling ' . $this->order->order_number . ' - Slimme-PC',
+            subject: 'Licentiecode tekort — bestelling '.$this->order->order_number.' - Slimme-PC',
         );
     }
 

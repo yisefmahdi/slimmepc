@@ -17,8 +17,7 @@ class BroadcastMail extends Mailable implements ShouldQueue
         public string $username,
         public string $type,
         public string $content,
-    ) {
-    }
+    ) {}
 
     public function envelope(): Envelope
     {

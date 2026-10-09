@@ -117,7 +117,7 @@
                     <div class="relative lg:min-h-[430px]">
                         <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] h-[280px] rounded-full border border-blue-100 flex items-center justify-center max-lg:static max-lg:mx-auto max-lg:mb-6 max-lg:h-[240px] max-lg:w-[240px] max-lg:transform-none">
                             <div class="absolute inset-[28px] rounded-full border border-dashed border-[#9acaff]"></div>
-                            <img src="{{ asset($s['process']['center_image'] ?? 'assets/img/landing/363f8f55-fba7-4f23-88db-8c8e728d522e.png') }}" class="relative z-10 w-[340px] max-lg:w-[220px] object-contain" alt="">
+                            <img src="{{ asset($s['process']['center_image'] ?? 'assets/img/landing/363f8f55-fba7-4f23-88db-8c8e728d522e.png') }}" class="relative z-10 w-[340px] max-lg:w-[220px] object-contain" alt="Moederbord diagnose" loading="lazy" decoding="async">
                         </div>
 
                         @php
@@ -250,7 +250,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <img src="{{ asset('assets/img/landing/' . basename($card['image'] ?? 'assets/img/landing/what-computer-chips-made-of.jpg')) }}" class="w-full h-[125px] object-cover" alt="">
+                            <img src="{{ asset('assets/img/landing/' . basename($card['image'] ?? 'assets/img/landing/what-computer-chips-made-of.jpg')) }}" class="w-full h-[125px] object-cover" alt="{{ $card['title'] ?? 'Moederbord reparatie' }}" loading="lazy" decoding="async">
                         </article>
                     @endforeach
                 </div>
@@ -262,7 +262,7 @@
             <div class="max-w-[1380px] mx-auto px-6 lg:px-14">
                 <div class="relative grid lg:grid-cols-2 overflow-hidden rounded-xl">
                     <div class="relative bg-[#111820] text-white p-7 lg:p-8 min-h-[220px]">
-                        <div class="absolute inset-0 opacity-20"><img src="{{ asset('assets/img/landing/what-computer-chips-made-of.jpg') }}" class="w-full h-full object-cover" alt=""></div>
+                        <div class="absolute inset-0 opacity-20"><img src="{{ asset('assets/img/landing/what-computer-chips-made-of.jpg') }}" class="w-full h-full object-cover" alt="" aria-hidden="true" loading="lazy" decoding="async"></div>
                         <div class="relative z-10">
                             <h3 class="font-black text-[23px]">{{ $s['compare']['left_title'] ?? 'Het hele moederbord vervangen?' }}</h3>
                             <div class="space-y-3 mt-6 text-[13px]">
@@ -316,7 +316,7 @@
                                     <p class="text-green-600 font-bold text-[11px] mt-3">Gerepareerd ✓</p>
                                 </div>
                                 <div class="relative">
-                                    <img src="{{ asset('assets/img/landing/' . basename($cs['image'] ?? '')) }}" class="w-full h-full object-cover min-h-[170px]" alt="">
+                                    <img src="{{ asset('assets/img/landing/' . basename($cs['image'] ?? '')) }}" class="w-full h-full object-cover min-h-[170px]" alt="{{ $cs['title'] ?? 'Gerepareerd apparaat' }}" loading="lazy" decoding="async">
                                     <a href="/reparatie-aanmelden" class="absolute bottom-2 right-2 bg-white px-3 py-2 text-[10px] font-semibold rounded-md">Bekijk details →</a>
                                 </div>
                             </div>
@@ -352,7 +352,7 @@
 
                     <div id="aanmelden" class="relative overflow-hidden rounded-xl bg-gradient-to-r from-[#062c72] via-[#064aa8] to-[#031d45] min-h-[270px]">
                         <div class="absolute right-0 inset-y-0 w-[45%] max-lg:hidden">
-                            <img src="{{ asset($s['cta']['image'] ?? 'assets/img/landing/kO1LIJHDa11tczsJsamOPZfBGTjhLrQnH18u2AZ4.webp') }}" class="w-full h-full object-cover" alt="">
+                            <img src="{{ asset($s['cta']['image'] ?? 'assets/img/landing/kO1LIJHDa11tczsJsamOPZfBGTjhLrQnH18u2AZ4.webp') }}" class="w-full h-full object-cover" alt="Moederbord reparatie aanvragen" loading="lazy" decoding="async">
                             <div class="absolute inset-0 bg-gradient-to-r from-[#064aa8] via-[#064aa8]/55 to-transparent"></div>
                         </div>
                         <div class="relative z-10 p-8 lg:p-10 max-w-[63%] max-lg:max-w-full text-white">

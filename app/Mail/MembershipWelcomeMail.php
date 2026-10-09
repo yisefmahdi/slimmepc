@@ -16,13 +16,12 @@ class MembershipWelcomeMail extends Mailable
 
     public function __construct(
         public Membership $membership
-    ) {
-    }
+    ) {}
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Welkom als lid bij Slimme-PC (' . $this->membership->klantnummer . ')',
+            subject: 'Welkom als lid bij Slimme-PC ('.$this->membership->klantnummer.')',
         );
     }
 
@@ -44,7 +43,7 @@ class MembershipWelcomeMail extends Mailable
         if ($invoice && $invoice->pdf_path && Storage::disk('local')->exists($invoice->pdf_path)) {
             return [
                 Attachment::fromPath(Storage::disk('local')->path($invoice->pdf_path))
-                    ->as($invoice->invoice_number . '.pdf')
+                    ->as($invoice->invoice_number.'.pdf')
                     ->withMime('application/pdf'),
             ];
         }

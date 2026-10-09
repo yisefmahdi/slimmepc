@@ -20,4 +20,3 @@ class ContentBlock extends Model
         'json_value' => 'array',
     ];
 }
-

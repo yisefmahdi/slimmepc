@@ -1,24 +1,32 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\Admin\MailingListController;
-use App\Http\Controllers\Admin\MassEmailController;
-use App\Http\Controllers\Admin\PurchaseSalesRecordController;
+use App\Http\Controllers\Admin\AfspraakInboxController;
+use App\Http\Controllers\Admin\Chat\AvailabilityController;
+use App\Http\Controllers\Admin\Chat\FaqController;
+use App\Http\Controllers\Admin\Chat\InboxController;
 use App\Http\Controllers\Admin\ContactInboxController;
 use App\Http\Controllers\Admin\ContentController;
-use App\Http\Controllers\Admin\KlantController;
-use App\Http\Controllers\Admin\RepairInboxController;
-use App\Http\Controllers\Admin\AfspraakInboxController;
 use App\Http\Controllers\Admin\DeviceReceiptController;
+use App\Http\Controllers\Admin\KlantController;
 use App\Http\Controllers\Admin\LaptopLoanController;
+use App\Http\Controllers\Admin\MailingListController;
 use App\Http\Controllers\Admin\ManualInvoiceController;
+use App\Http\Controllers\Admin\MassEmailController;
 use App\Http\Controllers\Admin\MembershipController;
-use App\Http\Controllers\Admin\TechnicianController;
+use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\PurchaseSalesRecordController;
+use App\Http\Controllers\Admin\PushController;
+use App\Http\Controllers\Admin\RepairInboxController;
+use App\Http\Controllers\Admin\ShippingRateController;
 use App\Http\Controllers\Admin\Shop\AiProductController;
 use App\Http\Controllers\Admin\Shop\CategoryController as ShopCategoryController;
+use App\Http\Controllers\Admin\Shop\CouponController;
 use App\Http\Controllers\Admin\Shop\FilesController as ShopFilesController;
 use App\Http\Controllers\Admin\Shop\LicenseCodeController as ShopLicenseCodeController;
 use App\Http\Controllers\Admin\Shop\ProductController as ShopProductController;
+use App\Http\Controllers\Admin\Shop\ReviewController;
+use App\Http\Controllers\Admin\TechnicianController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')
@@ -253,33 +261,33 @@ Route::prefix('admin')
             ->middleware('admin')
             ->group(function () {
                 Route::prefix('inbox')->name('inbox.')->group(function () {
-                    Route::get('/', [App\Http\Controllers\Admin\Chat\InboxController::class, 'index'])->name('index');
-                    Route::get('/data', [App\Http\Controllers\Admin\Chat\InboxController::class, 'data'])->name('data');
-                    Route::get('/new-count', [App\Http\Controllers\Admin\Chat\InboxController::class, 'newCount'])->name('new-count');
-                    Route::post('/sync', [App\Http\Controllers\Admin\Chat\InboxController::class, 'sync'])->name('sync');
-                    Route::get('/photo/{chatMessage}', [App\Http\Controllers\Admin\Chat\InboxController::class, 'photo'])->name('photo');
-                    Route::get('/{conversation}', [App\Http\Controllers\Admin\Chat\InboxController::class, 'show'])->name('show');
-                    Route::post('/{conversation}/reply', [App\Http\Controllers\Admin\Chat\InboxController::class, 'reply'])->name('reply');
-                    Route::post('/{conversation}/status', [App\Http\Controllers\Admin\Chat\InboxController::class, 'status'])->name('status');
-                    Route::post('/{conversation}/toggle-ai', [App\Http\Controllers\Admin\Chat\InboxController::class, 'toggleAi'])->name('toggle-ai');
-                    Route::delete('/{conversation}', [App\Http\Controllers\Admin\Chat\InboxController::class, 'destroy'])->name('destroy');
+                    Route::get('/', [InboxController::class, 'index'])->name('index');
+                    Route::get('/data', [InboxController::class, 'data'])->name('data');
+                    Route::get('/new-count', [InboxController::class, 'newCount'])->name('new-count');
+                    Route::post('/sync', [InboxController::class, 'sync'])->name('sync');
+                    Route::get('/photo/{chatMessage}', [InboxController::class, 'photo'])->name('photo');
+                    Route::get('/{conversation}', [InboxController::class, 'show'])->name('show');
+                    Route::post('/{conversation}/reply', [InboxController::class, 'reply'])->name('reply');
+                    Route::post('/{conversation}/status', [InboxController::class, 'status'])->name('status');
+                    Route::post('/{conversation}/toggle-ai', [InboxController::class, 'toggleAi'])->name('toggle-ai');
+                    Route::delete('/{conversation}', [InboxController::class, 'destroy'])->name('destroy');
                 });
 
                 Route::prefix('faqs')->name('faqs.')->group(function () {
-                    Route::get('/', [App\Http\Controllers\Admin\Chat\FaqController::class, 'index'])->name('index');
-                    Route::get('/data', [App\Http\Controllers\Admin\Chat\FaqController::class, 'data'])->name('data');
-                    Route::post('/', [App\Http\Controllers\Admin\Chat\FaqController::class, 'store'])->name('store');
-                    Route::get('/{faq}', [App\Http\Controllers\Admin\Chat\FaqController::class, 'show'])->name('show');
-                    Route::put('/{faq}', [App\Http\Controllers\Admin\Chat\FaqController::class, 'update'])->name('update');
-                    Route::delete('/{faq}', [App\Http\Controllers\Admin\Chat\FaqController::class, 'destroy'])->name('destroy');
-                    Route::post('/{faq}/toggle', [App\Http\Controllers\Admin\Chat\FaqController::class, 'toggle'])->name('toggle');
+                    Route::get('/', [FaqController::class, 'index'])->name('index');
+                    Route::get('/data', [FaqController::class, 'data'])->name('data');
+                    Route::post('/', [FaqController::class, 'store'])->name('store');
+                    Route::get('/{faq}', [FaqController::class, 'show'])->name('show');
+                    Route::put('/{faq}', [FaqController::class, 'update'])->name('update');
+                    Route::delete('/{faq}', [FaqController::class, 'destroy'])->name('destroy');
+                    Route::post('/{faq}/toggle', [FaqController::class, 'toggle'])->name('toggle');
                 });
 
                 Route::prefix('beschikbaarheid')->name('availability.')->group(function () {
-                    Route::get('/', [App\Http\Controllers\Admin\Chat\AvailabilityController::class, 'index'])->name('index');
-                    Route::put('/{availability}', [App\Http\Controllers\Admin\Chat\AvailabilityController::class, 'updateDay'])->name('update-day');
-                    Route::post('/vrije-dagen', [App\Http\Controllers\Admin\Chat\AvailabilityController::class, 'storeDate'])->name('store-date');
-                    Route::delete('/vrije-dagen/{closedDate}', [App\Http\Controllers\Admin\Chat\AvailabilityController::class, 'destroyDate'])->name('destroy-date');
+                    Route::get('/', [AvailabilityController::class, 'index'])->name('index');
+                    Route::put('/{availability}', [AvailabilityController::class, 'updateDay'])->name('update-day');
+                    Route::post('/vrije-dagen', [AvailabilityController::class, 'storeDate'])->name('store-date');
+                    Route::delete('/vrije-dagen/{closedDate}', [AvailabilityController::class, 'destroyDate'])->name('destroy-date');
                 });
             });
 
@@ -328,51 +336,51 @@ Route::prefix('admin')
                 });
 
                 Route::prefix('reviews')->name('reviews.')->group(function () {
-                    Route::get('/data', [App\Http\Controllers\Admin\Shop\ReviewController::class, 'data'])->name('data');
-                    Route::post('/{review}/approve', [App\Http\Controllers\Admin\Shop\ReviewController::class, 'approve'])->name('approve');
-                    Route::post('/{review}/reject', [App\Http\Controllers\Admin\Shop\ReviewController::class, 'reject'])->name('reject');
-                    Route::delete('/{review}', [App\Http\Controllers\Admin\Shop\ReviewController::class, 'destroy'])->name('destroy');
-                    Route::get('/product/{product}', [App\Http\Controllers\Admin\Shop\ReviewController::class, 'productReviews'])->name('product');
+                    Route::get('/data', [ReviewController::class, 'data'])->name('data');
+                    Route::post('/{review}/approve', [ReviewController::class, 'approve'])->name('approve');
+                    Route::post('/{review}/reject', [ReviewController::class, 'reject'])->name('reject');
+                    Route::delete('/{review}', [ReviewController::class, 'destroy'])->name('destroy');
+                    Route::get('/product/{product}', [ReviewController::class, 'productReviews'])->name('product');
                 });
 
                 Route::prefix('coupons')->name('coupons.')->group(function () {
-                    Route::get('/', [App\Http\Controllers\Admin\Shop\CouponController::class, 'index'])->name('index');
-                    Route::get('/data', [App\Http\Controllers\Admin\Shop\CouponController::class, 'data'])->name('data');
-                    Route::post('/', [App\Http\Controllers\Admin\Shop\CouponController::class, 'store'])->name('store');
-                    Route::get('/{coupon}', [App\Http\Controllers\Admin\Shop\CouponController::class, 'show'])->name('show');
-                    Route::put('/{coupon}', [App\Http\Controllers\Admin\Shop\CouponController::class, 'update'])->name('update');
-                    Route::delete('/{coupon}', [App\Http\Controllers\Admin\Shop\CouponController::class, 'destroy'])->name('destroy');
-                    Route::post('/{coupon}/toggle', [App\Http\Controllers\Admin\Shop\CouponController::class, 'toggleStatus'])->name('toggle');
+                    Route::get('/', [CouponController::class, 'index'])->name('index');
+                    Route::get('/data', [CouponController::class, 'data'])->name('data');
+                    Route::post('/', [CouponController::class, 'store'])->name('store');
+                    Route::get('/{coupon}', [CouponController::class, 'show'])->name('show');
+                    Route::put('/{coupon}', [CouponController::class, 'update'])->name('update');
+                    Route::delete('/{coupon}', [CouponController::class, 'destroy'])->name('destroy');
+                    Route::post('/{coupon}/toggle', [CouponController::class, 'toggleStatus'])->name('toggle');
                 });
             });
 
         // 🧾 Orders (webshop bestellingen) — admin only
         Route::prefix('orders')->name('orders.')->middleware('admin')->group(function () {
-            Route::get('/', [App\Http\Controllers\Admin\OrderController::class, 'index'])->name('index');
-            Route::get('/data', [App\Http\Controllers\Admin\OrderController::class, 'data'])->name('data');
-            Route::get('/new-count', [App\Http\Controllers\Admin\OrderController::class, 'newCount'])->name('new-count');
-            Route::get('/{order}', [App\Http\Controllers\Admin\OrderController::class, 'show'])->name('show');
-            Route::post('/{order}/status', [App\Http\Controllers\Admin\OrderController::class, 'status'])->name('status');
-            Route::get('/{order}/invoice', [App\Http\Controllers\Admin\OrderController::class, 'invoiceRegenerate'])->name('invoice');
-            Route::delete('/{order}', [App\Http\Controllers\Admin\OrderController::class, 'destroy'])->name('destroy');
+            Route::get('/', [OrderController::class, 'index'])->name('index');
+            Route::get('/data', [OrderController::class, 'data'])->name('data');
+            Route::get('/new-count', [OrderController::class, 'newCount'])->name('new-count');
+            Route::get('/{order}', [OrderController::class, 'show'])->name('show');
+            Route::post('/{order}/status', [OrderController::class, 'status'])->name('status');
+            Route::get('/{order}/invoice', [OrderController::class, 'invoiceRegenerate'])->name('invoice');
+            Route::delete('/{order}', [OrderController::class, 'destroy'])->name('destroy');
         });
 
         // 🚚 Shipping rates (verzendopties) — admin only
         Route::prefix('shipping')->name('shipping.')->middleware('admin')->group(function () {
-            Route::get('/', [App\Http\Controllers\Admin\ShippingRateController::class, 'index'])->name('index');
-            Route::get('/data', [App\Http\Controllers\Admin\ShippingRateController::class, 'data'])->name('data');
-            Route::post('/', [App\Http\Controllers\Admin\ShippingRateController::class, 'store'])->name('store');
-            Route::put('/{shipping}', [App\Http\Controllers\Admin\ShippingRateController::class, 'update'])->name('update');
-            Route::delete('/{shipping}', [App\Http\Controllers\Admin\ShippingRateController::class, 'destroy'])->name('destroy');
-            Route::post('/{shipping}/toggle', [App\Http\Controllers\Admin\ShippingRateController::class, 'toggle'])->name('toggle');
+            Route::get('/', [ShippingRateController::class, 'index'])->name('index');
+            Route::get('/data', [ShippingRateController::class, 'data'])->name('data');
+            Route::post('/', [ShippingRateController::class, 'store'])->name('store');
+            Route::put('/{shipping}', [ShippingRateController::class, 'update'])->name('update');
+            Route::delete('/{shipping}', [ShippingRateController::class, 'destroy'])->name('destroy');
+            Route::post('/{shipping}/toggle', [ShippingRateController::class, 'toggle'])->name('toggle');
         });
 
         // 🔔 Push notifications (Firebase, per admin device) — admin only
         Route::prefix('notificaties')->name('notificaties.')->middleware('admin')->group(function () {
-            Route::get('/', [App\Http\Controllers\Admin\PushController::class, 'index'])->name('index');
-            Route::post('/tokens', [App\Http\Controllers\Admin\PushController::class, 'store'])->name('tokens.store');
-            Route::delete('/tokens/{fcmToken}', [App\Http\Controllers\Admin\PushController::class, 'destroy'])->name('tokens.destroy');
-            Route::post('/test', [App\Http\Controllers\Admin\PushController::class, 'test'])->name('test');
+            Route::get('/', [PushController::class, 'index'])->name('index');
+            Route::post('/tokens', [PushController::class, 'store'])->name('tokens.store');
+            Route::delete('/tokens/{fcmToken}', [PushController::class, 'destroy'])->name('tokens.destroy');
+            Route::post('/test', [PushController::class, 'test'])->name('test');
         });
 
         // 📢 Mass e-mail naar alle gebruikers (zoals oude systeem A) — admin only
@@ -401,4 +409,3 @@ Route::prefix('admin')
         });
         Route::get('/rekenmachine', [PurchaseSalesRecordController::class, 'reken'])->name('reken-machine.index')->middleware('admin');
     });
-

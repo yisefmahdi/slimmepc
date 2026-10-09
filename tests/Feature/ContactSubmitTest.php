@@ -2,12 +2,15 @@
 
 use App\Mail\AdminContactNotification;
 use App\Mail\ContactReceived;
+use App\Mail\ContactReplyMail;
+use App\Models\ContactReply;
 use App\Models\ContactSubmission;
 use App\Models\User;
 use App\Services\InboundContactFetcher;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Webklex\PHPIMAP\Message;
 
 // Tests never touch the real IMAP mailbox (the admin middleware + sync
 // endpoint call the fetcher on every admin request).
@@ -102,7 +105,7 @@ it('marks a submission as replied and sends the reply e-mail after an admin repl
 
     expect($submission->fresh()->status)->toBe('replied');
 
-    Mail::assertSent(\App\Mail\ContactReplyMail::class);
+    Mail::assertSent(ContactReplyMail::class);
 });
 
 it('stores an attachment sent by the admin from the dashboard', function () {
@@ -138,7 +141,7 @@ it('attaches the dashboard file to the admin reply e-mail', function () {
 
     Storage::disk('local')->put('contact/'.$submission->id.'/outbound/test.pdf', '%PDF');
 
-    $mail = new \App\Mail\ContactReplyMail($submission, 'Hallo', 'Admin', 'outbound/test.pdf');
+    $mail = new ContactReplyMail($submission, 'Hallo', 'Admin', 'outbound/test.pdf');
 
     $attachments = $mail->attachments();
     expect($attachments)->toHaveCount(1);
@@ -185,7 +188,7 @@ it('streams an attachment attached to an inbound reply and exposes it in the thr
     Storage::fake('local');
 
     $submission = ContactSubmission::create(validContactPayload(['name' => 'Met bijlage']));
-    $reply = \App\Models\ContactReply::create([
+    $reply = ContactReply::create([
         'contact_submission_id' => $submission->id,
         'sender' => 'customer',
         'body' => 'Zie bijlage',
@@ -220,7 +223,7 @@ it('stores inbound reply attachments (PDF + inline image) and strips [image:] pl
         ."To: slimmepc+reply-999@example.com\r\n"
         ."Subject: Re: help\r\n"
         ."Message-ID: <pdf-test-1@voorbeeld.nl>\r\n"
-        ."Date: ".now()->format('r')."\r\n"
+        .'Date: '.now()->format('r')."\r\n"
         ."MIME-Version: 1.0\r\n"
         ."Content-Type: multipart/mixed; boundary=\"BOUNDARY123\"\r\n"
         ."\r\n"
@@ -243,9 +246,9 @@ it('stores inbound reply attachments (PDF + inline image) and strips [image:] pl
         ."Content-Transfer-Encoding: base64\r\n"
         ."\r\n"
         .$pdf."\r\n"
-        ."--BOUNDARY123--";
+        .'--BOUNDARY123--';
 
-    $message = \Webklex\PHPIMAP\Message::fromString($mime);
+    $message = Message::fromString($mime);
 
     expect($message->getAttachments()->count())->toBe(2);
 
@@ -276,7 +279,7 @@ it('keeps only the PDF attachment when an e-mail has no inline image', function 
         ."To: slimmepc+reply-998@example.com\r\n"
         ."Subject: Re: offerte\r\n"
         ."Message-ID: <pdf-test-2@voorbeeld.nl>\r\n"
-        ."Date: ".now()->format('r')."\r\n"
+        .'Date: '.now()->format('r')."\r\n"
         ."MIME-Version: 1.0\r\n"
         ."Content-Type: multipart/mixed; boundary=\"B2\"\r\n"
         ."\r\n"
@@ -290,9 +293,9 @@ it('keeps only the PDF attachment when an e-mail has no inline image', function 
         ."Content-Transfer-Encoding: base64\r\n"
         ."\r\n"
         .$pdf."\r\n"
-        ."--B2--";
+        .'--B2--';
 
-    $message = \Webklex\PHPIMAP\Message::fromString($mime);
+    $message = Message::fromString($mime);
 
     expect($message->getAttachments()->count())->toBe(1);
 
@@ -319,7 +322,7 @@ it('correctly decodes Arabic MIME-encoded attachment filenames', function () {
         ."To: slimmepc+reply-996@example.com\r\n"
         ."Subject: Re: arabic-test\r\n"
         ."Message-ID: <arabic-test@voorbeeld.nl>\r\n"
-        ."Date: ".now()->format('r')."\r\n"
+        .'Date: '.now()->format('r')."\r\n"
         ."MIME-Version: 1.0\r\n"
         ."Content-Type: multipart/mixed; boundary=\"ARABIC\"\r\n"
         ."\r\n"
@@ -333,9 +336,9 @@ it('correctly decodes Arabic MIME-encoded attachment filenames', function () {
         ."Content-Transfer-Encoding: base64\r\n"
         ."\r\n"
         .$png."\r\n"
-        ."--ARABIC--";
+        .'--ARABIC--';
 
-    $message = \Webklex\PHPIMAP\Message::fromString($mime);
+    $message = Message::fromString($mime);
 
     $fetcher = app(InboundContactFetcher::class);
     $method = new ReflectionMethod($fetcher, 'appendReply');
@@ -363,7 +366,7 @@ it('prefers the PDF over a re-sent screenshot even when the image is also Conten
         ."To: slimmepc+reply-997@example.com\r\n"
         ."Subject: Re: diagnose\r\n"
         ."Message-ID: <dup-test@voorbeeld.nl>\r\n"
-        ."Date: ".now()->format('r')."\r\n"
+        .'Date: '.now()->format('r')."\r\n"
         ."MIME-Version: 1.0\r\n"
         ."Content-Type: multipart/mixed; boundary=\"DUP\"\r\n"
         ."\r\n"
@@ -383,9 +386,9 @@ it('prefers the PDF over a re-sent screenshot even when the image is also Conten
         ."Content-Transfer-Encoding: base64\r\n"
         ."\r\n"
         .$pdf."\r\n"
-        ."--DUP--";
+        .'--DUP--';
 
-    $message = \Webklex\PHPIMAP\Message::fromString($mime);
+    $message = Message::fromString($mime);
 
     expect($message->getAttachments()->count())->toBe(2);
 
@@ -418,7 +421,7 @@ it('sorts the list by latest activity and exposes the last message + unread coun
 
     // The "older" thread gets an inbound reply (last activity), so it must rank first —
     // even though the "brand new" submission was created more recently.
-    $reply = \App\Models\ContactReply::create([
+    $reply = ContactReply::create([
         'contact_submission_id' => $older->id,
         'sender' => 'customer',
         'body' => 'Late reactie op de oudste aanvraag',
@@ -445,7 +448,7 @@ it('sorts the list by latest activity and exposes the last message + unread coun
 });
 
 it('strips quoted reply text and signatures from inbound e-mail bodies', function () {
-    $fetcher = new InboundContactFetcher();
+    $fetcher = new InboundContactFetcher;
 
     $english = "sdsdfsdsd\n\nOn Sun, Aug 16, 2026 at 11:01 PM slimmepc <yyyooo2004@gmail.com> wrote:\n> slimmepc <http://localhost:8000>\n> Hallo Yousef Ziad Mahdi,\n> ;dt;\n> Met vriendelijke groet,";
 
@@ -457,7 +460,7 @@ it('strips quoted reply text and signatures from inbound e-mail bodies', functio
 });
 
 it('keeps Arabic UTF-8 text intact while cleaning quoted bodies', function () {
-    $fetcher = new InboundContactFetcher();
+    $fetcher = new InboundContactFetcher;
 
     $arabic = "كيفك\n\nفي الاثنين، 17 أغسطس 2026 في 3:53 م تمت كتابة ما يلي بواسطة slimmepc <yyyooo2004@gmail.com>:\n> مرحبا";
 

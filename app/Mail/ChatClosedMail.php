@@ -14,8 +14,7 @@ class ChatClosedMail extends Mailable
 
     public function __construct(
         public ChatConversation $conversation
-    ) {
-    }
+    ) {}
 
     public function envelope(): Envelope
     {

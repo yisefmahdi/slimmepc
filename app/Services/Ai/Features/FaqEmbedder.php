@@ -45,6 +45,7 @@ class FaqEmbedder
             $stale = $faq->embedding_model !== $model || ! is_array($faq->embedding) || ! $faq->embedding;
             if (! $fresh && ! $stale) {
                 $stats['skipped']++;
+
                 continue;
             }
             if ($this->embedFaq($faq)) {

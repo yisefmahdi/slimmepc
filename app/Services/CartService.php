@@ -5,7 +5,9 @@ namespace App\Services;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Coupon;
+use App\Models\CouponUsage;
 use App\Models\Product;
+use App\Models\ShippingRate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Str;
@@ -13,7 +15,9 @@ use Illuminate\Support\Str;
 class CartService
 {
     public const COOKIE_NAME = 'cart_token';
+
     public const SHIPPING_COST = 6.95;
+
     public const FREE_SHIPPING_THRESHOLD = 75;
 
     public function resolveCart(Request $request): Cart
@@ -30,12 +34,13 @@ class CartService
                     $guestCart->delete();
                 }
             }
+
             return $cart->load(['items.product', 'coupon']);
         }
 
         // Guest -> cart by token
         $token = $request->cookie(self::COOKIE_NAME);
-        if (!$token) {
+        if (! $token) {
             $token = (string) Str::uuid();
             // Cookie will be queued by caller
             Cookie::queue(Cookie::forever(self::COOKIE_NAME, $token));
@@ -44,6 +49,7 @@ class CartService
         }
 
         $cart = Cart::firstOrCreate(['cart_token' => $token], ['cart_token' => $token]);
+
         return $cart->load(['items.product', 'coupon']);
     }
 
@@ -67,7 +73,7 @@ class CartService
             }
         }
         // If target has no coupon but source has one, copy it
-        if (!$to->coupon_id && $from->coupon_id) {
+        if (! $to->coupon_id && $from->coupon_id) {
             $to->update(['coupon_id' => $from->coupon_id]);
         }
     }
@@ -82,6 +88,7 @@ class CartService
             $item->increment('quantity', $quantity);
             // Update price_snapshot to current discounted price
             $item->update(['price_snapshot' => $price]);
+
             return $item->fresh();
         }
 
@@ -111,7 +118,7 @@ class CartService
                 // Coupon not applicable due to min_amount, detach?
                 $discount = 0;
             }
-        } elseif ($coupon && !$coupon->isActive()) {
+        } elseif ($coupon && ! $coupon->isActive()) {
             // Auto-detach expired coupon
             $cart->update(['coupon_id' => null]);
             $coupon = null;
@@ -172,10 +179,10 @@ class CartService
         }
 
         try {
-            $rate = \App\Models\ShippingRate::where('slug', $method)
+            $rate = ShippingRate::where('slug', $method)
                 ->where('is_active', true)
                 ->first()
-                ?? \App\Models\ShippingRate::where('slug', 'delivery')->where('is_active', true)->first();
+                ?? ShippingRate::where('slug', 'delivery')->where('is_active', true)->first();
         } catch (\Throwable $e) {
             $rate = null;
         }
@@ -188,6 +195,7 @@ class CartService
         if ($method === 'pickup') {
             return 0.0;
         }
+
         return $afterDiscount < self::FREE_SHIPPING_THRESHOLD ? self::SHIPPING_COST : 0.0;
     }
 
@@ -196,13 +204,21 @@ class CartService
         try {
             if ($request->user()) {
                 $cart = Cart::where('user_id', $request->user()->id)->first();
-                if (!$cart) return 0;
+                if (! $cart) {
+                    return 0;
+                }
+
                 return (int) $cart->items()->sum('quantity');
             }
             $token = $request->cookie(self::COOKIE_NAME);
-            if (!$token) return 0;
+            if (! $token) {
+                return 0;
+            }
             $cart = Cart::where('cart_token', $token)->whereNull('user_id')->first();
-            if (!$cart) return 0;
+            if (! $cart) {
+                return 0;
+            }
+
             return (int) $cart->items()->sum('quantity');
         } catch (\Throwable $e) {
             return 0;
@@ -212,10 +228,10 @@ class CartService
     public function validateCoupon(string $code, Cart $cart): array
     {
         $coupon = Coupon::where('code', Str::upper(trim($code)))->first();
-        if (!$coupon) {
+        if (! $coupon) {
             return ['valid' => false, 'message' => 'Ongeldige kortingscode.'];
         }
-        if (!$coupon->status) {
+        if (! $coupon->status) {
             return ['valid' => false, 'message' => 'Deze kortingscode is niet actief.'];
         }
         if ($coupon->start_date && now()->lt($coupon->start_date)) {
@@ -233,7 +249,7 @@ class CartService
 
         $totals = $this->totals($cart);
         if ($coupon->min_amount !== null && $totals['subtotal'] < (float) $coupon->min_amount) {
-            return ['valid' => false, 'message' => 'Minimaal bestelbedrag voor deze code is €' . number_format($coupon->min_amount, 2, ',', '.') . '.'];
+            return ['valid' => false, 'message' => 'Minimaal bestelbedrag voor deze code is €'.number_format($coupon->min_amount, 2, ',', '.').'.'];
         }
 
         // Check single use per user/guest
@@ -241,11 +257,15 @@ class CartService
             $userId = $cart->user_id;
             $token = $cart->cart_token;
             if ($userId) {
-                $exists = \App\Models\CouponUsage::where('coupon_id', $coupon->id)->where('user_id', $userId)->exists();
-                if ($exists) return ['valid' => false, 'message' => 'Je hebt deze code al gebruikt.'];
+                $exists = CouponUsage::where('coupon_id', $coupon->id)->where('user_id', $userId)->exists();
+                if ($exists) {
+                    return ['valid' => false, 'message' => 'Je hebt deze code al gebruikt.'];
+                }
             } elseif ($token) {
-                $exists = \App\Models\CouponUsage::where('coupon_id', $coupon->id)->where('guest_token', $token)->exists();
-                if ($exists) return ['valid' => false, 'message' => 'Je hebt deze code al gebruikt.'];
+                $exists = CouponUsage::where('coupon_id', $coupon->id)->where('guest_token', $token)->exists();
+                if ($exists) {
+                    return ['valid' => false, 'message' => 'Je hebt deze code al gebruikt.'];
+                }
             }
         }
 

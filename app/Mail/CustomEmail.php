@@ -17,8 +17,7 @@ class CustomEmail extends Mailable implements ShouldQueue
         public string $subjectText,
         public string $bodyText,
         public ?string $type = null,
-    ) {
-    }
+    ) {}
 
     public function envelope(): Envelope
     {

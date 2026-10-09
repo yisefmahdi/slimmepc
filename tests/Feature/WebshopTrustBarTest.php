@@ -1,9 +1,13 @@
 <?php
 
+use App\Models\Cart;
 use App\Models\Category;
 use App\Models\ContentBlock;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\CartService;
+use App\Support\Cms;
+use Illuminate\Support\Str;
 
 function makeTrustCategory(): Category
 {
@@ -20,7 +24,7 @@ it('shows the CMS trust bar on the webshop category page', function () {
         'stock_status' => 'in_stock', 'status' => true,
     ]);
 
-    $this->get('/webshop/' . $cat->slug)
+    $this->get('/webshop/'.$cat->slug)
         ->assertOk()
         ->assertSee('Gratis verzending', false)
         ->assertSee('Afhalen in Apeldoorn', false)
@@ -40,9 +44,9 @@ it('renders CMS-edited trust items on the webshop page', function () {
             ['icon' => 'rocket', 'title' => 'Supersnelle levering', 'subtitle' => 'Voor 23:59 besteld'],
         ]]
     );
-    \App\Support\Cms::bust();
+    Cms::bust();
 
-    $this->get('/webshop/' . $cat->slug)
+    $this->get('/webshop/'.$cat->slug)
         ->assertOk()
         ->assertSee('Supersnelle levering', false)
         ->assertDontSee('Gratis verzending', false);
@@ -61,7 +65,7 @@ it('shows identical CMS trust texts on cart with and without products', function
             ['icon' => 'rocket', 'title' => 'Unieke leverbelofte', 'subtitle' => 'Alleen in CMS'],
         ]]
     );
-    \App\Support\Cms::bust();
+    Cms::bust();
 
     // Empty cart — no nested page container around the strip
     $this->get('/cart')
@@ -70,10 +74,10 @@ it('shows identical CMS trust texts on cart with and without products', function
         ->assertDontSee('max-w-[1450px]', false);
 
     // Non-empty cart
-    $cart = \App\Models\Cart::create(['cart_token' => (string) \Illuminate\Support\Str::uuid()]);
-    app(\App\Services\CartService::class)->addItem($cart, $product, 1);
+    $cart = Cart::create(['cart_token' => (string) Str::uuid()]);
+    app(CartService::class)->addItem($cart, $product, 1);
 
-    $this->withCookie(\App\Services\CartService::COOKIE_NAME, $cart->cart_token)
+    $this->withCookie(CartService::COOKIE_NAME, $cart->cart_token)
         ->get('/cart')
         ->assertOk()
         ->assertSee('Unieke leverbelofte', false)

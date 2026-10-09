@@ -1,4 +1,5 @@
 <?php
+
 /**
  * sync-license-codes.php — Legacy → New DB sync (digital products: license codes)
  *
@@ -36,20 +37,20 @@ $opt = getopt('', [
 ]);
 
 $sqlFile = $opt['file'] ?? null;
-if (!$sqlFile || !is_file($sqlFile)) {
+if (! $sqlFile || ! is_file($sqlFile)) {
     fwrite(STDERR, "ERROR: --file=<dump.sql> is required and must exist.\n");
     exit(2);
 }
-$host   = $opt['host'] ?? '127.0.0.1';
-$port   = (int) ($opt['port'] ?? 3306);
+$host = $opt['host'] ?? '127.0.0.1';
+$port = (int) ($opt['port'] ?? 3306);
 $dbName = $opt['db'] ?? 'slimmepc_2026';
 $dbUser = $opt['user'] ?? 'root';
 $dbPass = $opt['pass'] ?? '';
 $dryRun = isset($opt['dry-run']);
-$yes    = isset($opt['yes']);
-if (!empty($opt['config'])) {
+$yes = isset($opt['yes']);
+if (! empty($opt['config'])) {
     $cfg = json_decode((string) @file_get_contents((string) $opt['config']), true);
-    if (!is_array($cfg)) {
+    if (! is_array($cfg)) {
         fwrite(STDERR, "ERROR: cannot read --config file.\n");
         exit(2);
     }
@@ -62,22 +63,22 @@ if (!empty($opt['config'])) {
 
 $ALL_TABLES = ['license_codes', 'product_links'];
 $wanted = $ALL_TABLES;
-if (!empty($opt['tables'])) {
+if (! empty($opt['tables'])) {
     $wanted = array_values(array_intersect(
         array_map('trim', explode(',', strtolower($opt['tables']))),
         $ALL_TABLES
     ));
-    if (!$wanted) {
-        fwrite(STDERR, 'ERROR: --tables must be a subset of: ' . implode(',', $ALL_TABLES) . "\n");
+    if (! $wanted) {
+        fwrite(STDERR, 'ERROR: --tables must be a subset of: '.implode(',', $ALL_TABLES)."\n");
         exit(2);
     }
 }
 
 $log = [];
-$log[] = '=== sync-license-codes ' . date('Y-m-d H:i:s') . ' | dry-run=' . ($dryRun ? 'yes' : 'no') . ' ===';
+$log[] = '=== sync-license-codes '.date('Y-m-d H:i:s').' | dry-run='.($dryRun ? 'yes' : 'no').' ===';
 $warn = static function (string $m) use (&$log): void {
-    $log[] = 'WARN: ' . $m;
-    echo 'WARN: ' . $m . PHP_EOL;
+    $log[] = 'WARN: '.$m;
+    echo 'WARN: '.$m.PHP_EOL;
 };
 
 // ------------------------------------------------------- SQL dump parsing
@@ -113,17 +114,20 @@ function splitTuples(string $values): array
                     if ($i + 1 < $len) {
                         $buf .= $values[$i + 1];
                         $i += 2;
+
                         continue;
                     }
                 } elseif ($c === "'") {
                     if ($i + 1 < $len && $values[$i + 1] === "'") {
                         $buf .= "'";
                         $i += 2;
+
                         continue;
                     }
                     $inStr = false;
                 }
                 $i++;
+
                 continue;
             }
             if ($c === "'") {
@@ -154,6 +158,7 @@ function splitTuples(string $values): array
             $i++;
         }
     }
+
     return $out;
 }
 
@@ -168,7 +173,7 @@ function parseTuple(string $tuple): array
     $flush = static function () use (&$vals, &$cur, &$isStr): void {
         $v = trim($cur);
         if ($isStr) {
-            $v = str_replace(["\\'", '\\\\', "\\\r", "\\\n", "\\\t", "\\0", "''"], ["'", '\\', "\r", "\n", "\t", "\0", "'"], $v);
+            $v = str_replace(["\\'", '\\\\', "\\\r", "\\\n", "\\\t", '\\0', "''"], ["'", '\\', "\r", "\n", "\t", "\0", "'"], $v);
             $vals[] = $v;
         } elseif (strcasecmp($v, 'NULL') === 0 || $v === '') {
             $vals[] = null;
@@ -184,22 +189,26 @@ function parseTuple(string $tuple): array
         $c = $i < $len ? $tuple[$i] : ',';
         if ($inStr) {
             if ($c === '\\' && $i + 1 < $len) {
-                $cur .= $c . $tuple[$i + 1];
+                $cur .= $c.$tuple[$i + 1];
                 $i += 2;
+
                 continue;
             }
             if ($c === "'") {
                 if ($i + 1 < $len && $tuple[$i + 1] === "'") {
                     $cur .= "''";
                     $i += 2;
+
                     continue;
                 }
                 $inStr = false;
                 $i++;
+
                 continue;
             }
             $cur .= $c;
             $i++;
+
             continue;
         }
         if ($c === "'") {
@@ -214,15 +223,17 @@ function parseTuple(string $tuple): array
             $i++;
         }
     }
+
     return $vals;
 }
 
 function extractTable(string $raw, string $table, callable $warn): array
 {
     $rows = [];
-    $pattern = '/INSERT INTO `' . preg_quote($table, '/') . '` \(([^)]+)\) VALUES\s*/i';
-    if (!preg_match_all($pattern, $raw, $m, PREG_OFFSET_CAPTURE)) {
+    $pattern = '/INSERT INTO `'.preg_quote($table, '/').'` \(([^)]+)\) VALUES\s*/i';
+    if (! preg_match_all($pattern, $raw, $m, PREG_OFFSET_CAPTURE)) {
         $warn("no INSERT block found for `$table` in dump");
+
         return [];
     }
     foreach ($m[0] as $k => $full) {
@@ -243,6 +254,7 @@ function extractTable(string $raw, string $table, callable $warn): array
                         $inStr = false;
                     }
                 }
+
                 continue;
             }
             if ($ch === "'") {
@@ -258,18 +270,21 @@ function extractTable(string $raw, string $table, callable $warn): array
         }
         if ($semi === null) {
             $warn("unterminated INSERT for `$table`");
+
             continue;
         }
         $values = substr($raw, $start, $semi - $start);
         foreach (splitTuples($values) as $t) {
             $v = parseTuple($t);
             if (count($v) !== count($cols)) {
-                $warn("`$table`: column/value count mismatch (" . count($cols) . ' vs ' . count($v) . '), row skipped');
+                $warn("`$table`: column/value count mismatch (".count($cols).' vs '.count($v).'), row skipped');
+
                 continue;
             }
             $rows[] = array_combine($cols, $v);
         }
     }
+
     return $rows;
 }
 
@@ -282,8 +297,8 @@ $NEED = [
 $data = [];
 foreach ($NEED as $dumpTable => $label) {
     $data[$label] = extractTable($raw, $dumpTable, $warn);
-    echo str_pad($label, 18) . count($data[$label]) . " rows parsed\n";
-    $log[] = "$label parsed: " . count($data[$label]);
+    echo str_pad($label, 18).count($data[$label])." rows parsed\n";
+    $log[] = "$label parsed: ".count($data[$label]);
 }
 
 $oldOrderNumber = [];
@@ -342,12 +357,14 @@ if (in_array('license_codes', $wanted, true)) {
     foreach ($data['license_codes'] as $lc) {
         $code = trim((string) ($lc['code'] ?? ''));
         if ($code === '') {
-            $warn('license_codes id ' . ($lc['id'] ?? '?') . ': empty code, skipped');
+            $warn('license_codes id '.($lc['id'] ?? '?').': empty code, skipped');
             $stats['skipped_product']++;
+
             continue;
         }
         if (isset($existingCodes[$code])) {
             $stats['skipped_dup']++;
+
             continue;
         }
         $existingCodes[$code] = true;
@@ -364,9 +381,10 @@ if (in_array('license_codes', $wanted, true)) {
                 $newPid = ($t !== '' && isset($newByTitle[$t])) ? $newByTitle[$t] : null;
             }
         }
-        if (!$newPid) {
-            $warn("code `$code`: old product id $oldPid ('" . ($oldP['title'] ?? '?') . "') has no match in new products, skipped");
+        if (! $newPid) {
+            $warn("code `$code`: old product id $oldPid ('".($oldP['title'] ?? '?')."') has no match in new products, skipped");
             $stats['skipped_product']++;
+
             continue;
         }
         $flagDigital[$newPid] = true;
@@ -418,7 +436,7 @@ if (in_array('product_links', $wanted, true)) {
             $t = mb_strtolower(trim((string) ($oldP['title'] ?? '')));
             $newPid = ($t !== '' && isset($newByTitle[$t])) ? $newByTitle[$t] : null;
         }
-        if (!$newPid) {
+        if (! $newPid) {
             continue;
         }
         $cur = $newProductRow[$newPid];
@@ -436,35 +454,35 @@ if (in_array('product_links', $wanted, true)) {
     }
 }
 
-echo "\nPrepared: " . count($preparedCodes) . " license_codes, " . count($linkBackfills) . " product link backfills, " . count($flagDigital) . " products to flag digital\n";
-$log[] = 'prepared codes: ' . count($preparedCodes) . ', link backfills: ' . count($linkBackfills);
-$log[] = 'stats: ' . json_encode($stats);
+echo "\nPrepared: ".count($preparedCodes).' license_codes, '.count($linkBackfills).' product link backfills, '.count($flagDigital)." products to flag digital\n";
+$log[] = 'prepared codes: '.count($preparedCodes).', link backfills: '.count($linkBackfills);
+$log[] = 'stats: '.json_encode($stats);
 
 if ($dryRun) {
     echo "DRY-RUN: nothing written.\n";
     foreach (array_slice($preparedCodes, 0, 10) as $c) {
-        echo '  + ' . $c['code'] . ' → product ' . $c['product_id'] . ' [' . $c['status'] . ']' . ($c['order_id'] ? ' order ' . $c['order_id'] : '') . "\n";
+        echo '  + '.$c['code'].' → product '.$c['product_id'].' ['.$c['status'].']'.($c['order_id'] ? ' order '.$c['order_id'] : '')."\n";
     }
-    file_put_contents(__DIR__ . '/sync-license-codes-report.log', implode("\n", $log) . "\n");
+    file_put_contents(__DIR__.'/sync-license-codes-report.log', implode("\n", $log)."\n");
     exit(0);
 }
 
 // ------------------------------------------------------------- confirm
-if (!$yes) {
+if (! $yes) {
     fwrite(STDERR, "Refusing to CLEAR without --yes. Re-run with --yes.\n");
     exit(2);
 }
 
 echo "\nThis will CLEAR [license_codes] in `$dbName` and refill from dump"
-    . (empty($linkBackfills) ? '' : ' (+ backfill product download links, + flag digital products)') . ".\n";
+    .(empty($linkBackfills) ? '' : ' (+ backfill product download links, + flag digital products)').".\n";
 
 // ------------------------------------------------------------------ backup
-$backupDir = __DIR__ . '/backups';
-if (!is_dir($backupDir)) {
+$backupDir = __DIR__.'/backups';
+if (! is_dir($backupDir)) {
     mkdir($backupDir, 0777, true);
 }
 $stamp = date('Ymd-His');
-$backupFile = $backupDir . "/license-codes-$stamp.sql";
+$backupFile = $backupDir."/license-codes-$stamp.sql";
 $dumpBins = ['mysqldump'];
 $laragonDump = 'C:\\laragon\\bin\\mysql\\mysql-5.7.39-winx64\\bin\\mysqldump.exe';
 if (is_file($laragonDump)) {
@@ -473,11 +491,11 @@ if (is_file($laragonDump)) {
 $backedUp = false;
 foreach ($dumpBins as $bin) {
     $cmd = escapeshellarg($bin)
-        . ' -h ' . escapeshellarg($host) . ' -P ' . (int) $port
-        . ' -u ' . escapeshellarg($dbUser)
-        . ($dbPass !== '' ? ' -p' . escapeshellarg($dbPass) : '')
-        . ' ' . escapeshellarg($dbName) . ' license_codes'
-        . ' > ' . escapeshellarg($backupFile) . ' 2>&1';
+        .' -h '.escapeshellarg($host).' -P '.(int) $port
+        .' -u '.escapeshellarg($dbUser)
+        .($dbPass !== '' ? ' -p'.escapeshellarg($dbPass) : '')
+        .' '.escapeshellarg($dbName).' license_codes'
+        .' > '.escapeshellarg($backupFile).' 2>&1';
     $code = null;
     @exec($cmd, $o, $code);
     if ($code === 0 && is_file($backupFile) && filesize($backupFile) > 0) {
@@ -485,11 +503,11 @@ foreach ($dumpBins as $bin) {
         break;
     }
 }
-if (!$backedUp) {
+if (! $backedUp) {
     fwrite(STDERR, "ERROR: backup failed, aborting (no data touched).\n");
     exit(2);
 }
-echo "Backup: $backupFile (" . filesize($backupFile) . " bytes)\n";
+echo "Backup: $backupFile (".filesize($backupFile)." bytes)\n";
 $log[] = "backup: $backupFile";
 
 // ------------------------------------------------------------------ import
@@ -515,7 +533,7 @@ try {
             ':updated_at' => $c['updated_at'],
         ]);
     }
-    echo 'INSERTED ' . count($preparedCodes) . " license_codes\n";
+    echo 'INSERTED '.count($preparedCodes)." license_codes\n";
 
     foreach ($linkBackfills as $pid => $fill) {
         $sets = [];
@@ -524,16 +542,16 @@ try {
             $sets[] = "`$col` = :$col";
             $params[":$col"] = $url;
         }
-        $pdo->prepare('UPDATE products SET ' . implode(', ', $sets) . ' WHERE id = :id')->execute($params);
+        $pdo->prepare('UPDATE products SET '.implode(', ', $sets).' WHERE id = :id')->execute($params);
     }
     if ($linkBackfills) {
-        echo 'BACKFILLED links for ' . count($linkBackfills) . " products\n";
+        echo 'BACKFILLED links for '.count($linkBackfills)." products\n";
     }
 
     if ($flagDigital) {
         $ids = implode(',', array_map('intval', array_keys($flagDigital)));
         $pdo->exec("UPDATE products SET is_digital = 1 WHERE id IN ($ids)");
-        echo 'FLAGGED digital: ' . count($flagDigital) . " products\n";
+        echo 'FLAGGED digital: '.count($flagDigital)." products\n";
     }
 
     $pdo->exec('SET FOREIGN_KEY_CHECKS=1');
@@ -542,10 +560,10 @@ try {
     if ($pdo->inTransaction()) {
         $pdo->rollBack();
     }
-    fwrite(STDERR, 'IMPORT FAILED: ' . $e->getMessage() . "\nRestore backup: " . $backupFile . "\n");
+    fwrite(STDERR, 'IMPORT FAILED: '.$e->getMessage()."\nRestore backup: ".$backupFile."\n");
     exit(1);
 }
 
-$log[] = 'done: inserted ' . count($preparedCodes);
-file_put_contents(__DIR__ . '/sync-license-codes-report.log', implode("\n", $log) . "\n");
+$log[] = 'done: inserted '.count($preparedCodes);
+file_put_contents(__DIR__.'/sync-license-codes-report.log', implode("\n", $log)."\n");
 echo "Done. Report: scripts/sync-license-codes-report.log\n";

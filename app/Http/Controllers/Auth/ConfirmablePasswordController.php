@@ -38,4 +38,3 @@ class ConfirmablePasswordController extends Controller
         return redirect()->intended(route('home', absolute: false));
     }
 }
-

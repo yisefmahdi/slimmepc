@@ -16,7 +16,7 @@ class ChatAnswerGenerator
 {
     public function __construct(protected ?ChatAgent $agent = null)
     {
-        $this->agent ??= new ChatAgent();
+        $this->agent ??= new ChatAgent;
     }
 
     /**

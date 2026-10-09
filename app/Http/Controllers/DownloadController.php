@@ -85,7 +85,7 @@ class DownloadController extends Controller
             return false;
         }
 
-        $needle = '/download/bestand/' . $file->id;
+        $needle = '/download/bestand/'.$file->id;
 
         $order->loadMissing(['items.product']);
 

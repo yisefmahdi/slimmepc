@@ -218,8 +218,8 @@ class KlantController extends Controller
 
         return response()->json([
             'message' => 'Rol succesvol gewijzigd naar '
-                . ucfirst($klant->role)
-                . '.',
+                .ucfirst($klant->role)
+                .'.',
             'role' => $klant->role,
         ]);
     }
@@ -241,4 +241,3 @@ class KlantController extends Controller
         return $candidate;
     }
 }
-

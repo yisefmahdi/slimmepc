@@ -92,7 +92,7 @@ it('validates checkout input in Dutch', function () {
         ->withCredentials()
         ->postJson('/checkout', [])
         ->assertStatus(422)
-        ->assertJsonValidationErrors(['email', 'first_name', 'shipping_method']);
+        ->assertJsonValidationErrors(['email', 'first_name', 'shipping_method', 'terms']);
 });
 
 it('creates a pending order without Mollie key configured', function () {
@@ -112,6 +112,7 @@ it('creates a pending order without Mollie key configured', function () {
             'country' => 'Nederland',
             'phone' => '0612345678',
             'shipping_method' => 'delivery',
+            'terms' => true,
         ]);
 
     $response->assertStatus(201);
@@ -140,6 +141,7 @@ it('creates a pickup order without address fields', function () {
             'last_name' => 'Jansen',
             'phone' => '0612345678',
             'shipping_method' => 'pickup',
+            'terms' => true,
         ])
         ->assertStatus(201);
 

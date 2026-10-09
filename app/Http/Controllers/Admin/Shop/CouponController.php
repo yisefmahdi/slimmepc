@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Shop;
 
 use App\Http\Controllers\Controller;
 use App\Models\Coupon;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -22,7 +23,7 @@ class CouponController extends Controller
             $s = $request->search;
             $query->where(function ($q) use ($s) {
                 $q->where('code', 'like', "%{$s}%")
-                  ->orWhere('name', 'like', "%{$s}%");
+                    ->orWhere('name', 'like', "%{$s}%");
             });
         }
 
@@ -51,6 +52,10 @@ class CouponController extends Controller
 
     public function store(Request $request)
     {
+        if ($request->has('code')) {
+            $request->merge(['code' => Str::upper(trim((string) $request->input('code')))]);
+        }
+
         $data = $request->validate([
             'code' => 'required|string|max:50|unique:coupons,code',
             'name' => 'nullable|string|max:255',
@@ -72,11 +77,11 @@ class CouponController extends Controller
         }
 
         // datetime-local comes as local Amsterdam time (no timezone) — convert to UTC for storage
-        if (!empty($data['start_date'])) {
-            $data['start_date'] = \Carbon\Carbon::parse($data['start_date'], 'Europe/Amsterdam')->utc();
+        if (! empty($data['start_date'])) {
+            $data['start_date'] = Carbon::parse($data['start_date'], 'Europe/Amsterdam')->utc();
         }
-        if (!empty($data['end_date'])) {
-            $data['end_date'] = \Carbon\Carbon::parse($data['end_date'], 'Europe/Amsterdam')->utc();
+        if (! empty($data['end_date'])) {
+            $data['end_date'] = Carbon::parse($data['end_date'], 'Europe/Amsterdam')->utc();
         }
 
         $coupon = Coupon::create($data);
@@ -91,8 +96,12 @@ class CouponController extends Controller
 
     public function update(Request $request, Coupon $coupon)
     {
+        if ($request->has('code')) {
+            $request->merge(['code' => Str::upper(trim((string) $request->input('code')))]);
+        }
+
         $data = $request->validate([
-            'code' => 'required|string|max:50|unique:coupons,code,' . $coupon->id,
+            'code' => 'required|string|max:50|unique:coupons,code,'.$coupon->id,
             'name' => 'nullable|string|max:255',
             'discount_type' => 'required|in:percentage,fixed',
             'discount_value' => 'required|numeric|min:0.01|max:999999',
@@ -111,11 +120,11 @@ class CouponController extends Controller
             return response()->json(['message' => 'Percentage kan niet hoger zijn dan 100.', 'errors' => ['discount_value' => ['Percentage kan niet hoger zijn dan 100.']]], 422);
         }
 
-        if (!empty($data['start_date'])) {
-            $data['start_date'] = \Carbon\Carbon::parse($data['start_date'], 'Europe/Amsterdam')->utc();
+        if (! empty($data['start_date'])) {
+            $data['start_date'] = Carbon::parse($data['start_date'], 'Europe/Amsterdam')->utc();
         }
-        if (!empty($data['end_date'])) {
-            $data['end_date'] = \Carbon\Carbon::parse($data['end_date'], 'Europe/Amsterdam')->utc();
+        if (! empty($data['end_date'])) {
+            $data['end_date'] = Carbon::parse($data['end_date'], 'Europe/Amsterdam')->utc();
         }
 
         $coupon->update($data);
@@ -126,6 +135,7 @@ class CouponController extends Controller
     public function destroy(Coupon $coupon)
     {
         $coupon->delete();
+
         return response()->json(['message' => 'Kortingscode verwijderd.']);
     }
 
@@ -133,6 +143,7 @@ class CouponController extends Controller
     {
         $request->validate(['status' => 'required|boolean']);
         $coupon->update(['status' => (bool) $request->status]);
+
         return response()->json(['message' => 'Status bijgewerkt.', 'status' => $coupon->status]);
     }
 }

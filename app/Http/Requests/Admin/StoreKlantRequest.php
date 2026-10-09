@@ -49,4 +49,3 @@ class StoreKlantRequest extends FormRequest
         ];
     }
 }
-

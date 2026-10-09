@@ -17,8 +17,9 @@ class LegalContentSeeder extends Seeder
     {
         $file = database_path('seeders/data/legal-old.json');
 
-        if (!is_file($file)) {
+        if (! is_file($file)) {
             $this->command->warn('legal-old.json niet gevonden — juridische pagina\'s overgeslagen.');
+
             return;
         }
 
@@ -47,9 +48,15 @@ class LegalContentSeeder extends Seeder
             foreach ($cfg['rows'] as $row) {
                 $title = trim((string) ($row['title'] ?? ''));
                 $body = trim((string) ($row['content'] ?? ''));
-                if ($title === '' && $body === '') continue;
-                if ($title !== '') $parts[] = '## ' . $title;
-                if ($body !== '') $parts[] = $body;
+                if ($title === '' && $body === '') {
+                    continue;
+                }
+                if ($title !== '') {
+                    $parts[] = '## '.$title;
+                }
+                if ($body !== '') {
+                    $parts[] = $body;
+                }
             }
 
             $blocks = [
@@ -58,7 +65,7 @@ class LegalContentSeeder extends Seeder
                 'title_line2' => $cfg['title_line2'],
                 'description' => $cfg['description'],
                 'content' => implode("\n\n", $parts),
-                'updated_label' => 'Laatst bijgewerkt: ' . now()->format('d-m-Y'),
+                'updated_label' => 'Laatst bijgewerkt: '.now()->format('d-m-Y'),
             ];
 
             $order = 0;

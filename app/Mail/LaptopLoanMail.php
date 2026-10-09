@@ -16,13 +16,12 @@ class LaptopLoanMail extends Mailable
 
     public function __construct(
         public LaptopLoan $loan
-    ) {
-    }
+    ) {}
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Bevestiging lenen laptop ' . $this->loan->loanNumber() . ' - Slimme-PC',
+            subject: 'Bevestiging lenen laptop '.$this->loan->loanNumber().' - Slimme-PC',
         );
     }
 
@@ -39,7 +38,7 @@ class LaptopLoanMail extends Mailable
         if ($this->loan->pdf_path && Storage::disk('local')->exists($this->loan->pdf_path)) {
             return [
                 Attachment::fromPath(Storage::disk('local')->path($this->loan->pdf_path))
-                    ->as($this->loan->loanNumber() . '.pdf')
+                    ->as($this->loan->loanNumber().'.pdf')
                     ->withMime('application/pdf'),
             ];
         }

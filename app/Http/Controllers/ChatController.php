@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\AdminChatNotification;
+use App\Mail\ChatClosedMail;
 use App\Mail\ChatOfflineReceived;
 use App\Mail\ChatTicketMail;
 use App\Models\ChatConversation;
@@ -10,6 +11,7 @@ use App\Models\ChatMessage;
 use App\Services\AdminPushNotifier;
 use App\Services\Ai\Features\ChatAnswerGenerator;
 use App\Services\Chat\ChatAvailabilityService;
+use App\Services\Chat\ChatMailer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -217,7 +219,7 @@ class ChatController extends Controller
         $notify = config('contact-inbox.notify_email');
         dispatch(function () use ($conversation, $notify, $ticketText) {
             if ($notify) {
-                \App\Services\Chat\ChatMailer::send($notify, new AdminChatNotification($conversation->fresh(), 'handover'), 'handover-admin');
+                ChatMailer::send($notify, new AdminChatNotification($conversation->fresh(), 'handover'), 'handover-admin');
 
                 // Same moment as the admin e-mail: push to all admin devices.
                 AdminPushNotifier::notify(
@@ -228,7 +230,7 @@ class ChatController extends Controller
                     route('admin.chat.inbox.index', absolute: true)
                 );
             }
-            \App\Services\Chat\ChatMailer::send($conversation->email, new ChatTicketMail($conversation->fresh(), $ticketText), 'handover-customer');
+            ChatMailer::send($conversation->email, new ChatTicketMail($conversation->fresh(), $ticketText), 'handover-customer');
         })->afterResponse();
 
         return response()->json([
@@ -286,9 +288,9 @@ class ChatController extends Controller
         $conversation->touchActivity();
 
         dispatch(function () use ($conversation) {
-            \App\Services\Chat\ChatMailer::send($conversation->email, new ChatOfflineReceived($conversation->fresh()), 'offline-customer');
+            ChatMailer::send($conversation->email, new ChatOfflineReceived($conversation->fresh()), 'offline-customer');
             if ($notify = config('contact-inbox.notify_email')) {
-                \App\Services\Chat\ChatMailer::send($notify, new AdminChatNotification($conversation->fresh(), 'handover'), 'offline-admin');
+                ChatMailer::send($notify, new AdminChatNotification($conversation->fresh(), 'handover'), 'offline-admin');
 
                 // Same moment as the admin e-mail: push to all admin devices.
                 AdminPushNotifier::notify(
@@ -325,7 +327,7 @@ class ChatController extends Controller
 
         if (! $wasClosed) {
             dispatch(function () use ($conversation) {
-                \App\Services\Chat\ChatMailer::send($conversation->email, new \App\Mail\ChatClosedMail($conversation->fresh()), 'close-customer');
+                ChatMailer::send($conversation->email, new ChatClosedMail($conversation->fresh()), 'close-customer');
             })->afterResponse();
         }
 

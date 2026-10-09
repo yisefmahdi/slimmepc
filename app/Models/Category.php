@@ -18,7 +18,7 @@ class Category extends Model
         parent::boot();
 
         static::creating(function (Category $category) {
-            if (empty($category->slug) && !empty($category->name)) {
+            if (empty($category->slug) && ! empty($category->name)) {
                 $category->slug = Str::slug($category->name);
             }
         });

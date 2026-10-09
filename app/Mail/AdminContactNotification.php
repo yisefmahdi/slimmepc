@@ -17,8 +17,7 @@ class AdminContactNotification extends Mailable
      */
     public function __construct(
         public ContactSubmission $submission
-    ) {
-    }
+    ) {}
 
     /**
      * Get the message envelope.

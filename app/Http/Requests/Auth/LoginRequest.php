@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Http\Middleware\CheckIfBlocked;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -59,7 +60,7 @@ class LoginRequest extends FormRequest
             $this->session()->regenerateToken();
 
             throw ValidationException::withMessages([
-                'email' => \App\Http\Middleware\CheckIfBlocked::MESSAGE,
+                'email' => CheckIfBlocked::MESSAGE,
             ]);
         }
 
@@ -97,4 +98,3 @@ class LoginRequest extends FormRequest
         return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
     }
 }
-

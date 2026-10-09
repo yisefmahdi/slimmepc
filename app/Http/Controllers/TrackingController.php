@@ -29,15 +29,16 @@ class TrackingController extends Controller
         $email = $request->email;
 
         $receipt = DeviceReceipt::where('customer_email', $email)
-            ->where(function($q) use ($tNumber) {
-                $q->where('id', 'like', "%$tNumber%") 
-                  ->orWhereRaw("CONCAT('DR-', LPAD(id, 5, '0')) = ?", [$tNumber]);
+            ->where(function ($q) use ($tNumber) {
+                $q->where('id', 'like', "%$tNumber%")
+                    ->orWhereRaw("CONCAT('DR-', LPAD(id, 5, '0')) = ?", [$tNumber]);
             })
             ->first();
 
-        if (!$receipt) {
+        if (! $receipt) {
             $c = Cms::page('home');
             $design = Cms::design();
+
             return back()->withInput()->with('c', $c)->with('design', $design)->withErrors(['msg' => 'Geen order gevonden met dit nummer en e-mailadres.']);
         }
 

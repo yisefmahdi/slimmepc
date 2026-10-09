@@ -11,14 +11,13 @@ class WebSearchService
 
     public function __construct(?SearchDriverInterface $driver = null)
     {
-        $this->driver = $driver ?? new DuckDuckGoDriver();
+        $this->driver = $driver ?? new DuckDuckGoDriver;
     }
 
     /**
      * Search the web for a product to find hardware specifications and reviews.
      *
-     * @param array<string, mixed> $productData
-     * @param int $limit
+     * @param  array<string, mixed>  $productData
      * @return array<int, array{title: string, snippet: string, url: string}>
      */
     public function searchProduct(array $productData, int $limit = 5): array
@@ -33,15 +32,14 @@ class WebSearchService
             return [];
         }
 
-        $query = implode(' ', $terms) . ' specificaties specs';
+        $query = implode(' ', $terms).' specificaties specs';
+
         return $this->driver->search($query, $limit);
     }
 
     /**
      * Generic web search.
      *
-     * @param string $query
-     * @param int $limit
      * @return array<int, array{title: string, snippet: string, url: string}>
      */
     public function search(string $query, int $limit = 5): array
