@@ -16,19 +16,24 @@ class User extends Authenticatable
     /**
      * The attributes that are mass assignable.
      *
+     * SECURITY: privileged fields (role, is_blocked, klantnummer) are
+     * deliberately NOT fillable. They may only be assigned explicitly in
+     * trusted code paths (admin controllers, seeders, console imports) —
+     * never via create($requestData)/update($requestData).
+     * email_verified_at stays fillable: the test factory's verified-default
+     * depends on it and no request path assigns it (verification writes use
+     * forceFill in markEmailAsVerified). See audit/02-auth.md [AUTH-01].
+     *
      * @var list<string>
      */
     protected $fillable = [
         'name',
         'phone',
-        'is_blocked',
         'house_number',
         'street',
         'postcode',
         'city',
-        'role',
         'email',
-        'klantnummer',
         'email_verified_at',
         'password',
     ];

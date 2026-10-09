@@ -70,7 +70,23 @@ class ImportUsersCommand extends Command
             }
 
             $exists = User::where('email', $email)->exists();
-            $user = User::updateOrCreate(['email' => $email], $data);
+            // Privileged fields (role/klantnummer/email_verified_at) are not
+            // mass assignable — set them explicitly ([AUTH-01]). CLI-only
+            // trusted import, JSON file supplied by the operator.
+            $user = User::firstOrNew(['email' => $email]);
+            $user->fill([
+                'name' => $data['name'],
+                'phone' => $data['phone'] ?? null,
+                'house_number' => $data['house_number'] ?? null,
+                'street' => $data['street'] ?? null,
+                'postcode' => $data['postcode'] ?? null,
+                'city' => $data['city'] ?? null,
+            ]);
+            $user->forceFill([
+                'role' => $data['role'],
+                'email_verified_at' => $data['email_verified_at'],
+                'klantnummer' => $data['klantnummer'] ?? $user->klantnummer,
+            ])->save();
             // Wachtwoord raw zetten (bypass 'hashed' cast)
             DB::table('users')->where('email', $email)->update(['password' => $passwordHash]);
 

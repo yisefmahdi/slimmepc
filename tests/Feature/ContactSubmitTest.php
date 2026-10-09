@@ -84,7 +84,9 @@ it('marks a submission as replied and sends the reply e-mail after an admin repl
     disableInboundImap();
 
     $submission = ContactSubmission::create(validContactPayload());
-    $admin = User::factory()->create(['role' => 'admin']);
+    $admin = User::factory()->create();
+    $admin->role = 'admin';
+    $admin->save();
 
     $this->actingAs($admin)
         ->postJson("/admin/contact-inbox/{$submission->id}/reply", [
@@ -109,7 +111,9 @@ it('stores an attachment sent by the admin from the dashboard', function () {
     disableInboundImap();
 
     $submission = ContactSubmission::create(validContactPayload());
-    $admin = User::factory()->create(['role' => 'admin']);
+    $admin = User::factory()->create();
+    $admin->role = 'admin';
+    $admin->save();
 
     $this->actingAs($admin)
         ->post("/admin/contact-inbox/{$submission->id}/reply", [
@@ -147,7 +151,9 @@ it('sync endpoint pulls inbound replies (no IMAP configured) and returns counts'
     Mail::fake();
     disableInboundImap();
 
-    $admin = User::factory()->create(['role' => 'admin']);
+    $admin = User::factory()->create();
+    $admin->role = 'admin';
+    $admin->save();
     ContactSubmission::create(validContactPayload());
 
     $this->actingAs($admin)
@@ -162,7 +168,9 @@ it('marks a thread as read when the admin opens it and clears the unread badge',
     disableInboundImap();
 
     $submission = ContactSubmission::create(validContactPayload());
-    $admin = User::factory()->create(['role' => 'admin']);
+    $admin = User::factory()->create();
+    $admin->role = 'admin';
+    $admin->save();
 
     expect($submission->fresh()->unreadCount())->toBe(1);
 
@@ -187,7 +195,9 @@ it('streams an attachment attached to an inbound reply and exposes it in the thr
 
     Storage::disk('local')->put('contact/'.$submission->id.'/inbound/schema.png', 'fake-image-bytes');
 
-    $admin = User::factory()->create(['role' => 'admin']);
+    $admin = User::factory()->create();
+    $admin->role = 'admin';
+    $admin->save();
 
     $this->actingAs($admin)
         ->get('/admin/contact-inbox/reply/'.$reply->id.'/attachment')
@@ -417,7 +427,9 @@ it('sorts the list by latest activity and exposes the last message + unread coun
     $reply->created_at = $now;
     $reply->save();
 
-    $admin = User::factory()->create(['role' => 'admin']);
+    $admin = User::factory()->create();
+    $admin->role = 'admin';
+    $admin->save();
 
     $this->actingAs($admin)
         ->getJson('/admin/contact-inbox/data')
@@ -458,7 +470,9 @@ it('keeps Arabic UTF-8 text intact while cleaning quoted bodies', function () {
 it('renders the inbox page as a two-pane chat shell', function () {
     disableInboundImap();
 
-    $admin = User::factory()->create(['role' => 'admin']);
+    $admin = User::factory()->create();
+    $admin->role = 'admin';
+    $admin->save();
 
     $this->actingAs($admin)
         ->get('/admin/contact-inbox')
@@ -475,7 +489,9 @@ it('runs the inbound fetcher at most once per minute on admin pages', function (
     $fetcher->shouldReceive('run')->once()->andReturn(['processed' => 0, 'matched' => 0, 'errors' => []]);
     $this->app->instance(InboundContactFetcher::class, $fetcher);
 
-    $admin = User::factory()->create(['role' => 'admin']);
+    $admin = User::factory()->create();
+    $admin->role = 'admin';
+    $admin->save();
 
     $this->actingAs($admin)->get('/admin/dashboard')->assertOk();
     $this->actingAs($admin)->get('/admin/dashboard')->assertOk();

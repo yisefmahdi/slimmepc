@@ -77,12 +77,22 @@ class KlantController extends Controller
         $data = $request->validated();
 
         $password = $data['password'] ?? Str::password(10);
-        $data['password'] = $password;
 
-        $data['role'] ??= 'user';
-        $data['klantnummer'] ??= $this->generateKlantnummer();
-
-        $klant = User::create($data);
+        // Privileged fields are assigned explicitly (User::$fillable excludes
+        // role/klantnummer — see audit/02-auth.md [AUTH-01]).
+        $klant = new User([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'phone' => $data['phone'] ?? null,
+            'street' => $data['street'] ?? null,
+            'house_number' => $data['house_number'] ?? null,
+            'postcode' => $data['postcode'] ?? null,
+            'city' => $data['city'] ?? null,
+            'password' => $password,
+        ]);
+        $klant->role = $data['role'] ?? 'user';
+        $klant->klantnummer = $data['klantnummer'] ?? $this->generateKlantnummer();
+        $klant->save();
 
         return response()->json([
             'message' => 'Klant succesvol toegevoegd.',
@@ -114,11 +124,23 @@ class KlantController extends Controller
     {
         $data = $request->validated();
 
-        if (empty($data['password'])) {
-            unset($data['password']);
+        // Safe profile fields via mass assignment; privileged fields
+        // (role/klantnummer) explicitly (User::$fillable — [AUTH-01]).
+        $klant->fill(collect($data)->except(['password', 'role', 'klantnummer'])->toArray());
+
+        if (! empty($data['password'])) {
+            $klant->password = $data['password'];
         }
 
-        $klant->update($data);
+        if (array_key_exists('role', $data)) {
+            $klant->role = $data['role'];
+        }
+
+        if (array_key_exists('klantnummer', $data) && $data['klantnummer'] !== null) {
+            $klant->klantnummer = $data['klantnummer'];
+        }
+
+        $klant->save();
 
         return response()->json([
             'message' => 'Klant succesvol bijgewerkt.',
@@ -165,7 +187,8 @@ class KlantController extends Controller
             ], 422);
         }
 
-        $klant->update(['is_blocked' => ! $klant->is_blocked]);
+        $klant->is_blocked = ! $klant->is_blocked;
+        $klant->save();
 
         return response()->json([
             'message' => $klant->is_blocked
@@ -190,7 +213,8 @@ class KlantController extends Controller
             ], 422);
         }
 
-        $klant->update(['role' => $request->string('role')->toString()]);
+        $klant->role = $request->string('role')->toString();
+        $klant->save();
 
         return response()->json([
             'message' => 'Rol succesvol gewijzigd naar '
