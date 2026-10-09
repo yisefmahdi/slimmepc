@@ -396,10 +396,10 @@ it('keeps the AI endpoint admin-only and caps feature input', function () {
     $this->postJson('/admin/webshop/products/generate-description', ['title' => 'X'])
         ->assertUnauthorized();
 
-    // Admin with 21 features: rejected (cap is 20).
+    // Admin with 101 features: rejected (cap is 100).
     $this->actingAs(auditPayAdmin())->postJson('/admin/webshop/products/generate-description', [
         'title' => 'Laptop',
-        'features' => array_fill(0, 21, 'snelle processor'),
+        'features' => array_fill(0, 101, 'snelle processor'),
     ])->assertStatus(422)->assertJsonValidationErrors(['features']);
 });
 

@@ -23,7 +23,7 @@ class AiProductController extends Controller
             // Cap the item count: each feature grows the prompt, and an
             // unbounded array turns this paid-per-token call into a cost
             // amplifier (plus a prompt-injection carrier).
-            'features' => 'nullable|array|max:20',
+            'features' => 'nullable|array|max:100',
             'features.*' => 'nullable|string|max:255',
             'additional_instructions' => 'nullable|string|max:500',
             'enable_search' => 'nullable|boolean',
