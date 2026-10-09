@@ -1,0 +1,268 @@
+﻿
+  GET|HEAD  / ............................................................................. home › PageController@home
+  GET|HEAD  admin .................................................. admin.dashboard › Admin\AdminController@dashboard
+  GET|HEAD  admin/afspraak-aanvragen ............ admin.afspraak-aanvragen.index › Admin\AfspraakInboxController@index
+  GET|HEAD  admin/afspraak-aanvragen/data ......... admin.afspraak-aanvragen.data › Admin\AfspraakInboxController@data
+  GET|HEAD  admin/afspraak-aanvragen/new-count admin.afspraak-aanvragen.new-count › Admin\AfspraakInboxController@new…
+  GET|HEAD  admin/afspraak-aanvragen/{afspraakSubmission} admin.afspraak-aanvragen.show › Admin\AfspraakInboxControll…
+  DELETE    admin/afspraak-aanvragen/{afspraakSubmission} admin.afspraak-aanvragen.destroy › Admin\AfspraakInboxContr…
+  POST      admin/afspraak-aanvragen/{afspraakSubmission}/status admin.afspraak-aanvragen.status › Admin\AfspraakInbo…
+  GET|HEAD  admin/bevestiging-mail/hardware admin.bevestiging-mail.hardware.index › Admin\ManualInvoiceController@ind…
+  POST      admin/bevestiging-mail/hardware admin.bevestiging-mail.hardware.store › Admin\ManualInvoiceController@sto…
+  GET|HEAD  admin/bevestiging-mail/hardware/create admin.bevestiging-mail.hardware.create › Admin\ManualInvoiceContro…
+  GET|HEAD  admin/bevestiging-mail/hardware/data admin.bevestiging-mail.hardware.data › Admin\ManualInvoiceController…
+  DELETE    admin/bevestiging-mail/hardware/{invoice} admin.bevestiging-mail.hardware.destroy › Admin\ManualInvoiceCo…
+  GET|HEAD  admin/bevestiging-mail/hardware/{invoice}/download admin.bevestiging-mail.hardware.download › Admin\Manua…
+  GET|HEAD  admin/bevestiging-mail/hardware/{invoice}/preview admin.bevestiging-mail.hardware.preview › Admin\ManualI…
+  GET|HEAD  admin/bevestiging-mail/ontvangst admin.bevestiging-mail.ontvangst.index › Admin\DeviceReceiptController@i…
+  POST      admin/bevestiging-mail/ontvangst admin.bevestiging-mail.ontvangst.store › Admin\DeviceReceiptController@s…
+  GET|HEAD  admin/bevestiging-mail/ontvangst/create admin.bevestiging-mail.ontvangst.create › Admin\DeviceReceiptCont…
+  GET|HEAD  admin/bevestiging-mail/ontvangst/data admin.bevestiging-mail.ontvangst.data › Admin\DeviceReceiptControll…
+  GET|HEAD  admin/bevestiging-mail/ontvangst/{receipt} admin.bevestiging-mail.ontvangst.show › Admin\DeviceReceiptCon…
+  DELETE    admin/bevestiging-mail/ontvangst/{receipt} admin.bevestiging-mail.ontvangst.destroy › Admin\DeviceReceipt…
+  GET|HEAD  admin/bevestiging-mail/ontvangst/{receipt}/photo/{photo} admin.bevestiging-mail.ontvangst.photo › Admin\D…
+  DELETE    admin/bevestiging-mail/ontvangst/{receipt}/photo/{photo} admin.bevestiging-mail.ontvangst.photo.destroy  …
+  POST      admin/bevestiging-mail/ontvangst/{receipt}/status admin.bevestiging-mail.ontvangst.status › Admin\DeviceR…
+  ANY       admin/boekhouden ............................. admin.boekhouden. › Illuminate\Routing › RedirectController
+  GET|HEAD  admin/chat/beschikbaarheid ....... admin.chat.availability.index › Admin\Chat\AvailabilityController@index
+  POST      admin/chat/beschikbaarheid/vrije-dagen admin.chat.availability.store-date › Admin\Chat\AvailabilityContro…
+  DELETE    admin/chat/beschikbaarheid/vrije-dagen/{closedDate} admin.chat.availability.destroy-date › Admin\Chat\Ava…
+  PUT       admin/chat/beschikbaarheid/{availability} admin.chat.availability.update-day › Admin\Chat\AvailabilityCon…
+  GET|HEAD  admin/chat/faqs ................................... admin.chat.faqs.index › Admin\Chat\FaqController@index
+  POST      admin/chat/faqs ................................... admin.chat.faqs.store › Admin\Chat\FaqController@store
+  GET|HEAD  admin/chat/faqs/data ................................ admin.chat.faqs.data › Admin\Chat\FaqController@data
+  GET|HEAD  admin/chat/faqs/{faq} ............................... admin.chat.faqs.show › Admin\Chat\FaqController@show
+  PUT       admin/chat/faqs/{faq} ........................... admin.chat.faqs.update › Admin\Chat\FaqController@update
+  DELETE    admin/chat/faqs/{faq} ......................... admin.chat.faqs.destroy › Admin\Chat\FaqController@destroy
+  POST      admin/chat/faqs/{faq}/toggle .................... admin.chat.faqs.toggle › Admin\Chat\FaqController@toggle
+  GET|HEAD  admin/chat/inbox ............................... admin.chat.inbox.index › Admin\Chat\InboxController@index
+  GET|HEAD  admin/chat/inbox/data ............................ admin.chat.inbox.data › Admin\Chat\InboxController@data
+  GET|HEAD  admin/chat/inbox/new-count .............. admin.chat.inbox.new-count › Admin\Chat\InboxController@newCount
+  GET|HEAD  admin/chat/inbox/photo/{chatMessage} ........... admin.chat.inbox.photo › Admin\Chat\InboxController@photo
+  POST      admin/chat/inbox/sync ............................ admin.chat.inbox.sync › Admin\Chat\InboxController@sync
+  GET|HEAD  admin/chat/inbox/{conversation} .................. admin.chat.inbox.show › Admin\Chat\InboxController@show
+  DELETE    admin/chat/inbox/{conversation} ............ admin.chat.inbox.destroy › Admin\Chat\InboxController@destroy
+  POST      admin/chat/inbox/{conversation}/reply .......... admin.chat.inbox.reply › Admin\Chat\InboxController@reply
+  POST      admin/chat/inbox/{conversation}/status ....... admin.chat.inbox.status › Admin\Chat\InboxController@status
+  POST      admin/chat/inbox/{conversation}/toggle-ai admin.chat.inbox.toggle-ai › Admin\Chat\InboxController@toggleAi
+  GET|HEAD  admin/contact-inbox ....................... admin.contact-inbox.index › Admin\ContactInboxController@index
+  GET|HEAD  admin/contact-inbox/data .................... admin.contact-inbox.data › Admin\ContactInboxController@data
+  GET|HEAD  admin/contact-inbox/new-count ...... admin.contact-inbox.new-count › Admin\ContactInboxController@newCount
+  GET|HEAD  admin/contact-inbox/reply/{contactReply}/attachment admin.contact-inbox.reply.attachment › Admin\ContactI…
+  POST      admin/contact-inbox/sync .................... admin.contact-inbox.sync › Admin\ContactInboxController@sync
+  GET|HEAD  admin/contact-inbox/{contactSubmission} ..... admin.contact-inbox.show › Admin\ContactInboxController@show
+  DELETE    admin/contact-inbox/{contactSubmission} admin.contact-inbox.destroy › Admin\ContactInboxController@destroy
+  GET|HEAD  admin/contact-inbox/{contactSubmission}/attachment admin.contact-inbox.attachment › Admin\ContactInboxCon…
+  POST      admin/contact-inbox/{contactSubmission}/reply admin.contact-inbox.reply › Admin\ContactInboxController@re…
+  POST      admin/contact-inbox/{contactSubmission}/status admin.contact-inbox.status › Admin\ContactInboxController@…
+  GET|HEAD  admin/content .................................................. admin.content.index › routes/admin.php:40
+  GET|HEAD  admin/content/design ...................... admin.content.design.edit › Admin\ContentController@editDesign
+  POST      admin/content/design ......................... admin.content.design › Admin\ContentController@updateDesign
+  POST      admin/content/media ............................ admin.content.media › Admin\ContentController@uploadMedia
+  GET|HEAD  admin/content/{page}/section/{section} .. admin.content.section.edit › Admin\ContentController@editSection
+  POST      admin/content/{page}/section/{section} ..... admin.content.section › Admin\ContentController@updateSection
+  GET|HEAD  admin/dashboard .................................. admin.dashboard.alias › Admin\AdminController@dashboard
+  GET|HEAD  admin/email-verzenden ......................... admin.mass.email.form › Admin\MassEmailController@showForm
+  POST      admin/email-verzenden .................... admin.send.mass.email › Admin\MassEmailController@sendMassEmail
+  GET|HEAD  admin/leen-huur ................................. admin.leen-huur.index › Admin\LaptopLoanController@index
+  POST      admin/leen-huur ................................. admin.leen-huur.store › Admin\LaptopLoanController@store
+  GET|HEAD  admin/leen-huur/create ........................ admin.leen-huur.create › Admin\LaptopLoanController@create
+  GET|HEAD  admin/leen-huur/data .............................. admin.leen-huur.data › Admin\LaptopLoanController@data
+  PUT       admin/leen-huur/{loan} ........................ admin.leen-huur.update › Admin\LaptopLoanController@update
+  GET|HEAD  admin/leen-huur/{loan} ............................ admin.leen-huur.show › Admin\LaptopLoanController@show
+  DELETE    admin/leen-huur/{loan} ...................... admin.leen-huur.destroy › Admin\LaptopLoanController@destroy
+  GET|HEAD  admin/leen-huur/{loan}/edit ....................... admin.leen-huur.edit › Admin\LaptopLoanController@edit
+  GET|HEAD  admin/leen-huur/{loan}/overeenkomst ..... admin.leen-huur.agreement › Admin\LaptopLoanController@agreement
+  GET|HEAD  admin/leen-huur/{loan}/photo/{photo} ............ admin.leen-huur.photo › Admin\LaptopLoanController@photo
+  DELETE    admin/leen-huur/{loan}/photo/{photo} admin.leen-huur.photo.destroy › Admin\LaptopLoanController@destroyPh…
+  POST      admin/leen-huur/{loan}/retour ........... admin.leen-huur.return › Admin\LaptopLoanController@markReturned
+  GET|HEAD  admin/lidmaatschap ........................... admin.lidmaatschap.index › Admin\MembershipController@index
+  GET|HEAD  admin/lidmaatschap/data ........................ admin.lidmaatschap.data › Admin\MembershipController@data
+  GET|HEAD  admin/lidmaatschap/prijs ............... admin.lidmaatschap.settings › Admin\MembershipController@settings
+  POST      admin/lidmaatschap/prijs ............... admin.lidmaatschap.price › Admin\MembershipController@updatePrice
+  GET|HEAD  admin/lidmaatschap/{lidmaatschap} .............. admin.lidmaatschap.show › Admin\MembershipController@show
+  DELETE    admin/lidmaatschap/{lidmaatschap} ........ admin.lidmaatschap.destroy › Admin\MembershipController@destroy
+  GET|HEAD  admin/lidmaatschap/{lidmaatschap}/factuur admin.lidmaatschap.invoice › Admin\MembershipController@invoice…
+  GET|HEAD  admin/mailinglijst .......................... admin.customerlist.index › Admin\MailingListController@index
+  POST      admin/mailinglijst .......................... admin.customerlist.store › Admin\MailingListController@store
+  GET|HEAD  admin/mailinglijst/verzenden .......... admin.mailinglist.send.form › Admin\MailingListController@sendForm
+  POST      admin/mailinglijst/verzenden ................... admin.mailinglist.send › Admin\MailingListController@send
+  DELETE    admin/mailinglijst/{id} ................. admin.customerlist.destroy › Admin\MailingListController@destroy
+  DELETE    admin/mass-emails/{id} ............... admin.mass.email.delete › Admin\MassEmailController@deleteMassEmail
+  GET|HEAD  admin/monteur ..................................... admin.monteur.index › Admin\TechnicianController@index
+  GET|HEAD  admin/monteur/data .................................. admin.monteur.data › Admin\TechnicianController@data
+  GET|HEAD  admin/monteur/tarieven ............................ admin.monteur.rates › Admin\TechnicianController@rates
+  POST      admin/monteur/tarieven ............... admin.monteur.rates.update › Admin\TechnicianController@updateRates
+  GET|HEAD  admin/monteur/{monteur} ............................. admin.monteur.show › Admin\TechnicianController@show
+  DELETE    admin/monteur/{monteur} ....................... admin.monteur.destroy › Admin\TechnicianController@destroy
+  GET|HEAD  admin/monteur/{monteur}/factuur ....... admin.monteur.invoice › Admin\TechnicianController@invoiceDownload
+  GET|HEAD  admin/notificaties ................................. admin.notificaties.index › Admin\PushController@index
+  POST      admin/notificaties/test .............................. admin.notificaties.test › Admin\PushController@test
+  POST      admin/notificaties/tokens ................... admin.notificaties.tokens.store › Admin\PushController@store
+  DELETE    admin/notificaties/tokens/{fcmToken} .... admin.notificaties.tokens.destroy › Admin\PushController@destroy
+  GET|HEAD  admin/orders ............................................ admin.orders.index › Admin\OrderController@index
+  GET|HEAD  admin/orders/data ......................................... admin.orders.data › Admin\OrderController@data
+  GET|HEAD  admin/orders/new-count ........................... admin.orders.new-count › Admin\OrderController@newCount
+  GET|HEAD  admin/orders/{order} ...................................... admin.orders.show › Admin\OrderController@show
+  DELETE    admin/orders/{order} ................................ admin.orders.destroy › Admin\OrderController@destroy
+  GET|HEAD  admin/orders/{order}/invoice .............. admin.orders.invoice › Admin\OrderController@invoiceRegenerate
+  POST      admin/orders/{order}/status ........................... admin.orders.status › Admin\OrderController@status
+  GET|HEAD  admin/purchase-sales .............. admin.purchase-sales.index › Admin\PurchaseSalesRecordController@index
+  POST      admin/purchase-sales .............. admin.purchase-sales.store › Admin\PurchaseSalesRecordController@store
+  GET|HEAD  admin/purchase-sales/create ..... admin.purchase-sales.create › Admin\PurchaseSalesRecordController@create
+  PUT       admin/purchase-sales/{id} ....... admin.purchase-sales.update › Admin\PurchaseSalesRecordController@update
+  DELETE    admin/purchase-sales/{id} ..... admin.purchase-sales.destroy › Admin\PurchaseSalesRecordController@destroy
+  GET|HEAD  admin/purchase-sales/{id}/edit ...... admin.purchase-sales.edit › Admin\PurchaseSalesRecordController@edit
+  GET|HEAD  admin/rekenmachine ................. admin.reken-machine.index › Admin\PurchaseSalesRecordController@reken
+  GET|HEAD  admin/reparatie-aanmeldingen ...... admin.reparatie-aanmeldingen.index › Admin\RepairInboxController@index
+  GET|HEAD  admin/reparatie-aanmeldingen/data ... admin.reparatie-aanmeldingen.data › Admin\RepairInboxController@data
+  GET|HEAD  admin/reparatie-aanmeldingen/new-count admin.reparatie-aanmeldingen.new-count › Admin\RepairInboxControll…
+  GET|HEAD  admin/reparatie-aanmeldingen/{repairSubmission} admin.reparatie-aanmeldingen.show › Admin\RepairInboxCont…
+  DELETE    admin/reparatie-aanmeldingen/{repairSubmission} admin.reparatie-aanmeldingen.destroy › Admin\RepairInboxC…
+  GET|HEAD  admin/reparatie-aanmeldingen/{repairSubmission}/photo/{file} admin.reparatie-aanmeldingen.photo › Admin\R…
+  POST      admin/reparatie-aanmeldingen/{repairSubmission}/status admin.reparatie-aanmeldingen.status › Admin\Repair…
+  GET|HEAD  admin/shipping ................................. admin.shipping.index › Admin\ShippingRateController@index
+  POST      admin/shipping ................................. admin.shipping.store › Admin\ShippingRateController@store
+  GET|HEAD  admin/shipping/data .............................. admin.shipping.data › Admin\ShippingRateController@data
+  PUT       admin/shipping/{shipping} .................... admin.shipping.update › Admin\ShippingRateController@update
+  DELETE    admin/shipping/{shipping} .................. admin.shipping.destroy › Admin\ShippingRateController@destroy
+  POST      admin/shipping/{shipping}/toggle ............. admin.shipping.toggle › Admin\ShippingRateController@toggle
+  GET|HEAD  admin/users .............................................. admin.users.index › Admin\KlantController@index
+  POST      admin/users .............................................. admin.users.store › Admin\KlantController@store
+  GET|HEAD  admin/users/data ........................................... admin.users.data › Admin\KlantController@data
+  GET|HEAD  admin/users/{klant} ........................................ admin.users.show › Admin\KlantController@show
+  PUT       admin/users/{klant} .................................... admin.users.update › Admin\KlantController@update
+  DELETE    admin/users/{klant} .................................. admin.users.destroy › Admin\KlantController@destroy
+  POST      admin/users/{klant}/role ............................. admin.users.role › Admin\KlantController@updateRole
+  POST      admin/users/{klant}/toggle-block ............ admin.users.toggle-block › Admin\KlantController@toggleBlock
+  GET|HEAD  admin/webshop/bestanden ................. admin.webshop.bestanden.index › Admin\Shop\FilesController@index
+  POST      admin/webshop/bestanden/chunk ........... admin.webshop.bestanden.chunk › Admin\Shop\FilesController@chunk
+  POST      admin/webshop/bestanden/complete .. admin.webshop.bestanden.complete › Admin\Shop\FilesController@complete
+  GET|HEAD  admin/webshop/bestanden/data .............. admin.webshop.bestanden.data › Admin\Shop\FilesController@data
+  DELETE    admin/webshop/bestanden/{file} ...... admin.webshop.bestanden.destroy › Admin\Shop\FilesController@destroy
+  GET|HEAD  admin/webshop/categories ............ admin.webshop.categories.index › Admin\Shop\CategoryController@index
+  POST      admin/webshop/categories ............ admin.webshop.categories.store › Admin\Shop\CategoryController@store
+  GET|HEAD  admin/webshop/categories/data ......... admin.webshop.categories.data › Admin\Shop\CategoryController@data
+  GET|HEAD  admin/webshop/categories/{category} ... admin.webshop.categories.show › Admin\Shop\CategoryController@show
+  PUT       admin/webshop/categories/{category} admin.webshop.categories.update › Admin\Shop\CategoryController@update
+  DELETE    admin/webshop/categories/{category} admin.webshop.categories.destroy › Admin\Shop\CategoryController@dest…
+  POST      admin/webshop/categories/{category}/toggle admin.webshop.categories.toggle › Admin\Shop\CategoryControlle…
+  GET|HEAD  admin/webshop/coupons .................... admin.webshop.coupons.index › Admin\Shop\CouponController@index
+  POST      admin/webshop/coupons .................... admin.webshop.coupons.store › Admin\Shop\CouponController@store
+  GET|HEAD  admin/webshop/coupons/data ................. admin.webshop.coupons.data › Admin\Shop\CouponController@data
+  GET|HEAD  admin/webshop/coupons/{coupon} ............. admin.webshop.coupons.show › Admin\Shop\CouponController@show
+  PUT       admin/webshop/coupons/{coupon} ......... admin.webshop.coupons.update › Admin\Shop\CouponController@update
+  DELETE    admin/webshop/coupons/{coupon} ....... admin.webshop.coupons.destroy › Admin\Shop\CouponController@destroy
+  POST      admin/webshop/coupons/{coupon}/toggle admin.webshop.coupons.toggle › Admin\Shop\CouponController@toggleSt…
+  GET|HEAD  admin/webshop/license-codes ... admin.webshop.license-codes.index › Admin\Shop\LicenseCodeController@index
+  POST      admin/webshop/license-codes ... admin.webshop.license-codes.store › Admin\Shop\LicenseCodeController@store
+  GET|HEAD  admin/webshop/license-codes/data admin.webshop.license-codes.data › Admin\Shop\LicenseCodeController@data
+  DELETE    admin/webshop/license-codes/{licenseCode} admin.webshop.license-codes.destroy › Admin\Shop\LicenseCodeCon…
+  GET|HEAD  admin/webshop/products ................. admin.webshop.products.index › Admin\Shop\ProductController@index
+  POST      admin/webshop/products ................. admin.webshop.products.store › Admin\Shop\ProductController@store
+  GET|HEAD  admin/webshop/products/create ........ admin.webshop.products.create › Admin\Shop\ProductController@create
+  GET|HEAD  admin/webshop/products/data .............. admin.webshop.products.data › Admin\Shop\ProductController@data
+  POST      admin/webshop/products/generate-description admin.webshop.products.generate-description › Admin\Shop\AiPr…
+  GET|HEAD  admin/webshop/products/{product} ......... admin.webshop.products.show › Admin\Shop\ProductController@show
+  PUT       admin/webshop/products/{product} ..... admin.webshop.products.update › Admin\Shop\ProductController@update
+  DELETE    admin/webshop/products/{product} ... admin.webshop.products.destroy › Admin\Shop\ProductController@destroy
+  GET|HEAD  admin/webshop/products/{product}/edit .... admin.webshop.products.edit › Admin\Shop\ProductController@edit
+  POST      admin/webshop/products/{product}/toggle admin.webshop.products.toggle › Admin\Shop\ProductController@togg…
+  POST      admin/webshop/products/{product}/toggle-featured admin.webshop.products.toggle-featured › Admin\Shop\Prod…
+  GET|HEAD  admin/webshop/reviews/data ................. admin.webshop.reviews.data › Admin\Shop\ReviewController@data
+  GET|HEAD  admin/webshop/reviews/product/{product} admin.webshop.reviews.product › Admin\Shop\ReviewController@produ…
+  DELETE    admin/webshop/reviews/{review} ....... admin.webshop.reviews.destroy › Admin\Shop\ReviewController@destroy
+  POST      admin/webshop/reviews/{review}/approve admin.webshop.reviews.approve › Admin\Shop\ReviewController@approve
+  POST      admin/webshop/reviews/{review}/reject .. admin.webshop.reviews.reject › Admin\Shop\ReviewController@reject
+  GET|HEAD  afspraak .............................................................. afspraak › PageController@afspraak
+  POST      afspraak/submit .............................................. afspraak.submit › AfspraakController@submit
+  POST      ai-chat/close ....................................................... ai-chat.close › ChatController@close
+  POST      ai-chat/handover .............................................. ai-chat.handover › ChatController@handover
+  GET|HEAD  ai-chat/history ................................................. ai-chat.history › ChatController@history
+  GET|HEAD  ai-chat/messages .............................................. ai-chat.messages › ChatController@messages
+  POST      ai-chat/offline ................................................. ai-chat.offline › ChatController@offline
+  GET|HEAD  ai-chat/photo/{message} ............................................. ai-chat.photo › ChatController@photo
+  POST      ai-chat/rate .......................................................... ai-chat.rate › ChatController@rate
+  POST      ai-chat/send .......................................................... ai-chat.send › ChatController@send
+  POST      ai-chat/start ....................................................... ai-chat.start › ChatController@start
+  GET|HEAD  ai-chat/status .................................................... ai-chat.status › ChatController@status
+  GET|HEAD  betaal/login ...................................... technician.login › TechnicianController@technicialogin
+  POST      betaal/login .................................. technician.login.submit › TechnicianController@loginSubmit
+  GET|HEAD  cart ................................................................... cart.index › CartController@index
+  DELETE    cart ................................................................... cart.clear › CartController@clear
+  GET|HEAD  cart/count ............................................................. cart.count › CartController@count
+  POST      cart/coupon ............................................... cart.coupon.apply › CartController@applyCoupon
+  DELETE    cart/coupon ............................................. cart.coupon.remove › CartController@removeCoupon
+  POST      cart/items ....................................................... cart.items.store › CartController@store
+  PATCH     cart/items/{item} .............................................. cart.items.update › CartController@update
+  DELETE    cart/items/{item} ............................................ cart.items.destroy › CartController@destroy
+  GET|HEAD  checkout ....................................................... checkout.index › CheckoutController@index
+  POST      checkout ....................................................... checkout.store › CheckoutController@store
+  POST      checkout/totals .............................................. checkout.totals › CheckoutController@totals
+  GET|HEAD  confirm-password .............................. password.confirm › Auth\ConfirmablePasswordController@show
+  POST      confirm-password ................................................ Auth\ConfirmablePasswordController@store
+  GET|HEAD  contact ................................................................. contact › PageController@contact
+  POST      contact/submit ................................................. contact.submit › ContactController@submit
+  GET|HEAD  diensten/{slug} .................................................... service.show › PageController@service
+  GET|HEAD  download/bestand/{file} .......................................... download.file › DownloadController@file
+  POST      email/verification-notification ... verification.send › Auth\EmailVerificationNotificationController@store
+  GET|HEAD  firebase-messaging-sw.js ................................................. firebase.sw › routes/web.php:29
+  GET|HEAD  forgot-password ............................... password.request › Auth\PasswordResetLinkController@create
+  POST      forgot-password .................................. password.email › Auth\PasswordResetLinkController@store
+  GET|HEAD  lid-worden ............................................... lidmaatschap.show › LidmaatschapController@show
+  POST      lid-worden ............................................. lidmaatschap.store › LidmaatschapController@store
+  GET|HEAD  lid-worden/failed/{lidmaatschap} ..................... lidmaatschap.failed › LidmaatschapController@failed
+  GET|HEAD  lid-worden/return/{lidmaatschap} ............... lidmaatschap.return › LidmaatschapController@mollieReturn
+  GET|HEAD  lid-worden/success/{lidmaatschap} .................. lidmaatschap.success › LidmaatschapController@success
+  POST      lid-worden/webhook ................................. lidmaatschap.webhook › LidmaatschapController@webhook
+  GET|HEAD  login ................................................. login › Auth\AuthenticatedSessionController@create
+  POST      login .......................................................... Auth\AuthenticatedSessionController@store
+  POST      logout .............................................. logout › Auth\AuthenticatedSessionController@destroy
+  GET|HEAD  mijn-bestellingen ................................... account.orders.index › Account\OrderController@index
+  GET|HEAD  mijn-bestellingen/{orderNumber} ....................... account.orders.show › Account\OrderController@show
+  GET|HEAD  mijn-bestellingen/{orderNumber}/factuur ......... account.orders.invoice › Account\OrderController@invoice
+  GET|HEAD  over-ons ............................................................... over-ons › PageController@overons
+  PUT       password ................................................ password.update › Auth\PasswordController@update
+  GET|HEAD  payment/failed ................................................. payment.failed › PaymentController@failed
+  GET|HEAD  payment/return/{order} ......................................... payment.return › PaymentController@return
+  GET|HEAD  payment/success .............................................. payment.success › PaymentController@success
+  POST      payment/webhook .............................................. payment.webhook › PaymentController@webhook
+  GET|HEAD  privacy ................................................................. privacy › PageController@privacy
+  GET|HEAD  profile ............................................................ profile.edit › ProfileController@edit
+  PATCH     profile ........................................................ profile.update › ProfileController@update
+  DELETE    profile ...................................................... profile.destroy › ProfileController@destroy
+  GET|HEAD  register ................................................. register › Auth\RegisteredUserController@create
+  POST      register ............................................................. Auth\RegisteredUserController@store
+  GET|HEAD  reparatie-aanmelden ................................................. reparatie › PageController@reparatie
+  POST      reparatie/submit .............................................. reparatie.submit › RepairController@submit
+  POST      reset-password ......................................... password.store › Auth\NewPasswordController@store
+  GET|HEAD  reset-password/{token} ................................ password.reset › Auth\NewPasswordController@create
+  GET|HEAD  sitemap.xml ............................................................ sitemap › SitemapController@index
+  GET|HEAD  storage/{path} storage.local › vendor/laravel/framework/src/Illuminate/Filesystem/FilesystemServiceProvid…
+  PUT       storage/{path} storage.local.upload › vendor/laravel/framework/src/Illuminate/Filesystem/FilesystemServic…
+  GET|HEAD  stream/video/{file} ............................................ video.stream › VideoStreamController@show
+  GET|HEAD  tarieven .............................................................. tarieven › PageController@tarieven
+  POST      technician/check-coupon ....................... technician.coupon.check › TechnicianController@checkCoupon
+  GET|HEAD  technician/failed/{form} ................................. technician.failed › TechnicianController@failed
+  POST      technician/payment/submit ............... technician.payment.store › TechnicianController@storePaymentForm
+  GET|HEAD  technician/payment/{klantnummer} ................... technician.payment › TechnicianController@paymentPage
+  POST      technician/quote ........................................... technician.quote › TechnicianController@quote
+  GET|HEAD  technician/return/{form} ........................... technician.return › TechnicianController@mollieReturn
+  GET|HEAD  technician/success/{form} .............................. technician.success › TechnicianController@success
+  POST      technician/webhook ..................................... technician.webhook › TechnicianController@webhook
+  GET|HEAD  track .......................................................... tracking.index › TrackingController@index
+  POST      track .......................................................... tracking.track › TrackingController@track
+  GET|HEAD  up ........... vendor/laravel/framework/src/Illuminate/Foundation/Configuration/ApplicationBuilder.php:219
+  GET|HEAD  verify-email ................................ verification.notice › Auth\EmailVerificationPromptController
+  GET|HEAD  verify-email/{id}/{hash} ................................ verification.verify › Auth\VerifyEmailController
+  GET|HEAD  voorwaarden ..................................................... voorwaarden › PageController@voorwaarden
+  GET|HEAD  webshop/{categorySlug}/{productSlug} ............................ webshop.product › WebshopController@show
+  POST      webshop/{categorySlug}/{productSlug}/reviews ....... webshop.reviews.store › WebshopReviewController@store
+  GET|HEAD  webshop/{slug} ................................................ webshop.category › WebshopController@index
+  GET|HEAD  wishlist ....................................................... wishlist.index › FavoriteController@index
+  POST      wishlist/toggle .............................................. wishlist.toggle › FavoriteController@toggle
+  DELETE    wishlist/{favorite} ........................................ wishlist.destroy › FavoriteController@destroy
+  GET|HEAD  zoeken ................................................................. zoeken › WebshopController@search
+
+                                                                                                  Showing [264] routes
+

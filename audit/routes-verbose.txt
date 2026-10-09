@@ -1,0 +1,1618 @@
+﻿
+  GET|HEAD  / ............................................................................. home › PageController@home
+            ⇂ web
+  GET|HEAD  admin .................................................. admin.dashboard › Admin\AdminController@dashboard
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+  GET|HEAD  admin/afspraak-aanvragen ............ admin.afspraak-aanvragen.index › Admin\AfspraakInboxController@index
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/afspraak-aanvragen/data ......... admin.afspraak-aanvragen.data › Admin\AfspraakInboxController@data
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/afspraak-aanvragen/new-count admin.afspraak-aanvragen.new-count › Admin\AfspraakInboxController@newCount
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/afspraak-aanvragen/{afspraakSubmission} admin.afspraak-aanvragen.show › Admin\AfspraakInboxController@show
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  DELETE    admin/afspraak-aanvragen/{afspraakSubmission} admin.afspraak-aanvragen.destroy › Admin\AfspraakInboxController@destroy
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/afspraak-aanvragen/{afspraakSubmission}/status admin.afspraak-aanvragen.status › Admin\AfspraakInboxController@status
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/bevestiging-mail/hardware admin.bevestiging-mail.hardware.index › Admin\ManualInvoiceController@index
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/bevestiging-mail/hardware admin.bevestiging-mail.hardware.store › Admin\ManualInvoiceController@store
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/bevestiging-mail/hardware/create admin.bevestiging-mail.hardware.create › Admin\ManualInvoiceController@create
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/bevestiging-mail/hardware/data admin.bevestiging-mail.hardware.data › Admin\ManualInvoiceController@data
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  DELETE    admin/bevestiging-mail/hardware/{invoice} admin.bevestiging-mail.hardware.destroy › Admin\ManualInvoiceController@destroy
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/bevestiging-mail/hardware/{invoice}/download admin.bevestiging-mail.hardware.download › Admin\ManualInvoiceController@download
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/bevestiging-mail/hardware/{invoice}/preview admin.bevestiging-mail.hardware.preview › Admin\ManualInvoiceController@preview
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/bevestiging-mail/ontvangst admin.bevestiging-mail.ontvangst.index › Admin\DeviceReceiptController@index
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+  POST      admin/bevestiging-mail/ontvangst admin.bevestiging-mail.ontvangst.store › Admin\DeviceReceiptController@store
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+  GET|HEAD  admin/bevestiging-mail/ontvangst/create admin.bevestiging-mail.ontvangst.create › Admin\DeviceReceiptController@create
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+  GET|HEAD  admin/bevestiging-mail/ontvangst/data admin.bevestiging-mail.ontvangst.data › Admin\DeviceReceiptController@data
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+  GET|HEAD  admin/bevestiging-mail/ontvangst/{receipt} admin.bevestiging-mail.ontvangst.show › Admin\DeviceReceiptController@show
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+  DELETE    admin/bevestiging-mail/ontvangst/{receipt} admin.bevestiging-mail.ontvangst.destroy › Admin\DeviceReceiptController@destroy
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/bevestiging-mail/ontvangst/{receipt}/photo/{photo} admin.bevestiging-mail.ontvangst.photo › Admin\DeviceReceiptController@photo
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+  DELETE    admin/bevestiging-mail/ontvangst/{receipt}/photo/{photo} admin.bevestiging-mail.ontvangst.photo.destroy › Admin\DeviceReceiptController@destroyPhoto
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/bevestiging-mail/ontvangst/{receipt}/status admin.bevestiging-mail.ontvangst.status › Admin\DeviceReceiptController@updateStatus
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+  ANY       admin/boekhouden ............................. admin.boekhouden. › Illuminate\Routing › RedirectController
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/chat/beschikbaarheid ....... admin.chat.availability.index › Admin\Chat\AvailabilityController@index
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/chat/beschikbaarheid/vrije-dagen admin.chat.availability.store-date › Admin\Chat\AvailabilityController@storeDate
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  DELETE    admin/chat/beschikbaarheid/vrije-dagen/{closedDate} admin.chat.availability.destroy-date › Admin\Chat\AvailabilityController@destroyDate
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  PUT       admin/chat/beschikbaarheid/{availability} admin.chat.availability.update-day › Admin\Chat\AvailabilityController@updateDay
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/chat/faqs ................................... admin.chat.faqs.index › Admin\Chat\FaqController@index
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/chat/faqs ................................... admin.chat.faqs.store › Admin\Chat\FaqController@store
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/chat/faqs/data ................................ admin.chat.faqs.data › Admin\Chat\FaqController@data
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/chat/faqs/{faq} ............................... admin.chat.faqs.show › Admin\Chat\FaqController@show
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  PUT       admin/chat/faqs/{faq} ........................... admin.chat.faqs.update › Admin\Chat\FaqController@update
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  DELETE    admin/chat/faqs/{faq} ......................... admin.chat.faqs.destroy › Admin\Chat\FaqController@destroy
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/chat/faqs/{faq}/toggle .................... admin.chat.faqs.toggle › Admin\Chat\FaqController@toggle
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/chat/inbox ............................... admin.chat.inbox.index › Admin\Chat\InboxController@index
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/chat/inbox/data ............................ admin.chat.inbox.data › Admin\Chat\InboxController@data
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/chat/inbox/new-count .............. admin.chat.inbox.new-count › Admin\Chat\InboxController@newCount
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/chat/inbox/photo/{chatMessage} ........... admin.chat.inbox.photo › Admin\Chat\InboxController@photo
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/chat/inbox/sync ............................ admin.chat.inbox.sync › Admin\Chat\InboxController@sync
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/chat/inbox/{conversation} .................. admin.chat.inbox.show › Admin\Chat\InboxController@show
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  DELETE    admin/chat/inbox/{conversation} ............ admin.chat.inbox.destroy › Admin\Chat\InboxController@destroy
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/chat/inbox/{conversation}/reply .......... admin.chat.inbox.reply › Admin\Chat\InboxController@reply
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/chat/inbox/{conversation}/status ....... admin.chat.inbox.status › Admin\Chat\InboxController@status
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/chat/inbox/{conversation}/toggle-ai admin.chat.inbox.toggle-ai › Admin\Chat\InboxController@toggleAi
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/contact-inbox ....................... admin.contact-inbox.index › Admin\ContactInboxController@index
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/contact-inbox/data .................... admin.contact-inbox.data › Admin\ContactInboxController@data
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/contact-inbox/new-count ...... admin.contact-inbox.new-count › Admin\ContactInboxController@newCount
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/contact-inbox/reply/{contactReply}/attachment admin.contact-inbox.reply.attachment › Admin\ContactInboxController@replyAttachment
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/contact-inbox/sync .................... admin.contact-inbox.sync › Admin\ContactInboxController@sync
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/contact-inbox/{contactSubmission} ..... admin.contact-inbox.show › Admin\ContactInboxController@show
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  DELETE    admin/contact-inbox/{contactSubmission} admin.contact-inbox.destroy › Admin\ContactInboxController@destroy
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/contact-inbox/{contactSubmission}/attachment admin.contact-inbox.attachment › Admin\ContactInboxController@attachment
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/contact-inbox/{contactSubmission}/reply admin.contact-inbox.reply › Admin\ContactInboxController@reply
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/contact-inbox/{contactSubmission}/status admin.contact-inbox.status › Admin\ContactInboxController@status
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/content .................................................. admin.content.index › routes/admin.php:40
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/content/design ...................... admin.content.design.edit › Admin\ContentController@editDesign
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/content/design ......................... admin.content.design › Admin\ContentController@updateDesign
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/content/media ............................ admin.content.media › Admin\ContentController@uploadMedia
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/content/{page}/section/{section} .. admin.content.section.edit › Admin\ContentController@editSection
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/content/{page}/section/{section} ..... admin.content.section › Admin\ContentController@updateSection
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/dashboard .................................. admin.dashboard.alias › Admin\AdminController@dashboard
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+  GET|HEAD  admin/email-verzenden ......................... admin.mass.email.form › Admin\MassEmailController@showForm
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/email-verzenden .................... admin.send.mass.email › Admin\MassEmailController@sendMassEmail
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/leen-huur ................................. admin.leen-huur.index › Admin\LaptopLoanController@index
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/leen-huur ................................. admin.leen-huur.store › Admin\LaptopLoanController@store
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/leen-huur/create ........................ admin.leen-huur.create › Admin\LaptopLoanController@create
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/leen-huur/data .............................. admin.leen-huur.data › Admin\LaptopLoanController@data
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  PUT       admin/leen-huur/{loan} ........................ admin.leen-huur.update › Admin\LaptopLoanController@update
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/leen-huur/{loan} ............................ admin.leen-huur.show › Admin\LaptopLoanController@show
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  DELETE    admin/leen-huur/{loan} ...................... admin.leen-huur.destroy › Admin\LaptopLoanController@destroy
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/leen-huur/{loan}/edit ....................... admin.leen-huur.edit › Admin\LaptopLoanController@edit
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/leen-huur/{loan}/overeenkomst ..... admin.leen-huur.agreement › Admin\LaptopLoanController@agreement
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/leen-huur/{loan}/photo/{photo} ............ admin.leen-huur.photo › Admin\LaptopLoanController@photo
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  DELETE    admin/leen-huur/{loan}/photo/{photo} admin.leen-huur.photo.destroy › Admin\LaptopLoanController@destroyPhoto
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/leen-huur/{loan}/retour ........... admin.leen-huur.return › Admin\LaptopLoanController@markReturned
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/lidmaatschap ........................... admin.lidmaatschap.index › Admin\MembershipController@index
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/lidmaatschap/data ........................ admin.lidmaatschap.data › Admin\MembershipController@data
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/lidmaatschap/prijs ............... admin.lidmaatschap.settings › Admin\MembershipController@settings
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/lidmaatschap/prijs ............... admin.lidmaatschap.price › Admin\MembershipController@updatePrice
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/lidmaatschap/{lidmaatschap} .............. admin.lidmaatschap.show › Admin\MembershipController@show
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  DELETE    admin/lidmaatschap/{lidmaatschap} ........ admin.lidmaatschap.destroy › Admin\MembershipController@destroy
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/lidmaatschap/{lidmaatschap}/factuur admin.lidmaatschap.invoice › Admin\MembershipController@invoiceDownload
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/mailinglijst .......................... admin.customerlist.index › Admin\MailingListController@index
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/mailinglijst .......................... admin.customerlist.store › Admin\MailingListController@store
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/mailinglijst/verzenden .......... admin.mailinglist.send.form › Admin\MailingListController@sendForm
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/mailinglijst/verzenden ................... admin.mailinglist.send › Admin\MailingListController@send
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  DELETE    admin/mailinglijst/{id} ................. admin.customerlist.destroy › Admin\MailingListController@destroy
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  DELETE    admin/mass-emails/{id} ............... admin.mass.email.delete › Admin\MassEmailController@deleteMassEmail
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/monteur ..................................... admin.monteur.index › Admin\TechnicianController@index
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/monteur/data .................................. admin.monteur.data › Admin\TechnicianController@data
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/monteur/tarieven ............................ admin.monteur.rates › Admin\TechnicianController@rates
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/monteur/tarieven ............... admin.monteur.rates.update › Admin\TechnicianController@updateRates
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/monteur/{monteur} ............................. admin.monteur.show › Admin\TechnicianController@show
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  DELETE    admin/monteur/{monteur} ....................... admin.monteur.destroy › Admin\TechnicianController@destroy
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/monteur/{monteur}/factuur ....... admin.monteur.invoice › Admin\TechnicianController@invoiceDownload
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/notificaties ................................. admin.notificaties.index › Admin\PushController@index
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/notificaties/test .............................. admin.notificaties.test › Admin\PushController@test
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/notificaties/tokens ................... admin.notificaties.tokens.store › Admin\PushController@store
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  DELETE    admin/notificaties/tokens/{fcmToken} .... admin.notificaties.tokens.destroy › Admin\PushController@destroy
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/orders ............................................ admin.orders.index › Admin\OrderController@index
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/orders/data ......................................... admin.orders.data › Admin\OrderController@data
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/orders/new-count ........................... admin.orders.new-count › Admin\OrderController@newCount
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/orders/{order} ...................................... admin.orders.show › Admin\OrderController@show
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  DELETE    admin/orders/{order} ................................ admin.orders.destroy › Admin\OrderController@destroy
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/orders/{order}/invoice .............. admin.orders.invoice › Admin\OrderController@invoiceRegenerate
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/orders/{order}/status ........................... admin.orders.status › Admin\OrderController@status
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/purchase-sales .............. admin.purchase-sales.index › Admin\PurchaseSalesRecordController@index
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/purchase-sales .............. admin.purchase-sales.store › Admin\PurchaseSalesRecordController@store
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/purchase-sales/create ..... admin.purchase-sales.create › Admin\PurchaseSalesRecordController@create
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  PUT       admin/purchase-sales/{id} ....... admin.purchase-sales.update › Admin\PurchaseSalesRecordController@update
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  DELETE    admin/purchase-sales/{id} ..... admin.purchase-sales.destroy › Admin\PurchaseSalesRecordController@destroy
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/purchase-sales/{id}/edit ...... admin.purchase-sales.edit › Admin\PurchaseSalesRecordController@edit
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/rekenmachine ................. admin.reken-machine.index › Admin\PurchaseSalesRecordController@reken
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/reparatie-aanmeldingen ...... admin.reparatie-aanmeldingen.index › Admin\RepairInboxController@index
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/reparatie-aanmeldingen/data ... admin.reparatie-aanmeldingen.data › Admin\RepairInboxController@data
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/reparatie-aanmeldingen/new-count admin.reparatie-aanmeldingen.new-count › Admin\RepairInboxController@newCount
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/reparatie-aanmeldingen/{repairSubmission} admin.reparatie-aanmeldingen.show › Admin\RepairInboxController@show
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  DELETE    admin/reparatie-aanmeldingen/{repairSubmission} admin.reparatie-aanmeldingen.destroy › Admin\RepairInboxController@destroy
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/reparatie-aanmeldingen/{repairSubmission}/photo/{file} admin.reparatie-aanmeldingen.photo › Admin\RepairInboxController@photo
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/reparatie-aanmeldingen/{repairSubmission}/status admin.reparatie-aanmeldingen.status › Admin\RepairInboxController@status
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/shipping ................................. admin.shipping.index › Admin\ShippingRateController@index
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/shipping ................................. admin.shipping.store › Admin\ShippingRateController@store
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/shipping/data .............................. admin.shipping.data › Admin\ShippingRateController@data
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  PUT       admin/shipping/{shipping} .................... admin.shipping.update › Admin\ShippingRateController@update
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  DELETE    admin/shipping/{shipping} .................. admin.shipping.destroy › Admin\ShippingRateController@destroy
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/shipping/{shipping}/toggle ............. admin.shipping.toggle › Admin\ShippingRateController@toggle
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/users .............................................. admin.users.index › Admin\KlantController@index
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/users .............................................. admin.users.store › Admin\KlantController@store
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/users/data ........................................... admin.users.data › Admin\KlantController@data
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/users/{klant} ........................................ admin.users.show › Admin\KlantController@show
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  PUT       admin/users/{klant} .................................... admin.users.update › Admin\KlantController@update
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  DELETE    admin/users/{klant} .................................. admin.users.destroy › Admin\KlantController@destroy
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/users/{klant}/role ............................. admin.users.role › Admin\KlantController@updateRole
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/users/{klant}/toggle-block ............ admin.users.toggle-block › Admin\KlantController@toggleBlock
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/webshop/bestanden ................. admin.webshop.bestanden.index › Admin\Shop\FilesController@index
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/webshop/bestanden/chunk ........... admin.webshop.bestanden.chunk › Admin\Shop\FilesController@chunk
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/webshop/bestanden/complete .. admin.webshop.bestanden.complete › Admin\Shop\FilesController@complete
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/webshop/bestanden/data .............. admin.webshop.bestanden.data › Admin\Shop\FilesController@data
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  DELETE    admin/webshop/bestanden/{file} ...... admin.webshop.bestanden.destroy › Admin\Shop\FilesController@destroy
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/webshop/categories ............ admin.webshop.categories.index › Admin\Shop\CategoryController@index
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/webshop/categories ............ admin.webshop.categories.store › Admin\Shop\CategoryController@store
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/webshop/categories/data ......... admin.webshop.categories.data › Admin\Shop\CategoryController@data
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/webshop/categories/{category} ... admin.webshop.categories.show › Admin\Shop\CategoryController@show
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  PUT       admin/webshop/categories/{category} admin.webshop.categories.update › Admin\Shop\CategoryController@update
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  DELETE    admin/webshop/categories/{category} admin.webshop.categories.destroy › Admin\Shop\CategoryController@destroy
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/webshop/categories/{category}/toggle admin.webshop.categories.toggle › Admin\Shop\CategoryController@toggleStatus
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/webshop/coupons .................... admin.webshop.coupons.index › Admin\Shop\CouponController@index
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/webshop/coupons .................... admin.webshop.coupons.store › Admin\Shop\CouponController@store
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/webshop/coupons/data ................. admin.webshop.coupons.data › Admin\Shop\CouponController@data
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/webshop/coupons/{coupon} ............. admin.webshop.coupons.show › Admin\Shop\CouponController@show
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  PUT       admin/webshop/coupons/{coupon} ......... admin.webshop.coupons.update › Admin\Shop\CouponController@update
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  DELETE    admin/webshop/coupons/{coupon} ....... admin.webshop.coupons.destroy › Admin\Shop\CouponController@destroy
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/webshop/coupons/{coupon}/toggle admin.webshop.coupons.toggle › Admin\Shop\CouponController@toggleStatus
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/webshop/license-codes ... admin.webshop.license-codes.index › Admin\Shop\LicenseCodeController@index
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/webshop/license-codes ... admin.webshop.license-codes.store › Admin\Shop\LicenseCodeController@store
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/webshop/license-codes/data admin.webshop.license-codes.data › Admin\Shop\LicenseCodeController@data
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  DELETE    admin/webshop/license-codes/{licenseCode} admin.webshop.license-codes.destroy › Admin\Shop\LicenseCodeController@destroy
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/webshop/products ................. admin.webshop.products.index › Admin\Shop\ProductController@index
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/webshop/products ................. admin.webshop.products.store › Admin\Shop\ProductController@store
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/webshop/products/create ........ admin.webshop.products.create › Admin\Shop\ProductController@create
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/webshop/products/data .............. admin.webshop.products.data › Admin\Shop\ProductController@data
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/webshop/products/generate-description admin.webshop.products.generate-description › Admin\Shop\AiProductController@generateDescription
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/webshop/products/{product} ......... admin.webshop.products.show › Admin\Shop\ProductController@show
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  PUT       admin/webshop/products/{product} ..... admin.webshop.products.update › Admin\Shop\ProductController@update
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  DELETE    admin/webshop/products/{product} ... admin.webshop.products.destroy › Admin\Shop\ProductController@destroy
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/webshop/products/{product}/edit .... admin.webshop.products.edit › Admin\Shop\ProductController@edit
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/webshop/products/{product}/toggle admin.webshop.products.toggle › Admin\Shop\ProductController@toggleStatus
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/webshop/products/{product}/toggle-featured admin.webshop.products.toggle-featured › Admin\Shop\ProductController@toggleFeatured
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/webshop/reviews/data ................. admin.webshop.reviews.data › Admin\Shop\ReviewController@data
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  admin/webshop/reviews/product/{product} admin.webshop.reviews.product › Admin\Shop\ReviewController@productReviews
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  DELETE    admin/webshop/reviews/{review} ....... admin.webshop.reviews.destroy › Admin\Shop\ReviewController@destroy
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/webshop/reviews/{review}/approve admin.webshop.reviews.approve › Admin\Shop\ReviewController@approve
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  POST      admin/webshop/reviews/{review}/reject .. admin.webshop.reviews.reject › Admin\Shop\ReviewController@reject
+            ⇂ web
+            ⇂ auth
+            ⇂ verified
+            ⇂ check.blocked
+            ⇂ admin.or.tech
+            ⇂ inbound.sync
+            ⇂ admin
+  GET|HEAD  afspraak .............................................................. afspraak › PageController@afspraak
+            ⇂ web
+  POST      afspraak/submit .............................................. afspraak.submit › AfspraakController@submit
+            ⇂ web
+            ⇂ throttle:5,1
+  POST      ai-chat/close ....................................................... ai-chat.close › ChatController@close
+            ⇂ web
+            ⇂ throttle:10,1
+  POST      ai-chat/handover .............................................. ai-chat.handover › ChatController@handover
+            ⇂ web
+            ⇂ throttle:10,1
+  GET|HEAD  ai-chat/history ................................................. ai-chat.history › ChatController@history
+            ⇂ web
+            ⇂ throttle:30,1
+  GET|HEAD  ai-chat/messages .............................................. ai-chat.messages › ChatController@messages
+            ⇂ web
+            ⇂ throttle:60,1
+  POST      ai-chat/offline ................................................. ai-chat.offline › ChatController@offline
+            ⇂ web
+            ⇂ throttle:5,1
+  GET|HEAD  ai-chat/photo/{message} ............................................. ai-chat.photo › ChatController@photo
+            ⇂ web
+            ⇂ throttle:60,1
+  POST      ai-chat/rate .......................................................... ai-chat.rate › ChatController@rate
+            ⇂ web
+            ⇂ throttle:10,1
+  POST      ai-chat/send .......................................................... ai-chat.send › ChatController@send
+            ⇂ web
+            ⇂ throttle:30,1
+  POST      ai-chat/start ....................................................... ai-chat.start › ChatController@start
+            ⇂ web
+            ⇂ throttle:10,1
+  GET|HEAD  ai-chat/status .................................................... ai-chat.status › ChatController@status
+            ⇂ web
+  GET|HEAD  betaal/login ...................................... technician.login › TechnicianController@technicialogin
+            ⇂ web
+  POST      betaal/login .................................. technician.login.submit › TechnicianController@loginSubmit
+            ⇂ web
+            ⇂ throttle:10,1
+  GET|HEAD  cart ................................................................... cart.index › CartController@index
+            ⇂ web
+  DELETE    cart ................................................................... cart.clear › CartController@clear
+            ⇂ web
+            ⇂ throttle:10,1
+  GET|HEAD  cart/count ............................................................. cart.count › CartController@count
+            ⇂ web
+  POST      cart/coupon ............................................... cart.coupon.apply › CartController@applyCoupon
+            ⇂ web
+            ⇂ throttle:20,1
+  DELETE    cart/coupon ............................................. cart.coupon.remove › CartController@removeCoupon
+            ⇂ web
+            ⇂ throttle:20,1
+  POST      cart/items ....................................................... cart.items.store › CartController@store
+            ⇂ web
+            ⇂ throttle:30,1
+  PATCH     cart/items/{item} .............................................. cart.items.update › CartController@update
+            ⇂ web
+            ⇂ throttle:30,1
+  DELETE    cart/items/{item} ............................................ cart.items.destroy › CartController@destroy
+            ⇂ web
+            ⇂ throttle:30,1
+  GET|HEAD  checkout ....................................................... checkout.index › CheckoutController@index
+            ⇂ web
+  POST      checkout ....................................................... checkout.store › CheckoutController@store
+            ⇂ web
+            ⇂ throttle:10,1
+  POST      checkout/totals .............................................. checkout.totals › CheckoutController@totals
+            ⇂ web
+            ⇂ throttle:30,1
+  GET|HEAD  confirm-password .............................. password.confirm › Auth\ConfirmablePasswordController@show
+            ⇂ web
+            ⇂ auth
+  POST      confirm-password ................................................ Auth\ConfirmablePasswordController@store
+            ⇂ web
+            ⇂ auth
+  GET|HEAD  contact ................................................................. contact › PageController@contact
+            ⇂ web
+  POST      contact/submit ................................................. contact.submit › ContactController@submit
+            ⇂ web
+            ⇂ throttle:5,1
+  GET|HEAD  diensten/{slug} .................................................... service.show › PageController@service
+            ⇂ web
+  GET|HEAD  download/bestand/{file} .......................................... download.file › DownloadController@file
+            ⇂ web
+            ⇂ throttle:120,1
+  POST      email/verification-notification ... verification.send › Auth\EmailVerificationNotificationController@store
+            ⇂ web
+            ⇂ auth
+            ⇂ throttle:6,1
+  GET|HEAD  firebase-messaging-sw.js ................................................. firebase.sw › routes/web.php:29
+            ⇂ web
+  GET|HEAD  forgot-password ............................... password.request › Auth\PasswordResetLinkController@create
+            ⇂ web
+            ⇂ guest
+  POST      forgot-password .................................. password.email › Auth\PasswordResetLinkController@store
+            ⇂ web
+            ⇂ guest
+  GET|HEAD  lid-worden ............................................... lidmaatschap.show › LidmaatschapController@show
+            ⇂ web
+  POST      lid-worden ............................................. lidmaatschap.store › LidmaatschapController@store
+            ⇂ web
+            ⇂ throttle:5,1
+  GET|HEAD  lid-worden/failed/{lidmaatschap} ..................... lidmaatschap.failed › LidmaatschapController@failed
+            ⇂ web
+  GET|HEAD  lid-worden/return/{lidmaatschap} ............... lidmaatschap.return › LidmaatschapController@mollieReturn
+            ⇂ web
+  GET|HEAD  lid-worden/success/{lidmaatschap} .................. lidmaatschap.success › LidmaatschapController@success
+            ⇂ web
+  POST      lid-worden/webhook ................................. lidmaatschap.webhook › LidmaatschapController@webhook
+            ⇂ web
+  GET|HEAD  login ................................................. login › Auth\AuthenticatedSessionController@create
+            ⇂ web
+            ⇂ guest
+  POST      login .......................................................... Auth\AuthenticatedSessionController@store
+            ⇂ web
+            ⇂ guest
+  POST      logout .............................................. logout › Auth\AuthenticatedSessionController@destroy
+            ⇂ web
+            ⇂ auth
+  GET|HEAD  mijn-bestellingen ................................... account.orders.index › Account\OrderController@index
+            ⇂ web
+            ⇂ auth
+  GET|HEAD  mijn-bestellingen/{orderNumber} ....................... account.orders.show › Account\OrderController@show
+            ⇂ web
+            ⇂ auth
+  GET|HEAD  mijn-bestellingen/{orderNumber}/factuur ......... account.orders.invoice › Account\OrderController@invoice
+            ⇂ web
+            ⇂ auth
+  GET|HEAD  over-ons ............................................................... over-ons › PageController@overons
+            ⇂ web
+  PUT       password ................................................ password.update › Auth\PasswordController@update
+            ⇂ web
+            ⇂ auth
+  GET|HEAD  payment/failed ................................................. payment.failed › PaymentController@failed
+            ⇂ web
+  GET|HEAD  payment/return/{order} ......................................... payment.return › PaymentController@return
+            ⇂ web
+  GET|HEAD  payment/success .............................................. payment.success › PaymentController@success
+            ⇂ web
+  POST      payment/webhook .............................................. payment.webhook › PaymentController@webhook
+            ⇂ web
+  GET|HEAD  privacy ................................................................. privacy › PageController@privacy
+            ⇂ web
+  GET|HEAD  profile ............................................................ profile.edit › ProfileController@edit
+            ⇂ web
+            ⇂ auth
+  PATCH     profile ........................................................ profile.update › ProfileController@update
+            ⇂ web
+            ⇂ auth
+  DELETE    profile ...................................................... profile.destroy › ProfileController@destroy
+            ⇂ web
+            ⇂ auth
+  GET|HEAD  register ................................................. register › Auth\RegisteredUserController@create
+            ⇂ web
+  POST      register ............................................................. Auth\RegisteredUserController@store
+            ⇂ web
+  GET|HEAD  reparatie-aanmelden ................................................. reparatie › PageController@reparatie
+            ⇂ web
+  POST      reparatie/submit .............................................. reparatie.submit › RepairController@submit
+            ⇂ web
+            ⇂ throttle:5,1
+  POST      reset-password ......................................... password.store › Auth\NewPasswordController@store
+            ⇂ web
+            ⇂ guest
+  GET|HEAD  reset-password/{token} ................................ password.reset › Auth\NewPasswordController@create
+            ⇂ web
+            ⇂ guest
+  GET|HEAD  sitemap.xml ............................................................ sitemap › SitemapController@index
+            ⇂ web
+  GET|HEAD  storage/{path} storage.local › vendor/laravel/framework/src/Illuminate/Filesystem/FilesystemServiceProvider.php:98
+  PUT       storage/{path} storage.local.upload › vendor/laravel/framework/src/Illuminate/Filesystem/FilesystemServiceProvider.php:106
+  GET|HEAD  stream/video/{file} ............................................ video.stream › VideoStreamController@show
+            ⇂ web
+  GET|HEAD  tarieven .............................................................. tarieven › PageController@tarieven
+            ⇂ web
+  POST      technician/check-coupon ....................... technician.coupon.check › TechnicianController@checkCoupon
+            ⇂ web
+            ⇂ throttle:30,1
+  GET|HEAD  technician/failed/{form} ................................. technician.failed › TechnicianController@failed
+            ⇂ web
+  POST      technician/payment/submit ............... technician.payment.store › TechnicianController@storePaymentForm
+            ⇂ web
+            ⇂ throttle:10,1
+  GET|HEAD  technician/payment/{klantnummer} ................... technician.payment › TechnicianController@paymentPage
+            ⇂ web
+  POST      technician/quote ........................................... technician.quote › TechnicianController@quote
+            ⇂ web
+            ⇂ throttle:30,1
+  GET|HEAD  technician/return/{form} ........................... technician.return › TechnicianController@mollieReturn
+            ⇂ web
+  GET|HEAD  technician/success/{form} .............................. technician.success › TechnicianController@success
+            ⇂ web
+  POST      technician/webhook ..................................... technician.webhook › TechnicianController@webhook
+            ⇂ web
+  GET|HEAD  track .......................................................... tracking.index › TrackingController@index
+            ⇂ web
+  POST      track .......................................................... tracking.track › TrackingController@track
+            ⇂ web
+  GET|HEAD  up ........... vendor/laravel/framework/src/Illuminate/Foundation/Configuration/ApplicationBuilder.php:219
+  GET|HEAD  verify-email ................................ verification.notice › Auth\EmailVerificationPromptController
+            ⇂ web
+            ⇂ auth
+  GET|HEAD  verify-email/{id}/{hash} ................................ verification.verify › Auth\VerifyEmailController
+            ⇂ web
+            ⇂ auth
+            ⇂ signed
+            ⇂ throttle:6,1
+  GET|HEAD  voorwaarden ..................................................... voorwaarden › PageController@voorwaarden
+            ⇂ web
+  GET|HEAD  webshop/{categorySlug}/{productSlug} ............................ webshop.product › WebshopController@show
+            ⇂ web
+  POST      webshop/{categorySlug}/{productSlug}/reviews ....... webshop.reviews.store › WebshopReviewController@store
+            ⇂ web
+            ⇂ throttle:5,1
+  GET|HEAD  webshop/{slug} ................................................ webshop.category › WebshopController@index
+            ⇂ web
+  GET|HEAD  wishlist ....................................................... wishlist.index › FavoriteController@index
+            ⇂ web
+            ⇂ auth
+  POST      wishlist/toggle .............................................. wishlist.toggle › FavoriteController@toggle
+            ⇂ web
+            ⇂ auth
+            ⇂ throttle:30,1
+  DELETE    wishlist/{favorite} ........................................ wishlist.destroy › FavoriteController@destroy
+            ⇂ web
+            ⇂ auth
+            ⇂ throttle:30,1
+  GET|HEAD  zoeken ................................................................. zoeken › WebshopController@search
+            ⇂ web
+
+                                                                                                  Showing [264] routes
+
