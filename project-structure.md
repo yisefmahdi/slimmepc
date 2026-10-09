@@ -1863,3 +1863,31 @@ Niet actief: e-mailverificatie (`MustVerifyEmail` staat uit in `User`-model).
 ## 50. Profiel-crash legacy users (2026-10-06, deployed `49ef182`)
 
 - `/profile` 500 voor gesyncte accounts met `created_at = NULL` (`->format()` op null, user id=1). Fix: nullsafe `?->format('d-m-Y') ?? '—'` (enige plek met dit patroon) + regressietest (faalt 500 op oude code).
+
+
+## 51. Volledige Technische, Test & Beveiligingsaudit (2026-10-09, deployed `8d4a94a` / `main`)
+
+- **Doel & Status:** Volledige codebase-audit (Laravel 12 + Blade + Alpine.js/jQuery + Tailwind v3, MySQL op Hostinger). Alle kritieke en hoge beveiligingsrisico's opgelost, 0 regressies, **100% geslaagde testsuite (324/324 tests)**.
+- **Master Audit Report:** Project root [`AUDIT_REPORT.md`](file:///c:/laragon/www/slimmepc2026nieuwe/slimmepc/AUDIT_REPORT.md) + 9 detailrapporten in `audit/` (`00-inventory.md` t/m `08-ux-perf.md`).
+- **Authenticatie & Autorisatie (Domein B):**
+  - **Mass Assignment:** `role`, `is_blocked`, `klantnummer` verwijderd uit `User::$fillable`. Rol-escalatie via registratie of profiel-update is onmogelijk; rolmutaties lopen uitsluitend via de admin (`Admin\KlantController`) of console (`forceFill`).
+  - **Onmiddellijke Uitlog:** `CheckIfBlocked` middleware geregistreerd op de globale `web` stack; geblokkeerde gebruikers (`is_blocked = true`) worden bij het eerstvolgende HTTP-verzoek direct uitgelogd en geredirect.
+  - **Monteursbeveiliging:** `/technician/*` routes afgeschermd met `admin.or.tech` middleware; gasten en reguliere klanten ontvangen direct een redirect of 403.
+- **Datalekken & Privacy (Domein C):**
+  - **Private Bestandsisolatie:** Beschermde digitale downloads opgeslagen op de private disk (`storage/app/private/files`) zonder publieke webroot link; downloads lopen via `DownloadController` met eigenaarschapcontrole of cryptografische HMAC-URL handtekening.
+  - **Factuur & Order IDOR:** Factuurnummers gegenereerd als willekeurige alfanumerieke identifiers (`INV-2026-XXXXXX`); order- en factuurinzage gebonden aan eigendomsvalidatie (`$order->user_id === Auth::id()`).
+  - **HTML Cache Privacy:** Volledige pagina-cache (`CmsCacheService`) strikt beperkt tot niet-geauthenticeerde gasten; gevoelige formulieren en kassa's serveren met `no-store` headers.
+- **Betalingen & Bedrijfslogica (Domein E):**
+  - **Mollie Bedragscontrole:** `PaymentController::webhook` verifieert tot op de cent of het geïnde bedrag klopt met het ordertotaal (`$this->payments->amountMatches`); mismatches resulteren direct in `failed` status.
+  - **Idempotente Finalisatie:** `OrderPaymentService::finalizeOrder` geserialiseerd via databasetransactie met row locks (`lockForUpdate()`); dubbele webhook-aanroepen triggeren geen meervoudige facturen of e-mails.
+  - **Licentieraces Geëlimineerd:** Digitale licenties worden per orderregel vergrendeld met `lockForUpdate()`; gelijktijdige checkouts kunnen nooit dezelfde code toewijzen.
+- **Injectie & Invoer (Domein D):**
+  - **SQLi Whitelisting:** Sortering en zoekqueries in datatabellen valideren invoerkolommen tegen strikte whitelists (`in:id,title,price,status,created_at`).
+  - **XSS Sanitization:** `HtmlSanitizer` toegevoegd; HTML-invoer in CMS en productbeschrijvingen wordt gestript van `<script>` en onveilige attributen.
+  - **Veilige Uploads:** MIME-type en extensie-whitelisting op CMS media, logo's en bestanden; executables worden geweigerd.
+- **Verificatie Gates & Codekwaliteit:**
+  - **Pest Testsuite:** 324 tests groen op SQLite `:memory:` (>1.400 assertions).
+  - **Laravel Pint:** 100% compliant met PSR-12 standaarden (`{"tool":"pint","result":"passed"}`).
+  - **Caches:** `config:cache`, `route:cache` (259 routes) en `view:cache` compileren en cachen foutloos.
+  - **Vite Build:** `npm run build` genereert geminificeerde assets zonder fouten.
+  - **Webserver Beveiliging:** `public/.htaccess` blokkeert directe toegang tot `.env`, `.git` en `*.sql` dumps (403 Forbidden).
