@@ -32,12 +32,15 @@ slimmepc/
 │   │   │   │   ├── KlantController.php   # Users-beheren CRUD (JSON) — served under /admin/users (admin.users.*)
 │   │   │   │   └── Shop/
 │   │   │   │       ├── CategoryController.php # Webshop categorieën: index/data/store/show/update/destroy/toggle — nu met icon (lucide picker, kebab) + description + search op beide
-│   │   │   │       ├── ProductController.php  # Webshop producten: index/data/create/store/edit/update/show/destroy/toggleStatus/toggleFeatured
+│   │   │   │       ├── ProductController.php  # Webshop producten: index/data/create/store/edit/update/show/destroy/toggleStatus/toggleFeatured — nu met is_digital toggle + license-count (zie §44)
+│   │   │   │       ├── LicenseCodeController.php # Digitale licentiecodes: index/data (search/product/status)/store (één code)/destroy — admin.webshop.license-codes.* (zie §44)
+│   │   │   │       ├── FilesController.php    # Beschermde digitale bestanden: index/data/chunk/complete (4MB chunks, ongelimiteerd)/destroy met product-link guard (zie §47)
 │   │   │   │       └── AiProductController.php # AJAX AI productbeschrijving generator endpoint
 │   │   │   ├── Auth/          # Breeze: AuthenticatedSession (role-based redirect), ConfirmablePassword,
 │   │   │   │                  #   EmailVerificationNotification, EmailVerificationPrompt,
 │   │   │   │                  #   NewPassword, Password, PasswordResetLink, RegisteredUser, VerifyEmail
 │   │   │   ├── Controller.php
+│   │   │   ├── DownloadController.php # Beveiligde digitale downloads: GET /download/bestand/{file} — admin / betaalde-order-eigenaar / per-order HMAC-signature; 403 anders; logging + throttle (zie §47)
 │   │   │   ├── PageController.php    # home() → landing.home with Cms::page('home') + flat Cms::design(); serves the full-page HTML cache for guests only (auth users always render fresh — personalized header)
 │   │   │   ├── WebshopController.php # Webshop: index(slug) → landing.webshop (categorie) + show(categorySlug,productSlug) → landing.product-details (gallery, price/discount, stock, delivery, features/highlights, related 4)
 │   │   │   ├── RepairController.php   # reparatie-aanmelden submit → repair_submissions + emails (repair.submit)
@@ -52,7 +55,10 @@ slimmepc/
 │   │       └── ProfileUpdateRequest.php
 │   ├── Models/
 │   │   ├── Category.php       # Webshop categorie: name, slug, icon (lucide kebab), description, image, status, sort_order, hasMany(Product)
-│   │   ├── Product.php        # Webshop product: title, slug, brand, sku, price, stock, is_featured, features[{title,value}], highlights[{icon,title,subtitle}], gallery_images[], TinyMCE description
+│   │   ├── Product.php        # Webshop product: title, slug, brand, sku, price, stock, is_featured, is_digital, features[{title,value}], highlights[{icon,title,subtitle}], gallery_images[], TinyMCE description; licenseCodes/availableLicenseCodes, hasAvailableLicenses(qty), isDigital() (zie §44/§45)
+│   │   ├── LicenseCode.php    # Digitale licentiepool: product/order/orderItem, status available/sold, code unique, assigned_at (zie §44)
+│   │   ├── DigitalFile.php    # Beschermd bestand (local disk): name/path/size/mime/downloads_count + routeUrl()/signedUrlForOrder()/humanSize() (zie §47)
+│   │   ├── DigitalDownload.php # Download-log: file/order/user/ip (zie §47)
 │   │   ├── ContentBlock.php   # CMS block: page/section/block_key/type/value/json_value (cast array)/sort_order
 │   │   ├── ContentMeta.php    # CMS meta: meta_key/meta_value (design JSON + cache_version) — table `content_meta`
 │   │   ├── ManualInvoice.php  # Hardware factuur: invoice_number SLM-XXXXXX, subtotal/tax_amount/total decimals
@@ -60,7 +66,7 @@ slimmepc/
 │   │   ├── AfspraakSubmission.php # Afspraak: AF-YYYY-#####, device/service_type/preferred_date...
 │   │   ├── User.php           # Customized: phone, is_blocked, address fields, role, klantnummer + isAdmin()/isTechnician()/isCustomer()
 │   │   └── RepairSubmission.php # Reparatie submission: repair_number, device, problems[]/photos[] (array cast), privacy (bool), status enum, scopeNew(), photoUrls()
-│   ├── Mail/                     # RepairReceived, AdminRepairNotification, ManualInvoiceMail, DeviceReceiptMail (Bevestiging Ontvangst)
+│   ├── Mail/                     # RepairReceived, AdminRepairNotification, ManualInvoiceMail, DeviceReceiptMail (Bevestiging Ontvangst), LicenseShortageMail (pool-op alert, zie §45)
 │   ├── Providers/
 │   │   └── AppServiceProvider.php # View::composer landing.partials.header → webshopCategories (actieve categorieën, cached 3600, bust bij Category mutate)
 │   ├── Services/
@@ -80,7 +86,8 @@ slimmepc/
 │   │       └── Features/
 │   │           └── ProductDescriptionGenerator.php # Search + AI orchestration & clean HTML output
 │   ├── Support/
-│   │   └── Cms.php            # version()/page()/get()/design()/designValue()/bust() — cached reads keyed by cache_version
+│   │   ├── Cms.php            # version()/page()/get()/design()/designValue()/bust() — cached reads keyed by cache_version
+│   │   └── DigitalDelivery.php # fileIdFromUrl()/resolveUrl()/linksForProduct(product, order?) — interne bestand-links → plain/signed route, externe URLs passthrough (zie §47)
 │   └── View/
 ├── bootstrap/
 │   └── app.php                # registers admin.php routes + 'admin' middleware alias
@@ -98,7 +105,10 @@ slimmepc/
 │   │   ├── 2026_08_25_000001_create_repair_submissions_table.php  # repair_submissions (SP-##### ref, device/problems json, photos json, status enum, ip)
 │   │   ├── 2026_09_01_000001_create_categories_table.php      # categories (name, slug, icon, description, status, image, sort_order)
 │   │   ├── 2026_09_01_000002_create_products_table.php        # products (category FK, sku, price, stock, is_featured, gallery_images json...)
-│   │   └── 2026_09_02_000001_add_icon_description_to_categories_table.php # categories: adds icon (kebab, nullable) + description (text, nullable) after slug
+│   │   ├── 2026_09_02_000001_add_icon_description_to_categories_table.php # categories: adds icon (kebab, nullable) + description (text, nullable) after slug
+│   │   ├── 2026_10_06_000001_create_license_codes_table.php # license_codes (product FK cascade, code unique, status available/sold, order/order_item FK, assigned_at) — zie §44
+│   │   ├── 2026_10_06_000002_add_is_digital_to_products_table.php # products.is_digital boolean default false — zie §44
+│   │   └── 2026_10_06_000003_create_digital_files_tables.php # digital_files + digital_downloads log — zie §47
 │   └── seeders/
 │       ├── DatabaseSeeder.php         # calls AdminUserSeeder + ContentBlockSeeder
 │       ├── AdminUserSeeder.php        # creates slimmepc@admin.com admin account
@@ -157,7 +167,9 @@ slimmepc/
 │       │   ├── klanten/index.blade.php # Users-beheren (AJAX table + modals) — route admin.users.index
 │       │   ├── shop/
 │       │   │   ├── categories/index.blade.php # Webshop categorieën — 8 cols + icon picker (lucide) + description textarea + modals (create/edit/details/delete)
-│       │   │   └── products/index.blade.php   # Webshop producten — 11 cols + AI describe + TinyMCE + gallery
+│       │   │   ├── products/index.blade.php   # Webshop producten — filters incl. Digitaal + badge + codes-voorraad; create/edit met is_digital toggle + Digitale levering-blok (zie §44)
+│       │   │   ├── license_codes/index.blade.php # Licentiecodes — search/product/status-filters, counts, single-code add modal, delete (zie §44)
+│       │   │   └── files/index.blade.php      # Bestanden — chunked upload (4MB, progress, copy-link), search, delete-guard (zie §47)
 │       │   ├── dashboard.blade.php     # admin dashboard (Dutch, responsive)
 │       │   └── reparatie-aanmeldingen/index.blade.php # Reparatie inbox (table + detail modal, search/filter/per-page/pagination, inline status change, delete modal)
 │       ├── components/       # design-system blade components (see section 11)
@@ -176,8 +188,10 @@ slimmepc/
 │       │   ├── service-datarecovery.blade.php # Data Recovery (pageKey `datarecovery`) — light design from step-2/datarecovery.html, 7 sections
 │       │   ├── service-pcreparatie.blade.php  # PC Reparatie (pageKey `pcreparatie`) — light `from-white via-[#f8fbff] to-[#edf5ff]` design from step-2/pc.html, 8 sections + pc/* subfolder images
 │       │   └── service-reparatie.blade.php     # Standalone reparatie-aanmelden 5-step wizard (pageKey `reparatie`, not a service page) — CMS-styled, matches step-2/Reparatie-aanmelden.html
-│       │   └── partials/
-│       │       ├── header.blade.php    # nav (desktop + mobile drawer + search overlay) from $c['header']; order = $navBefore (Home, Over ons) → Webshop ▾ (nu **dynamisch categories** via View::composer `webshopCategories` — icon+description, `Cache::remember(3600)` + bust bij Category mutate, **zonder** "Bekijk alle producten" knop) → Diensten ▾ → $navAfter; **Diensten dropdown is dynamic** — reads `service_slugs` de-duplicated by pageKey + `ContentBlock::exists()` + `config(pages.{pageKey}.label)` + `$svcIcons`; `mac-reparatie` ↔ `macbook-reparatie` alias kept. **Diensten ‘Reparatie aanmelden’ + ‘Afspraak aan huis’ knoppen verwijderd** (desktop + mobile) per client. Account area is AUTH-AWARE: guest → Account button (login), logged-in → user name + dropdown (native <details>, no JS) with Mijn account → /profile + Uitloggen (POST /logout); mobile drawer shows the name tile + full-width logout button
+│       │       └── partials/
+│       │           ├── trust-bar.blade.php # Gedeelde CMS trust-balk (webshop_trust: icon/titel/subtitel, props $pi + $bare) — gebruikt op webshop/wishlist/bestellingen/cart; kolommen 1-4 dynamisch (zie §48)
+│       │           ├── payment-badges.blade.php # Betaalmethode-badges (payment_badges: image/label, $variant cart|checkout) — logo of legacy tekst (zie §48)
+│       │           ├── header.blade.php    # nav (desktop + mobile drawer + search overlay) from $c['header']; order = $navBefore (Home, Over ons) → Webshop ▾ (nu **dynamisch categories** via View::composer `webshopCategories` — icon+description, `Cache::remember(3600)` + bust bij Category mutate, **zonder** "Bekijk alle producten" knop) → Diensten ▾ → $navAfter; **Diensten dropdown is dynamic** — reads `service_slugs` de-duplicated by pageKey + `ContentBlock::exists()` + `config(pages.{pageKey}.label)` + `$svcIcons`; `mac-reparatie` ↔ `macbook-reparatie` alias kept. **Diensten ‘Reparatie aanmelden’ + ‘Afspraak aan huis’ knoppen verwijderd** (desktop + mobile) per client. Account area is AUTH-AWARE: guest → Account button (login), logged-in → user name + dropdown (native <details>, no JS) with Mijn account → /profile + Uitloggen (POST /logout); mobile drawer shows the name tile + full-width logout button
 │       │       ├── hero.blade.php      # badge/title/description/buttons/trust + desktop orbit visual + mobile steps
 │       │       ├── why.blade.php       # benefits hub + stats from $c['why']
 │       │       ├── services.blade.php  # service cards from $c['services']
@@ -189,16 +203,17 @@ slimmepc/
 │       ├── profile/          # edit, partials (update-profile-information, update-password, delete-user)
 │       └── welcome.blade.php
 ├── routes/
-│   ├── admin.php             # /admin prefix, auth+verified+admin middleware, admin.* names (+ content.* group)
+│   ├── admin.php             # /admin prefix, auth+verified+admin middleware, admin.* names (+ content.* group); webshop-groep nu ook license-codes.* + bestanden.* (zie §44/§47)
 │   ├── auth.php               # Breeze auth routes
 │   ├── console.php
-│   └── web.php               # GET / → PageController@home (name: home) — the user-facing dashboard no longer exists
+│   └── web.php               # GET / → PageController@home (name: home) — the user-facing dashboard no longer exists; + GET /download/bestand/{file} → download.file (throttle, zie §47)
 ├── storage/
-├── tests/
+├── tests/                    # Pest; o.a. DigitalFilesTest (8), LicenseGatedSaleTest (11), WebshopTrustBarTest (4), PaymentBadgesTest (4), ReparatieWhyTest (3) — zie §44/§45/§47/§48
 ├── scripts/                    # legacy-sync (zie §37/§38 — NIET deployen, alleen lokaal draaien)
 │   ├── sync-phase1.php         # users/addresses/manual_invoices/device_receipts (`--file --dry-run --tables --yes`)
 │   ├── sync-phase2.php         # memberships/afspraken/monteur (`--file --dry-run --tables --yes`)
 │   ├── sync-phase3-orders.php    # shop-orders zónder producten (`--file --dry-run --tables --yes`, zie §39)
+│   ├── sync-license-codes.php    # license_codes + product-link backfill + digital-flag (zie §49); LET OP: DELETE i.p.v. TRUNCATE (zie gotcha §6)
 │   ├── verify-sync.php           # read-only fidelity-check dump↔DB, exit 1 bij diff (zie §40)
 │   ├── sync-phase3-contact.php    # contact_messages → submissions+replies (zie §41)
 │   ├── sync-mailing-list.php        # mailing_list direct + email-dedupe (zie §42)
@@ -278,7 +293,20 @@ slimmepc/
 - **Reparatie emails via `afterResponse` (2026-08-26)**: `RepairController@submit` wraps the two `Mail::send` calls in `dispatch(function(){ ... })->afterResponse();` so the JSON `201` is returned to the browser immediately and the customer/owner emails fire server-side after the response — the user closing the tab can't cancel delivery and SMTP latency never blocks the UI. `.env` `MAIL_MAILER` stays `smtp` for real delivery; locally, unreachable Gmail SMTP makes sending slow, so you can temporarily set `MAIL_MAILER=log` to test the instant submit path (don't commit that change). Use `afterResponse` (not a second frontend request) so delivery is guaranteed regardless of the user's session.
 - **Error pages (2026-10-04)**: `resources/views/errors/{404,403,419,500,503}.blade.php` extend `landing.layouts.app` + header/footer (same design system: glassy card, `gradient-text` code, `bg-brand-gradient-btn` homepage button). `AppServiceProvider` has a `View::composer(['errors::*', 'errors.*'])` sharing `$c`/`$design` from CMS with try/catch (error page must never throw). BOTH patterns are required: Laravel's handler resolves error views via the `errors::` namespace (`errors::404`), so `errors.*` alone never matches on real HTTP errors (header nav + footer render blank). Card logo is a plain `<img>` with the same `?? 'assets/img/landing/logo.webp'` fallback as the header (no letter-fallback). Tailwind `content` already covers `resources/views/**/*.blade.php` — rerun `npm run css:landing` after editing error views.
 - **Reparatie winkeladres from contact page (2026-10-04)**: the "Ik breng het apparaat naar de winkel" radio sublabel in `service-reparatie.blade.php` was hardcoded (`Mheenvelden 40D, Apeldoorn`) — now reads single source of truth `contact.gegevens.address` (multi-line textarea → single line via newline→`, `). `PageController@reparatie` loads `$p = Cms::page('contact')` and passes it (`compact('c','s','p','design')`); blade falls back to the old hardcoded string when empty. So editing the address at `/admin/content/contact/section/gegevens` updates both `/contact` and `/reparatie-aanmelden`.
-- **Productinfo CMS page (2026-10-05, UNPUSHED — batch with upcoming edits)**: new `productinfo.info` CMS page (`trust_items` json with **lucide icon-picker** + label, `warranty_tab_title` + `warranty_items`, `snel_title`/`snel_subtitle` + `snel_items`, `cart_trust` json title+subtitle) drives product page (trust row, warranty tab, "Snel in huis" card) AND cart (checklist reuses `snel_items`, trust bar uses `cart_trust`). Admin link = last item in Webshop dropdown ("Productinfo", `admin.content.section.edit` page=productinfo). All blade reads use `??` fallbacks = current hardcoded texts (zero visual change pre-seed). Seeder defaults in `database/data/productinfo.php` (firstOrCreate). NOTE: production `trust_items` icons still FontAwesome classes — must run the icon-migration script on the server at deploy time (map fa-* → lucide names) since blade now renders `data-lucide`.
+- **Productinfo CMS page (2026-10-05/06, deployed `c02b773`+`a20dcad`)**: new `productinfo.info` CMS page (`trust_items` json with **lucide icon-picker** + label, `warranty_tab_title` + `warranty_items`, `snel_title`/`snel_subtitle` + `snel_items`, `cart_trust` json title+subtitle) drives product page (trust row, warranty tab, "Snel in huis" card) AND cart (checklist reuses `snel_items`, trust bar uses `cart_trust` with fixed lucide icons truck/store/shield-check/wallet-cards). Admin link = last item in Webshop dropdown ("Productinfo", `admin.content.section.edit` page=productinfo, dropdown opens + active-state via `request()->route('page') === 'productinfo'`). All blade reads use `??` fallbacks = current hardcoded texts (zero visual change pre-seed). Seeder defaults in `database/data/productinfo.php` (firstOrCreate, preserves admin edits). Production seeded + `trust_items` FA icons migrated to lucide (fa-circle-check→badge-check, fa-location-dot→map-pin, fa-lock→lock) via /tmp script + `Cms::bust()`.
+- **Webshop category order (2026-10-06, `a0e2795`)**: category chips/dropdowns/footer were `ORDER BY sort_order, name` (alphabetical when sort_order ties at 0). Now `ORDER BY sort_order, id` = manual order first, creation order on ties (Laptops → Refurbished → Desktops). Changed in `WebshopController` (3× `$allCategories`), `AppServiceProvider` header/footer composers (2×), `FavoriteController`, `ChatCmsContext`. Admin selects stay alphabetical.
+- **Product colors: admin picker (2026-10-06, `54f1284`)**: create/edit forms replaced text inputs with native `<input type=color" name="colors[]">` + readonly hex display (`addColorRow()` JS; `addField()` kept for sizes). Old Dutch/English names mapped to hex on hydrate (`$colorNames` incl. black/white/silver/gray...). Controller normalizes strictly: only `#RRGGBB` kept (uppercased), rest dropped. No migration (JSON column). Table list unchanged.
+- **Product colors: frontend (2026-10-06, `5b96231`+`3279022`+`cfbf409`)**: `product-details.blade.php` shows swatch dots under "Inclusief btw" (label Kleur/Kleuren, `title` tooltip, old names mapped, block hidden when empty, `mb-3` spacing to SKU). Page uses Tailwind CDN so no CSS build needed. Production color data migrated to hex (`["zwart","White"]`→`["#000000","#FFFFFF"]`, `["black"]`→`["#000000"]`) via /tmp script.
+- **Payment badges hidden (2026-10-06, in `ace1d2e`)**: removed PayPal + Mastercard badges from cart (`cart.blade.php`) and checkout (`checkout.blade.php` "Veilig betalen met"), grids `grid-cols-5`→`grid-cols-3` (iDEAL/Bancontact/VISA remain). Footer payment badges are CMS-managed (untouched). Trust subtitle "iDEAL, Bancontact, PayPal" text kept (edit via Productinfo admin if wanted).
+- **Darker secondary texts batches 1-4 (2026-10-06, `ace1d2e`+`5a76fff`)**: washed `slate-400/500` readable texts → new standard (values `slate-700 font-semibold`, headings `#071638`, descriptions/meta `slate-600`+medium). Covered: product page (specs, quick/highlight cards, reviews count, btw/SKU, delivery, advice cards, related specs, sticky snippet), product-card partial (specs; note `webshop.blade.php` CSS `.product-body p { color: #64748b !important }` now `#334155` — the `!important` overrides partial classes, keep both in sync), webshop (description, trust card, filters, sorting, pagination, trust bar), cart mobile Prijs/Subtotaal labels (blade + `buildCartRow` JS template), checkout (section subtitles, shipping detail, summary labels/count, btw hint, "Veilig betalen met"). Intentionally-muted kept: breadcrumbs, strikethrough old prices, inactive tabs, empty states, modal chrome, decorative icons.
+- **Cart square images (2026-10-06, in `5a76fff`)**: item thumb box was non-square + `<a>` without size + `object-cover` crop (broken on mobile). Now square (64→76→84px), anchor fills box (`flex h-full w-full`), img `object-contain` full-product visible — applied to BOTH blade row and `buildCartRow()` JS template (AJAX re-render would restore the old look otherwise). Upsell thumb also square (`aspect-square` mobile / 115px desktop) + contain.
+- **Toasts above AI chat (2026-10-06, `5a76fff`+`21e8199`)**: toast container was `z-[70]` bottom-right = under chat widget (`z-[999]`/`z-[1000]`). Now `z-[1200]` **as inline `style="z-index: 1200;"`** (not just the class). LESSON: JS-injected Tailwind classes don't exist in compiled `landing.css` until `npm run css:landing` reruns — the class-only fix silently failed locally; inline style is bulletproof for runtime-injected markup (works on compiled-CSS pages and admin alike). `landing.css` was still rebuilt so the class exists too. Verified live in server `design.js`.
+- **TRUNCATE inside transactions is a silent killer (2026-10-06, `7e6f9b9`)**: `sync-license-codes.php` wrapped `TRUNCATE TABLE` in `DB::transaction()` — MySQL treats TRUNCATE as DDL and **implicitly commits**, so the later `commit()` threw "There is no active transaction" (data was already written!). Rule for ALL sync scripts: use `DELETE FROM` (DML, transactional) instead of TRUNCATE when inside a transaction.
+- **CMS json-row image preview overlay (2026-10-06, `0a0fd55`)**: the "Geen voorbeeld" span stayed visible OVER the preview after picking a file (looked like upload failed). Fix: `data-image-empty` marker on the span (both `section.blade.php` + `json-row.blade.php`) + hide it on file-select (instant FileReader preview) and post-save (`updateSavedImages`, single + json paths) in `content.js`.
+- **Shared partials must not bring page containers (2026-10-06, `3d648b4`)**: `trust-bar` partial shipped its own `<section class="pb-12"><div class="max-w-[1450px]...">` — fine on webshop/wishlist/orders, but nested inside cart's own `max-w-[1240px]` container it broke the layout. Rule: shared partials get a `['bare' => true]` mode rendering only inner content; the including page owns section/container. Regression-tested (`assertDontSee('max-w-[1450px]')` on cart).
+- **Legacy users can have NULL `created_at` (2026-10-06, `49ef182`)**: synced old accounts (e.g. id=1) crashed `/profile` (500) at `created_at->format()`. Fix: nullsafe `?->format() ?? '—'` + regression test (fails 500 on old code).
+- **Pest fakes: `UploadedFile::fake()->create($name, $kb)` writes EMPTY content**: assembled chunk uploads then fail integrity checks (`getSize()` reports the fake size, real bytes = 0). Use `createWithContent($name, str_repeat(...))` for upload tests.
+- **PHP `range(1, 0)` returns `[1, 0]`** (two elements, not empty!) — a test helper seeding "0 codes" actually seeded 2. Use an explicit `for` loop for possibly-empty ranges.
 
 ## 7. Sections & Pages / Main Features
 | # | Section | Path/Page | Description & Details |
@@ -602,6 +630,7 @@ slimmepc/
 | price / old_price | decimal 10,2 | Prijs / oude prijs |
 | discount_type / discount_value / discount_start/end | enum(percentage,fixed) / decimal / datetime | Korting |
 | stock_status / status / is_featured | enum(in_stock,out_of_stock) / boolean / boolean | Voorraad / actief / op home |
+| is_digital (2026-10-06) | boolean default false | Digitaal product (licentie + downloadlinks); echte voorraad = license pool (zie §44) |
 | description | text | TinyMCE HTML |
 | features / colors / sizes | json | Arrays |
 | main_image / gallery_images | string / json | Afbeeldingen |
@@ -642,7 +671,7 @@ slimmepc/
 | subtotal | decimal 10,2 | Excl. btw (= totaal − btw, hardware-formule) |
 | tax_percentage default 21 / tax_amount | decimal | BTW inclusief: `tax = total×21/121` |
 | discount_code nullable / coupon_id nullable FK / discount_amount | string/FK/decimal | Kortingssnapshot |
-| shipping_method default delivery / shipping_cost | string/decimal | delivery of pickup |
+| shipping_method default delivery / shipping_cost | string/decimal | delivery, pickup of `digital` (all-digital carts: methode geforceerd, kosten 0, zie §46) |
 | total_price | decimal 10,2 | Incl. alles (wat naar Mollie gaat) |
 | payment_status | enum(pending,paid,failed) default pending | — |
 | payment_method nullable | string | `mollie` bij aanmaak, daarna Mollie-methode (ideal/...) |
@@ -672,6 +701,38 @@ slimmepc/
 | payment_method nullable / pdf_path nullable | string | `invoices/orders/INV-....pdf` op disk `local` |
 | created_at / updated_at | timestamp | — |
 
+### Table: `license_codes` (2026-10-06, zie §44)
+| Column | Type | Description |
+|--------|------|--------------|
+| id | bigint PK | — |
+| product_id | foreignId cascade | Pool per product (delete product → codes weg) |
+| code | string unique | De licentiecode zelf |
+| status | enum(available,sold) default available | Alleen `available` telt mee voor verkoop |
+| order_id nullable nullOnDelete / order_item_id nullable nullOnDelete | FK | Koppeling bij verkoop (qty>1 → N codes per item) |
+| assigned_at nullable | timestamp | Toewijzingsmoment |
+| created_at / updated_at | timestamp | — |
+| **indexes** | INDEX(product_id, status), UNIQUE(code) | Pool-lookup + dup-guard |
+
+### Table: `digital_files` (2026-10-06, zie §47)
+| Column | Type | Description |
+|--------|------|--------------|
+| id | bigint PK | — |
+| name / path | string | Originele bestandsnaam / random pad op disk `local` (`digital/…`, NIET publiek) |
+| size / mime nullable | unsignedBigInt / string | Bytes / gedetecteerd |
+| uploaded_by nullable nullOnDelete | FK → users | Admin die uploadde |
+| downloads_count default 0 | unsignedInt | Teller |
+| created_at / updated_at | timestamp | — |
+
+### Table: `digital_downloads` (2026-10-06, zie §47)
+| Column | Type | Description |
+|--------|------|--------------|
+| id | bigint PK | — |
+| digital_file_id | foreignId cascade | — |
+| order_id nullable nullOnDelete / user_id nullable nullOnDelete | FK | Eigenaar-context (null bij admin-download) |
+| ip nullable | string(45) | — |
+| created_at / updated_at | timestamp | — |
+| **index** | INDEX(digital_file_id, created_at) | Misbruik-analyse |
+
 ### Table: `favorites` (2026-09-08)
 | Column | Type | Description |
 |--------|------|--------------|
@@ -695,11 +756,14 @@ ContentBlock / ContentMeta ──→ standalone CMS tables (no FKs)
 | ContactReply | contact_replies | BelongsTo `ContactSubmission`; casts `sender`/`source` |
 | RepairSubmission | repair_submissions | Standalone. Casts `problems`/`photos` → array, `privacy` → bool; `scopeNew()`; status enum; `photoUrls()` returns `route('admin.reparatie-aanmeldingen.photo', [...])` per photo |
 | Category | categories | HasMany `Product`; fillable `name,slug,icon,description,status,image,sort_order`; casts `status` boolean; auto `slug` from `name` on create/update |
-| Product | products | BelongsTo `Category`; fillable `title,slug,brand,sku,price,old_price,discount_*,stock_status,status,is_featured,description,features,colors,sizes,main_image,gallery_images,external_link,...`; casts arrays/decimals/booleans; `discounted_price` accessor |
+| Product | products | BelongsTo `Category`; fillable `title,slug,brand,sku,price,old_price,discount_*,stock_status,status,is_digital,is_featured,description,features,colors,sizes,main_image,gallery_images,external_link,...`; casts arrays/decimals/booleans; `discounted_price` accessor; HasMany `licenseCodes`/`availableLicenseCodes` (status-filtered); `availableLicenseCount()` (prefers eager `withCount`, no N+1); `hasAvailableLicenses(qty)` — digital sale gate; `isDigital()` |
 | Address | addresses | BelongsTo `User`; `fullName()` + `fullStreet()` helpers |
 | ShippingRate | shipping_rates | Standalone; casts price/free_above/is_active; `costFor(afterDiscount)` — pickup altijd 0, gratis boven `free_above` |
-| Order | orders | BelongsTo `User/Coupon/Address(billing+shipping)`; HasMany `OrderItem(items)`; HasOne `OrderInvoice(invoice)`; auto `ORD-` nummer in `boot()`; `isPaid()` |
-| OrderItem | order_items | BelongsTo `Order/Product` (snapshots blijven bij product-delete) |
+| Order | orders | BelongsTo `User/Coupon/Address(billing+shipping)`; HasMany `OrderItem(items)`; HasOne `OrderInvoice(invoice)`; auto `ORD-` nummer in `boot()`; `isPaid()`; `isDigitalDelivery()` (shipping_method digital); `shippingMethodLabel()` (Afhalen/Bezorging/Digitaal) |
+| OrderItem | order_items | BelongsTo `Order/Product` (snapshots blijven bij product-delete); HasMany `licenseCodes` via `order_item_id` |
+| LicenseCode | license_codes | BelongsTo `Product/Order/OrderItem`; `isAvailable()` |
+| DigitalFile | digital_files | BelongsTo `User` (uploader); HasMany `DigitalDownload`; `routeUrl()` (statische link), `signedUrlForOrder()` (per-order HMAC), `humanSize()`; `ALLOWED_EXTENSIONS` |
+| DigitalDownload | digital_downloads | BelongsTo `DigitalFile/Order/User` |
 | OrderInvoice | order_invoices | BelongsTo `Order` (met `order.items` voor PDF) |
 | Cart | carts | BelongsTo `User/Coupon`; HasMany `CartItem(items)`; `getCountAttribute()` |
 | Coupon | coupons | HasMany `CouponUsage(usages)`; `isExpired()/isMaxedOut()/isActive()/discountAmount()`; code auto-uppercase |
@@ -1750,3 +1814,52 @@ Niet actief: e-mailverificatie (`MustVerifyEmail` staat uit in `User`-model).
 - **Script:** `scripts/sync-purchase-records.php` (zelfde parser/flags/backup/`--config`-patroon). Schema **identiek** oud↔nieuw → directe kopie met zelfde IDs. Resultaat lokaal én productie: **23**, sommen identiek tot op de cent (`purchase 11483.27 / sale 13460.76` beide kanten = inhoudsbewijs).
 - **Server-upload:** zelfde `/tmp/sync/`-flow, run EXIT 0, `/tmp/sync/` daarna verwijderd.
 - **Openstaand — `favorites` (3) NIET gesynct (bewust geblokkeerd):** `product_id` is NOT NULL + FK (`2026_09_08_000007`) en oude ids (5/7/42) wijzen in de nieuwe DB naar **andere** seed-producten (of bestaan niet: 42) — import nu = foute wishlist-links (datacorruptie) of FK-fout. Regel: pas na producten-sync (fase 3b), met zelfde IDs.
+
+## 44. Digitale producten + licentiepool (2026-10-06, deployed `fb1d40c`)
+
+- **Oud systeem analyse:** alleen 3 URL-kolommen (`download_32bit_url/64bit_url/manual_url`, zelfs niet in `$fillable`) + `license_codes(id,product_id,code,status,order_id)`; digitaalherkenning was fragiel (`category.name === 'Software'`); toewijzing in `MollieController` (1 code max, geen transactie); delivery-mail met **hardcoded** `Microsoft_Office_Installer.zip`; download-route **zonder auth**.
+- **Nieuw:** `products.is_digital` boolean default false (expliciet i.p.v. categorienaam) + verbeterde `license_codes` (unique code, `order_item_id`, `assigned_at`, compound index) — migrations `2026_10_06_000001/000002`.
+- **Admin:** `Shop\LicenseCodeController` (index/data/store-één-code/destroy, `admin.webshop.license-codes.*`) + sidebar-link met available-badge; product create/edit met **is_digital toggle** (verbergt voorraad/levertijd) + **Digitale levering-blok** (4 URL-velden); producten-tabel met Digitaal-badge + codes-teller + Digitaal-filter.
+- **Verkoopflow:** `stock_status`-bypass voor digitaal (pool = voorraad); `OrderPaymentService::assignLicenseCodes()` in transactie met `lockForUpdate`, N codes per `quantity` (old-bug gefixt); `order_item.licenseCodes` relatie.
+- **Levering (alleen na betaling):** factuurmail-sectie "Jouw digitale producten" (codes + downloadknoppen) + `mijn-bestellingen/{nr}`-kaart + admin-order codes-overzicht; productpagina toont géén links vooraf (alleen "Digitale levering per e-mail").
+- **CartService:** all-digital carts → shipping 0; mixed → normaal.
+
+## 45. License-gated sale — geen code = geen verkoop (2026-10-06, deployed `b7df7c2`)
+
+- **Regel:** digitaal verkoopbaar alleen bij `available >= aantal` (`sold` telt nooit mee). `Product::hasAvailableLicenses(qty)` (gebruikt eager `withCount` waar geladen).
+- **5 poorten:** productpagina + sticky bar ("Tijdelijk uitverkocht", rode badge, disabled knop), grid-kaarten + gerelateerd (badge + ban-knop), homepage-carousel (`PageController` mapping), `CartController@store/update`, `CheckoutController@store` (Nederlandse 422-meldingen, incl. reeds-in-winkelwagen aantal).
+- **Race-window:** atomische toewijzing blijft; bij tekort → order `processing` + **`LicenseShortageMail`** (product/aantal/beschikbaar) + admin-push (i.p.v. stille `Log::warning`).
+- **Tests:** `LicenseGatedSaleTest` 7 (blokkeren add/checkout/aantal, sold-flip met links, shortage-mail render, available-telling).
+- **Gevolg live:** producten zonder codes (Mac €69, Win11 Pro €50) zijn onkoopbaar tot codes worden toegevoegd — bewust, per client.
+
+## 46. Digitale checkout — Verzendmethode verbergen (2026-10-06, deployed `fc9c8c0`)
+
+- **Regel:** puur-digitale winkelwagen → `Verzendmethode`-sectie **verborgen** (+ blauwe "Digitale levering"-kaart), methode server-side geforceerd `digital`, kosten 0; mixed/fysiek → alles normaal. Methode volgt altijd de cart, nooit de request (tamper-proof `index/totals/store`).
+- **Wijzigingen:** `CheckoutController` (isAllDigital → method/rates/view-var), `StoreCheckoutRequest` accepteert `digital`, adresvalidatie ongewijzigd; samenvatting toont "Levering (digitaal) — Gratis"; labels `Digitaal (e-mail)` in admin-order, account-overzicht/detail, admin-mail, factuur-PDF (`Digitale levering`) en payment-success ("licentiecodes en downloadlinks per e-mail").
+- **Tests:** 4 nieuw (verbergen/toon/opslaan `digital`/tamper-negeren) — `LicenseGatedSaleTest` nu 11 groen.
+
+## 47. Bestanden — beschermde uploads + per-order links (2026-10-06, deployed `db1ba9d`)
+
+- **Admin "Bestanden"** (Webshop-dropdown): **chunked upload** (4MB chunks, progress, ongelimiteerde grootte — omzeilt PHP `upload_max_filesize` 128M lokaal/Hostinger), extensie-whitelist (`zip,iso,exe,msi,pdf,dmg,pkg,7z,rar`), disk-space check, `set_time_limit(0)` bij assemblage, integriteitscheck (grootte-match); na upload **link + Kopieer-knop**; delete geblokkeerd bij product-gebruik. Opslag op disk `local` (`storage/app/private/digital/`, NIET publiek).
+- **`DownloadController`** (`GET /download/bestand/{file}`, throttle): toegang alleen voor admin / ingelogde eigenaar van betaalde order met verwijzend digitaal product / **per-order HMAC-signed link** (dekt gast-checkouts; `payment_status` live hercheckt → cancel/refund stopt toegang direct). 403 anders; `streamDownload` + `no-store` + logging (`digital_downloads`: file/order/user/ip) + teller.
+- **`DigitalDelivery`-helper:** `fileIdFromUrl()` (parsed `/download/bestand/{id}`), `resolveUrl()` (met order → signed, zonder → statische route; extern → passthrough), `linksForProduct()` — gebruikt door factuurmail + Mijn bestellingen.
+- **Tests:** `DigitalFilesTest` 8 (chunk-upload, extensie/onvolledig-reject, owner/admin vs stranger/anon, guest-signed vs tampered/unpaid, delete-guard, helper, e-mailrender met code + signed link).
+
+## 48. CMS content-batch: trust-balk, reparatie-sidebar, betaalbadges (2026-10-06, deployed `0a0fd55`+`31d7476`+`3d648b4`)
+
+- **`webshop_trust`** (productinfo, icon/titel/subtitel, add/delete): gedeelde partial `trust-bar` (`$pi` + `$bare`) vervangt 3 identieke hardcoded strips (webshop-categorie, wishlist, bestellingen-overzicht) én de cart-strip; kolommen 1-4 dynamisch (literal classes → `css:landing` rebuild). Fallbacks = oude 4 kaarten (nul visuele wijziging pre-seed). `WebshopController@index/search`, `FavoriteController@index`, `Account\OrderController@index` geven nu `$pi` mee.
+- **Cart-bare-fix (`3d648b4`):** partial bracht eigen `<section><div max-w-[1450px]>` mee → genest in cart-container (`max-w-[1240px]`) = kapotte layout. `bare`-mode rendert alleen de inner card; regressietest (`assertDontSee('max-w-[1450px]')` beide cart-states).
+- **Reparatie-sidebar CMS:** "Waarom aanmelden?" (4 items + contact/WhatsApp/telefoon-nummers) verplaatst naar EINDE van hero-sectie (`why_*` blocks, nummers gesanitized voor `wa.me`/`tel:`); dode `why`-sectie (nooit gerenderd) uit config verwijderd (DB-rijen blijven wees, onschadelijk). Seeder: `ReparatieContentSeeder` (firstOrCreate-safe).
+- **`payment_badges`** (productinfo, image+label rows): partial `payment-badges` (`$variant` cart|checkout) — zonder logo's exact de oude tekst-badges (iDEAL/Bancontact/VISA styling behouden); met logo `<img max-h-24px>`; kolommen 1-3 dynamisch. `CheckoutController@index` geeft nu `$pi` mee. JSON-row image-upload bewezen via test (multipart `blocks.{key}.{i}.{field}_file` → `assets/img/landing/`, zie gotcha §6 preview-fix).
+- **Live-seeding:** nieuwe blocks via `/tmp`-script + `Cms::bust()` (firstOrCreate, edits behouden) — patroon als §productinfo-migratie.
+
+## 49. License-sync script + live data (2026-10-06)
+
+- **Script:** `scripts/sync-license-codes.php` (zelfde dump-parser/flags/backup/`--config`-stijl): oude producten→nieuw via slug/titel, `sold`-codes→nieuwe orders via `order_number` (+ `order_item_id`-match), wees-codes blijven `sold` zónder link (nooit doorverkopen!), link-backfill + `is_digital=1`-flag, dubbele codes geskipt. Droog te draaien met `--dry-run`.
+- **Data (dump `h_00094667_slimmepc.sql`):** 4 digitale producten (cat. Software): Office 2021 Pro Plus €60 (id 98, 12 codes: 7 sold/5 available), Win11 Home €50 (id 100, 1 available), Office Mac €69 (id 99, 0 codes), Win11 Pro €50 (id 101, 0 codes). Orders 52/61/63 = `ORD-4VLOPBBE/KXFEWWHL/TLNMULV6` (alle €60 Office); orders 32/33/34 ontbreken in dump → 4 wees-`sold` (bewust behouden).
+- **Live-resultaat:** producten ids 19-22 (+23-26 na per ongeluk gewiste re-import — zie les hieronder), **13 codes (6 avail/7 sold, 3 gelinkt)**; `sync-license-codes-report.log` per run.
+- **LES — verwijderde producten komen terug via cascade-verlies:** live producten 19-22 + codes verdwenen spoorloos (handmatige admin-delete → `license_codes` cascade). Hersteld via re-import (nieuwe ids 23-26). Regel: digitale producten nooit via admin wissen zonder pool-export; deletes zijn definitief.
+
+## 50. Profiel-crash legacy users (2026-10-06, deployed `49ef182`)
+
+- `/profile` 500 voor gesyncte accounts met `created_at = NULL` (`->format()` op null, user id=1). Fix: nullsafe `?->format('d-m-Y') ?? '—'` (enige plek met dit patroon) + regressietest (faalt 500 op oude code).
