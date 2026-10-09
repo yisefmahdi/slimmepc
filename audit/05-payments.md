@@ -32,7 +32,7 @@ real `Mollie\Api\Resources\Payment` value objects — never the live API), SQLit
 - Location: `app/Http/Controllers/PaymentController.php:43,69`, `app/Http/Controllers/LidmaatschapController.php:180,206`, `app/Http/Controllers/TechnicianController.php:451,475` (routes `/payment/webhook`, `/lid-worden/webhook`, `/technician/webhook` + all three return routes)
 - Description / Proof: `isPaid($payment)` was the only gate before `finalizeOrder`/`finalizeMembership`/`finalizeForm`. A payment whose collected amount differed from the order total (total edited after payment creation, test-mode games, partial capture) would still fulfil the order, assign licences and send the invoice. Regression test posts a webhook with a €1.00 fake payment for a €121.00 order and asserts `amount-mismatch` + no invoice.
 - Impact: fulfilment of underpaid orders (goods, licences, invoices, member benefits).
-- Fix applied: new `MolliePaymentService::amountMatches()` (`app/Services/Payments/MolliePaymentService.php:70`, exact-cent string compare, tolerant of Mollie Money object/array shapes); all three webhooks + all three return paths now require it, else mark failed/cancelled and report. (commit hash)
+- Fix applied: new `MolliePaymentService::amountMatches()` (`app/Services/Payments/MolliePaymentService.php:70`, exact-cent string compare, tolerant of Mollie Money object/array shapes); all three webhooks + all three return paths now require it, else mark failed/cancelled and report. 0bc565f
 - Regression test: `tests/Feature/AuditPaymentsTest.php` — "refuses to finalize when the Mollie amount mismatches", "consumes the coupon on technician finalize and enforces the amount" (underpay half).
 - Status: Fixed
 
@@ -42,7 +42,7 @@ real `Mollie\Api\Resources\Payment` value objects — never the live API), SQLit
 - Location: `app/Http/Controllers/PaymentController.php:61,99,119,135` (routes `GET /payment/return/{order}`, `GET /payment/success?order=`, `GET /payment/failed?order=`), `resources/views/landing/payment-success.blade.php`
 - Description / Proof: `return()`/`success()`/`failed()` loaded any order by sequential id with no ownership check; the success view printed items, totals **and the buyer's full e-mail address**, and `success()` even "celebrated" unpaid orders. `GET /payment/return/123` as a stranger showed another customer's email + basket.
 - Impact: customer PII leak (email, basket, totals) by trivial id enumeration; misleading success state.
-- Fix applied: `mayViewOrder()` (owner via `user_id`, guest via `owned_orders` session binding set at `CheckoutController@store`, admins always); strangers get the generic success page; `success()` only shows paid + viewable orders; buyer e-mail removed from the blade. (commit hash)
+- Fix applied: `mayViewOrder()` (owner via `user_id`, guest via `owned_orders` session binding set at `CheckoutController@store`, admins always); strangers get the generic success page; `success()` only shows paid + viewable orders; buyer e-mail removed from the blade. 0bc565f
 - Regression test: "hides order details on the return page from strangers", "shows order details … to the session-bound guest buyer", "never celebrates an unpaid order".
 - Status: Fixed
 
@@ -52,7 +52,7 @@ real `Mollie\Api\Resources\Payment` value objects — never the live API), SQLit
 - Location: `routes/web.php:102-105` (`/technician/payment/{klantnummer}`, `/technician/payment/submit`, `/technician/quote`, `/technician/check-coupon`), `app/Http/Controllers/TechnicianController.php:101-116`
 - Description / Proof: `paymentPage()` showed client name/address/email/phone for any `SLP-######` (1M space, enumerable) with zero auth, and `storePaymentForm()` let anyone create payable technician invoices. `GET /technician/payment/SLP-777001` as guest returned 200 with client PII.
 - Impact: mass client-PII harvesting; fraudulent payable forms; coupon burn (see PAY-05).
-- Fix applied: `auth` middleware on the four operator routes + `requireTechnician()` role gate (technician/admin, blocked-aware; JSON → 403, web → technician login). Note: the `requireTechnician()` gate itself was written by the auth sub-agent ([AUTH-02]); this audit added the route middleware, the finding/tests. (commit hash)
+- Fix applied: `auth` middleware on the four operator routes + `requireTechnician()` role gate (technician/admin, blocked-aware; JSON → 403, web → technician login). Note: the `requireTechnician()` gate itself was written by the auth sub-agent ([AUTH-02]); this audit added the route middleware, the finding/tests. 0bc565f
 - Regression test: "blocks guests and customers from the technician payment page".
 - Status: Fixed
 
@@ -62,7 +62,7 @@ real `Mollie\Api\Resources\Payment` value objects — never the live API), SQLit
 - Location: `app/Http/Controllers/LidmaatschapController.php:230,301` (`/lid-worden/success/{id}`), `app/Http/Controllers/TechnicianController.php:497,589` (`/technician/success/{form}`)
 - Description / Proof: both pages only required `payment_status === 'paid'`; sequential ids meant any stranger could read member/form details (name, email on the lidmaatschap page, amount on the technician page).
 - Impact: member PII leak by enumeration.
-- Fix applied: session binding set in `mollieReturn()` + `mayViewMembership()`/`mayViewForm()` (owner/admin/session, else 404); buyer e-mail line removed from `lidmaatschap-success.blade.php`. (commit hash)
+- Fix applied: session binding set in `mollieReturn()` + `mayViewMembership()`/`mayViewForm()` (owner/admin/session, else 404); buyer e-mail line removed from `lidmaatschap-success.blade.php`. 0bc565f
 - Regression test: "hides membership success pages from strangers".
 - Status: Fixed
 
@@ -72,7 +72,7 @@ real `Mollie\Api\Resources\Payment` value objects — never the live API), SQLit
 - Location: `app/Http/Controllers/TechnicianController.php:232` (`checkCouponModel`), `:537-551` (`finalizeForm`)
 - Description / Proof: `storePaymentForm()` created `CouponUsage` + incremented `used_count` for **unpaid** forms (abandoned forms permanently burned single-use codes and inflated global counts — verified pre-fix), and `checkCouponModel()` ignored `Coupon::min_amount` (a min-€500 code applied to a €15 job; webshop path enforces it). Test asserts zero usage / zero increment after an unpaid submit.
 - Impact: destroyed single-use coupons, wrong global usage counts, unjustified discounts.
-- Fix applied: consumption moved to `finalizeForm()` (post-payment, re-validated, `firstOrCreate` + increment-only-on-create); `min_amount` enforced in `checkCouponModel()`. (commit hash)
+- Fix applied: consumption moved to `finalizeForm()` (post-payment, re-validated, `firstOrCreate` + increment-only-on-create); `min_amount` enforced in `checkCouponModel()`. 0bc565f
 - Regression test: "does not burn a coupon until the technician payment succeeds", "rejects technician coupons below their minimum amount", "consumes the coupon on technician finalize…".
 - Status: Fixed
 
@@ -82,7 +82,7 @@ real `Mollie\Api\Resources\Payment` value objects — never the live API), SQLit
 - Location: `app/Services/OrderPaymentService.php:34`, `app/Http/Controllers/LidmaatschapController.php:248`, `app/Http/Controllers/TechnicianController.php:532`
 - Description / Proof: the paid-check then update was non-atomic, so a webhook and a return arriving together could both pass the check; the second `OrderInvoice::create` would hit the unique index (500 → Mollie retries) and mails/licence work could double-run.
 - Impact: 500s on Mollie callbacks, duplicate e-mails, retry storms; worst case (without the unique index) duplicate invoices.
-- Fix applied: `DB::transaction()` + `lockForUpdate()` on the order/membership/form row in all three finalize paths; losers become clean no-ops. (commit hash)
+- Fix applied: `DB::transaction()` + `lockForUpdate()` on the order/membership/form row in all three finalize paths; losers become clean no-ops. 0bc565f
 - Regression test: "treats a repeated webhook as a no-op (single invoice)".
 - Status: Fixed
 
@@ -92,7 +92,7 @@ real `Mollie\Api\Resources\Payment` value objects — never the live API), SQLit
 - Location: `app/Models/DigitalFile.php:52` (`signedUrlForOrder`, used by `DigitalDelivery` + invoice e-mail)
 - Description / Proof: `URL::signedRoute()` has no `expires` — a leaked/forwarded guest link worked forever (only the paid-check bounded it). Test asserts the generated URL now carries `expires=` + `signature=`.
 - Impact: indefinite bearer capability on paid digital goods.
-- Fix applied: `URL::temporarySignedRoute(..., now()->addDays(30), ...)`; `hasValidSignature()` enforces expiry (behaviour change flagged: links in old e-mails keep working since they were permanent; new links last 30 days). (commit hash)
+- Fix applied: `URL::temporarySignedRoute(..., now()->addDays(30), ...)`; `hasValidSignature()` enforces expiry (behaviour change flagged: links in old e-mails keep working since they were permanent; new links last 30 days). 0bc565f
 - Regression test: "issues expiring signed download links".
 - Status: Fixed
 
@@ -102,7 +102,7 @@ real `Mollie\Api\Resources\Payment` value objects — never the live API), SQLit
 - Location: `app/Http/Controllers/LidmaatschapController.php:107,289`
 - Description / Proof: `'LID-'.random_int(100000, 999999)` (900k space) with no exists-loop; a collision would 500 on the unique index mid-checkout. Test creates two memberships and asserts distinct `LID-` numbers.
 - Impact: sporadic 500s / duplicate-key errors on signup spikes.
-- Fix applied: `makeInvoiceNumber()` with exists-loop (unique DB index remains the final guard). (commit hash)
+- Fix applied: `makeInvoiceNumber()` with exists-loop (unique DB index remains the final guard). 0bc565f
 - Regression test: "creates unique membership invoice numbers…".
 - Status: Fixed
 
@@ -112,7 +112,7 @@ real `Mollie\Api\Resources\Payment` value objects — never the live API), SQLit
 - Location: `app/Models/TechnicianInvoice.php:30-41`
 - Description / Proof: `'SLP-'.strtoupper(uniqid())` is time-based (predictable invoice ids) and can collide under concurrency (unique index → 500 in `storePaymentForm`).
 - Impact: guessable invoice numbers; rare duplicate-key 500s.
-- Fix applied: `Str::random(8)` + exists retry loop. (commit hash)
+- Fix applied: `Str::random(8)` + exists retry loop. 0bc565f
 - Regression test: covered indirectly by "consumes the coupon on technician finalize…" (invoice auto-number created twice without collision).
 - Status: Fixed
 
@@ -122,7 +122,7 @@ real `Mollie\Api\Resources\Payment` value objects — never the live API), SQLit
 - Location: `app/Http/Controllers/Admin/Shop/LicenseCodeController.php:91`
 - Description / Proof: `destroy()` deleted unconditionally — removing a `sold` code silently robbed a paying customer of their licence (still referenced from the paid order). Test asserts 422 + row preserved for sold, 200 for available.
 - Impact: destruction of proof-of-purchase / customer licences.
-- Fix applied: 422 unless `status === 'available'` and `order_id === null`. (commit hash)
+- Fix applied: 422 unless `status === 'available'` and `order_id === null`. 0bc565f
 - Regression test: "refuses to delete a sold license code".
 - Status: Fixed
 
@@ -132,7 +132,7 @@ real `Mollie\Api\Resources\Payment` value objects — never the live API), SQLit
 - Location: `app/Http/Controllers/ContactController.php:38-51` (`POST /contact/submit`)
 - Description / Proof: two SMTP sends ran inside the request on a throttled public endpoint — a slow mail server held connections open per spam submit (the sibling afspraak/order flows already defer via `afterResponse()`).
 - Impact: connection exhaustion, mail-queue flooding via the public form.
-- Fix applied: sends moved into `dispatch(...)->afterResponse()` (existing `ContactSubmitTest` still passes: 19/19). (commit hash)
+- Fix applied: sends moved into `dispatch(...)->afterResponse()` (existing `ContactSubmitTest` still passes: 19/19). 0bc565f
 - Regression test: existing `tests/Feature/ContactSubmitTest.php` ("stores a contact submission and sends the confirmation e-mail").
 - Status: Fixed
 
@@ -142,7 +142,7 @@ real `Mollie\Api\Resources\Payment` value objects — never the live API), SQLit
 - Location: `app/Http/Controllers/AfspraakController.php:18-70`
 - Description / Proof: read-max-then-insert with no guard; two concurrent submits computed the same `AF-YYYY-NNNNN` and one 500'd on the unique index.
 - Impact: sporadic 500s on the public appointment form.
-- Fix applied: `nextNumber()` + retry loop on SQLSTATE 23000 (up to 5 attempts). (commit hash)
+- Fix applied: `nextNumber()` + retry loop on SQLSTATE 23000 (up to 5 attempts). 0bc565f
 - Regression test: logic covered by existing afspraak flow; race window is timing-dependent (not deterministically testable on SQLite).
 - Status: Fixed
 
@@ -162,7 +162,7 @@ real `Mollie\Api\Resources\Payment` value objects — never the live API), SQLit
 - Location: `app/Http/Controllers/DownloadController.php:65`
 - Description / Proof: `$file->name` comes from an admin upload (`basename()` only) and was passed straight to `response()->download()` — embedded CRLF/quotes could inject response headers.
 - Impact: header injection on the download response (admin-triggered).
-- Fix applied: strip `\r \n "` + `basename()`, fallback name. (commit hash)
+- Fix applied: strip `\r \n "` + `basename()`, fallback name. 0bc565f
 - Regression test: none deterministic (header-level); covered by code review.
 - Status: Fixed
 
@@ -172,7 +172,7 @@ real `Mollie\Api\Resources\Payment` value objects — never the live API), SQLit
 - Location: `routes/admin.php:312`, `app/Http/Controllers/Admin/Shop/AiProductController.php:17-46`
 - Description / Proof: no throttle on a paid-per-token call; `features` array had no item cap (each entry grows the prompt); catch-block returned `$e->getMessage()` (provider internals: key names, quota/billing state) to the browser. Admin-only bounds it to session theft / rogue admin, but cost amplification is real.
 - Impact: API-cost abuse; internal error disclosure.
-- Fix applied: `throttle:10,1`; `features => max:20`; generic user message + `report($e)`. (commit hash)
+- Fix applied: `throttle:10,1`; `features => max:20`; generic user message + `report($e)`. 0bc565f
 - Regression test: "keeps the AI endpoint admin-only and caps feature input".
 - Status: Fixed
 
