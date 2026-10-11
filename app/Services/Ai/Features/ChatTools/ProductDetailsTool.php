@@ -66,7 +66,7 @@ class ProductDetailsTool implements ChatTool
             'Details van "'.($product->brand ? $product->brand.' ' : '').$product->title.'" (gebruik DIT bij specificatie-vragen, met link '
                 .route('webshop.product', [$product->category?->slug ?? 'laptops', $product->slug]).'):',
             '- Prijs: €'.number_format((float) $product->discounted_price, 2, ',', '.')
-                .' ('.(($product->stock_status ?? 'in_stock') === 'in_stock' ? 'op voorraad' : 'NIET op voorraad').')',
+                .' ('.(($product->stock_status ?? 'in_stock') === 'coming_soon' ? 'binnenkort beschikbaar' : ((($product->stock_status ?? 'in_stock') === 'in_stock' ? 'op voorraad' : 'NIET op voorraad'))).')',
         ];
         foreach ((array) ($product->features ?? []) as $f) {
             $t = is_array($f) ? ($f['title'] ?? '') : '';

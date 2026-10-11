@@ -176,6 +176,7 @@ return [
         'terms' => 'voorwaarden',
         'klantnummer' => 'klantnummer',
         'role' => 'rol',
+        'stock_status' => 'voorraadstatus',
     ],
 
 ];

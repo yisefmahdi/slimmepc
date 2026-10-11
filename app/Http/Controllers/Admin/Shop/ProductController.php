@@ -108,7 +108,7 @@ class ProductController extends Controller
             'sku' => 'nullable|string|max:64|unique:products,sku',
             'price' => 'required|numeric|min:0',
             'old_price' => 'nullable|numeric|min:0',
-            'stock_status' => 'nullable|in:in_stock,out_of_stock',
+            'stock_status' => 'nullable|in:in_stock,out_of_stock,coming_soon',
             'status' => 'required|boolean',
             'is_digital' => 'nullable|boolean',
             'is_featured' => 'nullable|boolean',
@@ -189,7 +189,7 @@ class ProductController extends Controller
 
         // Colors are hex-only (#RRGGBB from <input type="color">) — drop anything else silently
         $data['colors'] = array_values(array_filter(array_map(fn ($v) => strtoupper(trim((string) $v)), (array) $request->input('colors', [])), fn ($v) => (bool) preg_match('/^#[0-9A-F]{6}$/', $v)));
-        $data['sizes'] = array_values(array_filter($request->input('sizes', [])));
+        $data['sizes'] = array_values(array_filter(array_map(fn ($v) => trim((string) $v), (array) $request->input('sizes', []))));
 
         if ($request->hasFile('main_image')) {
             $data['main_image'] = $request->file('main_image')->store('products/main', 'public');
@@ -237,7 +237,7 @@ class ProductController extends Controller
             'sku' => 'nullable|string|max:64|unique:products,sku,'.$product->id,
             'price' => 'required|numeric|min:0',
             'old_price' => 'nullable|numeric|min:0',
-            'stock_status' => 'nullable|in:in_stock,out_of_stock',
+            'stock_status' => 'nullable|in:in_stock,out_of_stock,coming_soon',
             'status' => 'required|boolean',
             'is_digital' => 'nullable|boolean',
             'is_featured' => 'nullable|boolean',
@@ -307,7 +307,7 @@ class ProductController extends Controller
         }, (array) $rawHighlights)));
         // Colors are hex-only (#RRGGBB from <input type="color">) — drop anything else silently
         $data['colors'] = array_values(array_filter(array_map(fn ($v) => strtoupper(trim((string) $v)), (array) $request->input('colors', [])), fn ($v) => (bool) preg_match('/^#[0-9A-F]{6}$/', $v)));
-        $data['sizes'] = array_values(array_filter($request->input('sizes', [])));
+        $data['sizes'] = array_values(array_filter(array_map(fn ($v) => trim((string) $v), (array) $request->input('sizes', []))));
 
         if ($request->boolean('remove_main_image')) {
             if ($product->main_image) {

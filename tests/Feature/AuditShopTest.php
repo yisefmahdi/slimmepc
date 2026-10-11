@@ -375,7 +375,7 @@ it('validates public reviews and moderates them as admin', function () {
     ])->assertStatus(201);
     $this->postJson($url, ['rating' => 6, 'body' => 'Hele goede laptop, snelle levering!', 'guest_name' => 'Piet', 'guest_email' => 'piet@example.com'])
         ->assertStatus(422)->assertJsonValidationErrors('rating');
-    $this->postJson($url, ['rating' => 4, 'body' => 'Te kort', 'guest_name' => 'Piet', 'guest_email' => 'piet@example.com'])
+    $this->postJson($url, ['rating' => 4, 'body' => str_repeat('a', 1001), 'guest_name' => 'Piet', 'guest_email' => 'piet@example.com'])
         ->assertStatus(422)->assertJsonValidationErrors('body');
     $this->postJson($url, ['rating' => 4, 'body' => 'Hele goede laptop, snelle levering!', 'guest_name' => 'Piet'])
         ->assertStatus(422)->assertJsonValidationErrors('guest_email');
@@ -390,6 +390,117 @@ it('validates public reviews and moderates them as admin', function () {
     $this->actingAs(User::factory()->create())->postJson('/admin/webshop/reviews/'.$review->id.'/approve')->assertForbidden();
     $this->actingAs($admin)->deleteJson('/admin/webshop/reviews/'.$review->id)->assertOk();
     $this->assertDatabaseMissing('product_reviews', ['id' => $review->id]);
+});
+
+it('accepts stars-only ratings but requires a name when text is written', function () {
+    $category = auditShopCategory('Review Stars Cat');
+    $product = auditShopProduct($category, ['title' => 'Review Stars Product '.uniqid()]);
+    $url = '/webshop/'.$category->slug.'/'.$product->slug.'/reviews';
+
+    // Case 1: stars only — no name, no text → 201 with null body.
+    $this->postJson($url, ['rating' => 5])->assertStatus(201);
+    $starsOnly = ProductReview::latest('id')->firstOrFail();
+    expect($starsOnly->rating)->toBe(5);
+    expect($starsOnly->body)->toBeNull();
+
+    // Case 2: text without name → 422 on guest_name.
+    $this->postJson($url, [
+        'rating' => 4, 'body' => 'Hele goede laptop, snelle levering!', 'guest_email' => 'piet@example.com',
+    ])->assertStatus(422)->assertJsonValidationErrors('guest_name');
+
+    // Case 3: full review (stars + text + name + email) → 201.
+    $this->postJson($url, [
+        'rating' => 4, 'body' => 'Hele goede laptop, snelle levering!', 'guest_name' => 'Piet', 'guest_email' => 'piet@example.com',
+    ])->assertStatus(201);
+
+    // Case 4: short text is accepted too — no minimum length.
+    $this->postJson($url, ['rating' => 3, 'body' => 'Top!', 'guest_name' => 'Piet', 'guest_email' => 'piet@example.com'])
+        ->assertStatus(201);
+});
+
+// ---------- coming_soon stock status ----------
+
+it('supports coming_soon stock status end to end', function () {
+    $admin = auditShopAdmin();
+    $category = auditShopCategory('Coming Soon Cat');
+
+    // 1. Admin can create a product with coming_soon via validation.
+    $this->actingAs($admin)->postJson('/admin/webshop/products', [
+        'category_id' => $category->id,
+        'title' => 'Coming Soon Product '.uniqid(),
+        'price' => 99.00,
+        'status' => true,
+        'stock_status' => 'coming_soon',
+    ])->assertStatus(201);
+    $product = Product::latest('id')->firstOrFail();
+    expect($product->stock_status)->toBe('coming_soon');
+
+    // 2. Invalid stock values are still rejected.
+    $this->actingAs($admin)->postJson('/admin/webshop/products', [
+        'category_id' => $category->id,
+        'title' => 'Bad Stock Product '.uniqid(),
+        'price' => 99.00,
+        'status' => true,
+        'stock_status' => 'almost_there',
+    ])->assertStatus(422)->assertJsonValidationErrors('stock_status');
+
+    // 3. Product page shows "Binnenkort beschikbaar" (blue, not red/green).
+    $this->get('/webshop/'.$category->slug.'/'.$product->slug)
+        ->assertOk()
+        ->assertSee('Binnenkort beschikbaar', false)
+        ->assertDontSee('Niet beschikbaar');
+
+    // 4. Category card shows the coming-soon badge.
+    $this->get('/webshop/'.$category->slug)
+        ->assertOk()
+        ->assertSee('Binnenkort beschikbaar', false);
+
+    // 5. Cannot be added to the cart — same as out_of_stock.
+    $this->postJson('/cart/items', ['product_id' => $product->id, 'quantity' => 1])
+        ->assertStatus(422);
+
+    // 6. in_stock products are still buyable (no regression).
+    $buyable = auditShopProduct($category, ['title' => 'Buyable Product '.uniqid()]);
+    $this->postJson('/cart/items', ['product_id' => $buyable->id, 'quantity' => 1])
+        ->assertOk();
+});
+
+it('displays sizes as info-only pills on the product page', function () {
+    $category = auditShopCategory('Sizes Cat');
+    $sized = auditShopProduct($category, [
+        'title' => 'Sized Product '.uniqid(),
+        'sizes' => ['S', 'M', 'L'],
+    ]);
+    $plain = auditShopProduct($category, ['title' => 'Plain Product '.uniqid()]);
+
+    $this->get('/webshop/'.$category->slug.'/'.$sized->slug)
+        ->assertOk()
+        ->assertSee('Maten', false)
+        ->assertSee('>S<', false)
+        ->assertSee('>M<', false)
+        ->assertSee('>L<', false);
+
+    $this->get('/webshop/'.$category->slug.'/'.$plain->slug)
+        ->assertOk()
+        ->assertDontSee('Maten', false);
+});
+
+it('shows an external supplier button only when external_link is set', function () {
+    $category = auditShopCategory('External Link Cat');
+    $linked = auditShopProduct($category, [
+        'title' => 'Linked Product '.uniqid(),
+        'external_link' => 'https://leverancier.example.com/product-123',
+    ]);
+    $plain = auditShopProduct($category, ['title' => 'No Link Product '.uniqid()]);
+
+    $this->get('/webshop/'.$category->slug.'/'.$linked->slug)
+        ->assertOk()
+        ->assertSee('Bekijk bij leverancier', false)
+        ->assertSee('https://leverancier.example.com/product-123', false);
+
+    $this->get('/webshop/'.$category->slug.'/'.$plain->slug)
+        ->assertOk()
+        ->assertDontSee('Bekijk bij leverancier', false);
 });
 
 // ---------- Mollie webhook (mocked) ----------

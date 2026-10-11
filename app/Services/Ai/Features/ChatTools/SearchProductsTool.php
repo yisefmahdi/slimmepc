@@ -76,7 +76,7 @@ class SearchProductsTool implements ChatTool
             }
             $lines[] = '- [product:'.$p['id'].'] '.$name
                 .' — €'.number_format((float) $p['price'], 2, ',', '.')
-                .' ('.($p['in_stock'] ? 'op voorraad' : 'NIET op voorraad').($p['delivery'] ? ', '.$p['delivery'] : '').')'
+                .' ('.(($p['stock_status'] ?? ($p['in_stock'] ? 'in_stock' : 'out_of_stock')) === 'coming_soon' ? 'binnenkort beschikbaar' : ($p['in_stock'] ? 'op voorraad' : 'NIET op voorraad')).($p['delivery'] ? ', '.$p['delivery'] : '').')'
                 .' [categorie: '.($p['category'] ?? 'onbekend').']'
                 .(! empty($p['specs']) ? ' — specs: '.$p['specs'] : '')
                 .' — '.$p['url'];

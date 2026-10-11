@@ -98,6 +98,7 @@
                             <option value="all">Alle voorraad</option>
                             <option value="in_stock">Op voorraad</option>
                             <option value="out_of_stock">Niet op voorraad</option>
+                            <option value="coming_soon">Binnenkort beschikbaar</option>
                         </select>
                         <select id="productDigitalFilter"
                                 class="h-9 shrink-0 rounded-lg border px-2 text-xs outline-none sm:w-32"

@@ -105,6 +105,7 @@ class PageController extends Controller
                     'price' => '€'.number_format($hasDiscount ? $fp->discounted_price : $fp->price, 2),
                     'old_price' => $hasDiscount ? '€'.number_format($fp->price, 2) : null,
                     'in_stock' => $fp->is_digital ? $fp->availableLicenseCount() > 0 : $fp->stock_status === 'in_stock',
+                    'stock_status' => $fp->stock_status ?? 'in_stock',
                     'image' => $imageUrl,
                     'is_db_image' => true,
                     'link' => $productLink,

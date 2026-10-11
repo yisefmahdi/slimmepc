@@ -8,6 +8,7 @@
         $finalPrice = $hasDiscount && $product->discount_value ? $product->discounted_price : (float) $product->price;
         $oldPriceVal = (float) ($product->old_price ?: $product->price);
         $inStock = $product->stock_status === 'in_stock';
+        $isComingSoon = $product->stock_status === 'coming_soon';
         $isDigital = (bool) ($product->is_digital ?? false);
         // Digital products are only buyable while AVAILABLE license codes exist
         $hasLicenses = ! $isDigital || $product->hasAvailableLicenses(1);
@@ -240,7 +241,7 @@
                 </div>
                 <div class="flex justify-between items-start gap-5 mt-2">
                     <div>
-                        <h1 class="font-extrabold text-[30px] md:text-[36px] xl:text-[40px] leading-[1.12] tracking-[-.035em] text-[#071638]">{{ $product->title }}</h1>
+                        <h1 class="font-extrabold text-[24px] md:text-[28px] xl:text-[30px] leading-[1.12] tracking-[-.035em] text-[#071638]">{{ $product->title }}</h1>
                         <div class="flex flex-wrap items-center gap-3 mt-4">
                             <div class="flex gap-[2px] text-amber-400 text-[13px]">
                                 @php $full = floor($avgRating); $half = ($avgRating - $full) >= 0.5; @endphp
@@ -258,6 +259,33 @@
                             <span class="text-xs text-slate-600 font-medium">({{ $ratingCount }} reviews)</span>
                             <span class="text-slate-300">|</span>
                             <button type="button" onclick="openReviewModal()" class="text-xs font-semibold text-slimme-600 hover:underline">Schrijf een review</button>
+                            <span class="text-slate-300">|</span>
+                            @php
+                                $shareUrl = route('webshop.product', [$category->slug, $product->slug]);
+                                $shareText = $product->title;
+                            @endphp
+                            <div class="relative" id="shareWrap">
+                                <button type="button" onclick="toggleShareMenu(event)" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slimme-600 hover:underline">
+                                    <i class="fa-solid fa-share-nodes"></i> Delen
+                                </button>
+                                <div id="shareMenu" class="hidden absolute left-0 top-full mt-2 z-30 w-52 bg-white border border-slate-200 rounded-xl shadow-float p-2">
+                                    <a href="https://wa.me/?text={{ urlencode($shareText . ' ' . $shareUrl) }}" target="_blank" rel="noopener" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-slate-700 hover:bg-slate-50 transition">
+                                        <i class="fa-brands fa-whatsapp text-base text-[#25D366]"></i> WhatsApp
+                                    </a>
+                                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode($shareUrl) }}" target="_blank" rel="noopener" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-slate-700 hover:bg-slate-50 transition">
+                                        <i class="fa-brands fa-facebook-f text-base text-[#1877F2]"></i> Facebook
+                                    </a>
+                                    <a href="https://twitter.com/intent/tweet?text={{ urlencode($shareText) }}&url={{ urlencode($shareUrl) }}" target="_blank" rel="noopener" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-slate-700 hover:bg-slate-50 transition">
+                                        <i class="fa-brands fa-x-twitter text-base text-slate-900"></i> X
+                                    </a>
+                                    <a href="mailto:?subject={{ urlencode($shareText) }}&body={{ urlencode($shareText . ' ' . $shareUrl) }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-slate-700 hover:bg-slate-50 transition">
+                                        <i class="fa-solid fa-envelope text-base text-slate-500"></i> E-mail
+                                    </a>
+                                    <button type="button" onclick="copyShareLink('{{ $shareUrl }}', this)" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-slate-700 hover:bg-slate-50 transition">
+                                        <i class="fa-solid fa-link text-base text-slimme-600"></i> <span>Kopieer link</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <button type="button" onclick="toggleWishlistPD({{ $product->id }}, this)" class="heart-btn {{ ($isFavorite ?? false) ? 'active' : '' }} shrink-0 w-12 h-12 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-xl hover:scale-110 hover:border-slimme-300 hover:text-slimme-600">
@@ -273,8 +301,14 @@
                             @if($product->discount_type === 'percentage')
                                 <span class="text-[12px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full mb-1">-{{ (int)$product->discount_value }}%</span>
                             @endif
-                        @endif
-                    </div>
+                    @endif
+                </div>
+                @if(!empty($product->external_link))
+                <a href="{{ $product->external_link }}" target="_blank" rel="noopener" class="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-slimme-200 bg-white text-[13px] font-bold text-slimme-600 transition hover:border-slimme-500 hover:bg-slimme-50">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                    <span>Bekijk bij leverancier</span>
+                </a>
+                @endif
                     <div class="text-[11px] text-slate-600 mt-2">Inclusief btw</div>
                     @php
                         $colorNamesPd = ['zwart'=>'#000000','black'=>'#000000','wit'=>'#FFFFFF','white'=>'#FFFFFF','zilver'=>'#C0C0C0','silver'=>'#C0C0C0','grijs'=>'#808080','gray'=>'#808080','grey'=>'#808080','antraciet'=>'#2F3640','blauw'=>'#1D4ED8','blue'=>'#1D4ED8','rood'=>'#DC2626','red'=>'#DC2626','groen'=>'#16A34A','green'=>'#16A34A','geel'=>'#EAB308','yellow'=>'#EAB308','oranje'=>'#EA580C','orange'=>'#EA580C','paars'=>'#9333EA','purple'=>'#9333EA','roze'=>'#EC4899','pink'=>'#EC4899','bruin'=>'#78350F','brown'=>'#78350F','goud'=>'#C9A227','gold'=>'#C9A227','beige'=>'#E8DCC4'];
@@ -292,6 +326,23 @@
                         <div class="flex items-center gap-2 mt-2">
                             @foreach($displayColors as $dc)
                                 <span title="{{ $dc['label'] }}" class="w-7 h-7 rounded-full border border-slate-300 shadow-inner cursor-default" style="background-color: {{ $dc['hex'] }}"></span>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+                    @php
+                        $displaySizes = [];
+                        foreach ((array)($product->sizes ?? []) as $sz) {
+                            $sz = trim((string)$sz);
+                            if ($sz !== '') $displaySizes[] = $sz;
+                        }
+                    @endphp
+                    @if(!empty($displaySizes))
+                    <div class="mt-4 mb-3">
+                        <div class="text-[12px] font-bold text-[#071638]">{{ count($displaySizes) > 1 ? 'Maten' : 'Maat' }}</div>
+                        <div class="flex flex-wrap items-center gap-2 mt-2">
+                            @foreach($displaySizes as $sz)
+                                <span class="inline-flex items-center rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[12px] font-semibold text-slate-700 shadow-sm cursor-default">{{ $sz }}</span>
                             @endforeach
                         </div>
                     </div>
@@ -316,8 +367,8 @@
                     @endif
                     @else
                     <div class="flex items-center gap-3">
-                        <span class="stock-dot w-2.5 h-2.5 rounded-full {{ $inStock ? 'bg-emerald-500' : 'bg-red-500' }}"></span>
-                        <span class="text-[13px] font-semibold {{ $inStock ? 'text-emerald-700' : 'text-red-600' }}">{{ $inStock ? 'Op voorraad' : 'Niet op voorraad' }}</span>
+                        <span class="stock-dot w-2.5 h-2.5 rounded-full {{ $inStock ? 'bg-emerald-500' : ($isComingSoon ? 'bg-blue-500' : 'bg-red-500') }}"></span>
+                        <span class="text-[13px] font-semibold {{ $inStock ? 'text-emerald-700' : ($isComingSoon ? 'text-slimme-600' : 'text-red-600') }}">{{ $inStock ? 'Op voorraad' : ($isComingSoon ? 'Binnenkort beschikbaar' : 'Niet op voorraad') }}</span>
                     </div>
                     @if(!empty($deliveryText))
                     <div class="flex items-center gap-3 text-[12px] text-slate-700 font-medium mt-2.5">
@@ -360,7 +411,7 @@
                     @else
                         <button type="button" disabled class="flex-1 h-[58px] rounded-xl bg-slate-200 text-slate-500 font-semibold flex items-center justify-center gap-3 cursor-not-allowed">
                             <i class="fa-solid fa-cart-shopping"></i>
-                            <span>Niet beschikbaar</span>
+                            <span>{{ $isComingSoon ? 'Binnenkort beschikbaar' : 'Niet beschikbaar' }}</span>
                         </button>
                     @endif
                 </div>
@@ -527,8 +578,11 @@
                         $relPrice = $rel->discount_value ? $rel->discounted_price : (float)$rel->price;
                         $relHasDiscount = $rel->old_price && (float)$rel->old_price > (float)$rel->price;
                         $relSoldOut = (bool) ($rel->is_digital ?? false) && ! $rel->hasAvailableLicenses(1);
-                        $relBadge = $relSoldOut ? 'Tijdelijk uitverkocht' : ($rel->is_featured ? 'Aanrader' : ($relHasDiscount ? 'Aanbieding' : 'Populair'));
-                        $relBadgeClass = $relSoldOut ? 'bg-red-500' : ($rel->is_featured ? 'bg-emerald-500' : ($relHasDiscount ? 'bg-red-500' : 'bg-blue-500'));
+                        $relComingSoon = ! $relSoldOut && (($rel->stock_status ?? 'in_stock') === 'coming_soon');
+                        $relOutOfStock = ! $relSoldOut && ! $relComingSoon && !($rel->is_digital ?? false) && (($rel->stock_status ?? 'in_stock') !== 'in_stock');
+                        $relUnbuyable = $relSoldOut || $relComingSoon || $relOutOfStock;
+                        $relBadge = $relSoldOut ? 'Tijdelijk uitverkocht' : ($relComingSoon ? 'Binnenkort beschikbaar' : ($rel->is_featured ? 'Aanrader' : ($relHasDiscount ? 'Aanbieding' : 'Populair')));
+                        $relBadgeClass = $relSoldOut ? 'bg-red-500' : ($relComingSoon ? 'bg-blue-500' : ($rel->is_featured ? 'bg-emerald-500' : ($relHasDiscount ? 'bg-red-500' : 'bg-blue-500')));
                     @endphp
                     <article class="shop-card group relative bg-white border border-slate-200 rounded-[17px] overflow-hidden">
                         @php $relFav = in_array($rel->id, $favoriteIds ?? [], true); @endphp
@@ -547,9 +601,9 @@
                             <p class="text-[10px] text-slate-600 font-medium mt-1">{{ $rel->brand ?: $category->name }}@if(!empty($relFeatStrs)) · {{ Str::limit(implode(' · ', array_slice($relFeatStrs,0,2)), 30) }}@endif</p>
                             <div class="mt-4"><div class="text-[18px] font-extrabold text-[#071638]">€{{ number_format($relPrice, 2, ',', '.') }}</div></div>
                             <div class="flex items-center justify-between mt-4">
-                                <div class="text-[10px] {{ $relSoldOut ? 'text-red-500' : 'text-emerald-600' }} font-semibold"><i class="fa-solid fa-circle text-[6px] mr-1"></i> {{ $relSoldOut ? 'Tijdelijk uitverkocht' : 'Op voorraad' }}</div>
-                                @if($relSoldOut)
-                                    <button type="button" disabled title="Tijdelijk uitverkocht" class="flex w-9 h-9 items-center justify-center rounded-lg bg-slate-200 text-slate-400 cursor-not-allowed shrink-0" aria-label="Tijdelijk uitverkocht">
+                                <div class="text-[10px] {{ $relUnbuyable ? ($relComingSoon ? 'text-slimme-600' : 'text-red-500') : 'text-emerald-600' }} font-semibold"><i class="fa-solid fa-circle text-[6px] mr-1"></i> {{ $relSoldOut ? 'Tijdelijk uitverkocht' : ($relComingSoon ? 'Binnenkort beschikbaar' : ($relOutOfStock ? 'Niet op voorraad' : 'Op voorraad')) }}</div>
+                                @if($relUnbuyable)
+                                    <button type="button" disabled title="{{ $relComingSoon ? 'Binnenkort beschikbaar' : ($relOutOfStock ? 'Niet op voorraad' : 'Tijdelijk uitverkocht') }}" class="flex w-9 h-9 items-center justify-center rounded-lg bg-slate-200 text-slate-400 cursor-not-allowed shrink-0" aria-label="{{ $relComingSoon ? 'Binnenkort beschikbaar' : 'Niet beschikbaar' }}">
                                         <i data-lucide="ban" class="w-4 h-4"></i>
                                     </button>
                                 @else
@@ -599,13 +653,14 @@
                     </div>
                     @if($isGuestReview)
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div><label class="text-xs font-bold text-slate-700">Naam *</label><input type="text" name="guest_name" required class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100" placeholder="Je naam"></div>
-                        <div><label class="text-xs font-bold text-slate-700">E-mail *</label><input type="email" name="guest_email" required class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100" placeholder="je@email.nl"></div>
+                        <div><label class="text-xs font-bold text-slate-700">Naam</label><input type="text" name="guest_name" id="reviewGuestName" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100" placeholder="Je naam"></div>
+                        <div><label class="text-xs font-bold text-slate-700">E-mail</label><input type="email" name="guest_email" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100" placeholder="je@email.nl"></div>
                     </div>
                     @else
-                    <div><label class="text-xs font-bold text-slate-700">Naam *</label><input type="text" name="guest_name" required class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100" placeholder="Jouw naam"></div>
+                    <div><label class="text-xs font-bold text-slate-700">Naam</label><input type="text" name="guest_name" id="reviewGuestName" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100" placeholder="Jouw naam"></div>
                     @endif
-                    <div><label class="text-xs font-bold text-slate-700">Jouw ervaring *</label><textarea name="body" required rows="4" minlength="10" maxlength="1000" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100" placeholder="Vertel over je ervaring met dit product... (min. 10 tekens)"></textarea><p class="mt-1 text-[11px] text-slate-500"><span id="bodyCount">0</span>/1000</p></div>
+                    <p id="nameError" class="hidden -mt-2 text-xs font-medium text-red-500">Vul je naam in als je een ervaring schrijft</p>
+                    <div><label class="text-xs font-bold text-slate-700">Jouw ervaring <span class="font-medium text-slate-400">(optioneel)</span></label><textarea name="body" id="reviewBody" rows="4" maxlength="1000" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100" placeholder="Alleen sterren geven kan ook — of vertel over je ervaring"></textarea><p class="mt-1 text-[11px] text-slate-500"><span id="bodyCount">0</span>/1000</p></div>
                     <div class="flex gap-3 pt-2">
                         <button type="button" onclick="closeReviewModal()" class="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-bold hover:bg-slate-50">Annuleren</button>
                         <button type="submit" id="reviewSubmitBtn" class="flex-1 rounded-xl bg-gradient-to-r from-slimme-700 to-slimme-500 py-2.5 text-sm font-bold text-white shadow-blue hover:opacity-90 flex items-center justify-center gap-2"><span>Versturen</span><svg id="reviewSpinner" class="hidden h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"/><path d="M4 12a8 8 0 018-8" stroke="currentColor" stroke-width="4" class="opacity-75"/></svg></button>
@@ -631,13 +686,13 @@
             </div>
             <div class="hidden sm:block min-w-[125px]">
                 <strong class="text-[18px]">€{{ number_format($finalPrice, 2, ',', '.') }}</strong>
-                <div class="text-[10px] {{ $canBuy ? 'text-emerald-600' : 'text-red-500' }} font-semibold mt-1">● {{ $canBuy ? ($isDigital ? 'Direct leverbaar' : 'Op voorraad') : ($isDigital ? 'Tijdelijk uitverkocht' : 'Niet op voorraad') }}</div>
+                <div class="text-[10px] {{ $canBuy ? 'text-emerald-600' : ($isComingSoon ? 'text-slimme-600' : 'text-red-500') }} font-semibold mt-1">● {{ $canBuy ? ($isDigital ? 'Direct leverbaar' : 'Op voorraad') : ($isDigital ? 'Tijdelijk uitverkocht' : ($isComingSoon ? 'Binnenkort beschikbaar' : 'Niet op voorraad')) }}</div>
             </div>
             @if($canBuy)
                 <x-add-to-cart :product="$product" variant="sticky" />
             @else
                 <button type="button" disabled class="h-11 flex-1 md:flex-none md:min-w-[260px] px-6 bg-slate-200 text-slate-500 rounded-lg text-sm font-semibold flex items-center justify-center gap-3 cursor-not-allowed">
-                    <i class="fa-solid fa-cart-shopping"></i> Niet beschikbaar
+                    <i class="fa-solid fa-cart-shopping"></i> {{ $isComingSoon ? 'Binnenkort beschikbaar' : 'Niet beschikbaar' }}
                 </button>
             @endif
             <button type="button" onclick="toggleWishlistPD({{ $product->id }}, this)" class="heart-btn {{ ($isFavorite ?? false) ? 'active' : '' }} w-11 h-11 shrink-0 border border-slate-200 rounded-lg bg-white hover:text-slimme-600 transition"><i class="{{ ($isFavorite ?? false) ? 'fa-solid' : 'fa-regular' }} fa-heart"></i></button>
@@ -745,6 +800,38 @@
             const m = onclick.match(/toggleWishlistPD\((\d+),/);
             if (m) toggleWishlistPD(parseInt(m[1], 10), button);
         }
+        function toggleShareMenu(e) {
+            if (e) e.stopPropagation();
+            const menu = document.getElementById('shareMenu');
+            if (menu) menu.classList.toggle('hidden');
+        }
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('shareMenu');
+            const wrap = document.getElementById('shareWrap');
+            if (menu && !menu.classList.contains('hidden') && wrap && !wrap.contains(e.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+        async function copyShareLink(url, btn) {
+            try {
+                await navigator.clipboard.writeText(url);
+            } catch (err) {
+                const ta = document.createElement('textarea');
+                ta.value = url;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                ta.remove();
+            }
+            if (btn) {
+                const label = btn.querySelector('span');
+                if (label) {
+                    const old = label.textContent;
+                    label.textContent = 'Gekopieerd!';
+                    setTimeout(() => { label.textContent = old; }, 1800);
+                }
+            }
+        }
         function openTab(tabId,button) { document.querySelectorAll(".tab-content").forEach(tab => tab.classList.add("hidden")); document.querySelectorAll(".tab-btn").forEach(tab => { tab.classList.remove("active"); tab.classList.add("text-slate-500"); }); const target=document.getElementById(tabId); if(target) target.classList.remove("hidden"); button.classList.add("active"); button.classList.remove("text-slate-500"); }
         const observer = new IntersectionObserver(entries => { entries.forEach(entry => { if(entry.isIntersecting){ entry.target.classList.add("visible"); observer.unobserve(entry.target); } }); }, { threshold: .1 });
         document.querySelectorAll(".reveal").forEach(element => { observer.observe(element); });
@@ -846,6 +933,10 @@
             if(body && cnt){
                 body.addEventListener('input', ()=> cnt.textContent = body.value.length);
             }
+            document.getElementById('reviewGuestName')?.addEventListener('input', function(){
+                this.classList.remove('!border-red-500');
+                document.getElementById('nameError')?.classList.add('hidden');
+            });
             const form = document.getElementById('reviewForm');
             const btn = document.getElementById('reviewSubmitBtn');
             const spinner = document.getElementById('reviewSpinner');
@@ -865,7 +956,22 @@
                         showToast('Kies eerst een beoordeling', false);
                         return;
                     }
+                    const bodyEl = document.getElementById('reviewBody');
+                    const nameEl = document.getElementById('reviewGuestName');
+                    const nameErr = document.getElementById('nameError');
+                    const bodyText = bodyEl ? bodyEl.value.trim() : '';
+                    if(bodyText !== '' && nameEl && nameEl.value.trim() === ''){
+                        if(nameErr) nameErr.classList.remove('hidden');
+                        nameEl.classList.add('!border-red-500');
+                        nameEl.focus();
+                        showToast('Vul je naam in als je een ervaring schrijft', false);
+                        return;
+                    }
+                    if(nameErr) nameErr.classList.add('hidden');
+                    if(nameEl) nameEl.classList.remove('!border-red-500');
+                    if(bodyEl) bodyEl.classList.remove('!border-red-500');
                     const fd = new FormData(form);
+                    if(bodyText === '') fd.delete('body');
                     const token = form.querySelector('input[name="_token"]')?.value || document.querySelector('meta[name="csrf-token"]')?.content || '';
                     if(btn){ btn.disabled=true; btn.querySelector('span').textContent='Versturen...'; if(spinner) spinner.classList.remove('hidden'); }
                     try{

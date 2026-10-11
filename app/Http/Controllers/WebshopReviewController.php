@@ -17,15 +17,22 @@ class WebshopReviewController extends Controller
 
         $isGuest = ! auth()->check();
 
+        // Two cases only: stars-only rating, OR full review (text + name).
+        // An empty textarea counts as "no text" — a written text requires a name.
+        $hasBody = trim((string) $request->input('body', '')) !== '';
+        if (! $hasBody) {
+            $request->merge(['body' => null, 'guest_name' => $request->input('guest_name') ?: null]);
+        }
+
         $rules = [
             'rating' => 'required|integer|min:1|max:5',
-            'body' => 'required|string|min:10|max:1000',
+            'body' => 'nullable|string|max:1000',
             'title' => 'nullable|string|max:120',
-            'guest_name' => ($isGuest ? 'required' : 'required').'|string|max:80',
+            'guest_name' => ($hasBody ? 'required' : 'nullable').'|string|max:80',
         ];
 
         if ($isGuest) {
-            $rules['guest_email'] = 'required|email|max:120';
+            $rules['guest_email'] = ($hasBody ? 'required' : 'nullable').'|email|max:120';
         } else {
             $rules['guest_email'] = 'nullable|email|max:120';
         }

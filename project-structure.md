@@ -629,7 +629,7 @@ slimmepc/
 | brand / sku | string nullable / string unique nullable | Merk / SKU |
 | price / old_price | decimal 10,2 | Prijs / oude prijs |
 | discount_type / discount_value / discount_start/end | enum(percentage,fixed) / decimal / datetime | Korting |
-| stock_status / status / is_featured | enum(in_stock,out_of_stock) / boolean / boolean | Voorraad / actief / op home |
+| stock_status / status / is_featured | enum(in_stock,out_of_stock,coming_soon) / boolean / boolean | Voorraad / actief / op home — `coming_soon` (2026-10-11) toont "Binnenkort beschikbaar" (blauw), niet koopbaar zoals out_of_stock |
 | is_digital (2026-10-06) | boolean default false | Digitaal product (licentie + downloadlinks); echte voorraad = license pool (zie §44) |
 | description | text | TinyMCE HTML |
 | features / colors / sizes | json | Arrays |
@@ -1891,3 +1891,34 @@ Niet actief: e-mailverificatie (`MustVerifyEmail` staat uit in `User`-model).
   - **Caches:** `config:cache`, `route:cache` (259 routes) en `view:cache` compileren en cachen foutloos.
   - **Vite Build:** `npm run build` genereert geminificeerde assets zonder fouten.
   - **Webserver Beveiliging:** `public/.htaccess` blokkeert directe toegang tot `.env`, `.git` en `*.sql` dumps (403 Forbidden).
+
+## 15. Sessie 2026-10-11 — Productpagina verbeteringen + coming_soon voorraadstatus
+
+### 15.1 Producttitel verkleind
+- `landing/product-details.blade.php:243` — H1 `30/36/40px` → `24/28/30px` (zelfde gewicht/kleur).
+
+### 15.2 Delen-knop (social share)
+- `landing/product-details.blade.php` — "Delen"-knop met blauw `fa-share-nodes` icoon naast "Schrijf een review"; dropdown met WhatsApp/Facebook/X/E-mail/Kopieer link (`toggleShareMenu` + `copyShareLink` + outside-click close).
+
+### 15.3 Reviews: sterren-only OF volledige review (body nullable)
+- Migration `2026_10_11_000001` — `product_reviews.body` nullable (MySQL `MODIFY` + SQLite rebuild-tak).
+- `WebshopReviewController@store` — `$hasBody`-logica: geen tekst → alles nullable; wel tekst → `guest_name` verplicht (+ `guest_email` voor gasten); **geen minimumlengte meer** (`nullable|string|max:1000`).
+- Modal: labels zonder `*`, "Jouw ervaring (optioneel)", JS-validatie (naam-eis bij tekst, rode rand + live-clear), lege body wordt uit FormData gestript.
+- Tests: 4 nieuwe cases in `AuditShopTest` (sterren-only 201 + null body, tekst-zonder-naam 422, volledig 201, korte tekst geaccepteerd).
+
+### 15.4 Nieuwe voorraadstatus `coming_soon` ("Binnenkort beschikbaar", blauw)
+- Migration `2026_10_11_000002` — enum + `coming_soon` (MySQL `MODIFY`; SQLite full rebuild met behoud van data + alle indexen/FKs).
+- Gedrag = `out_of_stock` (niet koopbaar — cart `CartController:70` + checkout `CheckoutController:98` blokkeren al alles ≠ `in_stock`, geen wijziging nodig daar).
+- Admin: `ProductController` validatie (store+update) + `create/edit` selects + `index` filter + `products.js` blauwe badge + details-modal + `lang/nl` attribuut `voorraadstatus`.
+- Frontend: details (box + koopknop-tekst + sticky + related-badge), `product-card` (blauwe badge + ban-knop), `cart` (rij + JS-template, hex `#0759F5` i.p.v. `slimme-600` — cart-config kent die key niet), home `shop` partial (`PageController` levert nu ook `stock_status`), AI chat tools (`ChatProductSearch` + `SearchProductsTool` + `ProductDetailsTool` zeggen "binnenkort beschikbaar").
+- Fix meegenomen: related toonde "Op voorraad" voor fysiek-uitverkochte producten → nu correct `Niet op voorraad` + ban-knop.
+- Test: `coming_soon` end-to-end (admin-create 201, invalid 422, pagina + card tonen tekst, cart 422, in_stock geen regressie).
+
+### 15.5 Maten als info-only pills (zoals Kleuren)
+- `landing/product-details.blade.php:334-343` — "Maat/Maten" pills onder Kleuren, verborgen bij leeg; `ProductController` sizes nu met `trim` (store+update).
+- Test: product met sizes toont `Maten` + pills; zonder sizes geen sectie.
+
+### 15.6 Externe link geactiveerd (was dood veld)
+- Audit: `external_link` werd nergens gelezen (alleen admin-form + DB). Nu: secundaire knop "Bekijk bij leverancier" (`h-10`, `text-[13px]`, `target=_blank rel=noopener`) onder de kooprij op de detailpagina, alleen bij gevulde link.
+- Audit-bevinding gedocumenteerd: `manual_url`/`download_*` leven alleen post-betaling (factuurmail via `DigitalDelivery::linksForProduct` + `DownloadController`-guard); alle 17 andere velden correct weergegeven.
+- Test: met link → knop + URL zichtbaar; zonder link → geen knop.

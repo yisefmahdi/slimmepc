@@ -238,6 +238,7 @@ class ChatProductSearch
             'price' => (float) $p->discounted_price,
             'old_price' => $p->old_price ? (float) $p->old_price : null,
             'in_stock' => ($p->stock_status ?? 'in_stock') === 'in_stock',
+            'stock_status' => $p->stock_status ?? 'in_stock',
             'delivery' => $p->delivery_time,
             'rating' => $p->rating_avg ? (float) $p->rating_avg : null,
             'rating_count' => (int) ($p->rating_count ?? 0),

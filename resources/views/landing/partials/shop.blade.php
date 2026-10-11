@@ -157,7 +157,7 @@
                                         <div class="product-footer">
                                             <span class="product-stock">
                                                 <i data-lucide="check-circle"></i>
-                                                {{ !empty($product['in_stock']) ? 'Op voorraad' : 'Niet op voorraad' }}
+                                                {{ !empty($product['in_stock']) ? 'Op voorraad' : ((($product['stock_status'] ?? '') === 'coming_soon') ? 'Binnenkort beschikbaar' : 'Niet op voorraad') }}
                                             </span>
 
                                             <span class="product-arrow">

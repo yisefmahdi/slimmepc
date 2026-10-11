@@ -91,6 +91,7 @@
                         <select id="stock_status" name="stock_status" class="h-[52px] w-full rounded-xl border px-4 text-[15px] outline-none" style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading)">
                             <option value="in_stock" @selected(old('stock_status')=='in_stock')>Op voorraad</option>
                             <option value="out_of_stock" @selected(old('stock_status')=='out_of_stock')>Niet op voorraad</option>
+                            <option value="coming_soon" @selected(old('stock_status')=='coming_soon')>Binnenkort beschikbaar</option>
                         </select>
                         @error('stock_status')<p class="mt-1 text-xs font-medium text-red-500">{{ $message }}</p>@enderror
                     </div>
