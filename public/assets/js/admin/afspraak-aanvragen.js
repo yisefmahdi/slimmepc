@@ -304,4 +304,8 @@
     deleteConfirmBtn.addEventListener('click', confirmDelete);
 
     load();
+
+    // Deep link from the admin notification e-mail (?aanvraag={id}): open that detail modal
+    const deepId = parseInt(new URLSearchParams(window.location.search).get('aanvraag'), 10);
+    if (deepId) openDetail(deepId);
 })();

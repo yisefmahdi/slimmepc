@@ -332,4 +332,8 @@
     });
 
     load();
+
+    // Deep link from the admin notification e-mail (?aanmelding={id}): open that detail modal
+    const deepId = parseInt(new URLSearchParams(window.location.search).get('aanmelding'), 10);
+    if (deepId) openDetail(deepId);
 })();

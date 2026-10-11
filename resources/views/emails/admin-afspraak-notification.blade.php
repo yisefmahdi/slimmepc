@@ -50,5 +50,5 @@
 <p style="margin:12px 0 0; font-size:13px; line-height:1.7; color:#3E547F;"><strong style="color:#0b1734;">Omschrijving probleem:</strong><br>{{ $submission->problem }}</p>
 @endsection
 
-@section('cta_url', config('app.url') . '/admin/afspraak-aanvragen/' . $submission->id)
+@section('cta_url', route('admin.afspraak-aanvragen.index', ['aanvraag' => $submission->id]))
 @section('cta_label', 'Bekijk in admin')

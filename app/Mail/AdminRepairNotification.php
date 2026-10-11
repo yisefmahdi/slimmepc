@@ -38,7 +38,7 @@ class AdminRepairNotification extends Mailable
         return new Content(
             view: 'emails.admin-repair-notification',
             with: [
-                'inboxUrl' => route('admin.reparatie-aanmeldingen.show', $this->submission->id),
+                'inboxUrl' => route('admin.reparatie-aanmeldingen.index', ['aanmelding' => $this->submission->id]),
             ],
         );
     }
