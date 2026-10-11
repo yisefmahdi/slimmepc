@@ -18,42 +18,38 @@ use Illuminate\Http\RedirectResponse;
 class LegacyRedirectController extends Controller
 {
     /**
-     * Oude shop-category-slug (lowercase) → nieuwe route/URL.
-     * Alleen 'gaming-pc' bestaat 1-op-1; de rest is best-match.
+     * Oude shop-category-slug (lowercase) → nieuwe slug. Bestaat de slug
+     * 1-op-1 (bv. laptops, gaming-pc) dan wint die altijd (zelfde URL,
+     * alleen /shop → /webshop prefix) — pas daarna deze hernoem-map.
      */
-    private const CATEGORY_MAP = [
-        'laptops' => 'labtop',
-        'gaming-pc' => 'gaming-pc',
-        'pc-laptop-onderdelen' => 'onderdelen',
-        'dataopslag' => 'onderdelen',
-        'desktops' => 'labtop',
-        'refurbished-laptop' => 'labtop',
-        'apple' => 'labtop',
-        'software' => 'diensten/software-windows',
-        'printers' => '/',
-        'monitoren' => '/',
-        'beveiligingscameras' => '/',
+    private const CATEGORY_RENAMES = [
+        'refurbished-laptop' => 'refurbished',
+        'pc-laptop-onderdelen' => 'computeronderdelen',
+        'labtop' => 'laptops',
+        'onderdelen' => 'computeronderdelen',
     ];
 
     public function category(string $slug): RedirectResponse
     {
-        $target = self::CATEGORY_MAP[mb_strtolower($slug)] ?? null;
+        $slug = mb_strtolower($slug);
 
-        if ($target === null || $target === '/') {
-            return redirect('/', 301);
+        // 1. Zelfde slug nog actief? Dan alleen prefix wisselen (beste SEO).
+        if (Category::where('slug', $slug)->where('status', true)->exists()) {
+            return redirect("/webshop/{$slug}", 301);
         }
 
-        // 'diensten/...' is al een compleet pad; kale slugs zijn webshop-categorieën.
-        $url = str_starts_with($target, 'diensten/') ? "/{$target}" : "/webshop/{$target}";
-
-        if (! str_starts_with($target, 'diensten/')) {
-            $exists = Category::where('slug', $target)->where('status', true)->exists();
-            if (! $exists) {
-                return redirect('/', 301);
-            }
+        // 2. Bekende hernoeming meenemen.
+        $target = self::CATEGORY_RENAMES[$slug] ?? null;
+        if ($target !== null && Category::where('slug', $target)->where('status', true)->exists()) {
+            return redirect("/webshop/{$target}", 301);
         }
 
-        return redirect($url, 301);
+        // 3. Software-categorie verdwenen? Dan de software-dienstpagina.
+        if ($slug === 'software') {
+            return redirect('/diensten/software-windows', 301);
+        }
+
+        return redirect('/', 301);
     }
 
     public function product(string $slug): RedirectResponse
