@@ -218,6 +218,7 @@ slimmepc/
 │   ├── sync-phase3-contact.php    # contact_messages → submissions+replies (zie §41)
 │   ├── sync-mailing-list.php        # mailing_list direct + email-dedupe (zie §42)
 │   ├── sync-purchase-records.php    # purchase_sales_records directe kopie (zie §43)
+│   ├── sync-delta-2026-10-11.php      # INSERT-ONLY delta zónder TRUNCATE (zie §44)
 │   ├── sync-phase1-report.log  # laatste fase-1 run (counts + WARNs)
 │   ├── sync-phase2-report.log  # laatste fase-2 run (counts + WARNs)
 │   └── backups/                # mysqldump per run (phase1-<stamp>.sql, phase2-<stamp>.sql) — vóór elke TRUNCATE
@@ -1815,6 +1816,13 @@ Niet actief: e-mailverificatie (`MustVerifyEmail` staat uit in `User`-model).
 - **Server-upload:** zelfde `/tmp/sync/`-flow, run EXIT 0, `/tmp/sync/` daarna verwijderd.
 - **Openstaand — `favorites` (3) NIET gesynct (bewust geblokkeerd):** `product_id` is NOT NULL + FK (`2026_09_08_000007`) en oude ids (5/7/42) wijzen in de nieuwe DB naar **andere** seed-producten (of bestaan niet: 42) — import nu = foute wishlist-links (datacorruptie) of FK-fout. Regel: pas na producten-sync (fase 3b), met zelfde IDs.
 
+## 44. Delta-sync 2026-10-11 — INSERT-ONLY zónder TRUNCATE (2026-10-11)
+- **Aanleiding:** nieuwe dump (`slimmepc2026nieuwe\h_00094667_slimmepc.sql`, 655KB, 11-10) + liveserver intussen gegroeid (4 echte klantorders 65–68, 1 adres, 1 user, 21 producten door client toegevoegd). TRUNCATE zou live-data wissen → **alleen nieuwe rijen toevoegen, nooit wissen/overschrijven**.
+- **Script:** `scripts/sync-delta-2026-10-11.php` — vaste `$WANT`-ids uit de dump + `$REMAP` voor live-botsingen + `$REWIRE` voor FKs; per rij: bestaat id al → SKIP (nooit overschrijven); business-key-guard op `order_number/invoice_number/afspraak_number`. Geen TRUNCATE/DELETE in het script (wel backup vooraf). Resultaat lokaal én productie: **19/19 inserted, 0 skipped** (12 ontvangsten 231–242, 3 afspraken 168–170, adres+order+item+factuur).
+- **Remap (live-botsingen geverifieerd vóór run):** adres 65→66, order 65 (`ORD-YWX0JQEQ`, Ted Vriend, Dell Latitude €375, completed+paid) →69, item 66→71 (`order_id`→69, `product_id` NULL want product 131 ontbreekt overal), factuur 60→64 (nummer `INV-2026-000060` vrij op live). Live orders 65–68 / adres 65 / factuur 60 / item 66 onaangeroerd. `AUTO_INCREMENT` per tabel op `MAX+1` gezet.
+- **Server-telling na run:** receipts 221, afspraak 100, addresses 65, orders 34, items 36, invoices 31 — exact +delta, live-data intact. `/tmp/sync/` verwijderd.
+- **Les:** regel-telling via `^(`-lines liegt soms (notes met newline + `(`-start, bv. Erdinc-rij) — id-diff is authoritatief (hier: echt 12 nieuwe ontvangsten, geen 13).
+
 ## 44. Digitale producten + licentiepool (2026-10-06, deployed `fb1d40c`)
 
 - **Oud systeem analyse:** alleen 3 URL-kolommen (`download_32bit_url/64bit_url/manual_url`, zelfs niet in `$fillable`) + `license_codes(id,product_id,code,status,order_id)`; digitaalherkenning was fragiel (`category.name === 'Software'`); toewijzing in `MollieController` (1 code max, geen transactie); delivery-mail met **hardcoded** `Microsoft_Office_Installer.zip`; download-route **zonder auth**.
@@ -1922,3 +1930,11 @@ Niet actief: e-mailverificatie (`MustVerifyEmail` staat uit in `User`-model).
 - Audit: `external_link` werd nergens gelezen (alleen admin-form + DB). Nu: secundaire knop "Bekijk bij leverancier" (`h-10`, `text-[13px]`, `target=_blank rel=noopener`) onder de kooprij op de detailpagina, alleen bij gevulde link.
 - Audit-bevinding gedocumenteerd: `manual_url`/`download_*` leven alleen post-betaling (factuurmail via `DigitalDelivery::linksForProduct` + `DownloadController`-guard); alle 17 andere velden correct weergegeven.
 - Test: met link → knop + URL zichtbaar; zonder link → geen knop.
+
+## 45. SEO 301-redirects bij domeinmigratie slimme-pc.nl (2026-10-11)
+
+- **Aanleiding:** oude site (C:\laragon\www\slimmepc) heeft 25 geïndexeerde URLs (live sitemap.xml, géén /product/*) met afwijkende casing (Hardware/afdeeling, Bevestging/*). Zonder redirects → ranking-verlies bij domeinverhuizing.
+- **Implementatie:** LegacyRedirectController + statische Route::redirect(..., 301) onderaan routes/web.php (exacte oude casing; default is 302 dus expliciet 301). category(): oud-slug → nieuw (laptops→/webshop/labtop, gaming-pc→gaming-pc, pc-laptop-onderdelen/dataopslag→/webshop/onderdelen, software→/diensten/software-windows, rest/onbekend/inactief → /). product(): slug-match in DB → canonieke /webshop/{cat}/{product}, anders /zoeken?q=... (relevant i.p.v. home-dump; werkt ook ná producten-sync).
+- **Volledige map (25/25 live-URLs gedekt, 0×404):** lidworden→/lid-worden, Hardware/afdeeling→/diensten/pc-reparatie, hardware/reparatie→/diensten/laptop-reparatie, software/afdeeling→/diensten/software-windows, data/recovery→/diensten/data-recovery, Netwerk/afdeling→/diensten/netwerkoplossingen, Website/bouwen→/, pc/opbouwn→/, favorite/pagina→/wishlist, algemene-voorwaarden→/voorwaarden, bestelling/bevestging→/payment/success, Bevestging/afspraak→/afspraak, Bevestging/lidworden→/lid-worden, bericht/bevestiging→/contact, betaling/mislukt→/payment/failed, betaling/geluckt→/payment/success, nieuwe/klant→/betaal/login, shop→/webshop/labtop, categorieen→/, winkelwagen→/cart. Ongewijzigd (géén redirect nodig): /contact /tarieven /afspraak /privacy /checkout /payment/success /betaal/login /login /register. Bewust overgeslagen (transactioneel/geen SEO): /payment, /payment/callback, /lidworden/payment/*, /technician/*, /live-search, /generate-sitemap, /download/software/*.
+- **Nieuwe sitemap:** dynamische /sitemap.xml (SitemapController, dagelijks sitemap:generate via scheduler) — na livegang opnieuw aanmelden in Search Console + oude sitemap laten staan tot Google de 301s verwerkt.
+- **Geverifieerd lokaal (curl, alle 301 + eind-200).** Eerste /-hit gaf eenmalig 500 (koude full-page-cache-build), daarna 200. Gotcha: relatieve redirect('labtop') → /labtop (fout) — altijd absolute /webshop/...-paden gebruiken.
