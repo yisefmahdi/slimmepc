@@ -57,7 +57,7 @@ if (!empty($opt['config'])) {
 
 // Wanted dump ids per table (+ fixed remap for live collisions)
 $WANT = [
-    'device_receipts' => [231,232,233,234,235,236,237,238,239,240,241,242],
+    'device_receipts' => [231,232,233,234,235,236,237,238,239,240,241,242,243],
     'appointments' => [168,169,170],
     'addresses' => [65],
     'orders' => [65],
