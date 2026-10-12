@@ -1964,7 +1964,15 @@ Niet actief: e-mailverificatie (`MustVerifyEmail` staat uit in `User`-model).
 - **Geverifieerd:** mailable-render geeft `/admin/reparatie-aanmeldingen?aanmelding=13`; live-JS op productie bevat de deep-link-code. Uitgerold via commit + direct scp naar mijndomein (Hostinger volgt via cron-deploy; geen route-wijzigingen dus geen cache-clear nodig).
 
 ## 48. Skill `klant-server` — werken op productie slimme-pc.nl (2026-10-12)
-
 - **Waarom:** `deploy`-skill dekt alleen Hostinger (dev/staging); al het klant-server-werk (inspect/upload/DB-import/verify) volgt andere regels (Plesk-chroot, geen CLI-tools, andere secrets). Nieuwe skill `.opencode/skills/klant-server/SKILL.md` + `.opencode/command/klant-server.md`, zelfde format als `deploy`.
 - **Inhoud:** server facts (host/user/key/alias/paden/DB + wachtwoord — met expliciete rotatie-waarschuwing bovenin), chroot-toollijst, quoting-regels, omgevings-gotchas (open_basedir, PrivateTmp, socket→127.0.0.1, `--config`-patroon, storage-symlink+rewrite-guard, root-index/.htaccess-truc), standaardflows (inspect/upload/DB-import/tellingen), no-no's (backup-mappen, PII-cleanup, geen TRUNCATE zonder backup+bevestiging), rest-acties klant, troubleshooting.
 - **Secrets-besluit (eigenaar):** DB-wachtwoord staat IN de skill (sneller, expliciet geaccepteerd risico) — advies tot rotatie staat in het bestand zelf.
+
+## 49. Admin-verbeteringen + deploy beide servers (2026-10-12, commit b1656a0)
+
+- **Ontvangst-tabel:** kolom Telefoonnummer na E-mail (i.p.v. Serienummer → T-nummer DR blijft), Status-pill na T-nummer, zoekplaceholder + backend dekt telefoon al. Preview: Telefoon-kaart toegevoegd (rest was compleet: naam/e-mail/T-nr/apparaat/serienummer/datum/notities/foto's/status).
+- **Orders-tabel:** Telefoon-kolom na Klant (+ `phone` in `data()`-JSON, colspan 8→9). Delete-flow zonder pagina-refresh (rij-DOM-remove + chips-refresh via counts-fetch; lege pagina → AJAX-prev); onderweg echte bug gevonden+gefixt: `window.SlimmePC.toast(msg,type)`-aanroep bestaat niet (object `{success,error}`) → TypeError doodde alles erna — zelfde patroon gefixt in `shipping/index` (4×), `leen-huur/create`, `laptop-loans.js` (`cart.js` had al try/catch).
+- **Order-detail:** Adres-kaart nu gelabelde rijen (Naam/E-mail/Telefoon/Straat/Postcode) + Klantaccount-rij (user of Gast) + Coupon-rij + Mollie-ID-rij + afwijkend Verzendadres-blok. **Blade-gotcha gevonden:** directive direct achter woord-teken (`account@endif`) compileert NIET (`\B@`-eis) → ParseError + rauwe `@endif` in HTML; altijd spatie ervoor. Zelfde fix in `emails/new-customer.blade.php`.
+- **Factuur-PDF (`invoices/order.blade.php`, geldt ook mail-bijlage):** Adres-regel vult nu huisnummer (+addition) uit order-factuuradres (snapshot-tabel heeft geen kolom).
+- **Mails:** `contact-reply` handtekening `Admin · Slimme-PC` weg; `emails/layout` color-scheme-meta + dark-block pint lichte huisstijl (footer/header fix).
+- **Deploy:** Hostinger via cron/manual (`optimize:clear` erna) + mijndomein via scp (13 bestanden, géén .htaccess/.env/index) + HTTP `optimize:clear`+`Cms::bust()` + temp-script verwijderd. Live geverifieerd: popup zonder `dark:`, nieuwe bestanden aanwezig.
