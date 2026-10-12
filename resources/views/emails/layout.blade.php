@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark">
 <title>Slimme-PC</title>
 <style>
 /* Mobile: smaller paddings + stacked label/value rows (desktop/Outlook keep inline styles as fallback) */
@@ -17,6 +19,17 @@
     .email-card-cell table tr > td + td { padding-top:0 !important; }
     .email-cta { display:block !important; padding:14px 20px !important; }
     .email-footer { padding:18px !important; border-radius:0 0 12px 12px !important; }
+}
+/* Dark-mode e-mail clients: pin de vaste lichte huisstijl (nooit laten inverteren).
+   Alle kleuren hieronder zijn identiek aan de light-palette hierboven. */
+@media (prefers-color-scheme: dark) {
+    .email-outer { background-color:#f8fafc !important; }
+    .email-header { background-color:#1e3a8a !important; background-image:linear-gradient(90deg,#172554 0%,#1e40af 50%,#2563eb 100%) !important; }
+    .email-body { background-color:#ffffff !important; }
+    .email-title { color:#020617 !important; }
+    .email-footer { background-color:#d7e8ff !important; background-image:linear-gradient(180deg,#edf5ff 0%,#83b9eb 60%,#d7e8ff 100%) !important; }
+    .email-cta { background-color:#0757ef !important; background-image:linear-gradient(90deg,#0647ca 0%,#0757ef 50%,#2877ff 100%) !important; color:#ffffff !important; }
+    .email-badge { background-color:#84cc16 !important; color:#0b1734 !important; }
 }
 </style>
 </head>

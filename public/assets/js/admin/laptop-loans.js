@@ -33,7 +33,10 @@
         else { const el = document.getElementById('modal-' + id); if (el) el.classList.remove('hidden'); }
     }
     function toast(msg, type) {
-        if (window.SlimmePC && window.SlimmePC.toast) { window.SlimmePC.toast(msg, type || 'success'); return; }
+        if (window.SlimmePC && window.SlimmePC.toast) {
+            if (type === 'error' && window.SlimmePC.toast.error) { window.SlimmePC.toast.error(msg); return; }
+            if (window.SlimmePC.toast.success) { window.SlimmePC.toast.success(msg); return; }
+        }
         alert(msg);
     }
 

@@ -82,12 +82,20 @@
 
                 <div class="rounded-2xl border p-4 sm:p-6" style="background-color: var(--c-card); border-color: rgba(148,163,184,.2); box-shadow: 0 14px 35px rgba(15,23,42,.06)">
                     <h3 class="text-sm font-extrabold" style="color: var(--c-heading)">Adres</h3>
-                    <p class="mt-2 text-sm leading-6" style="color: var(--c-body)">
-                        <strong>{{ $order->billingAddress?->fullName() }}</strong><br>
-                        {{ $order->billingAddress?->fullStreet() }}<br>
-                        {{ $order->billingAddress?->postcode }} {{ $order->billingAddress?->city }}<br>
-                        {{ $order->customer_phone }}
-                    </p>
+                    <div class="mt-3 space-y-2 text-sm">
+                        <div class="flex justify-between gap-3"><span style="color: var(--c-muted)" class="shrink-0">Naam</span><strong class="text-right">{{ $order->billingAddress?->fullName() ?? '—' }}</strong></div>
+                        <div class="flex justify-between gap-3"><span style="color: var(--c-muted)" class="shrink-0">E-mail</span><strong class="text-right break-all">{{ $order->customer_email }}</strong></div>
+                        <div class="flex justify-between gap-3"><span style="color: var(--c-muted)" class="shrink-0">Telefoon</span><strong class="text-right">{{ $order->customer_phone ?: '—' }}</strong></div>
+                        <div class="flex justify-between gap-3"><span style="color: var(--c-muted)" class="shrink-0">Straat</span><strong class="text-right">{{ $order->billingAddress?->fullStreet() ?? '—' }}</strong></div>
+                        <div class="flex justify-between gap-3"><span style="color: var(--c-muted)" class="shrink-0">Postcode / plaats</span><strong class="text-right">{{ trim(($order->billingAddress?->postcode ?? '').' '.($order->billingAddress?->city ?? '')) ?: '—' }}</strong></div>
+                    </div>
+                    @if($order->shippingAddress && $order->shippingAddress->id !== $order->billingAddress?->id)
+                        <p class="mt-3 text-sm leading-6" style="color: var(--c-body)">
+                            <strong>Verzendadres (afwijkend)</strong><br>
+                            {{ $order->shippingAddress->fullStreet() }}<br>
+                            {{ $order->shippingAddress->postcode }} {{ $order->shippingAddress->city }}
+                        </p>
+                    @endif
                 </div>
             </div>
 
@@ -98,6 +106,15 @@
                         <div class="flex justify-between"><span style="color: var(--c-muted)">Betaling</span><strong>{{ $order->payment_status === 'paid' ? 'Betaald' : ($order->payment_status === 'failed' ? 'Mislukt' : 'Open') }}</strong></div>
                         <div class="flex justify-between"><span style="color: var(--c-muted)">Methode</span><strong class="capitalize">{{ $order->payment_method ?? '—' }}</strong></div>
                         <div class="flex justify-between"><span style="color: var(--c-muted)">Klantnummer</span><strong>{{ $order->klantnummer ?? '—' }}</strong></div>
+                        <div class="flex justify-between gap-3"><span style="color: var(--c-muted)" class="shrink-0">Klantaccount</span><strong class="text-right">@if($order->user) {{ $order->user->name }} ({{ $order->user->email }}) @else Gast — geen account @endif</strong></div>
+                        @if($order->coupon)
+                            <div class="flex justify-between gap-3"><span style="color: var(--c-muted)" class="shrink-0">Coupon</span><strong class="text-right">{{ $order->coupon->code }} ({{ $order->coupon->discount_type === 'percentage' ? rtrim(rtrim(number_format($order->coupon->discount_value, 2, ',', '.'), '0'), ',').'%' : '€'.number_format($order->coupon->discount_value, 2, ',', '.') }})</strong></div>
+                        @elseif($order->discount_code)
+                            <div class="flex justify-between gap-3"><span style="color: var(--c-muted)" class="shrink-0">Coupon</span><strong class="text-right">{{ $order->discount_code }}</strong></div>
+                        @endif
+                        @if($order->mollie_payment_id)
+                            <div class="flex justify-between gap-3"><span style="color: var(--c-muted)" class="shrink-0">Mollie-ID</span><strong class="text-right font-mono text-xs break-all">{{ $order->mollie_payment_id }}</strong></div>
+                        @endif
                     </div>
                     <label class="mt-4 block text-xs font-bold uppercase tracking-wide" style="color: var(--c-muted)">Bestelstatus wijzigen</label>
                     <select id="orderStatusSelect" class="mt-1.5 h-10 w-full rounded-lg border px-2 text-sm outline-none" style="background-color: var(--c-input-bg); border-color: var(--c-input-border); color: var(--c-heading)">

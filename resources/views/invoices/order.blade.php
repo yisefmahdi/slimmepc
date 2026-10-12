@@ -102,7 +102,7 @@
     <tr><td class="label">Klant:</td><td class="value">{{ $invoice->customer_name }}</td></tr>
     <tr><td class="label">Email:</td><td class="value">{{ $invoice->customer_email }}</td></tr>
     <tr><td class="label">Telefoon:</td><td class="value">{{ $invoice->customer_phone ?: '—' }}</td></tr>
-    <tr><td class="label">Adres:</td><td class="value">{{ trim($invoice->street_address.' '.$invoice->postal_code.' '.$invoice->city) ?: '—' }}</td></tr>
+    <tr><td class="label">Adres:</td><td class="value">{{ trim($invoice->street_address.' '.trim(($invoice->order?->billingAddress?->house_number ?? '').' '.($invoice->order?->billingAddress?->addition ?? '')).' '.$invoice->postal_code.' '.$invoice->city) ?: '—' }}</td></tr>
     <tr><td class="label">Betaalmethode:</td><td class="value">{{ $invoice->payment_method ?: '—' }}</td></tr>
 </table>
 

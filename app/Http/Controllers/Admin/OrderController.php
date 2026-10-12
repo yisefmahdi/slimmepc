@@ -49,6 +49,7 @@ class OrderController extends Controller
             'order_number' => $o->order_number,
             'customer' => $o->billingAddress?->fullName() ?? $o->customer_email,
             'email' => $o->customer_email,
+            'phone' => $o->customer_phone,
             'total' => $o->total_price,
             'shipping_method' => $o->shipping_method,
             'payment_status' => $o->payment_status,
@@ -74,7 +75,7 @@ class OrderController extends Controller
 
     public function show(Order $order): View
     {
-        $order->load(['items.product', 'items.licenseCodes', 'billingAddress', 'coupon', 'invoice', 'user']);
+        $order->load(['items.product', 'items.licenseCodes', 'billingAddress', 'shippingAddress', 'coupon', 'invoice', 'user']);
 
         return view('admin.orders.show', compact('order'));
     }

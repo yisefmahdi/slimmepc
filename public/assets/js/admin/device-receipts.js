@@ -33,7 +33,7 @@
     }
 
     function load() {
-        if (window.AdminTable) window.AdminTable.loading(tableBody, 7);
+        if (window.AdminTable) window.AdminTable.loading(tableBody, 8);
         const params = new URLSearchParams({
             search: searchEl.value.trim(),
             per_page: perPageEl.value,
@@ -50,7 +50,7 @@
 
     function renderList(items) {
         if (!items.length) {
-            tableBody.innerHTML = `<tr><td colspan="7" class="px-4 py-14 text-center"><p class="font-semibold" style="color:var(--c-heading)">Geen ontvangsten gevonden</p><p class="mt-1 text-xs" style="color:var(--c-muted)">Maak je eerste ontvangst aan.</p></td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="8" class="px-4 py-14 text-center"><p class="font-semibold" style="color:var(--c-heading)">Geen ontvangsten gevonden</p><p class="mt-1 text-xs" style="color:var(--c-muted)">Maak je eerste ontvangst aan.</p></td></tr>`;
             return;
         }
         tableBody.innerHTML = items.map(row => {
@@ -59,12 +59,16 @@
             const tNum = escapeHtml(row.receipt_number || ('DR-' + String(row.id).padStart(5,'0')));
             const photoCount = parseInt(row.photos_count || 0, 10);
             const photoBadge = photoCount > 0 ? `<span class="ml-1.5 inline-flex items-center gap-1 rounded-full bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-3 w-3"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Z" /></svg>${photoCount}</span>` : '';
+            const statusStyles = { received: 'background-color:#eff6ff;color:#1d4ed8;', processing: 'background-color:#fffbeb;color:#b45309;', completed: 'background-color:#f0fdf4;color:#15803d;' };
+            const statusLabels = { received: 'Ontvangen', processing: 'In behandeling', completed: 'Voltooid' };
+            const statusBadge = `<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold whitespace-nowrap" style="${statusStyles[row.status] || statusStyles.received}">${escapeHtml(statusLabels[row.status] || row.status || '—')}</span>`;
             return `<tr class="border-b transition hover:bg-blue-50/40 dark:hover:bg-slate-800/40" style="border-color: rgba(148,163,184,.12)">
                 <td class="px-3 py-3 text-sm font-semibold whitespace-nowrap" style="color:var(--c-heading)">${escapeHtml(row.customer_name)}</td>
                 <td class="px-3 py-3 text-xs truncate max-w-[170px]" style="color:var(--c-heading)">${escapeHtml(row.customer_email)}</td>
-                <td class="px-3 py-3 text-xs font-bold whitespace-nowrap" style="color:var(--c-heading)">${tNum}${photoBadge}</td>
+                <td class="px-3 py-3 text-xs whitespace-nowrap" style="color:var(--c-heading)">${escapeHtml(row.phone_number || '—')}</td>
                 <td class="px-3 py-3 text-xs whitespace-nowrap" style="color:var(--c-muted)">${escapeHtml(row.device_type || '—')}</td>
-                <td class="px-3 py-3 text-xs whitespace-nowrap" style="color:var(--c-muted)">${escapeHtml(row.serial_number || '—')}</td>
+                <td class="px-3 py-3 text-xs font-bold whitespace-nowrap" style="color:var(--c-heading)">${tNum}${photoBadge}</td>
+                <td class="px-3 py-3 whitespace-nowrap">${statusBadge}</td>
                 <td class="px-3 py-3 text-xs whitespace-nowrap" style="color:var(--c-muted)">${escapeHtml(dateStr)}</td>
                 <td class="px-3 py-3 text-right sticky right-0" style="background-color: var(--c-card); box-shadow: -8px 0 12px -4px rgba(15,23,42,.06);">
                     <div class="flex justify-end gap-2">
@@ -99,6 +103,7 @@
                         const r = data.receipt;
                         document.getElementById('prevName').textContent = r.customer_name;
                         document.getElementById('prevEmail').textContent = r.customer_email;
+                        document.getElementById('prevPhone').textContent = r.phone_number || '—';
                         document.getElementById('prevTNum').textContent = r.receipt_number;
                         document.getElementById('prevDevice').textContent = r.device_type;
                         document.getElementById('prevSerial').textContent = r.serial_number || '—';
@@ -246,7 +251,7 @@
             const row = document.querySelector(`[data-delete="${deletedId}"]`)?.closest('tr');
             if (row) row.remove();
             if (!tableBody.querySelectorAll('tr').length) {
-                tableBody.innerHTML = `<tr><td colspan="7" class="px-4 py-14 text-center"><p class="font-semibold" style="color:var(--c-heading)">Geen ontvangsten gevonden</p><p class="mt-1 text-xs" style="color:var(--c-muted)">Maak je eerste ontvangst aan.</p></td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="8" class="px-4 py-14 text-center"><p class="font-semibold" style="color:var(--c-heading)">Geen ontvangsten gevonden</p><p class="mt-1 text-xs" style="color:var(--c-muted)">Maak je eerste ontvangst aan.</p></td></tr>`;
             }
             currentId = null;
             closeModal('ontvangstDeleteModal');

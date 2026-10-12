@@ -18,10 +18,10 @@
     $popupPosition = in_array($popupItem['position'] ?? '', $popupPositions, true) ? $popupItem['position'] : 'right-bottom';
 
     $popupStyles = [
-        'info' => ['badge' => 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300', 'icon' => 'bg-blue-50 text-blue-600', 'bar' => 'from-blue-500 to-blue-600'],
-        'success' => ['badge' => 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300', 'icon' => 'bg-emerald-50 text-emerald-600', 'bar' => 'from-emerald-500 to-emerald-600'],
-        'warning' => ['badge' => 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300', 'icon' => 'bg-amber-50 text-amber-600', 'bar' => 'from-amber-500 to-orange-500'],
-        'promo' => ['badge' => 'bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300', 'icon' => 'bg-violet-50 text-violet-600', 'bar' => 'from-violet-500 to-purple-600'],
+        'info' => ['badge' => 'bg-blue-50 text-blue-700', 'icon' => 'bg-blue-50 text-blue-600', 'bar' => 'from-blue-500 to-blue-600'],
+        'success' => ['badge' => 'bg-emerald-50 text-emerald-700', 'icon' => 'bg-emerald-50 text-emerald-600', 'bar' => 'from-emerald-500 to-emerald-600'],
+        'warning' => ['badge' => 'bg-amber-50 text-amber-700', 'icon' => 'bg-amber-50 text-amber-600', 'bar' => 'from-amber-500 to-orange-500'],
+        'promo' => ['badge' => 'bg-violet-50 text-violet-700', 'icon' => 'bg-violet-50 text-violet-600', 'bar' => 'from-violet-500 to-purple-600'],
     ];
     $popupStyle = $popupStyles[$popupItem['style'] ?? ''] ?? $popupStyles['info'];
 
@@ -52,10 +52,10 @@
     @if ($isCenter)
     <div data-popup-backdrop class="absolute inset-0 bg-slate-950/50 backdrop-blur-[2px]"></div>
     @endif
-    <div class="{{ $animClass }} relative overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-[0_25px_70px_-15px_rgba(15,23,42,.35)] dark:border-slate-700 dark:bg-slate-900 {{ $isCenter ? 'w-[420px] max-w-full' : '' }}">
+    <div class="{{ $animClass }} relative overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-[0_25px_70px_-15px_rgba(15,23,42,.35)] {{ $isCenter ? 'w-[420px] max-w-full' : '' }}">
         <span class="block h-1 w-full bg-gradient-to-r {{ $popupStyle['bar'] }}"></span>
         <button type="button" data-popup-close aria-label="Sluiten"
-                class="absolute right-2.5 top-3.5 flex h-7 w-7 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800">
+                class="absolute right-2.5 top-3.5 flex h-7 w-7 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-600">
             <i data-lucide="x" class="h-4 w-4"></i>
         </button>
         <div class="p-4 sm:p-5">
@@ -67,14 +67,14 @@
                     @if (trim((string) ($popupItem['type'] ?? '')) !== '')
                     <span class="inline-block rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide {{ $popupStyle['badge'] }}">{{ $popupItem['type'] }}</span>
                     @endif
-                    <h4 class="mt-1 truncate text-[15px] font-extrabold" style="color: var(--c-heading)">{{ $popupItem['title'] }}</h4>
+                    <h4 class="mt-1 truncate text-[15px] font-extrabold" style="color:#0f172a">{{ $popupItem['title'] }}</h4>
                 </div>
             </div>
             @if (trim((string) ($popupItem['message'] ?? '')) !== '')
-            <p class="mt-2.5 text-sm leading-relaxed" style="color: var(--c-body)">{{ $popupItem['message'] }}</p>
+            <p class="mt-2.5 text-sm leading-relaxed" style="color:#475569">{{ $popupItem['message'] }}</p>
             @endif
             @if ($popupImageUrl !== '')
-            <img src="{{ $popupImageUrl }}" alt="{{ $popupItem['title'] ?? 'Melding' }}" loading="lazy" decoding="async" class="mt-3 max-h-60 w-full rounded-xl bg-slate-100 object-contain dark:bg-slate-800">
+            <img src="{{ $popupImageUrl }}" alt="{{ $popupItem['title'] ?? 'Melding' }}" loading="lazy" decoding="async" class="mt-3 max-h-60 w-full rounded-xl bg-slate-100 object-contain">
             @endif
             @if (trim((string) ($popupItem['button_text'] ?? '')) !== '')
             <a href="{{ $popupItem['button_url'] ?: '#' }}"

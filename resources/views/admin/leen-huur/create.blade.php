@@ -337,7 +337,7 @@
                 if(window.SlimmePC && window.SlimmePC.modal){ window.SlimmePC.modal.close(REPAIR_MODAL); }
                 else { const m = document.getElementById('modal-' + REPAIR_MODAL); if(m) m.classList.add('hidden'); }
                 if(window.SlimmePC && window.SlimmePC.toast){
-                    window.SlimmePC.toast(withCustomer ? 'Reparatienummer + klantgegevens overgenomen.' : 'Reparatienummer overgenomen.', 'success');
+                    window.SlimmePC.toast.success(withCustomer ? 'Reparatienummer + klantgegevens overgenomen.' : 'Reparatienummer overgenomen.');
                 }
             }
             async function searchRepairs(q){

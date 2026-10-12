@@ -1,7 +1,7 @@
 @extends('emails.layout')
 
 @section('kicker', 'Nieuwe klant')
-@section('title')Nieuwe klant toegevoegd@endsection
+@section('title')Nieuwe klant toegevoegd @endsection
 
 @section('body')
 <p style="margin:0 0 8px; font-size:14px; line-height:1.7; color:#3E547F;">Een nieuwe klant is succesvol aangemaakt.</p>

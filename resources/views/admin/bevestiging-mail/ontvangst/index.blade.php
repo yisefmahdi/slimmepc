@@ -25,7 +25,7 @@
             <div class="shrink-0 border-b px-4 py-3" style="border-color: rgba(148,163,184,.15)">
                 <div class="flex flex-col gap-2.5 sm:flex-row sm:items-center">
                     <div class="relative flex-1">
-                        <input type="text" id="ontvangstSearch" placeholder="Zoek op naam, e-mail, T-nummer, apparaattype..."
+                        <input type="text" id="ontvangstSearch" placeholder="Zoek op naam, e-mail, telefoonnummer, T-nummer, apparaattype..."
                                class="form-input h-10 w-full pl-4 text-sm" style="background-color: var(--c-page)">
                     </div>
                     <select id="ontvangstPerPage"
@@ -44,9 +44,10 @@
                         <tr class="border-b" style="border-color: rgba(148,163,184,.15)">
                             <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Naam klant</th>
                             <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">E-mail</th>
-                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">T-nummer</th>
+                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Telefoonnummer</th>
                             <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Apparaattype</th>
-                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Serienummer</th>
+                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">T-nummer</th>
+                            <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Status</th>
                             <th class="px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Datum ontvangst</th>
                             <th class="px-3 py-3 text-right text-xs font-bold uppercase tracking-wide whitespace-nowrap sticky right-0 z-10" style="color: var(--c-muted); background-color: var(--c-card); box-shadow: -8px 0 12px -4px rgba(15,23,42,.06);">Acties</th>
                         </tr>
@@ -69,6 +70,10 @@
                 <div class="p-3 rounded-xl border" style="background-color: var(--c-page); border-color: rgba(148,163,184,.2)">
                     <p class="text-[10px] uppercase font-bold text-slate-500 mb-1">E-mailadres</p>
                     <p id="prevEmail" class="text-sm font-semibold" style="color: var(--c-heading)">—</p>
+                </div>
+                <div class="p-3 rounded-xl border" style="background-color: var(--c-page); border-color: rgba(148,163,184,.2)">
+                    <p class="text-[10px] uppercase font-bold text-slate-500 mb-1">Telefoonnummer</p>
+                    <p id="prevPhone" class="text-sm font-semibold" style="color: var(--c-heading)">—</p>
                 </div>
                 <div class="p-3 rounded-xl border" style="background-color: var(--c-page); border-color: rgba(148,163,184,.2)">
                     <p class="text-[10px] uppercase font-bold text-slate-500 mb-1">T-nummer</p>

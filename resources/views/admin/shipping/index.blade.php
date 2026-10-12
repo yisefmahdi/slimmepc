@@ -174,7 +174,7 @@
             else payload.slug = document.getElementById('rateSlug').value;
             const res = await fetch(url, { method, headers: { 'X-CSRF-TOKEN': rateToken, 'Accept': 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             const d = await res.json().catch(() => ({}));
-            window.SlimmePC.toast(d.message || (res.ok ? 'Opgeslagen.' : 'Mislukt.'), res.ok ? 'success' : 'error');
+            (res.ok ? window.SlimmePC.toast.success : window.SlimmePC.toast.error)(d.message || (res.ok ? 'Opgeslagen.' : 'Mislukt.'));
             if (res.ok) { window.SlimmePC.modal.close('rateModal'); loadRates(); }
         }
         async function toggleRate(id, btn) {
@@ -183,11 +183,11 @@
             btn.setAttribute('aria-checked', active ? 'false' : 'true');
             const res = await fetch('/admin/shipping/' + id + '/toggle', { method: 'POST', headers: { 'X-CSRF-TOKEN': rateToken, 'Accept': 'application/json' } });
             const d = await res.json().catch(() => ({}));
-            if (res.ok) { window.SlimmePC.toast(d.message || 'Bijgewerkt.', 'success'); loadRates(); }
+            if (res.ok) { window.SlimmePC.toast.success(d.message || 'Bijgewerkt.'); loadRates(); }
             else {
                 btn.className = `apple-switch ${active ? 'is-active' : 'is-inactive'}`;
                 btn.setAttribute('aria-checked', active ? 'true' : 'false');
-                window.SlimmePC.toast(d.message || 'Mislukt.', 'error');
+                window.SlimmePC.toast.error(d.message || 'Mislukt.');
             }
         }
         function askDeleteRate(id) {
@@ -200,7 +200,7 @@
             if (!pendingRateDelete) return;
             const res = await fetch('/admin/shipping/' + pendingRateDelete, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': rateToken, 'Accept': 'application/json' } });
             const d = await res.json().catch(() => ({}));
-            window.SlimmePC.toast(d.message || 'Verwijderd.', res.ok ? 'success' : 'error');
+            (res.ok ? window.SlimmePC.toast.success : window.SlimmePC.toast.error)(d.message || 'Verwijderd.');
             if (res.ok) { window.SlimmePC.modal.close('rateDeleteModal'); loadRates(); }
             pendingRateDelete = null;
         });

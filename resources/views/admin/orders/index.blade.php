@@ -60,6 +60,7 @@
                         <tr class="border-b" style="border-color: rgba(148,163,184,.15)">
                             <th class="min-w-[130px] px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Nummer</th>
                             <th class="min-w-[180px] px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Klant</th>
+                            <th class="min-w-[130px] px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Telefoon</th>
                             <th class="w-[100px] px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Totaal</th>
                             <th class="w-[110px] px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Betaling</th>
                             <th class="w-[100px] px-3 py-3 text-xs font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--c-muted)">Type</th>
@@ -145,7 +146,7 @@
             }
 
             async function load() {
-                rows.innerHTML = '<tr><td colspan="8" class="px-6 py-12 text-center text-sm" style="color: var(--c-muted)">Gegevens laden…</td></tr>';
+                rows.innerHTML = '<tr><td colspan="9" class="px-6 py-12 text-center text-sm" style="color: var(--c-muted)">Gegevens laden…</td></tr>';
                 const q = new URLSearchParams({ page, search: search.value, order_status: fStatus.value, payment_status: fPay.value, per_page: fPerPage.value });
                 const res = await fetch('{{ route('admin.orders.data') }}?' + q.toString(), { headers: { Accept: 'application/json' } });
                 const d = await res.json();
@@ -153,9 +154,10 @@
                 document.getElementById('chipPaid').textContent = 'Betaald: ' + d.counts.paid;
                 document.getElementById('chipTotal').textContent = 'Totaal: ' + d.counts.total;
                 rows.innerHTML = d.data.length ? d.data.map(o => `
-                    <tr class="border-b transition hover:bg-blue-50/40 dark:hover:bg-slate-800/40" style="border-color:rgba(148,163,184,.12)">
+                    <tr id="order-row-${o.id}" class="border-b transition hover:bg-blue-50/40 dark:hover:bg-slate-800/40" style="border-color:rgba(148,163,184,.12)">
                         <td class="px-3 py-3"><a class="text-sm font-semibold hover:text-blue-600 hover:underline" style="color:var(--c-heading)" href="/admin/orders/${o.id}">${esc(o.order_number)}</a></td>
                         <td class="px-3 py-3"><div class="text-sm font-semibold line-clamp-1" style="color:var(--c-heading)">${esc(o.customer)}</div><div class="text-xs" style="color:var(--c-muted)">${esc(o.email)}</div></td>
+                        <td class="px-3 py-3 text-xs whitespace-nowrap" style="color:var(--c-heading)">${esc(o.phone)}</td>
                         <td class="px-3 py-3 text-sm font-bold whitespace-nowrap" style="color:var(--c-heading)">€${Number(o.total).toFixed(2).replace('.', ',')}</td>
                         <td class="px-3 py-3">${payBadge(o.payment_status)}</td>
                         <td class="px-3 py-3"><span class="rounded-full bg-slate-100 px-2 py-1 text-[11px] font-bold" style="color:var(--c-heading)">${o.shipping_method === 'pickup' ? 'Afhalen' : (o.shipping_method === 'digital' ? 'Digitaal' : 'Bezorging')}</span></td>
@@ -167,7 +169,7 @@
                                 <button type="button" onclick="askDeleteOrder(${o.id}, '${esc(o.order_number)}')" title="Verwijderen" class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 transition"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg></button>
                             </div>
                         </td>
-                    </tr>`).join('') : '<tr><td colspan="8" class="px-6 py-16 text-center"><div class="flex flex-col items-center gap-3"><span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-7 w-7"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z" /></svg></span><p class="text-sm font-semibold" style="color:var(--c-heading)">Geen bestellingen gevonden</p></div></td></tr>';
+                    </tr>`).join('') : '<tr><td colspan="9" class="px-6 py-16 text-center"><div class="flex flex-col items-center gap-3"><span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-7 w-7"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z" /></svg></span><p class="text-sm font-semibold" style="color:var(--c-heading)">Geen bestellingen gevonden</p></div></td></tr>';
                 renderPagination(d.pagination);
             }
             window.askDeleteOrder = (id, num) => {
@@ -175,14 +177,74 @@
                 document.getElementById('deleteOrderNumber').textContent = num;
                 window.SlimmePC.modal.open('deleteOrderModal');
             };
+            const showToast = (msg, ok) => {
+                try {
+                    if (window.SlimmePC && window.SlimmePC.toast) {
+                        (ok ? window.SlimmePC.toast.success : window.SlimmePC.toast.error)(msg);
+                        return;
+                    }
+                } catch (e) {}
+                alert(msg);
+            };
+            const refreshChips = async () => {
+                try {
+                    const cRes = await fetch('{{ route('admin.orders.data') }}?page=1&per_page=1', { headers: { Accept: 'application/json' } });
+                    const c = await cRes.json();
+                    if (c.counts) {
+                        document.getElementById('chipPending').textContent = 'Nieuw: ' + c.counts.pending;
+                        document.getElementById('chipPaid').textContent = 'Betaald: ' + c.counts.paid;
+                        document.getElementById('chipTotal').textContent = 'Totaal: ' + c.counts.total;
+                    }
+                } catch (e) { /* tellers blijven staan bij fout */ }
+            };
+            const removeRow = (id) => {
+                let row = document.getElementById('order-row-' + id);
+                if (!row) {
+                    const btn = document.querySelector(`[data-delete="${id}"]`);
+                    row = btn ? btn.closest('tr') : null;
+                }
+                if (row) row.remove();
+                if (!tableBody.querySelectorAll('tr').length) {
+                    if (page > 1) { page--; load(); }
+                    else tableBody.innerHTML = '<tr><td colspan="9" class="px-6 py-16 text-center"><div class="flex flex-col items-center gap-3"><span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-7 w-7"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z" /></svg></span><p class="text-sm font-semibold" style="color:var(--c-heading)">Geen bestellingen gevonden</p></div></td></tr>';
+                }
+            };
             document.getElementById('deleteOrderConfirm').addEventListener('click', async () => {
                 if (!pendingDelete) return;
-                const res = await fetch('/admin/orders/' + pendingDelete, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': token, Accept: 'application/json' } });
-                const d = await res.json().catch(() => ({}));
-                window.SlimmePC.modal.close('deleteOrderModal');
-                window.SlimmePC.toast(d.message || 'Verwijderd.', res.ok ? 'success' : 'error');
+                const confirmBtn = document.getElementById('deleteOrderConfirm');
+                const deletedId = pendingDelete;
                 pendingDelete = null;
-                load();
+                const origConfirmHtml = confirmBtn.innerHTML;
+                confirmBtn.disabled = true;
+                confirmBtn.innerHTML = '<svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Bezig...';
+                try {
+                    let res = null, d = {};
+                    try {
+                        res = await fetch('/admin/orders/' + deletedId, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': token, Accept: 'application/json' } });
+                        d = await res.json().catch(() => ({}));
+                    } catch (e) {
+                        showToast('Verwijderen mislukt (netwerkfout).', false);
+                        return;
+                    } finally {
+                        confirmBtn.disabled = false;
+                        confirmBtn.innerHTML = origConfirmHtml;
+                    }
+                    try { window.SlimmePC.modal.close('deleteOrderModal'); } catch (e) {}
+                    if (res.status === 404) {
+                        // Al verwijderd (dubbele klik of verouderde lijst): rij toch uit beeld halen.
+                        removeRow(deletedId);
+                        showToast('Was al verwijderd.', true);
+                        refreshChips();
+                        return;
+                    }
+                    if (!res.ok) { showToast(d.message || 'Verwijderen mislukt.', false); return; }
+                    showToast(d.message || 'Verwijderd.', true);
+                    removeRow(deletedId);
+                    refreshChips();
+                } catch (e) {
+                    confirmBtn.disabled = false;
+                    confirmBtn.innerHTML = origConfirmHtml;
+                }
             });
             [search, fStatus, fPay, fPerPage].forEach(el => el.addEventListener(el === search ? 'input' : 'change', () => {
                 clearTimeout(timer); timer = setTimeout(() => { page = 1; load(); }, el === search ? 400 : 0);
