@@ -486,6 +486,7 @@ foreach ($WANT['order_invoices'] as $id) {
     $inv = $D['invoices'][$id];
     $newId = $REMAP['order_invoices'][$id] ?? $id;
     $oid = (int) $inv['order_id'];
+    $origOid = $oid; // dump order-id for e-mail lookup (rewired $oid doesn't exist in dump map)
     if (isset($REWIRE['order_invoices']['order_id'][$oid])) {
         $oid = $REWIRE['order_invoices']['order_id'][$oid];
     }
@@ -499,7 +500,7 @@ foreach ($WANT['order_invoices'] as $id) {
     $delta['order_invoices'][] = [
         'id' => $newId, 'order_id' => $oid, 'invoice_number' => $newNum,
         'invoice_date' => $inv['invoice_date'], 'customer_name' => (string) $inv['customer_name'],
-        'customer_email' => $orderEmail[$id] ?? null, 'customer_phone' => (string) $inv['customer_phone'],
+        'customer_email' => $orderEmail[$origOid] ?? null, 'customer_phone' => (string) $inv['customer_phone'],
         'street_address' => $street, 'postal_code' => (string) $inv['postal_code'],
         'city' => (string) $inv['city'], 'klantnummer' => (string) $inv['klantnummer'],
         'subtotal' => $inv['subtotal'], 'tax_percentage' => $inv['tax_percentage'],
