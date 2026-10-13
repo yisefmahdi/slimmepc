@@ -2,7 +2,7 @@
     <div class="mb-6 flex items-center justify-between gap-3">
         <div>
             <h1 class="text-xl font-extrabold tracking-tight" style="color: var(--c-heading)">E-mail verzenden</h1>
-            <p class="text-xs" style="color: var(--c-muted)">Verzend een e-mail naar alle gebruikers. Verzending loopt via de wachtrij in delen van 200.</p>
+            <p class="text-xs" style="color: var(--c-muted)">Verzend een e-mail naar alle gebruikers. Directe verzending in delen, met voortgang.</p>
         </div>
         <x-admin.back-button :href="route('admin.customerlist.index')" label="Klantenlijst" />
     </div>
@@ -47,7 +47,19 @@
         </div>
 
         <div class="flex items-center justify-end gap-3">
-            <button type="submit" class="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#075be8] to-[#064bd7] px-8 text-sm font-bold text-white shadow-[0_10px_25px_rgba(0,91,234,0.25)] hover:-translate-y-0.5">Versturen</button>
+            <button type="submit" id="massSendBtn" class="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#075be8] to-[#064bd7] px-8 text-sm font-bold text-white shadow-[0_10px_25px_rgba(0,91,234,0.25)] hover:-translate-y-0.5 disabled:opacity-60">Versturen</button>
+        </div>
+        <div id="massProgress" class="hidden overflow-hidden rounded-2xl border shadow-sm" style="background-color: var(--c-card); border-color: rgba(148,163,184,.25)">
+            <div class="p-4 sm:px-6">
+                <div class="flex items-center justify-between gap-3 text-xs font-bold" style="color: var(--c-heading)">
+                    <span id="massProgressLabel">Bezig met verzenden…</span>
+                    <span id="massProgressCount">0 / 0</span>
+                </div>
+                <div class="mt-2 h-2.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                    <div id="massProgressBar" class="h-full rounded-full bg-gradient-to-r from-[#075be8] to-[#064bd7] transition-all" style="width: 0%"></div>
+                </div>
+                <p id="massProgressDone" class="mt-2 hidden text-xs font-semibold"></p>
+            </div>
         </div>
     </form>
 
@@ -111,5 +123,73 @@
             document.getElementById('massEmailDeleteForm').action = '{{ url('admin/mass-emails') }}/' + id;
             window.SlimmePC.modal.open('massEmailDeleteModal');
         }
+
+        // Directe verzending in delen (25 gebruikers per request): geen queue-worker
+        // nodig, geen time-out bij grote aantallen, met live voortgang.
+        document.querySelector('form[action="{{ route('send.mass.email') }}"]')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const token = document.querySelector('meta[name=csrf-token]')?.content || '';
+            const typeEl = document.getElementById('messageType');
+            const contentEl = document.getElementById('messageContent');
+            const btn = document.getElementById('massSendBtn');
+            const toastOk = (m) => { try { window.SlimmePC.toast.success(m); } catch (err) { alert(m); } };
+            const toastErr = (m) => { try { window.SlimmePC.toast.error(m); } catch (err) { alert(m); } };
+            const type = typeEl?.value || '';
+            const content = contentEl?.value.trim() || '';
+            if (!type || !content) { toastErr('Type en inhoud zijn verplicht.'); return; }
+            const prog = document.getElementById('massProgress');
+            const bar = document.getElementById('massProgressBar');
+            const label = document.getElementById('massProgressLabel');
+            const count = document.getElementById('massProgressCount');
+            const done = document.getElementById('massProgressDone');
+            prog.classList.remove('hidden');
+            done.classList.add('hidden');
+            btn.disabled = true;
+            btn.innerHTML = '<svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Bezig...';
+            const LIMIT = 25;
+            try {
+                const initRes = await fetch('{{ route('send.mass.email.chunk') }}', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message_type: type, message_content: content }),
+                });
+                const init = await initRes.json().catch(() => ({}));
+                if (!initRes.ok || !init.email_id) throw new Error(init.message || 'Aanmaken mislukt.');
+                const total = init.total || 0;
+                let offset = 0, sentTotal = 0;
+                const failedAll = [];
+                if (!total) throw new Error('Geen gebruikers met e-mailadres gevonden.');
+                while (true) {
+                    const res = await fetch('{{ route('send.mass.email.chunk') }}', {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email_id: init.email_id, offset, limit: LIMIT }),
+                    });
+                    const d = await res.json().catch(() => ({}));
+                    if (!res.ok) throw new Error(d.message || 'Verzenden mislukt.');
+                    sentTotal += d.sent || 0;
+                    (d.failed || []).forEach(f => failedAll.push(f));
+                    offset += LIMIT;
+                    count.textContent = Math.min(offset, total) + ' / ' + total;
+                    bar.style.width = Math.round(Math.min(offset, total) / total * 100) + '%';
+                    if (d.done) break;
+                }
+                bar.style.width = '100%';
+                count.textContent = total + ' / ' + total;
+                label.textContent = 'Klaar.';
+                done.classList.remove('hidden');
+                done.textContent = sentTotal + ' verzonden' + (failedAll.length ? ', mislukt: ' + failedAll.join(', ') : '.');
+                if (failedAll.length) toastErr(sentTotal + ' verzonden, ' + failedAll.length + ' mislukt.');
+                else toastOk(sentTotal + ' e-mail(s) direct verzonden.');
+                setTimeout(() => window.location.reload(), 2000);
+            } catch (err) {
+                label.textContent = 'Mislukt.';
+                toastErr(err.message || 'Verzenden mislukt.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Versturen';
+            }
+        });
     </script>
 </x-admin.layout>

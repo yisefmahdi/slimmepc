@@ -2,7 +2,7 @@
     <div class="mb-6 flex items-center justify-between gap-3">
         <div>
             <h1 class="text-xl font-extrabold tracking-tight" style="color: var(--c-heading)">E-mails verzenden</h1>
-            <p class="text-xs" style="color: var(--c-muted)">Selecteer ontvangers uit de mailinglijst. Verzending loopt via de wachtrij.</p>
+            <p class="text-xs" style="color: var(--c-muted)">Selecteer ontvangers uit de mailinglijst. Directe verzending in delen.</p>
         </div>
         <x-admin.back-button :href="route('admin.customerlist.index')" label="Klantenlijst" />
     </div>
@@ -87,7 +87,19 @@
 
         <div class="flex items-center justify-end gap-3">
             <a href="{{ route('admin.customerlist.index') }}" class="inline-flex h-11 items-center justify-center rounded-xl border px-6 text-sm font-semibold" style="color: var(--c-heading); border-color: var(--c-input-border)">Annuleren</a>
-            <button type="submit" class="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#075be8] to-[#064bd7] px-8 text-sm font-bold text-white shadow-[0_10px_25px_rgba(0,91,234,0.25)] hover:-translate-y-0.5">Verzenden</button>
+            <button type="submit" id="mlSendBtn" class="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#075be8] to-[#064bd7] px-8 text-sm font-bold text-white shadow-[0_10px_25px_rgba(0,91,234,0.25)] hover:-translate-y-0.5 disabled:opacity-60">Verzenden</button>
+        </div>
+        <div id="mlProgress" class="hidden overflow-hidden rounded-2xl border shadow-sm" style="background-color: var(--c-card); border-color: rgba(148,163,184,.25)">
+            <div class="p-4 sm:px-6">
+                <div class="flex items-center justify-between gap-3 text-xs font-bold" style="color: var(--c-heading)">
+                    <span id="mlProgressLabel">Bezig met verzenden…</span>
+                    <span id="mlProgressCount">0 / 0</span>
+                </div>
+                <div class="mt-2 h-2.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                    <div id="mlProgressBar" class="h-full rounded-full bg-gradient-to-r from-[#075be8] to-[#064bd7] transition-all" style="width: 0%"></div>
+                </div>
+                <p id="mlProgressDone" class="mt-2 hidden text-xs font-semibold"></p>
+            </div>
         </div>
     </form>
 
@@ -115,6 +127,62 @@
                 });
             });
             updateCount();
+            // Directe verzending in delen (25 per request): geen queue-worker nodig,
+            // geen time-out bij grote lijsten, met live voortgang.
+            const form = document.querySelector('form[action="{{ route('admin.mailinglist.send') }}"]');
+            const sendBtn = document.getElementById('mlSendBtn');
+            const token = document.querySelector('meta[name=csrf-token]')?.content || '';
+            const toastOk = (m) => { try { window.SlimmePC.toast.success(m); } catch (e) { alert(m); } };
+            const toastErr = (m) => { try { window.SlimmePC.toast.error(m); } catch (e) { alert(m); } };
+            form?.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const recipients = boxes().filter(b => b.checked).map(b => b.value);
+                const subject = document.getElementById('ml-subject')?.value.trim() || '';
+                const message = document.getElementById('ml-message')?.value.trim() || '';
+                const type = document.getElementById('ml-type')?.value || null;
+                if (!recipients.length) { toastErr('Selecteer minimaal één ontvanger.'); return; }
+                if (!subject || !message) { toastErr('Onderwerp en bericht zijn verplicht.'); return; }
+                const prog = document.getElementById('mlProgress');
+                const bar = document.getElementById('mlProgressBar');
+                const label = document.getElementById('mlProgressLabel');
+                const count = document.getElementById('mlProgressCount');
+                const done = document.getElementById('mlProgressDone');
+                prog.classList.remove('hidden');
+                done.classList.add('hidden');
+                sendBtn.disabled = true;
+                sendBtn.innerHTML = '<svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Bezig...';
+                const CHUNK = 25;
+                let sentTotal = 0;
+                const failedAll = [];
+                for (let i = 0; i < recipients.length; i += CHUNK) {
+                    const chunk = recipients.slice(i, i + CHUNK);
+                    count.textContent = Math.min(i + CHUNK, recipients.length) + ' / ' + recipients.length;
+                    bar.style.width = Math.round(Math.min(i + CHUNK, recipients.length) / recipients.length * 100) + '%';
+                    try {
+                        const res = await fetch('{{ route('admin.mailinglist.send-chunk') }}', {
+                            method: 'POST',
+                            headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ recipients: chunk, subject, message, type }),
+                        });
+                        const d = await res.json().catch(() => ({}));
+                        if (!res.ok) throw new Error(d.message || 'Chunk mislukt.');
+                        sentTotal += d.sent || 0;
+                        (d.failed || []).forEach(f => failedAll.push(f));
+                    } catch (err) {
+                        chunk.forEach(f => failedAll.push(f));
+                    }
+                }
+                bar.style.width = '100%';
+                count.textContent = recipients.length + ' / ' + recipients.length;
+                label.textContent = 'Klaar.';
+                done.classList.remove('hidden');
+                done.textContent = sentTotal + ' verzonden' + (failedAll.length ? ', mislukt: ' + failedAll.join(', ') : '.');
+                done.style.color = failedAll.length ? 'var(--c-heading)' : '';
+                sendBtn.disabled = false;
+                sendBtn.textContent = 'Verzenden';
+                if (failedAll.length) toastErr(sentTotal + ' verzonden, ' + failedAll.length + ' mislukt.');
+                else toastOk(sentTotal + ' e-mail(s) direct verzonden.');
+            });
         })();
     </script>
 </x-admin.layout>

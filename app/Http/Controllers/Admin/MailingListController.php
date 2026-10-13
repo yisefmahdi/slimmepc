@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Mail\CustomEmail;
 use App\Models\MailingList;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class MailingListController extends Controller
@@ -55,16 +57,70 @@ class MailingListController extends Controller
             'type' => 'nullable|string|max:50',
         ]);
 
-        foreach (array_chunk($request->recipients, 50) as $chunk) {
-            foreach ($chunk as $recipient) {
-                Mail::to($recipient)->queue(new CustomEmail(
-                    $request->subject,
-                    $request->message,
-                    $request->type
-                ));
+        // Let op: grote lijsten via dit formulier zonder JS lopen in één
+        // request (time-out-risico) — het formulier verstuurt daarom altijd
+        // in delen via sendChunk(). Dit blijft als terugvalroute.
+        [$sent, $failed] = self::sendBatch(
+            $request->recipients,
+            $request->subject,
+            $request->message,
+            $request->type
+        );
+
+        $msg = $sent.' e-mail(s) direct verzonden.'
+            . ($failed ? ' Mislukt: '.implode(', ', $failed) : '');
+
+        return redirect()->back()->with($failed ? 'error' : 'success', $msg);
+    }
+
+    /**
+     * Directe (synchrone) verzending in kleine delen — aangeroepen per chunk
+     * vanuit het formulier (JS), zodat geen queue-worker nodig is en geen
+     * PHP-timeout kan optreden bij grote lijsten. Max 50 per request.
+     */
+    public function sendChunk(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'recipients' => 'required|array|min:1|max:50',
+            'recipients.*' => 'email',
+            'subject' => ['required', 'string', 'max:255', 'not_regex:/[\r\n]/'],
+            'message' => 'required|string',
+            'type' => 'nullable|string|max:50',
+        ]);
+
+        @set_time_limit(120);
+
+        [$sent, $failed] = self::sendBatch(
+            $data['recipients'],
+            $data['subject'],
+            $data['message'],
+            $data['type']
+        );
+
+        return response()->json(['sent' => $sent, 'failed' => $failed]);
+    }
+
+    /**
+     * Gedeelde directe verzending (geen queue): per ontvanger try/catch,
+     * zodat één fout adres de rest nooit blokkeert.
+     *
+     * @return array{0: int, 1: list<string>}
+     */
+    private static function sendBatch(array $recipients, string $subject, string $message, ?string $type): array
+    {
+        $sent = 0;
+        $failed = [];
+
+        foreach ($recipients as $recipient) {
+            try {
+                Mail::to($recipient)->send(new CustomEmail($subject, $message, $type));
+                $sent++;
+            } catch (\Throwable $e) {
+                Log::warning('[mailinglist] direct send mislukt voor '.$recipient.': '.$e->getMessage());
+                $failed[] = $recipient;
             }
         }
 
-        return redirect()->back()->with('success', 'E-mails zijn in de wachtrij geplaatst en worden verzonden.');
+        return [$sent, $failed];
     }
 }

@@ -386,6 +386,7 @@ Route::prefix('admin')
         // 📢 Mass e-mail naar alle gebruikers (zoals oude systeem A) — admin only
         Route::get('/email-verzenden', [MassEmailController::class, 'showForm'])->name('mass.email.form')->middleware('admin');
         Route::post('/email-verzenden', [MassEmailController::class, 'sendMassEmail'])->name('send.mass.email')->middleware('admin');
+        Route::post('/email-verzenden-chunk', [MassEmailController::class, 'sendChunk'])->name('send.mass.email.chunk')->middleware('admin');
         Route::delete('/mass-emails/{id}', [MassEmailController::class, 'deleteMassEmail'])->name('mass.email.delete')->middleware('admin');
 
         // 📧 Mailinglijst (zoals oude systeem B: customerlist + send) — admin only
@@ -394,6 +395,7 @@ Route::prefix('admin')
         Route::delete('/mailinglijst/{id}', [MailingListController::class, 'destroy'])->name('customerlist.destroy')->middleware('admin');
         Route::get('/mailinglijst/verzenden', [MailingListController::class, 'sendForm'])->name('mailinglist.send.form')->middleware('admin');
         Route::post('/mailinglijst/verzenden', [MailingListController::class, 'send'])->name('mailinglist.send')->middleware('admin');
+        Route::post('/mailinglijst/verzenden-chunk', [MailingListController::class, 'sendChunk'])->name('mailinglist.send-chunk')->middleware('admin');
 
         // 📄 Boekhouden: Kopen+verkopen & RekenMachine (zoals oude systeem) — admin only
         Route::prefix('boekhouden')->name('boekhouden.')->middleware('admin')->group(function () {
