@@ -348,7 +348,7 @@ function submissionAttachment(data) {
     const url = `/admin/contact-inbox/${s.id}/attachment`;
     const isImage = /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(name);
     const inner = isImage
-        ? `<a href="${url}" target="_blank" rel="noopener" class="mt-2.5 block" title="Open: ${esc(name)}">
+        ? `<a href="${url}" data-contact-photo="${url}" class="mt-2.5 block cursor-zoom-in" title="Open: ${esc(name)}">
             <img src="${url}" alt="${esc(name)}" class="max-h-44 w-auto rounded-xl border object-contain shadow-sm" style="border-color: rgba(148,163,184,0.2)" loading="lazy">
         </a>`
         : `<a href="${url}" download="${esc(name) || 'bestand'}"
@@ -665,6 +665,14 @@ $(function () {
     // Open chat
     $(document).on('click', '[data-inbox-open]', function () {
         openChat($(this).data('inbox-open'));
+    });
+
+    // Submission attachment photo → lightbox popup i.p.v. downloaden/nieuwe tab
+    $(document).on('click', '[data-contact-photo]', function (e) {
+        e.preventDefault();
+        const img = document.getElementById('contactPhotoLightboxImg');
+        if (img) img.src = $(this).attr('data-contact-photo');
+        if (window.SlimmePC && window.SlimmePC.modal) window.SlimmePC.modal.open('contactPhotoLightbox');
     });
 
     // Back (mobile)

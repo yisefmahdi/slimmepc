@@ -233,4 +233,16 @@
             </button>
         </x-slot>
     </x-admin.modal>
+
+    {{-- Photo lightbox (popup i.p.v. nieuwe tab) --}}
+    <x-admin.modal id="contactPhotoLightbox" title="Foto" size="lg">
+        <div class="flex items-center justify-center rounded-xl bg-black/90 p-2">
+            <img id="contactPhotoLightboxImg" src="" alt="Foto" class="max-h-[70vh] w-auto max-w-full rounded-lg object-contain">
+        </div>
+        <x-slot name="footer">
+            <button type="button" data-modal-close
+                    class="inline-flex h-11 items-center justify-center rounded-xl border px-5 text-sm font-semibold transition hover:bg-slate-100 dark:hover:bg-slate-800"
+                    style="color: var(--c-heading); border-color: var(--c-input-border)">Sluiten</button>
+        </x-slot>
+    </x-admin.modal>
 </x-admin.layout>
