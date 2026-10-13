@@ -348,7 +348,7 @@ function submissionAttachment(data) {
     const url = `/admin/contact-inbox/${s.id}/attachment`;
     const isImage = /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(name);
     const inner = isImage
-        ? `<a href="${url}" data-contact-photo="${url}?preview=1" class="mt-2.5 block cursor-zoom-in" title="Open: ${esc(name)}">
+        ? `<a href="${url}" data-contact-photo="${url}?preview=1" data-photo class="mt-2.5 block cursor-zoom-in" title="Open: ${esc(name)}">
             <img src="${url}?preview=1" alt="${esc(name)}" class="max-h-44 w-auto rounded-xl border object-contain shadow-sm" style="border-color: rgba(148,163,184,0.2)" loading="lazy">
         </a>`
         : `<a href="${url}" download="${esc(name) || 'bestand'}"
@@ -667,9 +667,16 @@ $(function () {
         openChat($(this).data('inbox-open'));
     });
 
-    // Submission attachment photo → lightbox popup i.p.v. downloaden/nieuwe tab
+    // Submission attachment photo → lightbox popup i.p.v. downloaden/nieuwe tab.
+    // (data-photo: loader.js negeert deze klik, anders blijft de pagina-loader hangen
+    // omdat een download-navigatie nooit een page-load afrondt.)
     $(document).on('click', '[data-contact-photo]', function (e) {
         e.preventDefault();
+        try {
+            var loader = document.getElementById('admin-loader');
+            if (loader) loader.classList.remove('loader-visible');
+            sessionStorage.removeItem('adminPageNav');
+        } catch (err) {}
         const img = document.getElementById('contactPhotoLightboxImg');
         if (img) img.src = $(this).attr('data-contact-photo');
         if (window.SlimmePC && window.SlimmePC.modal) window.SlimmePC.modal.open('contactPhotoLightbox');
