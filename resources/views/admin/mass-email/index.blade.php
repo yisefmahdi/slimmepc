@@ -126,7 +126,7 @@
 
         // Directe verzending in delen (25 gebruikers per request): geen queue-worker
         // nodig, geen time-out bij grote aantallen, met live voortgang.
-        document.querySelector('form[action="{{ route('send.mass.email') }}"]')?.addEventListener('submit', async (e) => {
+        document.querySelector('form[action="{{ route('admin.send.mass.email') }}"]')?.addEventListener('submit', async (e) => {
             e.preventDefault();
             const form = e.target;
             const token = document.querySelector('meta[name=csrf-token]')?.content || '';
@@ -149,7 +149,7 @@
             btn.innerHTML = '<svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Bezig...';
             const LIMIT = 25;
             try {
-                const initRes = await fetch('{{ route('send.mass.email.chunk') }}', {
+                const initRes = await fetch('{{ route('admin.send.mass.email.chunk') }}', {
                     method: 'POST',
                     headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json', 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message_type: type, message_content: content }),
@@ -161,7 +161,7 @@
                 const failedAll = [];
                 if (!total) throw new Error('Geen gebruikers met e-mailadres gevonden.');
                 while (true) {
-                    const res = await fetch('{{ route('send.mass.email.chunk') }}', {
+                    const res = await fetch('{{ route('admin.send.mass.email.chunk') }}', {
                         method: 'POST',
                         headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json', 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email_id: init.email_id, offset, limit: LIMIT }),
