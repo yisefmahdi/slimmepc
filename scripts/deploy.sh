@@ -77,7 +77,8 @@ php artisan down --render="errors.503" --retry=60 >> "$LOG_FILE" 2>&1 \
   || log "WARNING: maintenance mode down failed, continuing"
 
 if command -v composer >/dev/null 2>&1; then
-  if ! composer install --no-dev --optimize-autoloader --prefer-dist --no-interaction >> "$LOG_FILE" 2>&1; then
+  # Hostinger-CLI-PHP mist ext-sodium; vendor/ is al compatibel, dus platform-check overslaan.
+  if ! composer install --no-dev --optimize-autoloader --prefer-dist --no-interaction --ignore-platform-req=ext-sodium >> "$LOG_FILE" 2>&1; then
     fail "composer install FAILED (vendor left untouched by follow-up steps)"
   fi
   log "composer install ok"
