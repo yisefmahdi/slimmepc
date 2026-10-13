@@ -348,8 +348,8 @@ function submissionAttachment(data) {
     const url = `/admin/contact-inbox/${s.id}/attachment`;
     const isImage = /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(name);
     const inner = isImage
-        ? `<a href="${url}" data-contact-photo="${url}" class="mt-2.5 block cursor-zoom-in" title="Open: ${esc(name)}">
-            <img src="${url}" alt="${esc(name)}" class="max-h-44 w-auto rounded-xl border object-contain shadow-sm" style="border-color: rgba(148,163,184,0.2)" loading="lazy">
+        ? `<a href="${url}" data-contact-photo="${url}?preview=1" class="mt-2.5 block cursor-zoom-in" title="Open: ${esc(name)}">
+            <img src="${url}?preview=1" alt="${esc(name)}" class="max-h-44 w-auto rounded-xl border object-contain shadow-sm" style="border-color: rgba(148,163,184,0.2)" loading="lazy">
         </a>`
         : `<a href="${url}" download="${esc(name) || 'bestand'}"
             class="mt-2.5 inline-flex max-w-full items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold shadow-sm transition hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -386,7 +386,7 @@ function attachmentHtml(reply) {
 
     if (isImage) {
         return `<a href="${url}" target="_blank" rel="noopener" class="mt-2.5 block" title="Open: ${esc(name)}">
-            <img src="${url}" alt="${esc(name)}" class="max-h-44 w-auto rounded-xl border border-white/20 bg-white/10 object-contain shadow-sm">
+            <img src="${url}?preview=1" alt="${esc(name)}" class="max-h-44 w-auto rounded-xl border border-white/20 bg-white/10 object-contain shadow-sm">
         </a>`;
     }
 

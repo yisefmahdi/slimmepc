@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class ContactInboxController extends Controller
 {
@@ -276,23 +276,33 @@ class ContactInboxController extends Controller
 
     /**
      * Stream the submission attachment for download.
+     * Met ?preview=1 als inline image (voor <img>/lightbox) — browsers
+     * weigeren een Content-Disposition: attachment in een <img>-tag
+     * (oneindige loader), vandaar deze splitsing.
      */
-    public function attachment(ContactSubmission $contactSubmission): StreamedResponse
+    public function attachment(Request $request, ContactSubmission $contactSubmission): Response
     {
         $path = $contactSubmission->attachmentPath();
 
         abort_unless($path, 404);
 
+        $rel = 'contact/'.$contactSubmission->id.'/'.$contactSubmission->attachment;
+
+        if ($request->boolean('preview')) {
+            return $this->inlineFile($rel);
+        }
+
         return Storage::disk('local')->download(
-            'contact/'.$contactSubmission->id.'/'.$contactSubmission->attachment,
+            $rel,
             Str::afterLast($contactSubmission->attachment, '/'),
         );
     }
 
     /**
      * Stream an attachment that arrived inside an inbound customer reply.
+     * Met ?preview=1 als inline image (zelfde reden als hierboven).
      */
-    public function replyAttachment(ContactReply $contactReply): StreamedResponse
+    public function replyAttachment(Request $request, ContactReply $contactReply): Response
     {
         abort_unless($contactReply->attachment, 404);
 
@@ -300,7 +310,34 @@ class ContactInboxController extends Controller
 
         abort_unless(Storage::disk('local')->exists($path), 404);
 
+        if ($request->boolean('preview')) {
+            return $this->inlineFile($path);
+        }
+
         return Storage::disk('local')->download($path, Str::afterLast($contactReply->attachment, '/'));
+    }
+
+    /**
+     * Serve een bestand inline (voor <img>/lightbox) met expliciet MIME-type,
+     * zodat de browser het altijd toont i.p.v. downloadt.
+     */
+    private function inlineFile(string $relativePath): Response
+    {
+        $mime = match (strtolower(pathinfo($relativePath, PATHINFO_EXTENSION))) {
+            'png' => 'image/png',
+            'jpg', 'jpeg' => 'image/jpeg',
+            'gif' => 'image/gif',
+            'webp' => 'image/webp',
+            'bmp' => 'image/bmp',
+            'svg' => 'image/svg+xml',
+            'avif' => 'image/avif',
+            default => 'application/octet-stream',
+        };
+
+        return response()->file(
+            Storage::disk('local')->path($relativePath),
+            ['Content-Disposition' => 'inline', 'Content-Type' => $mime]
+        );
     }
 
     /**
