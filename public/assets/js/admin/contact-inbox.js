@@ -337,8 +337,40 @@ function renderThread(data) {
         </div>
     `;
 
-    $('#inboxThread').html(original + data.replies.map(bubble).join(''));
+    $('#inboxThread').html(original + submissionAttachment(data) + data.replies.map(bubble).join(''));
     scrollThreadToBottom();
+}
+
+function submissionAttachment(data) {
+    if (!data.has_attachment || !data.submission || !data.submission.id) return '';
+    const s = data.submission;
+    const name = (s.attachment || '').split('/').pop() || '';
+    const url = `/admin/contact-inbox/${s.id}/attachment`;
+    const isImage = /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(name);
+    const inner = isImage
+        ? `<a href="${url}" target="_blank" rel="noopener" class="mt-2.5 block" title="Open: ${esc(name)}">
+            <img src="${url}" alt="${esc(name)}" class="max-h-44 w-auto rounded-xl border object-contain shadow-sm" style="border-color: rgba(148,163,184,0.2)" loading="lazy">
+        </a>`
+        : `<a href="${url}" download="${esc(name) || 'bestand'}"
+            class="mt-2.5 inline-flex max-w-full items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold shadow-sm transition hover:bg-slate-100 dark:hover:bg-slate-800"
+            style="border-color: rgba(148,163,184,0.2); color: var(--c-heading)">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-4 w-4 shrink-0">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" />
+            </svg>
+            <span class="truncate">${esc(name) || 'Bestand downloaden'}</span>
+        </a>`;
+    return `
+        <div class="flex justify-start">
+            <div class="max-w-[85%] sm:max-w-[70%]">
+                <div class="rounded-2xl rounded-bl-md border px-4 py-3 text-sm leading-relaxed" style="border-color: rgba(148,163,184,0.2); color: var(--c-heading); background-color: var(--c-input-bg)">
+                    <p class="mb-1.5 text-[10px] font-bold uppercase tracking-wider" style="color: var(--c-muted)">
+                        Bijlage bij aanvraag
+                    </p>
+                    ${inner}
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 function scrollThreadToBottom() {
