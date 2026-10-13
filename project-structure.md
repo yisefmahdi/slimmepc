@@ -1978,3 +1978,8 @@ Niet actief: e-mailverificatie (`MustVerifyEmail` staat uit in `User`-model).
 - **Factuur-PDF (`invoices/order.blade.php`, geldt ook mail-bijlage):** Adres-regel vult nu huisnummer (+addition) uit order-factuuradres (snapshot-tabel heeft geen kolom).
 - **Mails:** `contact-reply` handtekening `Admin · Slimme-PC` weg; `emails/layout` color-scheme-meta + dark-block pint lichte huisstijl (footer/header fix).
 - **Deploy:** Hostinger via cron/manual (`optimize:clear` erna) + mijndomein via scp (13 bestanden, géén .htaccess/.env/index) + HTTP `optimize:clear`+`Cms::bust()` + temp-script verwijderd. Live geverifieerd: popup zonder `dark:`, nieuwe bestanden aanwezig.
+
+## 50. CustomEmail op systeemdesign + queue-worker eenmalig (2026-10-13, commit 322dd2f)
+
+- **Design:** `emails/customer.blade.php` (gebruikt door dashboard-verzending via `MailingListController@send`) was oude standalone template (blauwe `#0b5394`-header, typo `Vankinsbergenstraat`) → erft nu `emails.layout` (badge/kicker/title/body + Afspraak-CTA bij maintenance + CMS-footer/logo automatisch via `mailBrand`-composer). 16/16 render-checks OK.
+- **Bezorging:** dashboard-verzending = `Mail::queue()` naar `users`; op mijndomein draait geen permanente worker → eenmalige HTTP-worker (`queue:work --stop-when-empty`, daarna verwijderd) heeft achterstand weggestuurd (1/1 DONE, failed 0). **Permanente Plesk-taak (`queue:work`) blijft vereist** — zonder die stagneert elke nieuwe verzending opnieuw.
