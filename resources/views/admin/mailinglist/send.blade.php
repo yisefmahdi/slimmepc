@@ -180,8 +180,18 @@
                 done.style.color = failedAll.length ? 'var(--c-heading)' : '';
                 sendBtn.disabled = false;
                 sendBtn.textContent = 'Verzenden';
-                if (failedAll.length) toastErr(sentTotal + ' verzonden, ' + failedAll.length + ' mislukt.');
-                else toastOk(sentTotal + ' e-mail(s) direct verzonden.');
+                if (failedAll.length) {
+                    toastErr(sentTotal + ' verzonden, ' + failedAll.length + ' mislukt.');
+                } else {
+                    toastOk(sentTotal + ' e-mail(s) direct verzonden.');
+                    // Alles gelukt: formulier leegmaken zodat duidelijk is dat het verstuurd is.
+                    document.getElementById('ml-subject').value = '';
+                    document.getElementById('ml-message').value = '';
+                    const typeSel = document.getElementById('ml-type');
+                    if (typeSel) typeSel.selectedIndex = 0;
+                    boxes().forEach(b => { b.checked = false; });
+                    updateCount();
+                }
             });
         })();
     </script>
