@@ -179,9 +179,9 @@
                 count.textContent = total + ' / ' + total;
                 label.textContent = 'Klaar.';
                 done.classList.remove('hidden');
-                done.textContent = sentTotal + ' verzonden' + (failedAll.length ? ', mislukt: ' + failedAll.join(', ') : '.');
-                if (failedAll.length) toastErr(sentTotal + ' verzonden, ' + failedAll.length + ' mislukt.');
-                else toastOk(sentTotal + ' e-mail(s) direct verzonden.');
+                done.textContent = sentTotal + ' geaccepteerd door mailserver' + (failedAll.length ? ', mislukt: ' + failedAll.join(', ') : '. Controleer na enkele minuten inbox én spam.');
+                if (failedAll.length) toastErr(sentTotal + ' geaccepteerd, ' + failedAll.length + ' mislukt.');
+                else toastOk(sentTotal + ' e-mail(s) geaccepteerd door mailserver.');
                 setTimeout(() => window.location.reload(), 2000);
             } catch (err) {
                 label.textContent = 'Mislukt.';

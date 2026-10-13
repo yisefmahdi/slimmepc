@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Mail\CustomEmail;
 use App\Models\MailingList;
+use App\Support\MailAudit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class MailingListController extends Controller
@@ -102,7 +102,8 @@ class MailingListController extends Controller
 
     /**
      * Gedeelde directe verzending (geen queue): per ontvanger try/catch,
-     * zodat één fout adres de rest nooit blokkeert.
+     * zodat één fout adres de rest nooit blokkeert. Eén directe herpoging
+     * bij een vluchtige fout; elke poging gaat naar de mail-send auditlog.
      *
      * @return array{0: int, 1: list<string>}
      */
@@ -112,11 +113,25 @@ class MailingListController extends Controller
         $failed = [];
 
         foreach ($recipients as $recipient) {
-            try {
-                Mail::to($recipient)->send(new CustomEmail($subject, $message, $type));
+            $start = microtime(true);
+            $error = null;
+            for ($attempt = 1; $attempt <= 2; $attempt++) {
+                try {
+                    Mail::to($recipient)->send(new CustomEmail($subject, $message, $type));
+                    $error = null;
+                    break;
+                } catch (\Throwable $e) {
+                    $error = $e->getMessage();
+                    if ($attempt === 1) {
+                        sleep(1);
+                    }
+                }
+            }
+            if ($error === null) {
+                MailAudit::sent('mailinglist', $recipient, $subject, microtime(true) - $start);
                 $sent++;
-            } catch (\Throwable $e) {
-                Log::warning('[mailinglist] direct send mislukt voor '.$recipient.': '.$e->getMessage());
+            } else {
+                MailAudit::failed('mailinglist', $recipient, $subject, (string) $error);
                 $failed[] = $recipient;
             }
         }

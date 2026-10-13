@@ -73,6 +73,16 @@ return [
             'replace_placeholders' => true,
         ],
 
+        // Auditlog voor elke verzonden e-mail (mailinglijst + mass-email):
+        // tijd, ontvanger, onderwerp, resultaat. Inspecteerbaar via File Manager,
+        // géén .env-wijziging nodig: Log::channel('mailsend').
+        'mailsend' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/mail-send.log'),
+            'level' => 'info',
+            'replace_placeholders' => true,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),

@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Mail\BroadcastMail;
 use App\Models\MassEmail;
 use App\Models\User;
+use App\Support\MailAudit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class MassEmailController extends Controller
@@ -41,22 +41,16 @@ class MassEmailController extends Controller
 
         User::whereNotNull('email')->orderBy('id')->chunk(50, function ($users) use ($massEmail, &$sent, &$failed) {
             foreach ($users as $user) {
-                try {
-                    Mail::to($user->email)->send(new BroadcastMail(
-                        $user->name ?? 'Klant',
-                        $massEmail->message_type,
-                        $massEmail->message_content
-                    ));
+                if (self::sendTo($user, $massEmail)) {
                     $sent++;
-                } catch (\Throwable $e) {
-                    Log::warning('[mass-email] direct send mislukt voor '.$user->email.': '.$e->getMessage());
+                } else {
                     $failed[] = $user->email;
                 }
             }
         });
 
-        $msg = $sent.' e-mail(s) direct verzonden.'
-            . ($failed ? ' Mislukt: '.implode(', ', $failed) : '');
+        $msg = $sent.' e-mail(s) geaccepteerd door mailserver.'
+            . ($failed ? ' Mislukt: '.implode(', ', $failed) : ' Controleer na enkele minuten inbox én spam.');
 
         return back()->with($failed ? 'error' : 'success', $msg);
     }
@@ -88,15 +82,9 @@ class MassEmailController extends Controller
             $failed = [];
 
             foreach ($users as $user) {
-                try {
-                    Mail::to($user->email)->send(new BroadcastMail(
-                        $user->name ?? 'Klant',
-                        $email->message_type,
-                        $email->message_content
-                    ));
+                if (self::sendTo($user, $email)) {
                     $sent++;
-                } catch (\Throwable $e) {
-                    Log::warning('[mass-email] direct send mislukt voor '.$user->email.': '.$e->getMessage());
+                } else {
                     $failed[] = $user->email;
                 }
             }
@@ -132,5 +120,38 @@ class MassEmailController extends Controller
         MassEmail::findOrFail($id)->delete();
 
         return back()->with('success', 'Bericht verwijderd.');
+    }
+
+    /**
+     * Eén gebruiker versturen met één directe herpoging bij een vluchtige
+     * fout; elke poging gaat naar de mail-send auditlog.
+     */
+    private static function sendTo(User $user, MassEmail $email): bool
+    {
+        $subject = 'mass-email:'.$email->message_type;
+        $error = null;
+        for ($attempt = 1; $attempt <= 2; $attempt++) {
+            try {
+                $start = microtime(true);
+                Mail::to($user->email)->send(new BroadcastMail(
+                    $user->name ?? 'Klant',
+                    $email->message_type,
+                    $email->message_content
+                ));
+                MailAudit::sent('mass-email', (string) $user->email, $subject, microtime(true) - $start);
+                $error = null;
+                break;
+            } catch (\Throwable $e) {
+                $error = $e->getMessage();
+                if ($attempt === 1) {
+                    sleep(1);
+                }
+            }
+        }
+        if ($error !== null) {
+            MailAudit::failed('mass-email', (string) $user->email, $subject, (string) $error);
+        }
+
+        return $error === null;
     }
 }

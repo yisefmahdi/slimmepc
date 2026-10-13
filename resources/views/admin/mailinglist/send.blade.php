@@ -2,7 +2,7 @@
     <div class="mb-6 flex items-center justify-between gap-3">
         <div>
             <h1 class="text-xl font-extrabold tracking-tight" style="color: var(--c-heading)">E-mails verzenden</h1>
-            <p class="text-xs" style="color: var(--c-muted)">Selecteer ontvangers uit de mailinglijst. Directe verzending in delen.</p>
+            <p class="text-xs" style="color: var(--c-muted)">Selecteer ontvangers uit de mailinglijst. Eén keer verzenden.</p>
         </div>
         <x-admin.back-button :href="route('admin.customerlist.index')" label="Klantenlijst" />
     </div>
@@ -127,8 +127,9 @@
                 });
             });
             updateCount();
-            // Directe verzending in delen (25 per request): geen queue-worker nodig,
-            // geen time-out bij grote lijsten, met live voortgang.
+            // Eén keer verzenden (alles in één request): geen queue-worker nodig.
+            // Server accepteert per ontvanger bij de mailserver; aflevering in de
+            // inbox (en spam-controle) kan enkele minuten duren.
             const form = document.querySelector('form[action="{{ route('admin.mailinglist.send') }}"]');
             const sendBtn = document.getElementById('mlSendBtn');
             const token = document.querySelector('meta[name=csrf-token]')?.content || '';
@@ -141,6 +142,7 @@
                 const message = document.getElementById('ml-message')?.value.trim() || '';
                 const type = document.getElementById('ml-type')?.value || null;
                 if (!recipients.length) { toastErr('Selecteer minimaal één ontvanger.'); return; }
+                if (recipients.length > 50) { toastErr('Maximaal 50 ontvangers per keer.'); return; }
                 if (!subject || !message) { toastErr('Onderwerp en bericht zijn verplicht.'); return; }
                 const prog = document.getElementById('mlProgress');
                 const bar = document.getElementById('mlProgressBar');
@@ -151,39 +153,36 @@
                 done.classList.add('hidden');
                 sendBtn.disabled = true;
                 sendBtn.innerHTML = '<svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Bezig...';
-                const CHUNK = 25;
+                count.textContent = '0 / ' + recipients.length;
+                bar.style.width = '15%';
                 let sentTotal = 0;
-                const failedAll = [];
-                for (let i = 0; i < recipients.length; i += CHUNK) {
-                    const chunk = recipients.slice(i, i + CHUNK);
-                    count.textContent = Math.min(i + CHUNK, recipients.length) + ' / ' + recipients.length;
-                    bar.style.width = Math.round(Math.min(i + CHUNK, recipients.length) / recipients.length * 100) + '%';
-                    try {
-                        const res = await fetch('{{ route('admin.mailinglist.send-chunk') }}', {
-                            method: 'POST',
-                            headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json', 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ recipients: chunk, subject, message, type }),
-                        });
-                        const d = await res.json().catch(() => ({}));
-                        if (!res.ok) throw new Error(d.message || 'Chunk mislukt.');
-                        sentTotal += d.sent || 0;
-                        (d.failed || []).forEach(f => failedAll.push(f));
-                    } catch (err) {
-                        chunk.forEach(f => failedAll.push(f));
-                    }
+                let failedAll = [];
+                try {
+                    const res = await fetch('{{ route('admin.mailinglist.send-chunk') }}', {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ recipients, subject, message, type }),
+                    });
+                    const d = await res.json().catch(() => ({}));
+                    if (!res.ok) throw new Error(d.message || 'Verzenden mislukt.');
+                    sentTotal = d.sent || 0;
+                    failedAll = d.failed || [];
+                } catch (err) {
+                    failedAll = recipients.slice();
                 }
                 bar.style.width = '100%';
                 count.textContent = recipients.length + ' / ' + recipients.length;
                 label.textContent = 'Klaar.';
                 done.classList.remove('hidden');
-                done.textContent = sentTotal + ' verzonden' + (failedAll.length ? ', mislukt: ' + failedAll.join(', ') : '.');
+                done.textContent = sentTotal + ' geaccepteerd door mailserver'
+                    + (failedAll.length ? ', mislukt: ' + failedAll.join(', ') : '. Controleer na enkele minuten inbox én spam.');
                 done.style.color = failedAll.length ? 'var(--c-heading)' : '';
                 sendBtn.disabled = false;
                 sendBtn.textContent = 'Verzenden';
                 if (failedAll.length) {
-                    toastErr(sentTotal + ' verzonden, ' + failedAll.length + ' mislukt.');
+                    toastErr(sentTotal + ' geaccepteerd, ' + failedAll.length + ' mislukt.');
                 } else {
-                    toastOk(sentTotal + ' e-mail(s) direct verzonden.');
+                    toastOk(sentTotal + ' e-mail(s) geaccepteerd door mailserver.');
                     // Alles gelukt: formulier leegmaken zodat duidelijk is dat het verstuurd is.
                     document.getElementById('ml-subject').value = '';
                     document.getElementById('ml-message').value = '';
