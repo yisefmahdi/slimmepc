@@ -1983,3 +1983,9 @@ Niet actief: e-mailverificatie (`MustVerifyEmail` staat uit in `User`-model).
 
 - **Design:** `emails/customer.blade.php` (gebruikt door dashboard-verzending via `MailingListController@send`) was oude standalone template (blauwe `#0b5394`-header, typo `Vankinsbergenstraat`) → erft nu `emails.layout` (badge/kicker/title/body + Afspraak-CTA bij maintenance + CMS-footer/logo automatisch via `mailBrand`-composer). 16/16 render-checks OK.
 - **Bezorging:** dashboard-verzending = `Mail::queue()` naar `users`; op mijndomein draait geen permanente worker → eenmalige HTTP-worker (`queue:work --stop-when-empty`, daarna verwijderd) heeft achterstand weggestuurd (1/1 DONE, failed 0). **Permanente Plesk-taak (`queue:work`) blijft vereist** — zonder die stagneert elke nieuwe verzending opnieuw.
+
+## 51. Interne HTTP-cron-trigger (2026-10-13)
+
+- **Probleem:** Plesk-chroot heeft geen cron/CLI (`crontab` ontbreekt, `plesk`-CLI onbereikbaar) — terugkerende `queue:work` onmogelijk via SSH.
+- **Oplossing:** `POST|GET /internal/cron/{token}` (`InternalCronController`, throttle 30/min) draait `schedule:run` + `queue:work --stop-when-empty --tries=3 --max-time=50` en geeft JSON terug. Token via `CRON_TOKEN` in `.env` (leeg = 404; staat leeg in `.env.example`). Lokaal + live getest (fout token → 404, goed token → `{"ok":true,...}`).
+- **Nog nodig:** externe pinger (cron-job.org gratis, of Plesk-taak "Fetch a URL") elke ~5 min naar de URL — zonder pinger gebeurt er niets vanzelf.
