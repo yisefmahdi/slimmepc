@@ -3,6 +3,7 @@
 use App\Http\Middleware\CheckIfBlocked;
 use App\Http\Middleware\EnsureAdminOrTechnician;
 use App\Http\Middleware\EnsureUserIsAdmin;
+use App\Http\Middleware\PreventAdminCaching;
 use App\Http\Middleware\SyncInboundReplies;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -22,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => EnsureUserIsAdmin::class,
             'admin.or.tech' => EnsureAdminOrTechnician::class,
             'check.blocked' => CheckIfBlocked::class,
+            'no.cache' => PreventAdminCaching::class,
             'inbound.sync' => SyncInboundReplies::class,
         ]);
 
