@@ -99,6 +99,17 @@ return [
 
     'key' => env('APP_KEY'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Internal Cron Token
+    |--------------------------------------------------------------------------
+    | Geheim token voor de HTTP-cron-trigger (Plesk/externe ping-service).
+    | Leeg = endpoint uitgeschakeld (404). Nooit commiten met waarde.
+    |
+    */
+
+    'cron_token' => env('CRON_TOKEN', ''),
+
     'previous_keys' => [
         ...array_filter(
             explode(',', (string) env('APP_PREVIOUS_KEYS', ''))

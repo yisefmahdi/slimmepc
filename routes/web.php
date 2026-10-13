@@ -8,6 +8,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\InternalCronController;
 use App\Http\Controllers\LegacyRedirectController;
 use App\Http\Controllers\LidmaatschapController;
 use App\Http\Controllers\PageController;
@@ -170,6 +171,13 @@ Route::get('/track', [TrackingController::class, 'index'])->name('tracking.index
 Route::post('/track', [TrackingController::class, 'track'])->middleware('throttle:10,1')->name('tracking.track');
 
 require __DIR__.'/auth.php';
+
+// Interne cron-trigger (alleen met geldig CRON_TOKEN uit .env, anders 404).
+// Voor hosting zonder echte cron/CLI: externe ping-service of Plesk-task
+// roept deze URL elke ~5 minuten aan (GET of POST).
+Route::match(['get', 'post'], '/internal/cron/{token}', InternalCronController::class)
+    ->middleware('throttle:30,1')
+    ->name('internal.cron');
 
 // ---------------------------------------------------------------------------
 // Legacy 301-redirects — oude slimme-pc.nl URLs → nieuwe structuur.
