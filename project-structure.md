@@ -1985,7 +1985,14 @@ Niet actief: e-mailverificatie (`MustVerifyEmail` staat uit in `User`-model).
 - **Bezorging:** dashboard-verzending = `Mail::queue()` naar `users`; op mijndomein draait geen permanente worker → eenmalige HTTP-worker (`queue:work --stop-when-empty`, daarna verwijderd) heeft achterstand weggestuurd (1/1 DONE, failed 0). **Permanente Plesk-taak (`queue:work`) blijft vereist** — zonder die stagneert elke nieuwe verzending opnieuw.
 
 ## 51. Interne HTTP-cron-trigger (2026-10-13)
-
 - **Probleem:** Plesk-chroot heeft geen cron/CLI (`crontab` ontbreekt, `plesk`-CLI onbereikbaar) — terugkerende `queue:work` onmogelijk via SSH.
 - **Oplossing:** `POST|GET /internal/cron/{token}` (`InternalCronController`, throttle 30/min) draait `schedule:run` + `queue:work --stop-when-empty --tries=3 --max-time=50` en geeft JSON terug. Token via `CRON_TOKEN` in `.env` (leeg = 404; staat leeg in `.env.example`). Lokaal + live getest (fout token → 404, goed token → `{"ok":true,...}`).
 - **Nog nodig:** externe pinger (cron-job.org gratis, of Plesk-taak "Fetch a URL") elke ~5 min naar de URL — zonder pinger gebeurt er niets vanzelf.
+
+## 52. Directe chunk-verzending zonder queue (2026-10-13, commit ff9f45a)
+
+- **Aanleiding:** geen permanente worker op mijndomein → dashboard-verzendingen bleven in `jobs` hangen. Besluit eigenaar: synchroon verzenden, geen queue.
+- **Mailinglijst (`MailingListController@sendChunk` + route `mailinglist.send-chunk`):** frontend splitst in delen van 25, per chunk JSON `{sent, failed[]}`, met voortgangsbalk + eindsummary; oude `send()` ook queue-vrij gemaakt (gedeelde `sendBatch()`-helper, per-ontvanger try/catch, `set_time_limit`-poging). Flash-keys alleen `success`/`error` (admin-layout kent geen `warning`!).
+- **Mass-email (`MassEmailController@sendChunk` + route `send.mass.email.chunk`):** init-aanroep maakt record + geeft totaal, chunks met `{email_id, offset, limit≤50}`; oude `sendMassEmail()` eveneens direct gemaakt. Formulier idem chunked-JS + progress + reload na 2s voor historietabel.
+- **Geverifieerd lokaal (MAIL=log):** chunk 2/2 `sent` (e-mail in log), mass-init `total:63`, foute `email_id` → NL-validatiefout, `BroadcastMail`-render OK. Let op: PowerShell-`curl.exe --data '{...}'` inline-JSON komt verminkt aan (alle JSON-POSTs faalden in tests!) — testen altijd met `--data @bestand`. Browser-`fetch()` heeft hier geen last van.
+- **Deploy:** Hostinger via deploy + `optimize:clear`; mijndomein via scp (2 controllers + 2 blades + routes) + live 200-checks.
